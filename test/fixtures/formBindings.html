@@ -1,0 +1,46 @@
+<!-- For test form element bindings -->
+<section id="formComponent" data-jq-comp="form-component">
+    <form id="test-form" data-jq-submit="onTestFormSubmit">
+        <h1 id="test-form-title" data-jq-text="title"></h1>
+        <p id="test-form-description" data-jq-text="description" data-jq-show="showContent"></p>
+        <input id="new-todo" name="newTodo" type="text" data-jq-change="onAddTask" placeholder="What needs to be done?" autofocus>
+        <div>
+            <input id="toggle-all" name="toggleAll" data-jq-model="markAllCompleted" data-jq-change="onMarkAllCompleted" type="checkbox">
+            <label for="toggle-all">Mark all as complete</label>
+        </div>
+        <div>
+            <select id="carName" name="carName" data-jq-model="carName" data-jq-change="onSelected">
+                <option value="volvo">Volvo</option>
+                <option value="saab">Saab</option>
+                <option value="mercedes">Mercedes</option>
+                <option value="audi">Audi</option>
+            </select>
+        </div>
+        <div>
+            <input type="radio" id="radioMale" name="gender" value="male" data-jq-model="gender" data-jq-change="onGenderChanged"> Male
+            <br>
+            <input type="radio" id="radioFemale" name="gender" value="female" data-jq-model="gender" data-jq-change="onGenderChanged"> Female
+            <br>
+            <input type="radio" id="radioOther" name="gender" value="other" data-jq-model="gender" data-jq-change="onGenderChanged"> Other
+        </div>
+        <div>
+            <label for="testDate">Choose test date:</label>
+            <input id="testDate" type="date" data-jq-model="testDate" data-jq-change="onTestDateChanged">
+        </div>
+        <div>
+            <label for="testRange">Choose a range:</label>
+            <input id="testRange" type="range" min="0" max="5" step="1" data-jq-model="testRange" data-jq-change="onTestRangeChanged">
+            <label id="testRangeLabel" data-jq-text="testRange"></label>
+        </div>
+        <div>
+            <textarea id="message" name="message" rows="10" cols="30" data-jq-model="message" data-jq-change="onMessageChanged">This is default text in textarea</textarea>
+        </div>
+        <div>
+            <label id="labelTaskeName" for="taskName" data-jq-dblclick="onEditTask">Double click here</label>
+            <input id="taskName" name="taskName" type="text" data-jq-model="taskName" data-jq-focus="onFocusEditTask" data-jq-blur="onBlurEditTask"
+                data-jq-show="showTaskNameInput">
+        </div>
+        <div data-jq-attr="testAttr">
+        </div>
+    </form>
+</section>

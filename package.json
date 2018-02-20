@@ -1,0 +1,63 @@
+{
+    "name": "dataBind",
+    "version": "1.1.0",
+    "description": "Simple MV* framework work with jQuery and underscore template",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/gogocat/dataBind.git"
+    },
+    "keywords": [
+        "jquery",
+        "data",
+        "binding"
+    ],
+    "author": "adam chow",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/gogocat/dataBind/issues"
+    },
+    "homepage": "https://github.com/gogocat/dataBind#readme",
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-core": "^6.26.0",
+        "babel-eslint": "^8.2.2",
+        "babel-plugin-transform-es3-member-expression-literals": "^6.22.0",
+        "babel-plugin-transform-es3-property-literals": "^6.22.0",
+        "babel-plugin-transform-object-assign": "^6.22.0",
+        "babel-preset-es2015": "^6.24.1",
+        "babelify": "^8.0.0",
+        "browserify": "^16.1.0",
+        "eslint": "^4.18.0",
+        "eslint-config-google": "^0.9.1",
+        "eslint-plugin-import": "^2.8.0",
+        "eslint-plugin-node": "^6.0.0",
+        "eslint-plugin-promise": "^3.6.0",
+        "grunt": "^1.0.2",
+        "grunt-cli": "^1.2.0",
+        "grunt-contrib-connect": "^1.0.2",
+        "grunt-contrib-jasmine": "^1.1.0",
+        "grunt-open": "^0.2.3",
+        "grunt-template-jasmine-istanbul": "^0.5.0",
+        "gulp": "^3.9.1",
+        "gulp-babel": "^7.0.1",
+        "gulp-cucumber": "0.0.23",
+        "gulp-eslint": "^4.0.2",
+        "gulp-header": "^2.0.1",
+        "gulp-istanbul": "^1.1.3",
+        "gulp-rename": "^1.2.2",
+        "gulp-sourcemaps": "^2.6.4",
+        "gulp-uglify": "^3.0.0",
+        "gulp-util": "^3.0.8",
+        "gulp-watch": "^5.0.0",
+        "jasmine-core": "^2.99.1",
+        "phantomjs-prebuilt": "^2.1.16",
+        "prettier-eslint": "^8.8.1",
+        "pump": "^3.0.0",
+        "vinyl-buffer": "^1.0.1",
+        "vinyl-source-stream": "^2.0.0"
+    }
+}

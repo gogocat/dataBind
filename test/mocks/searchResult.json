@@ -1,0 +1,58 @@
+[{
+        "id": "001",
+        "title": "Card title that wraps to a new line",
+        "description": "This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
+        "image": "bootstrap/images/pic-home.jpg",
+        "bookmarked": false,
+        "numLikes": 110
+    },
+    {
+        "id": "456",
+        "title": "Card title",
+        "description": "This card has supporting text below as a natural lead-in to additional content.",
+        "image": "",
+        "bookmarked": false,
+        "numLikes": 8
+    },
+    {
+        "id": "789",
+        "title": "Sample carpemter service",
+        "description": "This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.",
+        "image": "bootstrap/images/pic-carpenter.jpg",
+        "bookmarked": false,
+        "numLikes": 8,
+        "highlight": true
+    },
+    {
+        "id": "888",
+        "title": "Sample timber floor service",
+        "description": "This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
+        "image": "bootstrap/images/pic-deck.jpg",
+        "bookmarked": false,
+        "numLikes": 8
+    },
+    {
+        "id": "222",
+        "title": "Sample timber floor service",
+        "description": "This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
+        "image": "",
+        "bookmarked": false,
+        "numLikes": 8
+    },
+    {
+        "id": "333",
+        "title": "Sample boothroom service",
+        "description": "This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.",
+        "image": "bootstrap/images/pic-bathrooms.jpg",
+        "bookmarked": true,
+        "numLikes": 8
+    },
+    {
+        "id": "444",
+        "title": "Sample gardening service",
+        "description": "This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
+        "image": "bootstrap/images/pic-backyard.jpg",
+        "bookmarked": false,
+        "numLikes": 8
+    }
+]

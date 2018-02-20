@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en" data-framework="dataBind">
+
+<head>
+    <meta charset="utf-8">
+    <title>dataBind.js • TodoMVC</title>
+    <link rel="stylesheet" href="css/baseTodo.css">
+    <link rel="stylesheet" href="css/indexTodo.css">
+</head>
+
+<body>
+    <section id="todoapp">
+        <header id="header">
+            <h1 data-jq-text="appName"></h1>
+            <input id="new-todo" type="text" data-jq-change="onAddTask" placeholder="What needs to be done?" autofocus>
+        </header>
+        <section id="main" data-jq-show="hasTask">
+            <input id="toggle-all" data-jq-change="onMarkAllCompleted" type="checkbox">
+            <label for="toggle-all">Mark all as complete</label>
+            <ul id="todo-list" data-jq-tmp="{id:'taskItems', data:'displayTasks'}">
+            </ul>
+        </section>
+        <footer id="footer" data-jq-show="hasTask">
+            <span id="todo-count">
+					<strong data-jq-text="remainingCount">0</strong>
+					<span data-jq-text="remainingCountLabel"></span> left
+            </span>
+            <ul id="filters">
+                <li>
+                    <a data-jq-css="showAllCss" data-jq-click="onShowAllTasks" href="#/all">All</a>
+                </li>
+                <li>
+                    <a data-jq-css="showActiveCss" data-jq-click="onShowAactiveTasks" href="#/active">Active</a>
+                </li>
+                <li>
+                    <a data-jq-css="showCompletedCss" data-jq-click="onShowCompletedTasks" href="#/completed">Completed</a>
+                </li>
+            </ul>
+            <button id="clear-completed" data-jq-show="hasCompletedTask" data-jq-click="onClearAllCompleted">Clear completed</button>
+        </footer>
+    </section>
+
+    <script src="../vendors/lodash.custom.min.js"></script>
+    <script src="../vendors/jquery-3.2.1.min.js"></script>
+    <script src="../dist/js/dataBind.js"></script>
+    <script src="js/appTodo.js"></script>
+
+    <script id="taskItems" type="text/html">
+        <%  _.each(data, function(task, index) {  %>
+            <li data-jq-css="displayTasks[{{index}}]" data-index="{{index}}">
+                <div class="view">
+                    <input class="toggle" data-jq-model="displayTasks[{{index}}].completed" data-jq-change="onTaskCompleted" type="checkbox">
+                    <label for="taskEdit-{{index}}" data-jq-dblclick="onEditTask">{{task.taskTitle}}</label>
+                    <button class="destroy" data-jq-click="onTaskRemove"></button>
+                </div>
+                <input id="taskEdit-{{index}}" class="edit" type="text" data-jq-model="displayTasks[{{index}}].taskTitle" data-jq-blur="onBlurEditTask">
+            </li>
+            <% }); %>
+    </script>
+</body>
+
+</html>
