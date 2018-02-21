@@ -5,11 +5,14 @@
     let formComponentBViewModel;
     let formAppViewModel = {
         intro: {
-            title: 'Hello, world!',
-            description: `This is a template for a simple marketing or informational website. 
-            It includes a large callout called a jumbotron and three supporting pieces of content. 
-            Use it as a starting point to create something more unique.`,
-            btnText: 'Learn more »',
+            title: 'Form generator demo',
+            description: `This is a dataBind example to auto generate form by data.
+            This is demo also shows how to use mulitple instance of an viewModel and extend it.
+            First name, last name inputs is one component, and email, address is another component.
+            When first input changed, it will hide that row.
+            All content is wrap in a template binding using transclusion.
+            And finally a quick test of attribute binding 😎`,
+            btnText: 'Fake button »',
         },
         attrTest: {
             class: 'show',
@@ -21,6 +24,7 @@
         },
     };
 
+    // viewModel as Class for create multiple instance
     class FormComponentVewModel {
         constructor() {
             this.personalDetails = [
@@ -53,7 +57,7 @@
         }
     }
 
-    // use new FormComponentVewModel instance and overwrite personalDetails
+    // use new instance of FormComponentVewModel and overwrite personalDetails
     formComponentBViewModel = new FormComponentVewModel();
     formComponentBViewModel.personalDetails = [
         {

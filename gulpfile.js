@@ -69,7 +69,7 @@ gulp.task('bundle', () => {
 gulp.task('compress', function(cb) {
     pump(
         [
-            gulp.src(distJsPath + '*.js'),
+            gulp.src(distJsPath + bundledFile),
             uglify(),
             rename({extname: '.min.js'}),
             gulp.dest(distJsPath),
@@ -109,4 +109,6 @@ gulp.task('watch', () => {
     gulp.watch('./src/**/*.js', ['eslint', 'bundle']);
 });
 
-gulp.task('default', ['eslint', 'bundle', 'compress']);
+gulp.task('default', ['eslint', 'bundle'], () => {
+    gulp.start('compress');
+});
