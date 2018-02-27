@@ -12,7 +12,7 @@ describe('Given dataBind lib loaded', function() {
     });
 
     it('Should throw error if mounting root element does not exits', function() {
-        let viewModel = {};
+        var viewModel = {};
 
         expect(function() {
             dataBind.init($('#xyz'), viewModel);

@@ -1,6 +1,6 @@
 describe('Given form-component initised', function() {
-    const getElementAttributesObj = ($el) => {
-        let obj = {};
+    var getElementAttributesObj = function($el) {
+        var obj = {};
         $.each($el[0].attributes, function() {
             if (this.specified) {
                 obj[this.name] = this.value;
@@ -9,7 +9,7 @@ describe('Given form-component initised', function() {
         return obj;
     };
 
-    let formComponentVM = {
+    var formComponentVM = {
         title: 'form component title',
         description: 'form component description',
         carName: 'saab',
@@ -68,7 +68,7 @@ describe('Given form-component initised', function() {
             namespace.formComponentApp.render();
         },
     };
-    let namespace = {};
+    var namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
 
@@ -105,7 +105,7 @@ describe('Given form-component initised', function() {
     });
 
     it('When change #new-todo input value then viewModel should have updated', function(done) {
-        let task1 = 'new test task';
+        var task1 = 'new test task';
         setTimeout(function() {
             $('#new-todo')
                 .val(task1)
@@ -133,7 +133,7 @@ describe('Given form-component initised', function() {
     });
 
     it('When #carName dropdwon changed then viewModel should have updated', function(done) {
-        let newCarName = 'audi';
+        var newCarName = 'audi';
 
         setTimeout(function() {
             $('#carName')
@@ -148,7 +148,7 @@ describe('Given form-component initised', function() {
     });
 
     it('When #radioMale changed then viewModel should have updated', function(done) {
-        let newGender = 'male';
+        var newGender = 'male';
 
         setTimeout(function() {
             $('#radioMale')
@@ -163,7 +163,7 @@ describe('Given form-component initised', function() {
     });
 
     it('When #testDate date input changed then viewModel should have updated', function(done) {
-        let newTestDate = '2018-01-01';
+        var newTestDate = '2018-01-01';
 
         setTimeout(function() {
             $('#testDate')
@@ -179,7 +179,7 @@ describe('Given form-component initised', function() {
     });
 
     it('When #testRange range input changed then viewModel should have updated', function(done) {
-        let newTestRange = '3';
+        var newTestRange = '3';
 
         setTimeout(function() {
             $('#testRange')
@@ -195,7 +195,7 @@ describe('Given form-component initised', function() {
     });
 
     it('When #message range input changed with xss html then viewModel data should have escaped value and updated', function(done) {
-        let newMessage = 'This is a new message for test <script>alert(xss)</script>',
+        var newMessage = 'This is a new message for test <script>alert(xss)</script>',
             escapedMessage =
                 'This is a new message for test &lt;script&gt;alert(xss)&lt;/script&gt;';
 
@@ -226,8 +226,8 @@ describe('Given form-component initised', function() {
 
     describe('Element with attribute binding', function() {
         it('should display attribute from viewModel', function(done) {
-            let $el = $('[data-jq-attr="testAttr"]');
-            let attrObj = {};
+            var $el = $('[data-jq-attr="testAttr"]');
+            var attrObj = {};
             setTimeout(function() {
                 attrObj = getElementAttributesObj($el);
                 $.each(formComponentVM.testAttr, function(k, v) {
@@ -238,8 +238,8 @@ describe('Given form-component initised', function() {
         });
 
         it('should update attribute according to viewModel', function(done) {
-            let $el = $('[data-jq-attr="testAttr"]');
-            let attrObj = {};
+            var $el = $('[data-jq-attr="testAttr"]');
+            var attrObj = {};
             formComponentVM.testAttr = {
                 id: '8888',
                 class: 'hidden',

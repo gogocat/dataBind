@@ -56,7 +56,7 @@ var Binder = function () {
 
         this.compId = compIdIndex += 1;
 
-        this.$rootElement = $rootElement;
+        this.$rootElement = $rootElement.eq(0);
 
         this.viewModel = viewModel;
 
@@ -124,8 +124,8 @@ var Binder = function () {
             if (opt.allCache) {
                 this.elementCache = (0, _domWalker2['default'])(this.$rootElement[0], this.bindingAttrs);
             }
+            // walk DOM from each rendered template(s) and cache bindings in 'bindingCache'
             if (opt.allCache || opt.templateCache) {
-                // walk DOM from each rendered template(s) and cache bindings in 'bindingCache'
                 if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
                     this.elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
                         cache.bindingCache = (0, _domWalker2['default'])(cache.el, _this2.bindingAttrs);

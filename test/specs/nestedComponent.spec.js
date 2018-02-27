@@ -1,13 +1,13 @@
 describe('When nested data-jq-comp initised', function() {
-    let namespace = {};
+    var namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
 
     beforeEach(function() {
-        let parentComponent;
-        let childComponent;
-        let grandChildComponent;
-        let slibingChildComponent;
+        var parentComponent;
+        var childComponent;
+        var grandChildComponent;
+        var slibingChildComponent;
 
         loadFixtures('./fixtures/nestedComponents.html');
 
@@ -56,7 +56,7 @@ describe('When nested data-jq-comp initised', function() {
 
     afterEach(function() {
         // clean up all app/components
-        for (let prop in namespace) {
+        for (var prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
