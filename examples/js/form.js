@@ -2,6 +2,7 @@
     let formApp;
     let formComponentA;
     let formComponentB;
+    let formComponentC;
     let formComponentBViewModel;
     let formAppViewModel = {
         intro: {
@@ -76,6 +77,32 @@
         },
     ];
 
+    // formComponentC viewModel
+    formComponentCViewModel = new FormComponentVewModel();
+    formComponentCViewModel.personalDetails = [
+        {
+            show: true,
+            inputName: 'phone',
+            label: 'Phone',
+            value: '',
+            updatedCss: 'updated',
+        },
+        {
+            show: true,
+            inputName: 'age',
+            label: 'Age',
+            value: '',
+            updatedCss: 'updated',
+        },
+        {
+            show: true,
+            inputName: 'gender',
+            label: 'Gender',
+            value: '',
+            updatedCss: 'updated',
+        },
+    ];
+
     // start binding on DOM ready
     $(document).ready(function() {
         // main formApp
@@ -106,6 +133,17 @@
             // for debug
             console.log(formComponentB);
             window.formComponentB = formComponentB;
+        });
+
+        // formComponentC
+        formComponentC = dataBind.init(
+            $('[data-jq-comp="formComponentC"]'),
+            formComponentCViewModel
+        );
+        formComponentC.render().then(function() {
+            // for debug
+            console.log(formComponentC);
+            window.formComponentC = formComponentC;
         });
     });
 })(jQuery, window);

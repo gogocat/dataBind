@@ -146,7 +146,8 @@ var Binder = function () {
                 cssBinding: true,
                 showBinding: true,
                 modelBinding: true,
-                attrBinding: true
+                attrBinding: true,
+                forOfBinding: true
             };
             var eventsBindingOptions = {
                 changeBinding: true,
@@ -162,7 +163,8 @@ var Binder = function () {
                 cssBinding: false,
                 showBinding: false,
                 modelBinding: false,
-                attrBinding: false
+                attrBinding: false,
+                forOfBinding: false
             };
             var updateOption = {};
 
@@ -274,6 +276,13 @@ var Binder = function () {
 
             // the follow binding should be in order for better efficiency
 
+            // apply for Binding
+            if (updateOption.forOfBinding && elementCache[bindingAttrs.forOf] && elementCache[bindingAttrs.forOf].length) {
+                elementCache[bindingAttrs.forOf].forEach(function (cache) {
+                    binds.forOfBinding(cache, viewModel, bindingAttrs);
+                });
+            }
+
             // apply attr Binding
             if (updateOption.attrBinding && elementCache[bindingAttrs.attr] && elementCache[bindingAttrs.attr].length) {
                 elementCache[bindingAttrs.attr].forEach(function (cache) {
@@ -363,7 +372,7 @@ exports['default'] = Binder;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.attrBinding = exports.cssBinding = exports.showBinding = exports.textBinding = exports.submitBinding = exports.modelBinding = exports.changeBinding = exports.focusBinding = exports.blurBinding = exports.dblclickBinding = exports.clickBinding = exports.renderTemplate = undefined;
+exports.forOfBinding = exports.attrBinding = exports.cssBinding = exports.showBinding = exports.textBinding = exports.submitBinding = exports.modelBinding = exports.changeBinding = exports.focusBinding = exports.blurBinding = exports.dblclickBinding = exports.clickBinding = exports.renderTemplate = undefined;
 
 var _config = require('./config');
 
@@ -930,6 +939,34 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
     $element.data(elementDataNamespace, elementData);
 };
 
+/**
+ * forOfBinding
+ * @description
+ * DOM decleartive for binding.
+ * @param {object} cache
+ * @param {object} viewModel
+ * @param {object} bindingAttrs
+ */
+var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
+    var dataKey = cache.dataKey;
+
+    if (!dataKey) {
+        return;
+    }
+
+    var forExpMatch = dataKey.match(util.REGEX.FOROF);
+    var iterator = {};
+    if (forExpMatch) {
+        iterator.alias = forExpMatch[1].trim();
+        if (forExpMatch[2]) {
+            var vmDataKey = forExpMatch[2].trim();
+            iterator.dataKey = vmDataKey;
+            iterator.data = util.getViewModelValue(viewModel, vmDataKey);
+        }
+    }
+    console.log(iterator);
+};
+
 exports.renderTemplate = renderTemplate;
 exports.clickBinding = clickBinding;
 exports.dblclickBinding = dblclickBinding;
@@ -942,6 +979,7 @@ exports.textBinding = textBinding;
 exports.showBinding = showBinding;
 exports.cssBinding = cssBinding;
 exports.attrBinding = attrBinding;
+exports.forOfBinding = forOfBinding;
 
 },{"./config":3,"./util":7}],3:[function(require,module,exports){
 'use strict';
@@ -962,7 +1000,8 @@ var bindingAttrs = {
     model: 'data-jq-model',
     show: 'data-jq-show',
     css: 'data-jq-css',
-    attr: 'data-jq-attr'
+    attr: 'data-jq-attr',
+    forOf: 'data-jq-for'
 };
 var serverRenderedAttr = 'data-server-rendered';
 var dataIndexAttr = 'data-index';
@@ -1292,7 +1331,8 @@ var hasIsArray = Array.isArray;
 
 var REGEX = {
     FUNCTIONPARAM: /\((.*?)\)/,
-    WHITESPACES: /\s+/g
+    WHITESPACES: /\s+/g,
+    FOROF: /(.*?)\s+(?:in|of)\s+(.*)/
 };
 
 var generateElementCache = function generateElementCache(bindingAttrs) {

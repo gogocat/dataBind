@@ -20,6 +20,19 @@
             </div>
             <div data-jq-comp="formComponentB" data-jq-tmp="{id:'formItems', data:'personalDetails'}">
             </div>
+
+            <div data-jq-comp="formComponentC">
+                <div data-jq-for="item in personalDetails">
+                    <div class="form-row" data-jq-show="item.show">
+                        <div class="col-8">
+                            <label for="name" data-jq-css="item.updatedCss" data-jq-text="item.label"></label>
+                            <input id="{{formItem.inputName}}" name="{{formItem.inputName}}" type="text" class="form-control" value="" data-jq-model="item.value"
+                                data-jq-change="onInputChange" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div data-jq-attr="attrTest">
                 This is attribute binding test!
             </div>

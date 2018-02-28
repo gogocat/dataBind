@@ -104,6 +104,7 @@ class Binder {
             showBinding: true,
             modelBinding: true,
             attrBinding: true,
+            forOfBinding: true,
         };
         let eventsBindingOptions = {
             changeBinding: true,
@@ -120,6 +121,7 @@ class Binder {
             showBinding: false,
             modelBinding: false,
             attrBinding: false,
+            forOfBinding: false,
         };
         let updateOption = {};
 
@@ -188,6 +190,17 @@ class Binder {
         }
 
         // the follow binding should be in order for better efficiency
+
+        // apply for Binding
+        if (
+            updateOption.forOfBinding &&
+            elementCache[bindingAttrs.forOf] &&
+            elementCache[bindingAttrs.forOf].length
+        ) {
+            elementCache[bindingAttrs.forOf].forEach((cache) => {
+                binds.forOfBinding(cache, viewModel, bindingAttrs);
+            });
+        }
 
         // apply attr Binding
         if (

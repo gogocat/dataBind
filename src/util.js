@@ -6,6 +6,7 @@ const hasIsArray = Array.isArray;
 const REGEX = {
     FUNCTIONPARAM: /\((.*?)\)/,
     WHITESPACES: /\s+/g,
+    FOROF: /(.*?)\s+(?:in|of)\s+(.*)/,
 };
 
 const generateElementCache = (bindingAttrs) => {
