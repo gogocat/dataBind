@@ -70,6 +70,18 @@ const createBindingCache = (rootNode = null, bindingAttrs = {}, skipCheck) => {
                         dataKey: attrValue,
                     };
 
+                    // forOfBinding specific
+                    if (key === bindingAttrs.forOf) {
+                        let forExpMatch = attrValue.match(util.REGEX.FOROF);
+                        cacheData.iterator = {};
+                        if (forExpMatch) {
+                            cacheData.iterator.alias = forExpMatch[1].trim();
+                            if (forExpMatch[2]) {
+                                cacheData.iterator.dataKey = forExpMatch[2].trim();
+                            }
+                        }
+                    }
+
                     // TODO - for store function call parameters eg. '$data', '$root'
                     // useful with DOM for-loop template as reference to binding data
                     /*

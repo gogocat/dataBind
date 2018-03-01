@@ -580,7 +580,7 @@ const forOfBinding = (cache, viewModel, bindingAttrs) => {
             iterator.data = util.getViewModelValue(viewModel, vmDataKey);
         }
     }
-    console.log(iterator);
+    console.log('iterator: ', iterator);
 };
 
 export {
