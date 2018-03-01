@@ -54,24 +54,8 @@ class Binder {
 
         this.elementCache = createBindingCache(this.$rootElement[0], this.bindingAttrs);
 
-        // skip template render if server rendered
+        // updateElementCache if server rendered on init
         if (this.isServerRendered && !this.initRendered) {
-            this.updateElementCache({
-                templateCache: true,
-            });
-            return this;
-        }
-
-        // render template and nested templates first
-        if (
-            this.elementCache[this.bindingAttrs.tmp] &&
-            this.elementCache[this.bindingAttrs.tmp].length
-        ) {
-            this.elementCache[this.bindingAttrs.tmp].forEach((cache) => {
-                binds.renderTemplate(cache, this.viewModel, this.bindingAttrs, this.elementCache);
-            });
-
-            // update cache after template(s) rendered
             this.updateElementCache({
                 templateCache: true,
             });
@@ -131,6 +115,8 @@ class Binder {
                 this.$rootElement.removeAttr(config.serverRenderedAttr);
                 updateOption = $.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
             } else {
+                // flag to update template binding
+                opt.templateBinding = true;
                 updateOption = $.extend({}, visualBindingOptions, eventsBindingOptions, opt);
             }
         } else {
@@ -143,7 +129,7 @@ class Binder {
             this.elementCache[this.bindingAttrs.tmp] &&
             this.elementCache[this.bindingAttrs.tmp].length
         ) {
-            // when re-render template
+            // render template and nested templates
             if (updateOption.templateBinding) {
                 $.extend(updateOption, eventsBindingOptions);
 
@@ -191,7 +177,7 @@ class Binder {
 
         // the follow binding should be in order for better efficiency
 
-        // apply for Binding
+        // apply forOf Binding
         if (
             updateOption.forOfBinding &&
             elementCache[bindingAttrs.forOf] &&

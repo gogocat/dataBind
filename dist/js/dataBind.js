@@ -86,8 +86,6 @@ var Binder = function () {
     _createClass(Binder, [{
         key: 'parseView',
         value: function parseView() {
-            var _this = this;
-
             // store viewModel data as $root for easy access
             this.$rootElement.data(rootDataKey, this.viewModel);
 
@@ -98,26 +96,13 @@ var Binder = function () {
                 this.updateElementCache({
                     templateCache: true
                 });
-                return this;
-            }
-
-            // render template and nested templates first
-            if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
-                this.elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
-                    binds.renderTemplate(cache, _this.viewModel, _this.bindingAttrs, _this.elementCache);
-                });
-
-                // update cache after template(s) rendered
-                this.updateElementCache({
-                    templateCache: true
-                });
             }
             return this;
         }
     }, {
         key: 'updateElementCache',
         value: function updateElementCache() {
-            var _this2 = this;
+            var _this = this;
 
             var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
@@ -128,7 +113,7 @@ var Binder = function () {
             if (opt.allCache || opt.templateCache) {
                 if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
                     this.elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
-                        cache.bindingCache = (0, _domWalker2['default'])(cache.el, _this2.bindingAttrs);
+                        cache.bindingCache = (0, _domWalker2['default'])(cache.el, _this.bindingAttrs);
                     });
                 }
             }
@@ -136,7 +121,7 @@ var Binder = function () {
     }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this2 = this;
 
             var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
@@ -174,6 +159,8 @@ var Binder = function () {
                     this.$rootElement.removeAttr(config.serverRenderedAttr);
                     updateOption = $.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
                 } else {
+                    // flag to update template binding
+                    opt.templateBinding = true;
                     updateOption = $.extend({}, visualBindingOptions, eventsBindingOptions, opt);
                 }
             } else {
@@ -183,12 +170,12 @@ var Binder = function () {
 
             // apply binding to rendered templates
             if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
-                // when re-render template
+                // render template and nested templates
                 if (updateOption.templateBinding) {
                     $.extend(updateOption, eventsBindingOptions);
 
                     this.elementCache[this.bindingAttrs.tmp].forEach(function ($element) {
-                        binds.renderTemplate($element, _this3.viewModel, _this3.bindingAttrs, _this3.elementCache);
+                        binds.renderTemplate($element, _this2.viewModel, _this2.bindingAttrs, _this2.elementCache);
                     });
                     // update cache after template(s) rendered
                     this.updateElementCache({
@@ -200,8 +187,8 @@ var Binder = function () {
                     Binder.applyBinding({
                         elementCache: cache.bindingCache,
                         updateOption: updateOption,
-                        bindingAttrs: _this3.bindingAttrs,
-                        viewModel: _this3.viewModel
+                        bindingAttrs: _this2.bindingAttrs,
+                        viewModel: _this2.viewModel
                     });
                 });
             }
@@ -276,7 +263,7 @@ var Binder = function () {
 
             // the follow binding should be in order for better efficiency
 
-            // apply for Binding
+            // apply forOf Binding
             if (updateOption.forOfBinding && elementCache[bindingAttrs.forOf] && elementCache[bindingAttrs.forOf].length) {
                 elementCache[bindingAttrs.forOf].forEach(function (cache) {
                     binds.forOfBinding(cache, viewModel, bindingAttrs);
