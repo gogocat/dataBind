@@ -86,28 +86,13 @@ var Binder = function () {
     _createClass(Binder, [{
         key: 'parseView',
         value: function parseView() {
-            var _this = this;
-
             // store viewModel data as $root for easy access
             this.$rootElement.data(rootDataKey, this.viewModel);
 
             this.elementCache = (0, _domWalker2['default'])(this.$rootElement[0], this.bindingAttrs);
 
-            // skip template render if server rendered
+            // updateElementCache if server rendered on init
             if (this.isServerRendered && !this.initRendered) {
-                this.updateElementCache({
-                    templateCache: true
-                });
-                return this;
-            }
-
-            // render template and nested templates first
-            if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
-                this.elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
-                    binds.renderTemplate(cache, _this.viewModel, _this.bindingAttrs, _this.elementCache);
-                });
-
-                // update cache after template(s) rendered
                 this.updateElementCache({
                     templateCache: true
                 });
@@ -117,7 +102,7 @@ var Binder = function () {
     }, {
         key: 'updateElementCache',
         value: function updateElementCache() {
-            var _this2 = this;
+            var _this = this;
 
             var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
@@ -128,7 +113,7 @@ var Binder = function () {
             if (opt.allCache || opt.templateCache) {
                 if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
                     this.elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
-                        cache.bindingCache = (0, _domWalker2['default'])(cache.el, _this2.bindingAttrs);
+                        cache.bindingCache = (0, _domWalker2['default'])(cache.el, _this.bindingAttrs);
                     });
                 }
             }
@@ -136,7 +121,7 @@ var Binder = function () {
     }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this2 = this;
 
             var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
@@ -146,7 +131,8 @@ var Binder = function () {
                 cssBinding: true,
                 showBinding: true,
                 modelBinding: true,
-                attrBinding: true
+                attrBinding: true,
+                forOfBinding: true
             };
             var eventsBindingOptions = {
                 changeBinding: true,
@@ -162,7 +148,8 @@ var Binder = function () {
                 cssBinding: false,
                 showBinding: false,
                 modelBinding: false,
-                attrBinding: false
+                attrBinding: false,
+                forOfBinding: false
             };
             var updateOption = {};
 
@@ -172,6 +159,8 @@ var Binder = function () {
                     this.$rootElement.removeAttr(config.serverRenderedAttr);
                     updateOption = $.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
                 } else {
+                    // flag to update template binding
+                    opt.templateBinding = true;
                     updateOption = $.extend({}, visualBindingOptions, eventsBindingOptions, opt);
                 }
             } else {
@@ -181,12 +170,12 @@ var Binder = function () {
 
             // apply binding to rendered templates
             if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
-                // when re-render template
+                // render template and nested templates
                 if (updateOption.templateBinding) {
                     $.extend(updateOption, eventsBindingOptions);
 
                     this.elementCache[this.bindingAttrs.tmp].forEach(function ($element) {
-                        binds.renderTemplate($element, _this3.viewModel, _this3.bindingAttrs, _this3.elementCache);
+                        binds.renderTemplate($element, _this2.viewModel, _this2.bindingAttrs, _this2.elementCache);
                     });
                     // update cache after template(s) rendered
                     this.updateElementCache({
@@ -198,8 +187,8 @@ var Binder = function () {
                     Binder.applyBinding({
                         elementCache: cache.bindingCache,
                         updateOption: updateOption,
-                        bindingAttrs: _this3.bindingAttrs,
-                        viewModel: _this3.viewModel
+                        bindingAttrs: _this2.bindingAttrs,
+                        viewModel: _this2.viewModel
                     });
                 });
             }
@@ -273,6 +262,13 @@ var Binder = function () {
             }
 
             // the follow binding should be in order for better efficiency
+
+            // apply forOf Binding
+            if (updateOption.forOfBinding && elementCache[bindingAttrs.forOf] && elementCache[bindingAttrs.forOf].length) {
+                elementCache[bindingAttrs.forOf].forEach(function (cache) {
+                    binds.forOfBinding(cache, viewModel, bindingAttrs);
+                });
+            }
 
             // apply attr Binding
             if (updateOption.attrBinding && elementCache[bindingAttrs.attr] && elementCache[bindingAttrs.attr].length) {
@@ -363,7 +359,7 @@ exports['default'] = Binder;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.attrBinding = exports.cssBinding = exports.showBinding = exports.textBinding = exports.submitBinding = exports.modelBinding = exports.changeBinding = exports.focusBinding = exports.blurBinding = exports.dblclickBinding = exports.clickBinding = exports.renderTemplate = undefined;
+exports.forOfBinding = exports.attrBinding = exports.cssBinding = exports.showBinding = exports.textBinding = exports.submitBinding = exports.modelBinding = exports.changeBinding = exports.focusBinding = exports.blurBinding = exports.dblclickBinding = exports.clickBinding = exports.renderTemplate = undefined;
 
 var _config = require('./config');
 
@@ -930,6 +926,34 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
     $element.data(elementDataNamespace, elementData);
 };
 
+/**
+ * forOfBinding
+ * @description
+ * DOM decleartive for binding.
+ * @param {object} cache
+ * @param {object} viewModel
+ * @param {object} bindingAttrs
+ */
+var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
+    var dataKey = cache.dataKey;
+
+    if (!dataKey) {
+        return;
+    }
+
+    var forExpMatch = dataKey.match(util.REGEX.FOROF);
+    if (forExpMatch) {
+        cache.iterator = {};
+        cache.iterator.alias = forExpMatch[1].trim();
+        if (forExpMatch[2]) {
+            var vmDataKey = forExpMatch[2].trim();
+            cache.iterator.dataKey = vmDataKey;
+            cache.iterator.data = util.getViewModelValue(viewModel, vmDataKey);
+        }
+    }
+    // console.log('forOfBinding cache: ', cache);
+};
+
 exports.renderTemplate = renderTemplate;
 exports.clickBinding = clickBinding;
 exports.dblclickBinding = dblclickBinding;
@@ -942,6 +966,7 @@ exports.textBinding = textBinding;
 exports.showBinding = showBinding;
 exports.cssBinding = cssBinding;
 exports.attrBinding = attrBinding;
+exports.forOfBinding = forOfBinding;
 
 },{"./config":3,"./util":7}],3:[function(require,module,exports){
 'use strict';
@@ -962,7 +987,8 @@ var bindingAttrs = {
     model: 'data-jq-model',
     show: 'data-jq-show',
     css: 'data-jq-css',
-    attr: 'data-jq-attr'
+    attr: 'data-jq-attr',
+    forOf: 'data-jq-for'
 };
 var serverRenderedAttr = 'data-server-rendered';
 var dataIndexAttr = 'data-index';
@@ -1292,7 +1318,8 @@ var hasIsArray = Array.isArray;
 
 var REGEX = {
     FUNCTIONPARAM: /\((.*?)\)/,
-    WHITESPACES: /\s+/g
+    WHITESPACES: /\s+/g,
+    FOROF: /(.*?)\s+(?:in|of)\s+(.*)/
 };
 
 var generateElementCache = function generateElementCache(bindingAttrs) {

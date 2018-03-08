@@ -555,6 +555,34 @@ const attrBinding = (cache, viewModel, bindingAttrs) => {
     $element.data(elementDataNamespace, elementData);
 };
 
+/**
+ * forOfBinding
+ * @description
+ * DOM decleartive for binding.
+ * @param {object} cache
+ * @param {object} viewModel
+ * @param {object} bindingAttrs
+ */
+const forOfBinding = (cache, viewModel, bindingAttrs) => {
+    let dataKey = cache.dataKey;
+
+    if (!dataKey) {
+        return;
+    }
+
+    let forExpMatch = dataKey.match(util.REGEX.FOROF);
+    if (forExpMatch) {
+        cache.iterator = {};
+        cache.iterator.alias = forExpMatch[1].trim();
+        if (forExpMatch[2]) {
+            let vmDataKey = forExpMatch[2].trim();
+            cache.iterator.dataKey = vmDataKey;
+            cache.iterator.data = util.getViewModelValue(viewModel, vmDataKey);
+        }
+    }
+    // console.log('forOfBinding cache: ', cache);
+};
+
 export {
     renderTemplate,
     clickBinding,
@@ -568,4 +596,5 @@ export {
     showBinding,
     cssBinding,
     attrBinding,
+    forOfBinding,
 };

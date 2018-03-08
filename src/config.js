@@ -12,6 +12,7 @@ let bindingAttrs = {
     show: 'data-jq-show',
     css: 'data-jq-css',
     attr: 'data-jq-attr',
+    forOf: 'data-jq-for',
 };
 let serverRenderedAttr = 'data-server-rendered';
 let dataIndexAttr = 'data-index';
