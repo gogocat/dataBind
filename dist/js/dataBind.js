@@ -91,7 +91,7 @@ var Binder = function () {
 
             this.elementCache = (0, _domWalker2['default'])(this.$rootElement[0], this.bindingAttrs);
 
-            // skip template render if server rendered
+            // updateElementCache if server rendered on init
             if (this.isServerRendered && !this.initRendered) {
                 this.updateElementCache({
                     templateCache: true
@@ -942,16 +942,16 @@ var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
     }
 
     var forExpMatch = dataKey.match(util.REGEX.FOROF);
-    var iterator = {};
     if (forExpMatch) {
-        iterator.alias = forExpMatch[1].trim();
+        cache.iterator = {};
+        cache.iterator.alias = forExpMatch[1].trim();
         if (forExpMatch[2]) {
             var vmDataKey = forExpMatch[2].trim();
-            iterator.dataKey = vmDataKey;
-            iterator.data = util.getViewModelValue(viewModel, vmDataKey);
+            cache.iterator.dataKey = vmDataKey;
+            cache.iterator.data = util.getViewModelValue(viewModel, vmDataKey);
         }
     }
-    console.log('iterator: ', iterator);
+    // console.log('forOfBinding cache: ', cache);
 };
 
 exports.renderTemplate = renderTemplate;
@@ -1090,18 +1090,6 @@ var createBindingCache = function createBindingCache() {
                         el: node,
                         dataKey: attrValue
                     };
-
-                    // forOfBinding specific
-                    if (key === bindingAttrs.forOf) {
-                        var forExpMatch = attrValue.match(util.REGEX.FOROF);
-                        cacheData.iterator = {};
-                        if (forExpMatch) {
-                            cacheData.iterator.alias = forExpMatch[1].trim();
-                            if (forExpMatch[2]) {
-                                cacheData.iterator.dataKey = forExpMatch[2].trim();
-                            }
-                        }
-                    }
 
                     // TODO - for store function call parameters eg. '$data', '$root'
                     // useful with DOM for-loop template as reference to binding data

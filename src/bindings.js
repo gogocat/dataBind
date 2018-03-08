@@ -571,16 +571,16 @@ const forOfBinding = (cache, viewModel, bindingAttrs) => {
     }
 
     let forExpMatch = dataKey.match(util.REGEX.FOROF);
-    let iterator = {};
     if (forExpMatch) {
-        iterator.alias = forExpMatch[1].trim();
+        cache.iterator = {};
+        cache.iterator.alias = forExpMatch[1].trim();
         if (forExpMatch[2]) {
             let vmDataKey = forExpMatch[2].trim();
-            iterator.dataKey = vmDataKey;
-            iterator.data = util.getViewModelValue(viewModel, vmDataKey);
+            cache.iterator.dataKey = vmDataKey;
+            cache.iterator.data = util.getViewModelValue(viewModel, vmDataKey);
         }
     }
-    console.log('iterator: ', iterator);
+    // console.log('forOfBinding cache: ', cache);
 };
 
 export {
