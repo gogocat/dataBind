@@ -118,28 +118,26 @@
             $('[data-jq-comp="formComponentA"]'),
             new FormComponentVewModel()
         );
-        /*
+
         formComponentA.render().then(function() {
             // for debug
             console.log(formComponentA);
             window.formComponentA = formComponentA;
         });
-        */
 
         // formComponentB
         formComponentB = dataBind.init(
             $('[data-jq-comp="formComponentB"]'),
             formComponentBViewModel
         );
-        /*
+
         formComponentB.render().then(function() {
             // for debug
             console.log(formComponentB);
             window.formComponentB = formComponentB;
         });
-        */
 
-        // formComponentC
+        // formComponentC - test for-of binding
         formComponentC = dataBind.init(
             $('[data-jq-comp="formComponentC"]'),
             formComponentCViewModel

@@ -22,4 +22,5 @@ const init = ($rootElement, viewModel = null) => {
 window.dataBind = {
     use: use,
     init: init,
+    version: '@version@',
 };

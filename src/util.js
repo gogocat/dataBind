@@ -260,6 +260,30 @@ const isMergebleObject = (item) => {
     return isObject(item) && !isArray(item);
 };
 
+/**
+ * createDomTemplate
+ * @param {object} element
+ * @return {object} cloned element
+ * @description helper function to clone node
+ */
+const createDomTemplate = (element) => {
+    return element.cloneNode(true);
+};
+
+/**
+ * insertAfter
+ * @param {object} parentNode
+ * @param {object} newNode
+ * @param {object} referenceNode
+ * @return {object} node
+ * @description helper function to insert new node before the reference node
+ */
+const insertAfter = (parentNode, newNode, referenceNode) => {
+    let refNextElement =
+        referenceNode && referenceNode.nextSibling ? referenceNode.nextSibling : null;
+    return parentNode.insertBefore(newNode, refNextElement);
+};
+
 export {
     REGEX,
     isArray,
@@ -276,4 +300,6 @@ export {
     getFunctionParameterList,
     invertObj,
     getNodeAttrObj,
+    createDomTemplate,
+    insertAfter,
 };

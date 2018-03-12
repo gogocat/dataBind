@@ -1,6 +1,6 @@
 /**
  * dataBind - Simple MV* framework work with jQuery and underscore template
- * @version v1.1.0
+ * @version v1.6.0
  * @link https://github.com/gogocat/dataBind#readme
  * @license MIT
  */
@@ -99,6 +99,13 @@ var Binder = function () {
             }
             return this;
         }
+
+        /**
+         * updateElementCache
+         * @param {object} opt
+         * @description call createBindingCache to parse view and generate bindingCache
+         */
+
     }, {
         key: 'updateElementCache',
         value: function updateElementCache() {
@@ -109,7 +116,7 @@ var Binder = function () {
             if (opt.allCache) {
                 this.elementCache = (0, _domWalker2['default'])(this.$rootElement[0], this.bindingAttrs);
             }
-            // walk DOM from each rendered template(s) and cache bindings in 'bindingCache'
+            // walk from first rendered template node to create/update child bindingCache
             if (opt.allCache || opt.templateCache) {
                 if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
                     this.elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
@@ -159,7 +166,7 @@ var Binder = function () {
                     this.$rootElement.removeAttr(config.serverRenderedAttr);
                     updateOption = $.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
                 } else {
-                    // flag to update template binding
+                    // flag templateBinding to true to render tempalte(s)
                     opt.templateBinding = true;
                     updateOption = $.extend({}, visualBindingOptions, eventsBindingOptions, opt);
                 }
@@ -168,7 +175,7 @@ var Binder = function () {
                 updateOption = $.extend({}, visualBindingOptions, opt);
             }
 
-            // apply binding to rendered templates
+            // render and apply binding to template(s) and forOf DOM
             if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
                 // render template and nested templates
                 if (updateOption.templateBinding) {
@@ -177,12 +184,12 @@ var Binder = function () {
                     this.elementCache[this.bindingAttrs.tmp].forEach(function ($element) {
                         binds.renderTemplate($element, _this2.viewModel, _this2.bindingAttrs, _this2.elementCache);
                     });
-                    // update cache after template(s) rendered
+                    // update cache after all template(s) rendered
                     this.updateElementCache({
                         templateCache: true
                     });
                 }
-                // apply bindings to rendered templates
+                // apply bindings to rendered templates element
                 this.elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
                     Binder.applyBinding({
                         elementCache: cache.bindingCache,
@@ -353,7 +360,7 @@ var Binder = function () {
 
 exports['default'] = Binder;
 
-},{"./bindings":2,"./config":3,"./domWalker":4,"./pubSub":6,"./util":7}],2:[function(require,module,exports){
+},{"./bindings":2,"./config":3,"./domWalker":4,"./pubSub":7,"./util":8}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -369,10 +376,16 @@ var _util = require('./util');
 
 var util = _interopRequireWildcard(_util);
 
+var _forOfBinding = require('./forOfBinding');
+
+var _forOfBinding2 = _interopRequireDefault(_forOfBinding);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
-/* eslint-disable no-invalid-this */
-var $domFragment = null;
+var $domFragment = null; /* eslint-disable no-invalid-this */
+
 var $templateRoot = null;
 var nestTemplatesCount = 0;
 var templateCache = {};
@@ -936,21 +949,33 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
  */
 var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
+    var vmData = void 0;
 
     if (!dataKey) {
         return;
     }
 
-    var forExpMatch = dataKey.match(util.REGEX.FOROF);
-    if (forExpMatch) {
+    if (!cache.iterator) {
+        var forExpMatch = dataKey.match(util.REGEX.FOROF);
+
+        if (!forExpMatch) {
+            return;
+        }
+
         cache.iterator = {};
         cache.iterator.alias = forExpMatch[1].trim();
+
         if (forExpMatch[2]) {
             var vmDataKey = forExpMatch[2].trim();
             cache.iterator.dataKey = vmDataKey;
-            cache.iterator.data = util.getViewModelValue(viewModel, vmDataKey);
+            vmData = util.getViewModelValue(viewModel, vmDataKey);
+            cache.parentElement = cache.el.parentElement;
+            cache.previousNonTemplateElement = cache.el.previousSibling;
+            cache.nextNonTemplateElement = cache.el.nextSibling;
         }
     }
+
+    (0, _forOfBinding2['default'])(cache, vmData, bindingAttrs);
     // console.log('forOfBinding cache: ', cache);
 };
 
@@ -968,7 +993,7 @@ exports.cssBinding = cssBinding;
 exports.attrBinding = attrBinding;
 exports.forOfBinding = forOfBinding;
 
-},{"./config":3,"./util":7}],3:[function(require,module,exports){
+},{"./config":3,"./forOfBinding":5,"./util":8}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -992,6 +1017,7 @@ var bindingAttrs = {
 };
 var serverRenderedAttr = 'data-server-rendered';
 var dataIndexAttr = 'data-index';
+var commentPrefix = 'data-forOf-';
 
 // global setting of underscore template inteprolate default token
 var templateSettings = {
@@ -1004,6 +1030,7 @@ exports.bindingAttrs = bindingAttrs;
 exports.dataIndexAttr = dataIndexAttr;
 exports.templateSettings = templateSettings;
 exports.serverRenderedAttr = serverRenderedAttr;
+exports.commentPrefix = commentPrefix;
 
 },{}],4:[function(require,module,exports){
 'use strict';
@@ -1093,17 +1120,20 @@ var createBindingCache = function createBindingCache() {
 
                     // TODO - for store function call parameters eg. '$data', '$root'
                     // useful with DOM for-loop template as reference to binding data
-                    /*
-                    paramList = util.getFunctionParameterList(attrValue);
+                    var paramList = util.getFunctionParameterList(attrValue);
                     if (paramList) {
                         cacheData.parameters = paramList;
-                        cacheData.dataKey =
-                            cacheData.dataKey.replace(util.REGEX.FUNCTIONPARAM, '').trim();
+                        cacheData.dataKey = cacheData.dataKey.replace(util.REGEX.FUNCTIONPARAM, '').trim();
                     }
-                    */
+
                     bindingCache[key].push(cacheData);
                 }
             });
+
+            // after cache forOf skip parse child nodes
+            if (attrObj[bindingAttrs.forOf]) {
+                return false;
+            }
         }
         return true;
     };
@@ -1116,7 +1146,163 @@ var createBindingCache = function createBindingCache() {
 
 exports['default'] = createBindingCache;
 
-},{"./util":7}],5:[function(require,module,exports){
+},{"./util":8}],5:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _config = require('./config');
+
+var config = _interopRequireWildcard(_config);
+
+var _util = require('./util');
+
+var util = _interopRequireWildcard(_util);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+/* eslint-disable no-invalid-this */
+var forOfCount = 0;
+
+/**
+ * wrapCommentAround
+ * @param {number} id
+ * @param {domFragment} fragment
+ * @return {object} DOM fragment
+ * @description
+ * wrap frament with comment node
+ */
+var wrapCommentAround = function wrapCommentAround(id, fragment) {
+    var commentBegin = void 0;
+    var commentEnd = void 0;
+    var prefix = config.commentPrefix + id;
+    commentBegin = document.createComment(prefix);
+    commentEnd = document.createComment(prefix + '-end');
+    fragment.insertBefore(commentBegin, fragment.firstChild);
+    fragment.appendChild(commentEnd);
+    return fragment;
+};
+
+/**
+ * removeElemnetsByCommentWrap
+ * @param {object} forOfBindingData
+ * @return {undefined}
+ * @description remove elments by range
+ */
+var removeElemnetsByCommentWrap = function removeElemnetsByCommentWrap(forOfBindingData) {
+    return forOfBindingData.docRange.deleteContents();
+};
+
+/**
+ * removeDomTemplateElement
+ * @param {object} forOfBindingData
+ * @return {object} null
+ */
+var removeDomTemplateElement = function removeDomTemplateElement(forOfBindingData) {
+    // first render - forElement is live DOM element so has parentNode
+    if (forOfBindingData.el.parentNode) {
+        return forOfBindingData.el.parentNode.removeChild(forOfBindingData.el);
+    }
+    removeElemnetsByCommentWrap(forOfBindingData);
+};
+
+/**
+ * setDocRangeEndAfter
+ * @param {object} node
+ * @param {object} forOfBindingData
+ * @description
+ * recursive execution to find last wrapping comment node
+ * and set as forOfBindingData.docRange.setEndAfter
+ * if not found deleteContents will has no operation
+ */
+var setDocRangeEndAfter = function setDocRangeEndAfter(node, forOfBindingData) {
+    var id = forOfBindingData.id;
+    var startTextContent = config.commentPrefix + id;
+    var endTextContent = startTextContent + '-end';
+
+    node = node.nextSibling;
+
+    // check last wrap comment node
+    if (node) {
+        if (node.nodeType === 8 && node.textContent === endTextContent) {
+            forOfBindingData.docRange.setEndAfter(node);
+        }
+        setDocRangeEndAfter(node, forOfBindingData);
+    }
+};
+
+var renderForOfBinding = function renderForOfBinding(forOfBindingData, data, bindingAttrs) {
+    if (!forOfBindingData || !data) {
+        return;
+    }
+    var keys = void 0;
+    var dataLength = void 0;
+    var i = 0;
+    var clonedItem = void 0;
+    var fragment = document.createDocumentFragment();
+
+    // populate template and append to fragment
+    if (util.isArray(data)) {
+        dataLength = data.length;
+    } else if (util.isPlainObject(data)) {
+        keys = Object.keys(data);
+        dataLength = keys.length;
+    } else {
+        throw new TypeError('data is not an plain object or array');
+    }
+
+    // remove orignal node for-of attributes
+    forOfBindingData.el.removeAttribute(bindingAttrs.forOf);
+
+    // loop to redner but not other binding update yet
+    for (i = 0; i < dataLength; i += 1) {
+        clonedItem = util.createDomTemplate(forOfBindingData.el);
+        // result = iterprolate(clonedItem, data[i], i);
+        fragment.appendChild(clonedItem);
+    }
+
+    // assign forOf internal id to forOfBindingData once
+    if (typeof forOfBindingData.id === 'undefined') {
+        forOfBindingData.id = forOfCount;
+        forOfCount += 1;
+    }
+
+    // wrap around with comment
+    fragment = wrapCommentAround(forOfBindingData.id, fragment);
+
+    // remove original dom template
+    removeDomTemplateElement(forOfBindingData);
+
+    // create range object
+    if (!forOfBindingData.docRange) {
+        forOfBindingData.docRange = document.createRange();
+    }
+
+    // insert rendered fragment after the previousNonTemplateElement
+    if (forOfBindingData.previousNonTemplateElement) {
+        util.insertAfter(forOfBindingData.parentElement, fragment, forOfBindingData.previousNonTemplateElement);
+        // update docRange end setting
+        forOfBindingData.docRange.setStartBefore(forOfBindingData.previousNonTemplateElement.nextSibling);
+        setDocRangeEndAfter(forOfBindingData.previousNonTemplateElement.nextSibling, forOfBindingData);
+    } else {
+        // insert before next non template element
+        if (forOfBindingData.nextNonTemplateElement) {
+            forOfBindingData.parentElement.insertBefore(fragment, forOfBindingData.nextNonTemplateElement);
+        } else {
+            // insert from parent
+            forOfBindingData.parentElement.appendChild(fragment);
+        }
+        // update docRange end settings
+        forOfBindingData.docRange.setStartBefore(forOfBindingData.parentElement.firstChild);
+        setDocRangeEndAfter(forOfBindingData.parentElement.firstChild, forOfBindingData);
+    }
+};
+
+exports['default'] = renderForOfBinding;
+
+},{"./config":3,"./util":8}],6:[function(require,module,exports){
 'use strict';
 
 var _config = require('./config');
@@ -1155,10 +1341,11 @@ var init = function init($rootElement) {
 // expose to global
 window.dataBind = {
     use: use,
-    init: init
+    init: init,
+    version: '1.6.0'
 };
 
-},{"./binder":1,"./config":3}],6:[function(require,module,exports){
+},{"./binder":1,"./config":3}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1302,7 +1489,7 @@ exports.unsubscribeEvent = unsubscribeEvent;
 exports.unsubscribeAllEvent = unsubscribeAllEvent;
 exports.publishEvent = publishEvent;
 
-},{"./util":7}],7:[function(require,module,exports){
+},{"./util":8}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1572,6 +1759,29 @@ var isMergebleObject = function isMergebleObject(item) {
     return isObject(item) && !isArray(item);
 };
 
+/**
+ * createDomTemplate
+ * @param {object} element
+ * @return {object} cloned element
+ * @description helper function to clone node
+ */
+var createDomTemplate = function createDomTemplate(element) {
+    return element.cloneNode(true);
+};
+
+/**
+ * insertAfter
+ * @param {object} parentNode
+ * @param {object} newNode
+ * @param {object} referenceNode
+ * @return {object} node
+ * @description helper function to insert new node before the reference node
+ */
+var insertAfter = function insertAfter(parentNode, newNode, referenceNode) {
+    var refNextElement = referenceNode && referenceNode.nextSibling ? referenceNode.nextSibling : null;
+    return parentNode.insertBefore(newNode, refNextElement);
+};
+
 exports.REGEX = REGEX;
 exports.isArray = isArray;
 exports.isPlainObject = isPlainObject;
@@ -1587,8 +1797,10 @@ exports.getFormData = getFormData;
 exports.getFunctionParameterList = getFunctionParameterList;
 exports.invertObj = invertObj;
 exports.getNodeAttrObj = getNodeAttrObj;
+exports.createDomTemplate = createDomTemplate;
+exports.insertAfter = insertAfter;
 
-},{}]},{},[5])
+},{}]},{},[6])
 
 
 //# sourceMappingURL=dataBind.js.map

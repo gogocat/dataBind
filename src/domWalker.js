@@ -72,17 +72,22 @@ const createBindingCache = (rootNode = null, bindingAttrs = {}, skipCheck) => {
 
                     // TODO - for store function call parameters eg. '$data', '$root'
                     // useful with DOM for-loop template as reference to binding data
-                    /*
-                    paramList = util.getFunctionParameterList(attrValue);
+                    let paramList = util.getFunctionParameterList(attrValue);
                     if (paramList) {
                         cacheData.parameters = paramList;
-                        cacheData.dataKey =
-                            cacheData.dataKey.replace(util.REGEX.FUNCTIONPARAM, '').trim();
+                        cacheData.dataKey = cacheData.dataKey
+                            .replace(util.REGEX.FUNCTIONPARAM, '')
+                            .trim();
                     }
-                    */
+
                     bindingCache[key].push(cacheData);
                 }
             });
+
+            // after cache forOf skip parse child nodes
+            if (attrObj[bindingAttrs.forOf]) {
+                return false;
+            }
         }
         return true;
     };

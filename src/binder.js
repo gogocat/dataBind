@@ -63,11 +63,16 @@ class Binder {
         return this;
     }
 
+    /**
+     * updateElementCache
+     * @param {object} opt
+     * @description call createBindingCache to parse view and generate bindingCache
+     */
     updateElementCache(opt = {}) {
         if (opt.allCache) {
             this.elementCache = createBindingCache(this.$rootElement[0], this.bindingAttrs);
         }
-        // walk DOM from each rendered template(s) and cache bindings in 'bindingCache'
+        // walk from first rendered template node to create/update child bindingCache
         if (opt.allCache || opt.templateCache) {
             if (
                 this.elementCache[this.bindingAttrs.tmp] &&
@@ -115,7 +120,7 @@ class Binder {
                 this.$rootElement.removeAttr(config.serverRenderedAttr);
                 updateOption = $.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
             } else {
-                // flag to update template binding
+                // flag templateBinding to true to render tempalte(s)
                 opt.templateBinding = true;
                 updateOption = $.extend({}, visualBindingOptions, eventsBindingOptions, opt);
             }
@@ -124,7 +129,7 @@ class Binder {
             updateOption = $.extend({}, visualBindingOptions, opt);
         }
 
-        // apply binding to rendered templates
+        // render and apply binding to template(s) and forOf DOM
         if (
             this.elementCache[this.bindingAttrs.tmp] &&
             this.elementCache[this.bindingAttrs.tmp].length
@@ -141,12 +146,12 @@ class Binder {
                         this.elementCache
                     );
                 });
-                // update cache after template(s) rendered
+                // update cache after all template(s) rendered
                 this.updateElementCache({
                     templateCache: true,
                 });
             }
-            // apply bindings to rendered templates
+            // apply bindings to rendered templates element
             this.elementCache[this.bindingAttrs.tmp].forEach((cache) => {
                 Binder.applyBinding({
                     elementCache: cache.bindingCache,

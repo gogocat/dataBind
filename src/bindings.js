@@ -1,6 +1,7 @@
 /* eslint-disable no-invalid-this */
 import * as config from './config';
 import * as util from './util';
+import renderForOfBinding from './forOfBinding';
 
 let $domFragment = null;
 let $templateRoot = null;
@@ -565,21 +566,33 @@ const attrBinding = (cache, viewModel, bindingAttrs) => {
  */
 const forOfBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
+    let vmData;
 
     if (!dataKey) {
         return;
     }
 
-    let forExpMatch = dataKey.match(util.REGEX.FOROF);
-    if (forExpMatch) {
+    if (!cache.iterator) {
+        let forExpMatch = dataKey.match(util.REGEX.FOROF);
+
+        if (!forExpMatch) {
+            return;
+        }
+
         cache.iterator = {};
         cache.iterator.alias = forExpMatch[1].trim();
+
         if (forExpMatch[2]) {
             let vmDataKey = forExpMatch[2].trim();
             cache.iterator.dataKey = vmDataKey;
-            cache.iterator.data = util.getViewModelValue(viewModel, vmDataKey);
+            vmData = util.getViewModelValue(viewModel, vmDataKey);
+            cache.parentElement = cache.el.parentElement;
+            cache.previousNonTemplateElement = cache.el.previousSibling;
+            cache.nextNonTemplateElement = cache.el.nextSibling;
         }
     }
+
+    renderForOfBinding(cache, vmData, bindingAttrs);
     // console.log('forOfBinding cache: ', cache);
 };
 
