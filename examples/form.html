@@ -16,17 +16,20 @@
 <body>
     <section data-jq-comp="formApp" data-jq-tmp="{id:'formIntro', data:'intro', prepend: true}">
         <div class="container">
+            <h5>formComponentA new instance of FormComponentVewModel</h5>
             <div data-jq-comp="formComponentA" data-jq-tmp="{id:'formItems', data:'personalDetails'}">
             </div>
+            <h5>formComponentB new instance of FormComponentVewModel</h5>
             <div data-jq-comp="formComponentB" data-jq-tmp="{id:'formItems', data:'personalDetails'}">
             </div>
 
+            <h5>For of binding</h5>
             <div data-jq-comp="formComponentC">
                 <div class="form-row" data-jq-for="item of personalDetails" data-jq-show="item.show">
                     <div class="col-8">
                         <label for="name" data-jq-css="item.updatedCss" data-jq-text="item.label"></label>
                         <input id="{{formItem.inputName}}" name="{{formItem.inputName}}" type="text" class="form-control" value="" data-jq-model="item.value"
-                            data-jq-change="onInputChange" required>
+                            data-jq-change="$root.onInputChange" required>
                     </div>
                 </div>
             </div>

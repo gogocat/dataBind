@@ -1,6 +1,8 @@
 /* eslint-disable no-invalid-this */
 import * as config from './config';
 import * as util from './util';
+import createBindingCache from './domWalker';
+import Binder from './binder';
 
 let forOfCount = 0;
 
@@ -71,40 +73,86 @@ const setDocRangeEndAfter = (node, forOfBindingData) => {
     }
 };
 
-const renderForOfBinding = (forOfBindingData, data, bindingAttrs) => {
-    if (!forOfBindingData || !data) {
+const renderForOfBinding = (forOfBindingData, viewModel, bindingAttrs) => {
+    if (!forOfBindingData || !viewModel || !bindingAttrs) {
         return;
     }
     let keys;
-    let dataLength;
+    let iterationDataLength;
     let i = 0;
     let clonedItem;
     let fragment = document.createDocumentFragment();
+    let iterationData = util.getViewModelValue(viewModel, forOfBindingData.iterator.dataKey);
+    let iterationBindingCache;
+    let iterationVm;
+    let isRegenerateCache = false;
 
     // populate template and append to fragment
-    if (util.isArray(data)) {
-        dataLength = data.length;
-    } else if (util.isPlainObject(data)) {
-        keys = Object.keys(data);
-        dataLength = keys.length;
+    if (util.isArray(iterationData)) {
+        iterationDataLength = iterationData.length;
+    } else if (util.isPlainObject(iterationData)) {
+        keys = Object.keys(iterationData);
+        iterationDataLength = keys.length;
     } else {
-        throw new TypeError('data is not an plain object or array');
+        throw new TypeError('iterationData is not an plain object or array');
+    }
+
+    // store iterationDataLength
+    // only regenerate cache if iterationDataLength changed
+    if (typeof forOfBindingData.iterationSize === 'undefined') {
+        forOfBindingData.iterationSize = iterationDataLength;
+        isRegenerateCache = true;
+    } else {
+        isRegenerateCache = forOfBindingData.iterationSize !== iterationDataLength;
     }
 
     // remove orignal node for-of attributes
     forOfBindingData.el.removeAttribute(bindingAttrs.forOf);
 
-    // loop to redner but not other binding update yet
-    for (i = 0; i < dataLength; i += 1) {
-        clonedItem = util.createDomTemplate(forOfBindingData.el);
-        // result = iterprolate(clonedItem, data[i], i);
-        fragment.appendChild(clonedItem);
-    }
+    // prepare elementCache as object for each iteration parse
+    forOfBindingData.elementCache = [];
 
-    // assign forOf internal id to forOfBindingData once
-    if (typeof forOfBindingData.id === 'undefined') {
-        forOfBindingData.id = forOfCount;
-        forOfCount += 1;
+    // loop to redner but not other binding update yet
+    for (i = 0; i < iterationDataLength; i += 1) {
+        clonedItem = util.cloneDomNode(forOfBindingData.el);
+        // create an iterationVm match iterator alias
+        iterationVm = {};
+        iterationVm[forOfBindingData.iterator.alias] = keys
+            ? iterationData[keys[i]]
+            : iterationData[i];
+        iterationVm['$root'] = viewModel;
+
+        // create bindingCache per iteration
+        if (isRegenerateCache) {
+            iterationBindingCache = createBindingCache(clonedItem, bindingAttrs);
+            forOfBindingData.elementCache.push(iterationBindingCache);
+        }
+
+        // apply binding to render with iterationVm
+        // TODO - update option need to be dynamic for templateBinding and forOfBinding always true
+        // event bindings will bind context to 'viewModel' but here will bind to iterationVm context
+        Binder.applyBinding({
+            elementCache: forOfBindingData.elementCache[i],
+            updateOption: {
+                templateBinding: true,
+                textBinding: true,
+                cssBinding: true,
+                showBinding: true,
+                modelBinding: true,
+                attrBinding: true,
+                forOfBinding: true,
+                changeBinding: true,
+                clickBinding: true,
+                dblclickBinding: true,
+                blurBinding: true,
+                focusBinding: true,
+                submitBinding: true,
+            },
+            bindingAttrs: bindingAttrs,
+            viewModel: iterationVm,
+        });
+
+        fragment.appendChild(clonedItem);
     }
 
     // wrap around with comment
@@ -112,6 +160,12 @@ const renderForOfBinding = (forOfBindingData, data, bindingAttrs) => {
 
     // remove original dom template
     removeDomTemplateElement(forOfBindingData);
+
+    // assign forOf internal id to forOfBindingData once
+    if (typeof forOfBindingData.id === 'undefined') {
+        forOfBindingData.id = forOfCount;
+        forOfCount += 1;
+    }
 
     // create range object
     if (!forOfBindingData.docRange) {

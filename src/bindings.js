@@ -566,7 +566,6 @@ const attrBinding = (cache, viewModel, bindingAttrs) => {
  */
 const forOfBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
-    let vmData;
 
     if (!dataKey) {
         return;
@@ -583,17 +582,14 @@ const forOfBinding = (cache, viewModel, bindingAttrs) => {
         cache.iterator.alias = forExpMatch[1].trim();
 
         if (forExpMatch[2]) {
-            let vmDataKey = forExpMatch[2].trim();
-            cache.iterator.dataKey = vmDataKey;
-            vmData = util.getViewModelValue(viewModel, vmDataKey);
+            cache.iterator.dataKey = forExpMatch[2].trim();
             cache.parentElement = cache.el.parentElement;
             cache.previousNonTemplateElement = cache.el.previousSibling;
             cache.nextNonTemplateElement = cache.el.nextSibling;
         }
     }
 
-    renderForOfBinding(cache, vmData, bindingAttrs);
-    // console.log('forOfBinding cache: ', cache);
+    renderForOfBinding(cache, viewModel, bindingAttrs);
 };
 
 export {

@@ -261,12 +261,12 @@ const isMergebleObject = (item) => {
 };
 
 /**
- * createDomTemplate
+ * cloneDomNode
  * @param {object} element
  * @return {object} cloned element
  * @description helper function to clone node
  */
-const createDomTemplate = (element) => {
+const cloneDomNode = (element) => {
     return element.cloneNode(true);
 };
 
@@ -300,6 +300,6 @@ export {
     getFunctionParameterList,
     invertObj,
     getNodeAttrObj,
-    createDomTemplate,
+    cloneDomNode,
     insertAfter,
 };
