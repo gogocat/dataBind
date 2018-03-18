@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" data-framework="dataBind">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>dataBind Demo | data-jq-for-of</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="bootstrap/css/open-iconic.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <h5>For of binding</h5>
+        <div data-jq-comp="forOfComponent">
+            <div class="form-row" data-jq-for="item of personalDetails" data-jq-show="item.show">
+                <div class="col-8">
+                    <label for="name" data-jq-css="item.updatedCss" data-jq-text="item.label"></label>
+                    <input id="{{formItem.inputName}}" name="{{formItem.inputName}}" type="text" class="form-control" value="" data-jq-model="item.value"
+                        data-jq-change="$root.onInputChange" required>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../vendors/lodash.custom.min.js"></script>
+    <script src="../vendors/jquery-3.2.1.min.js"></script>
+    <script src="../dist/js/dataBind.js"></script>
+    <script src="js/forOfDemo.js"></script>
+
+    <template id="formItems">
+        <div class="form-row" data-jq-show="item.show">
+            <div class="col-8">
+                <label for="name" data-jq-css="item.updatedCss" data-jq-text="item.label"></label>
+                <input id="{{formItem.inputName}}" name="{{formItem.inputName}}" type="text" class="form-control" value="" data-jq-model="item.value"
+                    data-jq-change="$root.onInputChange" required>
+            </div>
+        </div>
+    </template>
+</body>
+
+</html>

@@ -1303,13 +1303,20 @@ var generateForOfElements = function generateForOfElements(forOfBindingData, vie
         // create an iterationVm match iterator alias
         iterationVm = {};
         iterationVm[forOfBindingData.iterator.alias] = keys ? iterationData[keys[i]] : iterationData[i];
-        iterationVm['$root'] = viewModel;
+        // populate common binding data reference
+        iterationVm[config.bindingDataReference.rootDataKey] = viewModel;
+        iterationVm[config.bindingDataReference.currentIndex] = i;
 
         // create bindingCache per iteration
         iterationBindingCache = (0, _domWalker2['default'])(clonedItem, bindingAttrs);
         forOfBindingData.iterationBindingCache.push(iterationBindingCache);
 
-        applyBindings(forOfBindingData.iterationBindingCache[i], iterationVm, bindingAttrs);
+        applyBindings({
+            elementCache: forOfBindingData.iterationBindingCache[i],
+            viewModel: iterationVm,
+            bindingAttrs: bindingAttrs,
+            isRegenerate: true
+        });
 
         fragment.appendChild(clonedItem);
     }
@@ -1350,9 +1357,19 @@ var insertRenderedElements = function insertRenderedElements(forOfBindingData, f
     }
 };
 
-var applyBindings = function applyBindings(elementCache, viewModel, bindingAttrs) {
-    // TODO - need to use different condition if forOfBindingData.iterationSize not change
-    var bindingUpdateOption = (0, _binder.createBindingOption)(config.bindingUpdateConditions.init, {});
+var applyBindings = function applyBindings(_ref) {
+    var elementCache = _ref.elementCache,
+        viewModel = _ref.viewModel,
+        bindingAttrs = _ref.bindingAttrs,
+        isRegenerate = _ref.isRegenerate;
+
+    var bindingUpdateOption = void 0;
+    if (isRegenerate) {
+        bindingUpdateOption = (0, _binder.createBindingOption)(config.bindingUpdateConditions.init);
+    } else {
+        bindingUpdateOption = (0, _binder.createBindingOption)();
+    }
+
     _binder.Binder.applyBinding({
         elementCache: elementCache,
         updateOption: bindingUpdateOption,
@@ -1394,9 +1411,16 @@ var renderForOfBinding = function renderForOfBinding(forOfBindingData, viewModel
         isRegenerate = forOfBindingData.iterationSize !== iterationDataLength;
     }
 
-    // TODO - need logic to apply bindings to forOf elements that has doesn't regenerate
     if (!isRegenerate) {
-        // applyBindings(forOfBindingData.elementCache[i], iterationVm, bindingAttrs);
+        forOfBindingData.iterationBindingCache.each(function (elementCache) {
+            applyBindings({
+                elementCache: elementCache,
+                viewModel: iterationVm,
+                bindingAttrs: bindingAttrs,
+                isRegenerate: false
+            });
+        });
+
         return;
     }
 

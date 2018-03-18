@@ -6,11 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Bootstrap 4 dataBind Demo</title>
+    <title>dataBind Demo | multiple viewModel instance</title>
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="bootstrap/css/open-iconic.css">
-    <link rel="stylesheet" href="bootstrap/css/homeservices.css">
 </head>
 
 <body>
@@ -22,18 +21,6 @@
             <h5>formComponentB new instance of FormComponentVewModel</h5>
             <div data-jq-comp="formComponentB" data-jq-tmp="{id:'formItems', data:'personalDetails'}">
             </div>
-
-            <h5>For of binding</h5>
-            <div data-jq-comp="formComponentC">
-                <div class="form-row" data-jq-for="item of personalDetails" data-jq-show="item.show">
-                    <div class="col-8">
-                        <label for="name" data-jq-css="item.updatedCss" data-jq-text="item.label"></label>
-                        <input id="{{formItem.inputName}}" name="{{formItem.inputName}}" type="text" class="form-control" value="" data-jq-model="item.value"
-                            data-jq-change="$root.onInputChange" required>
-                    </div>
-                </div>
-            </div>
-
             <div data-jq-attr="attrTest">
                 This is attribute binding test!
             </div>

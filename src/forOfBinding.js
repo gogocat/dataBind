@@ -94,13 +94,20 @@ const generateForOfElements = (forOfBindingData, viewModel, bindingAttrs, iterat
         iterationVm[forOfBindingData.iterator.alias] = keys
             ? iterationData[keys[i]]
             : iterationData[i];
-        iterationVm['$root'] = viewModel;
+        // populate common binding data reference
+        iterationVm[config.bindingDataReference.rootDataKey] = viewModel;
+        iterationVm[config.bindingDataReference.currentIndex] = i;
 
         // create bindingCache per iteration
         iterationBindingCache = createBindingCache(clonedItem, bindingAttrs);
         forOfBindingData.iterationBindingCache.push(iterationBindingCache);
 
-        applyBindings(forOfBindingData.iterationBindingCache[i], iterationVm, bindingAttrs);
+        applyBindings({
+            elementCache: forOfBindingData.iterationBindingCache[i],
+            viewModel: iterationVm,
+            bindingAttrs: bindingAttrs,
+            isRegenerate: true,
+        });
 
         fragment.appendChild(clonedItem);
     }
@@ -153,9 +160,14 @@ const insertRenderedElements = (forOfBindingData, fragment) => {
     }
 };
 
-const applyBindings = (elementCache, viewModel, bindingAttrs) => {
-    // TODO - need to use different condition if forOfBindingData.iterationSize not change
-    let bindingUpdateOption = createBindingOption(config.bindingUpdateConditions.init, {});
+const applyBindings = ({elementCache, viewModel, bindingAttrs, isRegenerate}) => {
+    let bindingUpdateOption;
+    if (isRegenerate) {
+        bindingUpdateOption = createBindingOption(config.bindingUpdateConditions.init);
+    } else {
+        bindingUpdateOption = createBindingOption();
+    }
+
     Binder.applyBinding({
         elementCache: elementCache,
         updateOption: bindingUpdateOption,
@@ -197,9 +209,16 @@ const renderForOfBinding = (forOfBindingData, viewModel, bindingAttrs) => {
         isRegenerate = forOfBindingData.iterationSize !== iterationDataLength;
     }
 
-    // TODO - need logic to apply bindings to forOf elements that has doesn't regenerate
     if (!isRegenerate) {
-        // applyBindings(forOfBindingData.elementCache[i], iterationVm, bindingAttrs);
+        forOfBindingData.iterationBindingCache.each(function(elementCache) {
+            applyBindings({
+                elementCache: elementCache,
+                viewModel: iterationVm,
+                bindingAttrs: bindingAttrs,
+                isRegenerate: false,
+            });
+        });
+
         return;
     }
 
