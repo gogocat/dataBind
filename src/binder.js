@@ -5,7 +5,7 @@ import createBindingCache from './domWalker';
 import * as pubSub from './pubSub';
 
 let compIdIndex = 0;
-const rootDataKey = '$root';
+const rootDataKey = config.bindingDataReference.rootDataKey;
 
 class Binder {
     constructor($rootElement, viewModel, bindingAttrs) {
@@ -86,47 +86,21 @@ class Binder {
     }
 
     render(opt = {}) {
-        let visualBindingOptions = {
-            templateBinding: false,
-            textBinding: true,
-            cssBinding: true,
-            showBinding: true,
-            modelBinding: true,
-            attrBinding: true,
-            forOfBinding: true,
-        };
-        let eventsBindingOptions = {
-            changeBinding: true,
-            clickBinding: true,
-            dblclickBinding: true,
-            blurBinding: true,
-            focusBinding: true,
-            submitBinding: true,
-        };
-        let serverRenderedOptions = {
-            templateBinding: false,
-            textBinding: false,
-            cssBinding: false,
-            showBinding: false,
-            modelBinding: false,
-            attrBinding: false,
-            forOfBinding: false,
-        };
         let updateOption = {};
-
         if (!this.initRendered) {
             // only update eventsBinding if server rendered
             if (this.isServerRendered) {
                 this.$rootElement.removeAttr(config.serverRenderedAttr);
-                updateOption = $.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
+                updateOption = createBindingOption(
+                    config.bindingUpdateConditions.serverRendered,
+                    opt
+                );
             } else {
-                // flag templateBinding to true to render tempalte(s)
-                opt.templateBinding = true;
-                updateOption = $.extend({}, visualBindingOptions, eventsBindingOptions, opt);
+                updateOption = createBindingOption(config.bindingUpdateConditions.init, opt);
             }
         } else {
             // when called again only update visualBinding options
-            updateOption = $.extend({}, visualBindingOptions, opt);
+            updateOption = createBindingOption('', opt);
         }
 
         // render and apply binding to template(s) and forOf DOM
@@ -134,9 +108,11 @@ class Binder {
             this.elementCache[this.bindingAttrs.tmp] &&
             this.elementCache[this.bindingAttrs.tmp].length
         ) {
-            // render template and nested templates
+            // when re-render call with {templateBinding: true}
+            // template and nested templates
             if (updateOption.templateBinding) {
-                $.extend(updateOption, eventsBindingOptions);
+                // overwrite updateOption with 'init' bindingUpdateConditions
+                updateOption = createBindingOption(config.bindingUpdateConditions.init);
 
                 this.elementCache[this.bindingAttrs.tmp].forEach(($element) => {
                     binds.renderTemplate(
@@ -340,4 +316,60 @@ class Binder {
     }
 }
 
-export default Binder;
+/**
+ * createBindingOption
+ * @param {string} condition
+ * @param {object} opt
+ * @description
+ * generate binding update option object by condition
+ * @return {object} updateOption
+ */
+const createBindingOption = (condition = '', opt = {}) => {
+    let visualBindingOptions = {
+        templateBinding: false,
+        textBinding: true,
+        cssBinding: true,
+        showBinding: true,
+        modelBinding: true,
+        attrBinding: true,
+        forOfBinding: true,
+    };
+    let eventsBindingOptions = {
+        changeBinding: true,
+        clickBinding: true,
+        dblclickBinding: true,
+        blurBinding: true,
+        focusBinding: true,
+        submitBinding: true,
+    };
+    // this is visualBindingOptions but everything fals
+    // keep it static instead dynamic for performance purpose
+    let serverRenderedOptions = {
+        templateBinding: false,
+        textBinding: false,
+        cssBinding: false,
+        showBinding: false,
+        modelBinding: false,
+        attrBinding: false,
+        forOfBinding: false,
+    };
+    let updateOption = {};
+
+    switch (condition) {
+    case config.bindingUpdateConditions.serverRendered:
+        updateOption = util.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
+        break;
+    case config.bindingUpdateConditions.init:
+        // flag templateBinding to true to render tempalte(s)
+        opt.templateBinding = true;
+        updateOption = util.extend({}, visualBindingOptions, eventsBindingOptions, opt);
+        break;
+    default:
+        // when called again only update visualBinding options
+        updateOption = util.extend({}, visualBindingOptions, opt);
+    }
+
+    return updateOption;
+};
+
+export {Binder, createBindingOption};

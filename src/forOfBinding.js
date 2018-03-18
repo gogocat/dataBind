@@ -2,7 +2,7 @@
 import * as config from './config';
 import * as util from './util';
 import createBindingCache from './domWalker';
-import Binder from './binder';
+import {Binder, createBindingOption} from './binder';
 
 let forOfCount = 0;
 
@@ -81,10 +81,12 @@ const generateForOfElements = (forOfBindingData, viewModel, bindingAttrs, iterat
     let iterationBindingCache;
     let i = 0;
 
-    // generate forOf and append to DOM
-    // prepare elementCache as object for each iteration parse
-    forOfBindingData.elementCache = [];
+    // create or clear exisitng iterationBindingCache
+    forOfBindingData.iterationBindingCache = forOfBindingData.iterationBindingCache
+        ? (forOfBindingData.iterationBindingCache.length = 0)
+        : [];
 
+    // generate forOf and append to DOM
     for (i = 0; i < iterationDataLength; i += 1) {
         clonedItem = util.cloneDomNode(forOfBindingData.el);
         // create an iterationVm match iterator alias
@@ -96,9 +98,9 @@ const generateForOfElements = (forOfBindingData, viewModel, bindingAttrs, iterat
 
         // create bindingCache per iteration
         iterationBindingCache = createBindingCache(clonedItem, bindingAttrs);
-        forOfBindingData.elementCache.push(iterationBindingCache);
+        forOfBindingData.iterationBindingCache.push(iterationBindingCache);
 
-        applyBindings(forOfBindingData.elementCache[i], iterationVm, bindingAttrs);
+        applyBindings(forOfBindingData.iterationBindingCache[i], iterationVm, bindingAttrs);
 
         fragment.appendChild(clonedItem);
     }
@@ -152,26 +154,11 @@ const insertRenderedElements = (forOfBindingData, fragment) => {
 };
 
 const applyBindings = (elementCache, viewModel, bindingAttrs) => {
-    // apply binding to render with iterationVm
-    // TODO - update option need to be dynamic for templateBinding and forOfBinding always true
-    // event bindings will bind context to 'viewModel' but here will bind to iterationVm context
+    // TODO - need to use different condition if forOfBindingData.iterationSize not change
+    let bindingUpdateOption = createBindingOption(config.bindingUpdateConditions.init, {});
     Binder.applyBinding({
         elementCache: elementCache,
-        updateOption: {
-            templateBinding: true,
-            textBinding: true,
-            cssBinding: true,
-            showBinding: true,
-            modelBinding: true,
-            attrBinding: true,
-            forOfBinding: true,
-            changeBinding: true,
-            clickBinding: true,
-            dblclickBinding: true,
-            blurBinding: true,
-            focusBinding: true,
-            submitBinding: true,
-        },
+        updateOption: bindingUpdateOption,
         bindingAttrs: bindingAttrs,
         viewModel: viewModel,
     });

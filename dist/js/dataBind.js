@@ -10,6 +10,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.createBindingOption = exports.Binder = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -42,7 +43,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var compIdIndex = 0;
-var rootDataKey = '$root';
+var rootDataKey = config.bindingDataReference.rootDataKey;
 
 var Binder = function () {
     function Binder($rootElement, viewModel, bindingAttrs) {
@@ -132,54 +133,27 @@ var Binder = function () {
 
             var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-            var visualBindingOptions = {
-                templateBinding: false,
-                textBinding: true,
-                cssBinding: true,
-                showBinding: true,
-                modelBinding: true,
-                attrBinding: true,
-                forOfBinding: true
-            };
-            var eventsBindingOptions = {
-                changeBinding: true,
-                clickBinding: true,
-                dblclickBinding: true,
-                blurBinding: true,
-                focusBinding: true,
-                submitBinding: true
-            };
-            var serverRenderedOptions = {
-                templateBinding: false,
-                textBinding: false,
-                cssBinding: false,
-                showBinding: false,
-                modelBinding: false,
-                attrBinding: false,
-                forOfBinding: false
-            };
             var updateOption = {};
-
             if (!this.initRendered) {
                 // only update eventsBinding if server rendered
                 if (this.isServerRendered) {
                     this.$rootElement.removeAttr(config.serverRenderedAttr);
-                    updateOption = $.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
+                    updateOption = createBindingOption(config.bindingUpdateConditions.serverRendered, opt);
                 } else {
-                    // flag templateBinding to true to render tempalte(s)
-                    opt.templateBinding = true;
-                    updateOption = $.extend({}, visualBindingOptions, eventsBindingOptions, opt);
+                    updateOption = createBindingOption(config.bindingUpdateConditions.init, opt);
                 }
             } else {
                 // when called again only update visualBinding options
-                updateOption = $.extend({}, visualBindingOptions, opt);
+                updateOption = createBindingOption('', opt);
             }
 
             // render and apply binding to template(s) and forOf DOM
             if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
-                // render template and nested templates
+                // when re-render call with {templateBinding: true}
+                // template and nested templates
                 if (updateOption.templateBinding) {
-                    $.extend(updateOption, eventsBindingOptions);
+                    // overwrite updateOption with 'init' bindingUpdateConditions
+                    updateOption = createBindingOption(config.bindingUpdateConditions.init);
 
                     this.elementCache[this.bindingAttrs.tmp].forEach(function ($element) {
                         binds.renderTemplate($element, _this2.viewModel, _this2.bindingAttrs, _this2.elementCache);
@@ -358,7 +332,69 @@ var Binder = function () {
     return Binder;
 }();
 
-exports['default'] = Binder;
+/**
+ * createBindingOption
+ * @param {string} condition
+ * @param {object} opt
+ * @description
+ * generate binding update option object by condition
+ * @return {object} updateOption
+ */
+
+
+var createBindingOption = function createBindingOption() {
+    var condition = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+    var opt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    var visualBindingOptions = {
+        templateBinding: false,
+        textBinding: true,
+        cssBinding: true,
+        showBinding: true,
+        modelBinding: true,
+        attrBinding: true,
+        forOfBinding: true
+    };
+    var eventsBindingOptions = {
+        changeBinding: true,
+        clickBinding: true,
+        dblclickBinding: true,
+        blurBinding: true,
+        focusBinding: true,
+        submitBinding: true
+    };
+    // this is visualBindingOptions but everything fals
+    // keep it static instead dynamic for performance purpose
+    var serverRenderedOptions = {
+        templateBinding: false,
+        textBinding: false,
+        cssBinding: false,
+        showBinding: false,
+        modelBinding: false,
+        attrBinding: false,
+        forOfBinding: false
+    };
+    var updateOption = {};
+
+    switch (condition) {
+        case config.bindingUpdateConditions.serverRendered:
+            updateOption = util.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
+            break;
+        case config.bindingUpdateConditions.init:
+            // flag templateBinding to true to render tempalte(s)
+            opt.templateBinding = true;
+            updateOption = util.extend({}, visualBindingOptions, eventsBindingOptions, opt);
+            break;
+        default:
+            // when called again only update visualBinding options
+            updateOption = util.extend({}, visualBindingOptions, opt);
+    }
+
+    return updateOption;
+};
+
+exports.Binder = Binder;
+exports.createBindingOption = createBindingOption;
 
 },{"./bindings":2,"./config":3,"./domWalker":4,"./pubSub":7,"./util":8}],2:[function(require,module,exports){
 'use strict';
@@ -1022,11 +1058,24 @@ var templateSettings = {
     escape: /\{\{(.+?)\}\}/g
 };
 
+var bindingDataReference = {
+    rootDataKey: '$root',
+    currentData: '$data',
+    currentIndex: '$index'
+};
+
+var bindingUpdateConditions = {
+    serverRendered: 'SERVER-RENDERED',
+    init: 'INIT'
+};
+
 exports.bindingAttrs = bindingAttrs;
 exports.dataIndexAttr = dataIndexAttr;
 exports.templateSettings = templateSettings;
 exports.serverRenderedAttr = serverRenderedAttr;
 exports.commentPrefix = commentPrefix;
+exports.bindingUpdateConditions = bindingUpdateConditions;
+exports.bindingDataReference = bindingDataReference;
 
 },{}],4:[function(require,module,exports){
 'use strict';
@@ -1163,8 +1212,6 @@ var _domWalker2 = _interopRequireDefault(_domWalker);
 
 var _binder = require('./binder');
 
-var _binder2 = _interopRequireDefault(_binder);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
@@ -1247,10 +1294,10 @@ var generateForOfElements = function generateForOfElements(forOfBindingData, vie
     var iterationBindingCache = void 0;
     var i = 0;
 
-    // generate forOf and append to DOM
-    // prepare elementCache as object for each iteration parse
-    forOfBindingData.elementCache = [];
+    // create or clear exisitng iterationBindingCache
+    forOfBindingData.iterationBindingCache = forOfBindingData.iterationBindingCache ? forOfBindingData.iterationBindingCache.length = 0 : [];
 
+    // generate forOf and append to DOM
     for (i = 0; i < iterationDataLength; i += 1) {
         clonedItem = util.cloneDomNode(forOfBindingData.el);
         // create an iterationVm match iterator alias
@@ -1260,9 +1307,9 @@ var generateForOfElements = function generateForOfElements(forOfBindingData, vie
 
         // create bindingCache per iteration
         iterationBindingCache = (0, _domWalker2['default'])(clonedItem, bindingAttrs);
-        forOfBindingData.elementCache.push(iterationBindingCache);
+        forOfBindingData.iterationBindingCache.push(iterationBindingCache);
 
-        applyBindings(forOfBindingData.elementCache[i], iterationVm, bindingAttrs);
+        applyBindings(forOfBindingData.iterationBindingCache[i], iterationVm, bindingAttrs);
 
         fragment.appendChild(clonedItem);
     }
@@ -1304,26 +1351,11 @@ var insertRenderedElements = function insertRenderedElements(forOfBindingData, f
 };
 
 var applyBindings = function applyBindings(elementCache, viewModel, bindingAttrs) {
-    // apply binding to render with iterationVm
-    // TODO - update option need to be dynamic for templateBinding and forOfBinding always true
-    // event bindings will bind context to 'viewModel' but here will bind to iterationVm context
-    _binder2['default'].applyBinding({
+    // TODO - need to use different condition if forOfBindingData.iterationSize not change
+    var bindingUpdateOption = (0, _binder.createBindingOption)(config.bindingUpdateConditions.init, {});
+    _binder.Binder.applyBinding({
         elementCache: elementCache,
-        updateOption: {
-            templateBinding: true,
-            textBinding: true,
-            cssBinding: true,
-            showBinding: true,
-            modelBinding: true,
-            attrBinding: true,
-            forOfBinding: true,
-            changeBinding: true,
-            clickBinding: true,
-            dblclickBinding: true,
-            blurBinding: true,
-            focusBinding: true,
-            submitBinding: true
-        },
+        updateOption: bindingUpdateOption,
         bindingAttrs: bindingAttrs,
         viewModel: viewModel
     });
@@ -1385,10 +1417,6 @@ var config = _interopRequireWildcard(_config);
 
 var _binder = require('./binder');
 
-var _binder2 = _interopRequireDefault(_binder);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
 var bindingAttrs = config.bindingAttrs;
@@ -1409,7 +1437,7 @@ var init = function init($rootElement) {
     var viewModel = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
     _.templateSettings = templateSettings;
-    return new _binder2['default']($rootElement, viewModel, bindingAttrs);
+    return new _binder.Binder($rootElement, viewModel, bindingAttrs);
 };
 
 // expose to global

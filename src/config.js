@@ -25,4 +25,23 @@ const templateSettings = {
     escape: /\{\{(.+?)\}\}/g,
 };
 
-export {bindingAttrs, dataIndexAttr, templateSettings, serverRenderedAttr, commentPrefix};
+const bindingDataReference = {
+    rootDataKey: '$root',
+    currentData: '$data',
+    currentIndex: '$index',
+};
+
+const bindingUpdateConditions = {
+    serverRendered: 'SERVER-RENDERED',
+    init: 'INIT',
+};
+
+export {
+    bindingAttrs,
+    dataIndexAttr,
+    templateSettings,
+    serverRenderedAttr,
+    commentPrefix,
+    bindingUpdateConditions,
+    bindingDataReference,
+};
