@@ -1239,46 +1239,18 @@ var setDocRangeEndAfter = function setDocRangeEndAfter(node, forOfBindingData) {
     }
 };
 
-var renderForOfBinding = function renderForOfBinding(forOfBindingData, viewModel, bindingAttrs) {
-    if (!forOfBindingData || !viewModel || !bindingAttrs) {
-        return;
-    }
-    var keys = void 0;
-    var iterationDataLength = void 0;
-    var i = 0;
-    var clonedItem = void 0;
+var generateForOfElements = function generateForOfElements(forOfBindingData, viewModel, bindingAttrs, iterationData, keys) {
     var fragment = document.createDocumentFragment();
-    var iterationData = util.getViewModelValue(viewModel, forOfBindingData.iterator.dataKey);
-    var iterationBindingCache = void 0;
+    var iterationDataLength = forOfBindingData.iterationSize;
+    var clonedItem = void 0;
     var iterationVm = void 0;
-    var isRegenerateCache = false;
+    var iterationBindingCache = void 0;
+    var i = 0;
 
-    // populate template and append to fragment
-    if (util.isArray(iterationData)) {
-        iterationDataLength = iterationData.length;
-    } else if (util.isPlainObject(iterationData)) {
-        keys = Object.keys(iterationData);
-        iterationDataLength = keys.length;
-    } else {
-        throw new TypeError('iterationData is not an plain object or array');
-    }
-
-    // store iterationDataLength
-    // only regenerate cache if iterationDataLength changed
-    if (typeof forOfBindingData.iterationSize === 'undefined') {
-        forOfBindingData.iterationSize = iterationDataLength;
-        isRegenerateCache = true;
-    } else {
-        isRegenerateCache = forOfBindingData.iterationSize !== iterationDataLength;
-    }
-
-    // remove orignal node for-of attributes
-    forOfBindingData.el.removeAttribute(bindingAttrs.forOf);
-
+    // generate forOf and append to DOM
     // prepare elementCache as object for each iteration parse
     forOfBindingData.elementCache = [];
 
-    // loop to redner but not other binding update yet
     for (i = 0; i < iterationDataLength; i += 1) {
         clonedItem = util.cloneDomNode(forOfBindingData.el);
         // create an iterationVm match iterator alias
@@ -1287,51 +1259,26 @@ var renderForOfBinding = function renderForOfBinding(forOfBindingData, viewModel
         iterationVm['$root'] = viewModel;
 
         // create bindingCache per iteration
-        if (isRegenerateCache) {
-            iterationBindingCache = (0, _domWalker2['default'])(clonedItem, bindingAttrs);
-            forOfBindingData.elementCache.push(iterationBindingCache);
-        }
+        iterationBindingCache = (0, _domWalker2['default'])(clonedItem, bindingAttrs);
+        forOfBindingData.elementCache.push(iterationBindingCache);
 
-        // apply binding to render with iterationVm
-        // TODO - update option need to be dynamic for templateBinding and forOfBinding always true
-        // event bindings will bind context to 'viewModel' but here will bind to iterationVm context
-        _binder2['default'].applyBinding({
-            elementCache: forOfBindingData.elementCache[i],
-            updateOption: {
-                templateBinding: true,
-                textBinding: true,
-                cssBinding: true,
-                showBinding: true,
-                modelBinding: true,
-                attrBinding: true,
-                forOfBinding: true,
-                changeBinding: true,
-                clickBinding: true,
-                dblclickBinding: true,
-                blurBinding: true,
-                focusBinding: true,
-                submitBinding: true
-            },
-            bindingAttrs: bindingAttrs,
-            viewModel: iterationVm
-        });
+        applyBindings(forOfBindingData.elementCache[i], iterationVm, bindingAttrs);
 
         fragment.appendChild(clonedItem);
     }
 
+    return fragment;
+};
+
+var insertRenderedElements = function insertRenderedElements(forOfBindingData, fragment) {
     // wrap around with comment
     fragment = wrapCommentAround(forOfBindingData.id, fragment);
 
     // remove original dom template
     removeDomTemplateElement(forOfBindingData);
 
-    // assign forOf internal id to forOfBindingData once
-    if (typeof forOfBindingData.id === 'undefined') {
-        forOfBindingData.id = forOfCount;
-        forOfCount += 1;
-    }
-
     // create range object
+    // TODO: if user deleted content. Then needs to clean up using Range.detach()
     if (!forOfBindingData.docRange) {
         forOfBindingData.docRange = document.createRange();
     }
@@ -1339,7 +1286,7 @@ var renderForOfBinding = function renderForOfBinding(forOfBindingData, viewModel
     // insert rendered fragment after the previousNonTemplateElement
     if (forOfBindingData.previousNonTemplateElement) {
         util.insertAfter(forOfBindingData.parentElement, fragment, forOfBindingData.previousNonTemplateElement);
-        // update docRange end setting
+        // update docRange start and end match the wrapped comment node
         forOfBindingData.docRange.setStartBefore(forOfBindingData.previousNonTemplateElement.nextSibling);
         setDocRangeEndAfter(forOfBindingData.previousNonTemplateElement.nextSibling, forOfBindingData);
     } else {
@@ -1350,10 +1297,81 @@ var renderForOfBinding = function renderForOfBinding(forOfBindingData, viewModel
             // insert from parent
             forOfBindingData.parentElement.appendChild(fragment);
         }
-        // update docRange end settings
+        // update docRange start and end match the wrapped comment node
         forOfBindingData.docRange.setStartBefore(forOfBindingData.parentElement.firstChild);
         setDocRangeEndAfter(forOfBindingData.parentElement.firstChild, forOfBindingData);
     }
+};
+
+var applyBindings = function applyBindings(elementCache, viewModel, bindingAttrs) {
+    // apply binding to render with iterationVm
+    // TODO - update option need to be dynamic for templateBinding and forOfBinding always true
+    // event bindings will bind context to 'viewModel' but here will bind to iterationVm context
+    _binder2['default'].applyBinding({
+        elementCache: elementCache,
+        updateOption: {
+            templateBinding: true,
+            textBinding: true,
+            cssBinding: true,
+            showBinding: true,
+            modelBinding: true,
+            attrBinding: true,
+            forOfBinding: true,
+            changeBinding: true,
+            clickBinding: true,
+            dblclickBinding: true,
+            blurBinding: true,
+            focusBinding: true,
+            submitBinding: true
+        },
+        bindingAttrs: bindingAttrs,
+        viewModel: viewModel
+    });
+};
+
+var renderForOfBinding = function renderForOfBinding(forOfBindingData, viewModel, bindingAttrs) {
+    if (!forOfBindingData || !viewModel || !bindingAttrs) {
+        return;
+    }
+    var keys = void 0;
+    var iterationDataLength = void 0;
+    var iterationData = util.getViewModelValue(viewModel, forOfBindingData.iterator.dataKey);
+    var isRegenerate = false;
+
+    // check iterationData and set iterationDataLength
+    if (util.isArray(iterationData)) {
+        iterationDataLength = iterationData.length;
+    } else if (util.isPlainObject(iterationData)) {
+        keys = Object.keys(iterationData);
+        iterationDataLength = keys.length;
+    } else {
+        throw new TypeError('iterationData is not an plain object or array');
+    }
+
+    // assign forOf internal id to forOfBindingData once
+    if (typeof forOfBindingData.id === 'undefined') {
+        forOfBindingData.id = forOfCount;
+        forOfCount += 1;
+        // store iterationDataLength
+        forOfBindingData.iterationSize = iterationDataLength;
+        // remove orignal node for-of attributes
+        forOfBindingData.el.removeAttribute(bindingAttrs.forOf);
+        isRegenerate = true;
+    } else {
+        // only regenerate cache if iterationDataLength changed
+        isRegenerate = forOfBindingData.iterationSize !== iterationDataLength;
+    }
+
+    // TODO - need logic to apply bindings to forOf elements that has doesn't regenerate
+    if (!isRegenerate) {
+        // applyBindings(forOfBindingData.elementCache[i], iterationVm, bindingAttrs);
+        return;
+    }
+
+    // generate forOfBinding elements into fragment
+    var fragment = generateForOfElements(forOfBindingData, viewModel, bindingAttrs, iterationData, keys);
+    // insert fragment content into DOM
+    return insertRenderedElements(forOfBindingData, fragment);
 };
 
 exports['default'] = renderForOfBinding;
