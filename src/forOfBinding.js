@@ -73,6 +73,17 @@ const setDocRangeEndAfter = (node, forOfBindingData) => {
     }
 };
 
+const createIterationViewModel = ({forOfBindingData, viewModel, iterationData, keys, index}) => {
+    let iterationVm = {};
+    iterationVm[forOfBindingData.iterator.alias] = keys
+        ? iterationData[keys[index]]
+        : iterationData[index];
+    // populate common binding data reference
+    iterationVm[config.bindingDataReference.rootDataKey] = viewModel;
+    iterationVm[config.bindingDataReference.currentIndex] = index;
+    return iterationVm;
+};
+
 const generateForOfElements = (forOfBindingData, viewModel, bindingAttrs, iterationData, keys) => {
     let fragment = document.createDocumentFragment();
     let iterationDataLength = forOfBindingData.iterationSize;
@@ -90,14 +101,13 @@ const generateForOfElements = (forOfBindingData, viewModel, bindingAttrs, iterat
     for (i = 0; i < iterationDataLength; i += 1) {
         clonedItem = util.cloneDomNode(forOfBindingData.el);
         // create an iterationVm match iterator alias
-        iterationVm = {};
-        iterationVm[forOfBindingData.iterator.alias] = keys
-            ? iterationData[keys[i]]
-            : iterationData[i];
-        // populate common binding data reference
-        iterationVm[config.bindingDataReference.rootDataKey] = viewModel;
-        iterationVm[config.bindingDataReference.currentIndex] = i;
-
+        iterationVm = createIterationViewModel({
+            forOfBindingData: forOfBindingData,
+            viewModel: viewModel,
+            iterationData: iterationData,
+            keys: keys,
+            index: i,
+        });
         // create bindingCache per iteration
         iterationBindingCache = createBindingCache(clonedItem, bindingAttrs);
         forOfBindingData.iterationBindingCache.push(iterationBindingCache);
@@ -210,7 +220,14 @@ const renderForOfBinding = (forOfBindingData, viewModel, bindingAttrs) => {
     }
 
     if (!isRegenerate) {
-        forOfBindingData.iterationBindingCache.each(function(elementCache) {
+        forOfBindingData.iterationBindingCache.forEach(function(elementCache, i) {
+            let iterationVm = createIterationViewModel({
+                forOfBindingData: forOfBindingData,
+                viewModel: viewModel,
+                iterationData: iterationData,
+                keys: keys,
+                index: i,
+            });
             applyBindings({
                 elementCache: elementCache,
                 viewModel: iterationVm,

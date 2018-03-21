@@ -42,9 +42,17 @@
                 },
             ];
         }
-        onInputChange(e, $el, newValue, oldValue) {
+
+        getInputIdName(index) {
+            let inputSetting = this.personalDetails[index];
+            return {
+                id: inputSetting.inputName,
+                name: inputSetting.inputName,
+            };
+        }
+        onInputChange(e, $el, newValue, oldValue, index) {
             console.log('onInputChange: ', this);
-            this.personalDetails[0].show = false;
+            this.personalDetails[index].show = false;
             this.updateView();
         }
         afterTemplateRender() {

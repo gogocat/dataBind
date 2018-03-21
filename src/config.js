@@ -36,6 +36,9 @@ const bindingUpdateConditions = {
     init: 'INIT',
 };
 
+// maximum string length before running regex
+const maxDatakeyLength = 50;
+
 export {
     bindingAttrs,
     dataIndexAttr,
@@ -44,4 +47,5 @@ export {
     commentPrefix,
     bindingUpdateConditions,
     bindingDataReference,
+    maxDatakeyLength,
 };

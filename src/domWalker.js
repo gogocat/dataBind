@@ -70,7 +70,7 @@ const createBindingCache = (rootNode = null, bindingAttrs = {}, skipCheck) => {
                         dataKey: attrValue,
                     };
 
-                    // TODO - for store function call parameters eg. '$data', '$root'
+                    // for store function call parameters eg. '$index', '$root'
                     // useful with DOM for-loop template as reference to binding data
                     let paramList = util.getFunctionParameterList(attrValue);
                     if (paramList) {

@@ -404,6 +404,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.forOfBinding = exports.attrBinding = exports.cssBinding = exports.showBinding = exports.textBinding = exports.submitBinding = exports.modelBinding = exports.changeBinding = exports.focusBinding = exports.blurBinding = exports.dblclickBinding = exports.clickBinding = exports.renderTemplate = undefined;
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; /* eslint-disable no-invalid-this */
+
+
 var _config = require('./config');
 
 var config = _interopRequireWildcard(_config);
@@ -420,8 +423,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
-var $domFragment = null; /* eslint-disable no-invalid-this */
-
+var $domFragment = null;
 var $templateRoot = null;
 var nestTemplatesCount = 0;
 var templateCache = {};
@@ -544,8 +546,10 @@ var renderTemplate = function renderTemplate(cache, viewModel, bindingAttrs, ele
  */
 var clickBinding = function clickBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
+    var paramList = cache.parameters;
     var handlerFn = void 0;
     var $element = void 0;
+    var viewModelContext = void 0;
 
     if (!handlerName) {
         return;
@@ -554,9 +558,12 @@ var clickBinding = function clickBinding(cache, viewModel, bindingAttrs) {
     handlerFn = util.getViewModelValue(viewModel, handlerName);
 
     if (typeof handlerFn === 'function') {
+        viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         $element = $(cache.el);
         $element.off('click.databind').on('click.databind', function (e) {
-            handlerFn.call(viewModel, e, $element);
+            paramList.unshift(e, $element);
+            handlerFn.apply(viewModelContext, paramList);
         });
     }
 };
@@ -571,8 +578,10 @@ var clickBinding = function clickBinding(cache, viewModel, bindingAttrs) {
  */
 var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
+    var paramList = cache.parameters;
     var handlerFn = void 0;
     var $element = void 0;
+    var viewModelContext = void 0;
 
     if (!handlerName) {
         return;
@@ -581,9 +590,12 @@ var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs) {
     handlerFn = util.getViewModelValue(viewModel, handlerName);
 
     if (typeof handlerFn === 'function') {
+        viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         $element = $(cache.el);
         $element.off('dblclick.databind').on('dblclick.databind', function (e) {
-            handlerFn.call(viewModel, e, $element);
+            paramList.unshift(e, $element);
+            handlerFn.apply(viewModelContext, paramList);
         });
     }
 };
@@ -598,8 +610,10 @@ var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs) {
  */
 var blurBinding = function blurBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
+    var paramList = cache.parameters;
     var handlerFn = void 0;
     var $element = void 0;
+    var viewModelContext = void 0;
 
     if (!handlerName) {
         return;
@@ -608,9 +622,12 @@ var blurBinding = function blurBinding(cache, viewModel, bindingAttrs) {
     handlerFn = util.getViewModelValue(viewModel, handlerName);
 
     if (typeof handlerFn === 'function') {
+        viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         $element = $(cache.el);
         $element.off('blur.databind').on('blur.databind', function (e) {
-            handlerFn.call(viewModel, e, $element);
+            paramList.unshift(e, $element);
+            handlerFn.apply(viewModelContext, paramList);
         });
     }
 };
@@ -625,8 +642,10 @@ var blurBinding = function blurBinding(cache, viewModel, bindingAttrs) {
  */
 var focusBinding = function focusBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
+    var paramList = cache.parameters;
     var handlerFn = void 0;
     var $element = void 0;
+    var viewModelContext = void 0;
 
     if (!handlerName) {
         return;
@@ -635,9 +654,12 @@ var focusBinding = function focusBinding(cache, viewModel, bindingAttrs) {
     handlerFn = util.getViewModelValue(viewModel, handlerName);
 
     if (typeof handlerFn === 'function') {
+        viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         $element = $(cache.el);
         $element.off('focus.databind').on('focus.databind', function (e) {
-            handlerFn.call(viewModel, e, $element);
+            paramList.unshift(e, $element);
+            handlerFn.apply(viewModelContext, paramList);
         });
     }
 };
@@ -651,12 +673,14 @@ var focusBinding = function focusBinding(cache, viewModel, bindingAttrs) {
  */
 var changeBinding = function changeBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
+    var paramList = cache.parameters;
     var modelDataKey = cache.el.getAttribute(bindingAttrs.model);
     var handlerFn = void 0;
     var isCheckbox = void 0;
     var newValue = void 0;
     var oldValue = void 0;
     var $element = void 0;
+    var viewModelContext = void 0;
 
     if (!handlerName) {
         return;
@@ -667,6 +691,9 @@ var changeBinding = function changeBinding(cache, viewModel, bindingAttrs) {
     $element = $(cache.el);
 
     if (typeof handlerFn === 'function') {
+        viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+
         isCheckbox = $element.is(':checkbox');
         // assing on change event
         $element.off('change.databind').on('change.databind', function (e) {
@@ -676,7 +703,8 @@ var changeBinding = function changeBinding(cache, viewModel, bindingAttrs) {
                 oldValue = util.getViewModelValue(viewModel, modelDataKey);
                 util.setViewModelValue(viewModel, modelDataKey, newValue);
             }
-            handlerFn.call(viewModel, e, $element, newValue, oldValue);
+            paramList.unshift(e, $element, newValue, oldValue);
+            handlerFn.apply(viewModelContext, paramList);
             oldValue = newValue;
         });
     }
@@ -729,8 +757,10 @@ var modelBinding = function modelBinding(cache, viewModel, bindingAttrs) {
  */
 var submitBinding = function submitBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
+    var paramList = cache.parameters;
     var handlerFn = void 0;
     var $element = void 0;
+    var viewModelContext = void 0;
 
     if (!handlerName) {
         return;
@@ -740,9 +770,12 @@ var submitBinding = function submitBinding(cache, viewModel, bindingAttrs) {
     $element = $(cache.el);
 
     if (typeof handlerFn === 'function') {
+        viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         // assing on change event
         $element.off('submit.databind').on('submit.databind', function (e) {
-            handlerFn.call(viewModel, e, $element, util.getFormData($element));
+            paramList.unshift(e, $element, util.getFormData($element));
+            handlerFn.apply(viewModelContext, paramList);
         });
     }
 };
@@ -757,15 +790,22 @@ var submitBinding = function submitBinding(cache, viewModel, bindingAttrs) {
  */
 var textBinding = function textBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
+    var paramList = cache.parameters;
+    var viewModelContext = void 0;
 
     if (!dataKey) {
         return;
     }
 
     var newValue = util.getViewModelValue(viewModel, dataKey);
+    if (typeof newValue === 'function') {
+        viewModelContext = util.resolveViewModelContext(viewModel, newValue);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+        newValue = newValue.apply(viewModelContext, paramList);
+    }
     var oldValue = cache.el.textContent;
 
-    if (typeof newValue !== 'undefined' && newValue !== null) {
+    if (typeof newValue !== 'undefined' && (typeof newValue === 'undefined' ? 'undefined' : _typeof(newValue)) !== 'object' && newValue !== null) {
         if (newValue !== oldValue) {
             cache.el.textContent = newValue;
         }
@@ -783,6 +823,7 @@ var textBinding = function textBinding(cache, viewModel, bindingAttrs) {
  */
 var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
+    var paramList = cache.parameters;
 
     if (!dataKey) {
         return;
@@ -793,6 +834,7 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
     var oldShowStatus = elementData.showStatus;
     var isInvertBoolean = dataKey.charAt(0) === '!';
     var shouldShow = void 0;
+    var viewModelContext = void 0;
 
     dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
     shouldShow = util.getViewModelValue(viewModel, dataKey);
@@ -800,7 +842,10 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
     // do nothing if data in viewModel is undefined
     if (typeof shouldShow !== 'undefined' && shouldShow !== null) {
         if (typeof shouldShow === 'function') {
-            shouldShow = shouldShow.call(viewModel, oldShowStatus, $element);
+            viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
+            paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+            paramList.unshift(oldShowStatus, $element);
+            shouldShow = shouldShow.apply(viewModelContext, paramList);
         }
 
         shouldShow = Boolean(shouldShow);
@@ -838,6 +883,7 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
  */
 var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
+    var paramList = cache.parameters;
 
     if (!dataKey) {
         return;
@@ -853,9 +899,13 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     var isViewDataString = false;
     var domCssList = void 0;
     var cssList = [];
+    var viewModelContext = void 0;
 
     if (typeof vmCssListObj === 'function') {
-        vmCssListObj = vmCssListObj.call(viewModel, oldCssList, $element);
+        viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+        paramList.unshift(oldCssList, $element);
+        vmCssListObj = vmCssListObj.apply(viewModelContext, paramList);
     }
 
     if (util.isPlainObject(vmCssListObj)) {
@@ -919,6 +969,7 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
  */
 var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
+    var paramList = cache.parameters;
 
     if (!dataKey) {
         return;
@@ -928,9 +979,13 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
     var elementData = $element.data(elementDataNamespace) || {};
     var oldAttrObj = elementData.attrObj || {};
     var vmAttrObj = util.getViewModelValue(viewModel, dataKey);
+    var viewModelContext = void 0;
 
     if (typeof vmAttrObj === 'function') {
-        vmAttrObj = vmAttrObj.call(viewModel, oldAttrObj, $element);
+        viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+        paramList.push(oldAttrObj, $element);
+        vmAttrObj = vmAttrObj.apply(viewModelContext, paramList);
     }
 
     if (!util.isPlainObject(vmAttrObj) || util.isEmptyObject(vmAttrObj)) {
@@ -986,7 +1041,7 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
 var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
 
-    if (!dataKey) {
+    if (!dataKey || dataKey.length > config.maxDatakeyLength) {
         return;
     }
 
@@ -1069,6 +1124,9 @@ var bindingUpdateConditions = {
     init: 'INIT'
 };
 
+// maximum string length before running regex
+var maxDatakeyLength = 50;
+
 exports.bindingAttrs = bindingAttrs;
 exports.dataIndexAttr = dataIndexAttr;
 exports.templateSettings = templateSettings;
@@ -1076,6 +1134,7 @@ exports.serverRenderedAttr = serverRenderedAttr;
 exports.commentPrefix = commentPrefix;
 exports.bindingUpdateConditions = bindingUpdateConditions;
 exports.bindingDataReference = bindingDataReference;
+exports.maxDatakeyLength = maxDatakeyLength;
 
 },{}],4:[function(require,module,exports){
 'use strict';
@@ -1163,7 +1222,7 @@ var createBindingCache = function createBindingCache() {
                         dataKey: attrValue
                     };
 
-                    // TODO - for store function call parameters eg. '$data', '$root'
+                    // for store function call parameters eg. '$index', '$root'
                     // useful with DOM for-loop template as reference to binding data
                     var paramList = util.getFunctionParameterList(attrValue);
                     if (paramList) {
@@ -1286,6 +1345,21 @@ var setDocRangeEndAfter = function setDocRangeEndAfter(node, forOfBindingData) {
     }
 };
 
+var createIterationViewModel = function createIterationViewModel(_ref) {
+    var forOfBindingData = _ref.forOfBindingData,
+        viewModel = _ref.viewModel,
+        iterationData = _ref.iterationData,
+        keys = _ref.keys,
+        index = _ref.index;
+
+    var iterationVm = {};
+    iterationVm[forOfBindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
+    // populate common binding data reference
+    iterationVm[config.bindingDataReference.rootDataKey] = viewModel;
+    iterationVm[config.bindingDataReference.currentIndex] = index;
+    return iterationVm;
+};
+
 var generateForOfElements = function generateForOfElements(forOfBindingData, viewModel, bindingAttrs, iterationData, keys) {
     var fragment = document.createDocumentFragment();
     var iterationDataLength = forOfBindingData.iterationSize;
@@ -1301,12 +1375,13 @@ var generateForOfElements = function generateForOfElements(forOfBindingData, vie
     for (i = 0; i < iterationDataLength; i += 1) {
         clonedItem = util.cloneDomNode(forOfBindingData.el);
         // create an iterationVm match iterator alias
-        iterationVm = {};
-        iterationVm[forOfBindingData.iterator.alias] = keys ? iterationData[keys[i]] : iterationData[i];
-        // populate common binding data reference
-        iterationVm[config.bindingDataReference.rootDataKey] = viewModel;
-        iterationVm[config.bindingDataReference.currentIndex] = i;
-
+        iterationVm = createIterationViewModel({
+            forOfBindingData: forOfBindingData,
+            viewModel: viewModel,
+            iterationData: iterationData,
+            keys: keys,
+            index: i
+        });
         // create bindingCache per iteration
         iterationBindingCache = (0, _domWalker2['default'])(clonedItem, bindingAttrs);
         forOfBindingData.iterationBindingCache.push(iterationBindingCache);
@@ -1357,11 +1432,11 @@ var insertRenderedElements = function insertRenderedElements(forOfBindingData, f
     }
 };
 
-var applyBindings = function applyBindings(_ref) {
-    var elementCache = _ref.elementCache,
-        viewModel = _ref.viewModel,
-        bindingAttrs = _ref.bindingAttrs,
-        isRegenerate = _ref.isRegenerate;
+var applyBindings = function applyBindings(_ref2) {
+    var elementCache = _ref2.elementCache,
+        viewModel = _ref2.viewModel,
+        bindingAttrs = _ref2.bindingAttrs,
+        isRegenerate = _ref2.isRegenerate;
 
     var bindingUpdateOption = void 0;
     if (isRegenerate) {
@@ -1412,7 +1487,14 @@ var renderForOfBinding = function renderForOfBinding(forOfBindingData, viewModel
     }
 
     if (!isRegenerate) {
-        forOfBindingData.iterationBindingCache.each(function (elementCache) {
+        forOfBindingData.iterationBindingCache.forEach(function (elementCache, i) {
+            var iterationVm = createIterationViewModel({
+                forOfBindingData: forOfBindingData,
+                viewModel: viewModel,
+                iterationData: iterationData,
+                keys: keys,
+                index: i
+            });
             applyBindings({
                 elementCache: elementCache,
                 viewModel: iterationVm,
@@ -1621,8 +1703,15 @@ exports.publishEvent = publishEvent;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.resolveParamList = exports.resolveViewModelContext = exports.insertAfter = exports.cloneDomNode = exports.getNodeAttrObj = exports.invertObj = exports.getFunctionParameterList = exports.getFormData = exports.arrayRemoveMatch = exports.debounceRaf = exports.parseStringToJson = exports.setViewModelValue = exports.getViewModelValue = exports.generateElementCache = exports.extend = exports.isEmptyObject = exports.isPlainObject = exports.isArray = exports.REGEX = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _config = require('./config');
+
+var config = _interopRequireWildcard(_config);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
 // require to use lodash
 _ = window._ || {};
@@ -1744,6 +1833,9 @@ var getFormData = function getFormData($form) {
  * @return {array} paramlist
  */
 var getFunctionParameterList = function getFunctionParameterList(str) {
+    if (!str || str.length > config.maxDatakeyLength) {
+        return;
+    }
     var paramlist = str.match(REGEX.FUNCTIONPARAM);
 
     if (paramlist && paramlist[1]) {
@@ -1908,6 +2000,38 @@ var insertAfter = function insertAfter(parentNode, newNode, referenceNode) {
     return parentNode.insertBefore(newNode, refNextElement);
 };
 
+var resolveViewModelContext = function resolveViewModelContext(viewModel, datakey) {
+    var ret = viewModel;
+    var bindingDataContext = void 0;
+    if (typeof datakey !== 'string') {
+        return ret;
+    }
+    bindingDataContext = datakey.split('.');
+    if (bindingDataContext.length > 1) {
+        if (bindingDataContext[0] === config.bindingDataReference.rootDataKey) {
+            ret = viewModel[config.bindingDataReference.rootDataKey] || viewModel;
+        } else if (bindingDataContext[0] === config.bindingDataReference.currentData) {
+            ret = viewModel[config.bindingDataReference.currentData] || viewModel;
+        }
+    }
+    return ret;
+};
+
+var resolveParamList = function resolveParamList(viewModel, paramList) {
+    if (!viewModel || !isArray(paramList)) {
+        return;
+    }
+    return paramList.map(function (param) {
+        param = param.trim();
+        if (param === config.bindingDataReference.currentIndex) {
+            param = viewModel[config.bindingDataReference.currentIndex];
+        } else if (param === config.bindingDataReference.rootDataKey) {
+            param = viewModel;
+        }
+        return param;
+    });
+};
+
 exports.REGEX = REGEX;
 exports.isArray = isArray;
 exports.isPlainObject = isPlainObject;
@@ -1925,8 +2049,10 @@ exports.invertObj = invertObj;
 exports.getNodeAttrObj = getNodeAttrObj;
 exports.cloneDomNode = cloneDomNode;
 exports.insertAfter = insertAfter;
+exports.resolveViewModelContext = resolveViewModelContext;
+exports.resolveParamList = resolveParamList;
 
-},{}]},{},[6])
+},{"./config":3}]},{},[6])
 
 
 //# sourceMappingURL=dataBind.js.map

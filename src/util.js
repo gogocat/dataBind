@@ -1,3 +1,5 @@
+import * as config from './config';
+
 // require to use lodash
 _ = window._ || {};
 
@@ -126,6 +128,9 @@ const getFormData = ($form) => {
  * @return {array} paramlist
  */
 const getFunctionParameterList = (str) => {
+    if (!str || str.length > config.maxDatakeyLength) {
+        return;
+    }
     let paramlist = str.match(REGEX.FUNCTIONPARAM);
 
     if (paramlist && paramlist[1]) {
@@ -284,6 +289,38 @@ const insertAfter = (parentNode, newNode, referenceNode) => {
     return parentNode.insertBefore(newNode, refNextElement);
 };
 
+const resolveViewModelContext = (viewModel, datakey) => {
+    let ret = viewModel;
+    let bindingDataContext;
+    if (typeof datakey !== 'string') {
+        return ret;
+    }
+    bindingDataContext = datakey.split('.');
+    if (bindingDataContext.length > 1) {
+        if (bindingDataContext[0] === config.bindingDataReference.rootDataKey) {
+            ret = viewModel[config.bindingDataReference.rootDataKey] || viewModel;
+        } else if (bindingDataContext[0] === config.bindingDataReference.currentData) {
+            ret = viewModel[config.bindingDataReference.currentData] || viewModel;
+        }
+    }
+    return ret;
+};
+
+const resolveParamList = (viewModel, paramList) => {
+    if (!viewModel || !isArray(paramList)) {
+        return;
+    }
+    return paramList.map((param) => {
+        param = param.trim();
+        if (param === config.bindingDataReference.currentIndex) {
+            param = viewModel[config.bindingDataReference.currentIndex];
+        } else if (param === config.bindingDataReference.rootDataKey) {
+            param = viewModel;
+        }
+        return param;
+    });
+};
+
 export {
     REGEX,
     isArray,
@@ -302,4 +339,6 @@ export {
     getNodeAttrObj,
     cloneDomNode,
     insertAfter,
+    resolveViewModelContext,
+    resolveParamList,
 };
