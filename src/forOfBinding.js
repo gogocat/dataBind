@@ -32,7 +32,9 @@ const wrapCommentAround = (id, fragment) => {
  * @description remove elments by range
  */
 const removeElemnetsByCommentWrap = (forOfBindingData) => {
-    return forOfBindingData.docRange.deleteContents();
+    if (forOfBindingData.docRange) {
+        return forOfBindingData.docRange.deleteContents();
+    }
 };
 
 /**
@@ -160,7 +162,7 @@ const insertRenderedElements = (forOfBindingData, fragment) => {
                 fragment,
                 forOfBindingData.nextNonTemplateElement
             );
-        } else {
+        } else if (forOfBindingData.parentElement) {
             // insert from parent
             forOfBindingData.parentElement.appendChild(fragment);
         }

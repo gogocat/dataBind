@@ -1062,7 +1062,8 @@ var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
             cache.nextNonTemplateElement = cache.el.nextSibling;
         }
     }
-
+    // debug
+    console.log('forOfBinding: ', cache);
     (0, _forOfBinding2['default'])(cache, viewModel, bindingAttrs);
 };
 
@@ -1304,7 +1305,9 @@ var wrapCommentAround = function wrapCommentAround(id, fragment) {
  * @description remove elments by range
  */
 var removeElemnetsByCommentWrap = function removeElemnetsByCommentWrap(forOfBindingData) {
-    return forOfBindingData.docRange.deleteContents();
+    if (forOfBindingData.docRange) {
+        return forOfBindingData.docRange.deleteContents();
+    }
 };
 
 /**
@@ -1422,7 +1425,7 @@ var insertRenderedElements = function insertRenderedElements(forOfBindingData, f
         // insert before next non template element
         if (forOfBindingData.nextNonTemplateElement) {
             forOfBindingData.parentElement.insertBefore(fragment, forOfBindingData.nextNonTemplateElement);
-        } else {
+        } else if (forOfBindingData.parentElement) {
             // insert from parent
             forOfBindingData.parentElement.appendChild(fragment);
         }
