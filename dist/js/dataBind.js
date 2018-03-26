@@ -90,7 +90,10 @@ var Binder = function () {
             // store viewModel data as $root for easy access
             this.$rootElement.data(rootDataKey, this.viewModel);
 
-            this.elementCache = (0, _domWalker2['default'])(this.$rootElement[0], this.bindingAttrs);
+            this.elementCache = (0, _domWalker2['default'])({
+                rootNode: this.$rootElement[0],
+                bindingAttrs: this.bindingAttrs
+            });
 
             // updateElementCache if server rendered on init
             if (this.isServerRendered && !this.initRendered) {
@@ -115,13 +118,20 @@ var Binder = function () {
             var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
             if (opt.allCache) {
-                this.elementCache = (0, _domWalker2['default'])(this.$rootElement[0], this.bindingAttrs);
+                this.elementCache = (0, _domWalker2['default'])({
+                    rootNode: this.$rootElement[0],
+                    bindingAttrs: this.bindingAttrs
+                });
             }
             // walk from first rendered template node to create/update child bindingCache
             if (opt.allCache || opt.templateCache) {
                 if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
                     this.elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
-                        cache.bindingCache = (0, _domWalker2['default'])(cache.el, _this.bindingAttrs);
+                        cache.bindingCache = (0, _domWalker2['default'])({
+                            rootNode: cache.el,
+                            bindingAttrs: _this.bindingAttrs,
+                            isSubBindingCache: true
+                        });
                     });
                 }
             }
@@ -1179,10 +1189,14 @@ var getAttributesObject = function getAttributesObject(node) {
     return ret;
 };
 
-var createBindingCache = function createBindingCache() {
-    var rootNode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    var bindingAttrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var skipCheck = arguments[2];
+var createBindingCache = function createBindingCache(_ref) {
+    var _ref$rootNode = _ref.rootNode,
+        rootNode = _ref$rootNode === undefined ? null : _ref$rootNode,
+        _ref$bindingAttrs = _ref.bindingAttrs,
+        bindingAttrs = _ref$bindingAttrs === undefined ? {} : _ref$bindingAttrs,
+        skipCheck = _ref.skipCheck,
+        _ref$isSubBindingCach = _ref.isSubBindingCache,
+        isSubBindingCache = _ref$isSubBindingCach === undefined ? false : _ref$isSubBindingCach;
 
     var bindingCache = {};
 
@@ -1196,7 +1210,7 @@ var createBindingCache = function createBindingCache() {
         return node.tagName === 'SVG';
     };
 
-    var defaultSkipCheck = typeof skipCheck === 'function' ? skipCheck : function (node) {
+    var defaultSkipCheck = function defaultSkipCheck(node) {
         return node.tagName === 'SVG' || node.getAttribute(bindingAttrs.comp);
     };
 
@@ -1206,13 +1220,31 @@ var createBindingCache = function createBindingCache() {
         var attrObj = void 0;
         var attrValue = void 0;
         var cacheData = void 0;
+        var isSkipForOfChild = false;
 
         if (node.nodeType === 1 && node.hasAttributes()) {
             if (skipCheckFn(node)) {
                 return false;
             }
 
+            if (typeof skipCheck === 'function' && skipCheck(node)) {
+                return false;
+            }
+
+            // when creating sub bindingCache if is for tmp binding
+            // skip same element that has forOf binding the  forOf is alredy parsed
             attrObj = getAttributesObject(node);
+
+            if (attrObj[bindingAttrs.forOf]) {
+                isSkipForOfChild = true;
+            }
+
+            if (isSubBindingCache) {
+                // remove forOf if node has template binding to avoid double element cache
+                if (attrObj[bindingAttrs.forOf] && attrObj[bindingAttrs.tmp]) {
+                    delete attrObj[bindingAttrs.forOf];
+                }
+            }
 
             Object.keys(attrObj).forEach(function (key) {
                 if (bindingAttrsMap[key] && attrObj[key]) {
@@ -1236,7 +1268,7 @@ var createBindingCache = function createBindingCache() {
             });
 
             // after cache forOf skip parse child nodes
-            if (attrObj[bindingAttrs.forOf]) {
+            if (isSkipForOfChild) {
                 return false;
             }
         }
@@ -1278,6 +1310,150 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 /* eslint-disable no-invalid-this */
 var forOfCount = 0;
+
+var renderForOfBinding = function renderForOfBinding(forOfBindingData, viewModel, bindingAttrs) {
+    if (!forOfBindingData || !viewModel || !bindingAttrs) {
+        return;
+    }
+    var keys = void 0;
+    var iterationDataLength = void 0;
+    var iterationData = util.getViewModelValue(viewModel, forOfBindingData.iterator.dataKey);
+    var isRegenerate = false;
+
+    // check iterationData and set iterationDataLength
+    if (util.isArray(iterationData)) {
+        iterationDataLength = iterationData.length;
+    } else if (util.isPlainObject(iterationData)) {
+        keys = Object.keys(iterationData);
+        iterationDataLength = keys.length;
+    } else {
+        throw new TypeError('iterationData is not an plain object or array');
+    }
+
+    // assign forOf internal id to forOfBindingData once
+    if (typeof forOfBindingData.id === 'undefined') {
+        forOfBindingData.id = forOfCount;
+        forOfCount += 1;
+        // store iterationDataLength
+        forOfBindingData.iterationSize = iterationDataLength;
+        // remove orignal node for-of attributes
+        forOfBindingData.el.removeAttribute(bindingAttrs.forOf);
+        isRegenerate = true;
+    } else {
+        // only regenerate cache if iterationDataLength changed
+        isRegenerate = forOfBindingData.iterationSize !== iterationDataLength;
+        // update iterationSize
+        forOfBindingData.iterationSize = iterationDataLength;
+    }
+
+    if (!isRegenerate) {
+        forOfBindingData.iterationBindingCache.forEach(function (elementCache, i) {
+            var iterationVm = createIterationViewModel({
+                forOfBindingData: forOfBindingData,
+                viewModel: viewModel,
+                iterationData: iterationData,
+                keys: keys,
+                index: i
+            });
+            applyBindings({
+                elementCache: elementCache,
+                viewModel: iterationVm,
+                bindingAttrs: bindingAttrs,
+                isRegenerate: false
+            });
+        });
+
+        return;
+    }
+
+    // generate forOfBinding elements into fragment
+    var fragment = generateForOfElements(forOfBindingData, viewModel, bindingAttrs, iterationData, keys);
+    // insert fragment content into DOM
+    return insertRenderedElements(forOfBindingData, fragment);
+};
+
+var createIterationViewModel = function createIterationViewModel(_ref) {
+    var forOfBindingData = _ref.forOfBindingData,
+        viewModel = _ref.viewModel,
+        iterationData = _ref.iterationData,
+        keys = _ref.keys,
+        index = _ref.index;
+
+    var iterationVm = {};
+    iterationVm[forOfBindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
+    // populate common binding data reference
+    iterationVm[config.bindingDataReference.rootDataKey] = viewModel;
+    iterationVm[config.bindingDataReference.currentIndex] = index;
+    return iterationVm;
+};
+
+var applyBindings = function applyBindings(_ref2) {
+    var elementCache = _ref2.elementCache,
+        viewModel = _ref2.viewModel,
+        bindingAttrs = _ref2.bindingAttrs,
+        isRegenerate = _ref2.isRegenerate;
+
+    var bindingUpdateOption = void 0;
+    if (isRegenerate) {
+        bindingUpdateOption = (0, _binder.createBindingOption)(config.bindingUpdateConditions.init);
+    } else {
+        bindingUpdateOption = (0, _binder.createBindingOption)();
+    }
+
+    _binder.Binder.applyBinding({
+        elementCache: elementCache,
+        updateOption: bindingUpdateOption,
+        bindingAttrs: bindingAttrs,
+        viewModel: viewModel
+    });
+};
+
+var generateForOfElements = function generateForOfElements(forOfBindingData, viewModel, bindingAttrs, iterationData, keys) {
+    var fragment = document.createDocumentFragment();
+    var iterationDataLength = forOfBindingData.iterationSize;
+    var clonedItem = void 0;
+    var iterationVm = void 0;
+    var iterationBindingCache = void 0;
+    var i = 0;
+
+    // create or clear exisitng iterationBindingCache
+    if (util.isArray(forOfBindingData.iterationBindingCache)) {
+        forOfBindingData.iterationBindingCache.length = 0;
+    } else {
+        forOfBindingData.iterationBindingCache = [];
+    }
+
+    // generate forOf and append to DOM
+    for (i = 0; i < iterationDataLength; i += 1) {
+        clonedItem = util.cloneDomNode(forOfBindingData.el);
+        // create an iterationVm match iterator alias
+        iterationVm = createIterationViewModel({
+            forOfBindingData: forOfBindingData,
+            viewModel: viewModel,
+            iterationData: iterationData,
+            keys: keys,
+            index: i
+        });
+        // create bindingCache per iteration
+        iterationBindingCache = (0, _domWalker2['default'])({
+            rootNode: clonedItem,
+            bindingAttrs: bindingAttrs
+        });
+
+        forOfBindingData.iterationBindingCache.push(iterationBindingCache);
+
+        applyBindings({
+            elementCache: forOfBindingData.iterationBindingCache[i],
+            viewModel: iterationVm,
+            bindingAttrs: bindingAttrs,
+            isRegenerate: true
+        });
+
+        fragment.appendChild(clonedItem);
+    }
+
+    return fragment;
+};
 
 /**
  * wrapCommentAround
@@ -1348,60 +1524,6 @@ var setDocRangeEndAfter = function setDocRangeEndAfter(node, forOfBindingData) {
     }
 };
 
-var createIterationViewModel = function createIterationViewModel(_ref) {
-    var forOfBindingData = _ref.forOfBindingData,
-        viewModel = _ref.viewModel,
-        iterationData = _ref.iterationData,
-        keys = _ref.keys,
-        index = _ref.index;
-
-    var iterationVm = {};
-    iterationVm[forOfBindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
-    // populate common binding data reference
-    iterationVm[config.bindingDataReference.rootDataKey] = viewModel;
-    iterationVm[config.bindingDataReference.currentIndex] = index;
-    return iterationVm;
-};
-
-var generateForOfElements = function generateForOfElements(forOfBindingData, viewModel, bindingAttrs, iterationData, keys) {
-    var fragment = document.createDocumentFragment();
-    var iterationDataLength = forOfBindingData.iterationSize;
-    var clonedItem = void 0;
-    var iterationVm = void 0;
-    var iterationBindingCache = void 0;
-    var i = 0;
-
-    // create or clear exisitng iterationBindingCache
-    forOfBindingData.iterationBindingCache = forOfBindingData.iterationBindingCache ? forOfBindingData.iterationBindingCache.length = 0 : [];
-
-    // generate forOf and append to DOM
-    for (i = 0; i < iterationDataLength; i += 1) {
-        clonedItem = util.cloneDomNode(forOfBindingData.el);
-        // create an iterationVm match iterator alias
-        iterationVm = createIterationViewModel({
-            forOfBindingData: forOfBindingData,
-            viewModel: viewModel,
-            iterationData: iterationData,
-            keys: keys,
-            index: i
-        });
-        // create bindingCache per iteration
-        iterationBindingCache = (0, _domWalker2['default'])(clonedItem, bindingAttrs);
-        forOfBindingData.iterationBindingCache.push(iterationBindingCache);
-
-        applyBindings({
-            elementCache: forOfBindingData.iterationBindingCache[i],
-            viewModel: iterationVm,
-            bindingAttrs: bindingAttrs,
-            isRegenerate: true
-        });
-
-        fragment.appendChild(clonedItem);
-    }
-
-    return fragment;
-};
-
 var insertRenderedElements = function insertRenderedElements(forOfBindingData, fragment) {
     // wrap around with comment
     fragment = wrapCommentAround(forOfBindingData.id, fragment);
@@ -1433,86 +1555,6 @@ var insertRenderedElements = function insertRenderedElements(forOfBindingData, f
         forOfBindingData.docRange.setStartBefore(forOfBindingData.parentElement.firstChild);
         setDocRangeEndAfter(forOfBindingData.parentElement.firstChild, forOfBindingData);
     }
-};
-
-var applyBindings = function applyBindings(_ref2) {
-    var elementCache = _ref2.elementCache,
-        viewModel = _ref2.viewModel,
-        bindingAttrs = _ref2.bindingAttrs,
-        isRegenerate = _ref2.isRegenerate;
-
-    var bindingUpdateOption = void 0;
-    if (isRegenerate) {
-        bindingUpdateOption = (0, _binder.createBindingOption)(config.bindingUpdateConditions.init);
-    } else {
-        bindingUpdateOption = (0, _binder.createBindingOption)();
-    }
-
-    _binder.Binder.applyBinding({
-        elementCache: elementCache,
-        updateOption: bindingUpdateOption,
-        bindingAttrs: bindingAttrs,
-        viewModel: viewModel
-    });
-};
-
-var renderForOfBinding = function renderForOfBinding(forOfBindingData, viewModel, bindingAttrs) {
-    if (!forOfBindingData || !viewModel || !bindingAttrs) {
-        return;
-    }
-    var keys = void 0;
-    var iterationDataLength = void 0;
-    var iterationData = util.getViewModelValue(viewModel, forOfBindingData.iterator.dataKey);
-    var isRegenerate = false;
-
-    // check iterationData and set iterationDataLength
-    if (util.isArray(iterationData)) {
-        iterationDataLength = iterationData.length;
-    } else if (util.isPlainObject(iterationData)) {
-        keys = Object.keys(iterationData);
-        iterationDataLength = keys.length;
-    } else {
-        throw new TypeError('iterationData is not an plain object or array');
-    }
-
-    // assign forOf internal id to forOfBindingData once
-    if (typeof forOfBindingData.id === 'undefined') {
-        forOfBindingData.id = forOfCount;
-        forOfCount += 1;
-        // store iterationDataLength
-        forOfBindingData.iterationSize = iterationDataLength;
-        // remove orignal node for-of attributes
-        forOfBindingData.el.removeAttribute(bindingAttrs.forOf);
-        isRegenerate = true;
-    } else {
-        // only regenerate cache if iterationDataLength changed
-        isRegenerate = forOfBindingData.iterationSize !== iterationDataLength;
-    }
-
-    if (!isRegenerate) {
-        forOfBindingData.iterationBindingCache.forEach(function (elementCache, i) {
-            var iterationVm = createIterationViewModel({
-                forOfBindingData: forOfBindingData,
-                viewModel: viewModel,
-                iterationData: iterationData,
-                keys: keys,
-                index: i
-            });
-            applyBindings({
-                elementCache: elementCache,
-                viewModel: iterationVm,
-                bindingAttrs: bindingAttrs,
-                isRegenerate: false
-            });
-        });
-
-        return;
-    }
-
-    // generate forOfBinding elements into fragment
-    var fragment = generateForOfElements(forOfBindingData, viewModel, bindingAttrs, iterationData, keys);
-    // insert fragment content into DOM
-    return insertRenderedElements(forOfBindingData, fragment);
 };
 
 exports['default'] = renderForOfBinding;

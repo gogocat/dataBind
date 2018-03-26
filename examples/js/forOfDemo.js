@@ -55,6 +55,32 @@
             this.personalDetails[index].show = false;
             this.updateView();
         }
+
+        addRows(e) {
+            e.preventDefault();
+            this.personalDetails.push(
+                {
+                    show: true,
+                    inputName: 'address',
+                    label: 'Address',
+                    value: '',
+                    updatedCss: 'updated',
+                },
+                {
+                    show: true,
+                    inputName: 'country',
+                    label: 'Country',
+                    value: '',
+                    updatedCss: 'updated',
+                }
+            );
+            this.updateView();
+        }
+        removeRows(e) {
+            e.preventDefault();
+            this.personalDetails.splice(this.personalDetails.length - 2, 2);
+            this.updateView();
+        }
         afterTemplateRender() {
             console.log('template rendered');
         }

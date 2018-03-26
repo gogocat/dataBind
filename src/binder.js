@@ -52,7 +52,10 @@ class Binder {
         // store viewModel data as $root for easy access
         this.$rootElement.data(rootDataKey, this.viewModel);
 
-        this.elementCache = createBindingCache(this.$rootElement[0], this.bindingAttrs);
+        this.elementCache = createBindingCache({
+            rootNode: this.$rootElement[0],
+            bindingAttrs: this.bindingAttrs,
+        });
 
         // updateElementCache if server rendered on init
         if (this.isServerRendered && !this.initRendered) {
@@ -70,7 +73,10 @@ class Binder {
      */
     updateElementCache(opt = {}) {
         if (opt.allCache) {
-            this.elementCache = createBindingCache(this.$rootElement[0], this.bindingAttrs);
+            this.elementCache = createBindingCache({
+                rootNode: this.$rootElement[0],
+                bindingAttrs: this.bindingAttrs,
+            });
         }
         // walk from first rendered template node to create/update child bindingCache
         if (opt.allCache || opt.templateCache) {
@@ -79,7 +85,11 @@ class Binder {
                 this.elementCache[this.bindingAttrs.tmp].length
             ) {
                 this.elementCache[this.bindingAttrs.tmp].forEach((cache) => {
-                    cache.bindingCache = createBindingCache(cache.el, this.bindingAttrs);
+                    cache.bindingCache = createBindingCache({
+                        rootNode: cache.el,
+                        bindingAttrs: this.bindingAttrs,
+                        isSubBindingCache: true,
+                    });
                 });
             }
         }

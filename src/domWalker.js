@@ -29,7 +29,12 @@ const getAttributesObject = (node) => {
     return ret;
 };
 
-const createBindingCache = (rootNode = null, bindingAttrs = {}, skipCheck) => {
+const createBindingCache = ({
+    rootNode = null,
+    bindingAttrs = {},
+    skipCheck,
+    isSubBindingCache = false,
+}) => {
     let bindingCache = {};
 
     if (!rootNode instanceof window.Node) {
@@ -42,24 +47,39 @@ const createBindingCache = (rootNode = null, bindingAttrs = {}, skipCheck) => {
         return node.tagName === 'SVG';
     };
 
-    const defaultSkipCheck =
-        typeof skipCheck === 'function'
-            ? skipCheck
-            : (node) => {
-                return node.tagName === 'SVG' || node.getAttribute(bindingAttrs.comp);
-            };
+    const defaultSkipCheck = (node) => {
+        return node.tagName === 'SVG' || node.getAttribute(bindingAttrs.comp);
+    };
 
     const parseNode = (node, skipCheckFn = defaultSkipCheck) => {
         let attrObj;
         let attrValue;
         let cacheData;
+        let isSkipForOfChild = false;
 
         if (node.nodeType === 1 && node.hasAttributes()) {
             if (skipCheckFn(node)) {
                 return false;
             }
 
+            if (typeof skipCheck === 'function' && skipCheck(node)) {
+                return false;
+            }
+
+            // when creating sub bindingCache if is for tmp binding
+            // skip same element that has forOf binding the  forOf is alredy parsed
             attrObj = getAttributesObject(node);
+
+            if (attrObj[bindingAttrs.forOf]) {
+                isSkipForOfChild = true;
+            }
+
+            if (isSubBindingCache) {
+                // remove forOf if node has template binding to avoid double element cache
+                if (attrObj[bindingAttrs.forOf] && attrObj[bindingAttrs.tmp]) {
+                    delete attrObj[bindingAttrs.forOf];
+                }
+            }
 
             Object.keys(attrObj).forEach((key) => {
                 if (bindingAttrsMap[key] && attrObj[key]) {
@@ -85,7 +105,7 @@ const createBindingCache = (rootNode = null, bindingAttrs = {}, skipCheck) => {
             });
 
             // after cache forOf skip parse child nodes
-            if (attrObj[bindingAttrs.forOf]) {
+            if (isSkipForOfChild) {
                 return false;
             }
         }
