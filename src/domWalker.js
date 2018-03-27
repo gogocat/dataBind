@@ -29,12 +29,7 @@ const getAttributesObject = (node) => {
     return ret;
 };
 
-const createBindingCache = ({
-    rootNode = null,
-    bindingAttrs = {},
-    skipCheck,
-    isSubBindingCache = false,
-}) => {
+const createBindingCache = ({rootNode = null, bindingAttrs = {}, skipCheck}) => {
     let bindingCache = {};
 
     if (!rootNode instanceof window.Node) {
@@ -72,13 +67,6 @@ const createBindingCache = ({
 
             if (attrObj[bindingAttrs.forOf]) {
                 isSkipForOfChild = true;
-            }
-
-            if (isSubBindingCache) {
-                // remove forOf if node has template binding to avoid double element cache
-                if (attrObj[bindingAttrs.forOf] && attrObj[bindingAttrs.tmp]) {
-                    delete attrObj[bindingAttrs.forOf];
-                }
             }
 
             Object.keys(attrObj).forEach((key) => {

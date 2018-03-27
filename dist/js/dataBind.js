@@ -117,6 +117,8 @@ var Binder = function () {
 
             var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
+            var skipForOfParseFn = void 0;
+
             if (opt.allCache) {
                 this.elementCache = (0, _domWalker2['default'])({
                     rootNode: this.$rootElement[0],
@@ -127,10 +129,18 @@ var Binder = function () {
             if (opt.allCache || opt.templateCache) {
                 if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
                     this.elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
+                        // set skipCheck as skipForOfParseFn whenever an node has
+                        // both template and forOf bindings
+                        // then the template bindingCache should be an empty object
+                        if (cache.el.hasAttribute(_this.bindingAttrs.forOf)) {
+                            skipForOfParseFn = function skipForOfParseFn(node) {
+                                return true;
+                            };
+                        }
                         cache.bindingCache = (0, _domWalker2['default'])({
                             rootNode: cache.el,
                             bindingAttrs: _this.bindingAttrs,
-                            isSubBindingCache: true
+                            skipCheck: skipForOfParseFn
                         });
                     });
                 }
@@ -240,13 +250,11 @@ var Binder = function () {
         }
     }], [{
         key: 'applyBinding',
-        value: function applyBinding() {
-            var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-            var elementCache = opt.elementCache,
-                updateOption = opt.updateOption,
-                bindingAttrs = opt.bindingAttrs,
-                viewModel = opt.viewModel;
-
+        value: function applyBinding(_ref) {
+            var elementCache = _ref.elementCache,
+                updateOption = _ref.updateOption,
+                bindingAttrs = _ref.bindingAttrs,
+                viewModel = _ref.viewModel;
 
             if (!elementCache && !updateOption) {
                 return;
@@ -1072,8 +1080,7 @@ var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
             cache.nextNonTemplateElement = cache.el.nextSibling;
         }
     }
-    // debug
-    console.log('forOfBinding: ', cache);
+
     (0, _forOfBinding2['default'])(cache, viewModel, bindingAttrs);
 };
 
@@ -1194,9 +1201,7 @@ var createBindingCache = function createBindingCache(_ref) {
         rootNode = _ref$rootNode === undefined ? null : _ref$rootNode,
         _ref$bindingAttrs = _ref.bindingAttrs,
         bindingAttrs = _ref$bindingAttrs === undefined ? {} : _ref$bindingAttrs,
-        skipCheck = _ref.skipCheck,
-        _ref$isSubBindingCach = _ref.isSubBindingCache,
-        isSubBindingCache = _ref$isSubBindingCach === undefined ? false : _ref$isSubBindingCach;
+        skipCheck = _ref.skipCheck;
 
     var bindingCache = {};
 
@@ -1237,13 +1242,6 @@ var createBindingCache = function createBindingCache(_ref) {
 
             if (attrObj[bindingAttrs.forOf]) {
                 isSkipForOfChild = true;
-            }
-
-            if (isSubBindingCache) {
-                // remove forOf if node has template binding to avoid double element cache
-                if (attrObj[bindingAttrs.forOf] && attrObj[bindingAttrs.tmp]) {
-                    delete attrObj[bindingAttrs.forOf];
-                }
             }
 
             Object.keys(attrObj).forEach(function (key) {

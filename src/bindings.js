@@ -641,8 +641,7 @@ const forOfBinding = (cache, viewModel, bindingAttrs) => {
             cache.nextNonTemplateElement = cache.el.nextSibling;
         }
     }
-    // debug
-    console.log('forOfBinding: ', cache);
+
     renderForOfBinding(cache, viewModel, bindingAttrs);
 };
 

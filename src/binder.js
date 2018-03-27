@@ -72,6 +72,8 @@ class Binder {
      * @description call createBindingCache to parse view and generate bindingCache
      */
     updateElementCache(opt = {}) {
+        let skipForOfParseFn;
+
         if (opt.allCache) {
             this.elementCache = createBindingCache({
                 rootNode: this.$rootElement[0],
@@ -85,10 +87,18 @@ class Binder {
                 this.elementCache[this.bindingAttrs.tmp].length
             ) {
                 this.elementCache[this.bindingAttrs.tmp].forEach((cache) => {
+                    // set skipCheck as skipForOfParseFn whenever an node has
+                    // both template and forOf bindings
+                    // then the template bindingCache should be an empty object
+                    if (cache.el.hasAttribute(this.bindingAttrs.forOf)) {
+                        skipForOfParseFn = (node) => {
+                            return true;
+                        };
+                    }
                     cache.bindingCache = createBindingCache({
                         rootNode: cache.el,
                         bindingAttrs: this.bindingAttrs,
-                        isSubBindingCache: true,
+                        skipCheck: skipForOfParseFn,
                     });
                 });
             }
@@ -159,9 +169,7 @@ class Binder {
         this.initRendered = true;
     }
 
-    static applyBinding(opt = {}) {
-        const {elementCache, updateOption, bindingAttrs, viewModel} = opt;
-
+    static applyBinding({elementCache, updateOption, bindingAttrs, viewModel}) {
         if (!elementCache && !updateOption) {
             return;
         }
