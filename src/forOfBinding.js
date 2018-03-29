@@ -80,6 +80,8 @@ const createIterationViewModel = ({forOfBindingData, viewModel, iterationData, k
         : iterationData[index];
     // populate common binding data reference
     iterationVm[config.bindingDataReference.rootDataKey] = viewModel;
+    iterationVm[config.bindingDataReference.currentData] =
+        iterationVm[forOfBindingData.iterator.alias];
     iterationVm[config.bindingDataReference.currentIndex] = index;
     return iterationVm;
 };

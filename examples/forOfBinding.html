@@ -27,13 +27,46 @@
             </div>
         </div>
 
+        <div class="container search-result" data-jq-comp="search-results-component">
+            <h4 id="searchResultTitle" class="text-center section-title" data-jq-text="searchResultTitle"></h4>
+
+            <div id="search-result-columns" class="card-columns" data-jq-tmp="{id: 'searchResultItem', data: '$root', append: true}">
+            </div>
+        </div>
 
     </div>
 
-    <script src="../vendors/lodash.custom.min.js"></script>
-    <script src="../vendors/jquery-3.2.1.min.js"></script>
-    <script src="../dist/js/dataBind.js"></script>
-    <script src="js/forOfDemo.js"></script>
+    <!-- searchResultItem test with deep nested templates -->
+    <template id="searchResultItem">
+        <div class="card result-item" data-jq-for="result in searchResults" data-jq-css="result.highlightCss">
+            <img class="card-img-top result-item__img" data-jq-attr="$root.getResultItemAttr($index)">
+            <div class="card-body" data-jq-tmp="{id: 'searchResultItemBody', data: 'result'}"></div>
+            <div data-jq-tmp="{id: 'searchResultItemFooter', data: 'result'}"></div>
+        </div>
+    </template>
+
+    <template id="searchResultItemBody">
+        <h4 class="card-title">{{data.title}}</h4>
+        <p class="card-text">{{data.description}}</p>
+    </template>
+
+    <template id="searchResultItemFooter">
+        <div class="card-footer result-item__footer">
+            <div class="result-item__icon-checkbox-wrap">
+                <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}" data-index="{{data.$index}}"
+                    data-jq-model="searchResults[{{data.$index}}].selected" data-jq-change="onAdMessageCheck">
+                <label for="{{data.id}}" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
+            </div>
+
+            <span data-jq-tmp="{id: 'searchResultItemBookMark', data: 'searchResults[{{data.$index}}]'}" data-index="{{data.$index}}"></span>
+        </div>
+    </template>
+
+    <template id="searchResultItemBookMark">
+        <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[{{data.$index}}].bookmarkedCss" data-jq-click="onAdBookmarkClick"
+            data-index="{{data.$index}}"></span>
+        <span class="oi result-item__icon" data-glyph="thumb-up">{{data.numLikes}}</span>
+    </template>
 
     <template id="formItems">
         <div class="col-8">
@@ -42,6 +75,11 @@
                 required>
         </div>
     </template>
+
+    <script src="../vendors/lodash.custom.min.js"></script>
+    <script src="../vendors/jquery-3.2.1.min.js"></script>
+    <script src="../dist/js/dataBind.js"></script>
+    <script src="js/forOfDemo.js"></script>
 </body>
 
 </html>

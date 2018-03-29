@@ -1381,6 +1381,7 @@ var createIterationViewModel = function createIterationViewModel(_ref) {
     iterationVm[forOfBindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
     // populate common binding data reference
     iterationVm[config.bindingDataReference.rootDataKey] = viewModel;
+    iterationVm[config.bindingDataReference.currentData] = iterationVm[forOfBindingData.iterator.alias];
     iterationVm[config.bindingDataReference.currentIndex] = index;
     return iterationVm;
 };
