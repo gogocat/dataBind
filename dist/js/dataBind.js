@@ -10,7 +10,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.createBindingOption = exports.Binder = undefined;
+exports.renderTemplatesBinding = exports.createBindingOption = exports.Binder = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -118,8 +118,10 @@ var Binder = function () {
             var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
             var skipForOfParseFn = void 0;
+            var elementCache = opt.elementCache || this.elementCache;
 
             if (opt.allCache) {
+                // walk dom from root element to regenerate elementCache
                 this.elementCache = (0, _domWalker2['default'])({
                     rootNode: this.$rootElement[0],
                     bindingAttrs: this.bindingAttrs
@@ -127,8 +129,8 @@ var Binder = function () {
             }
             // walk from first rendered template node to create/update child bindingCache
             if (opt.allCache || opt.templateCache) {
-                if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
-                    this.elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
+                if (elementCache[this.bindingAttrs.tmp] && elementCache[this.bindingAttrs.tmp].length) {
+                    elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
                         // set skipCheck as skipForOfParseFn whenever an node has
                         // both template and forOf bindings
                         // then the template bindingCache should be an empty object
@@ -149,8 +151,6 @@ var Binder = function () {
     }, {
         key: 'render',
         value: function render() {
-            var _this2 = this;
-
             var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
             var updateOption = {};
@@ -167,32 +167,15 @@ var Binder = function () {
                 updateOption = createBindingOption('', opt);
             }
 
-            // render and apply binding to template(s) and forOf DOM
-            if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
-                // when re-render call with {templateBinding: true}
-                // template and nested templates
-                if (updateOption.templateBinding) {
-                    // overwrite updateOption with 'init' bindingUpdateConditions
-                    updateOption = createBindingOption(config.bindingUpdateConditions.init);
-
-                    this.elementCache[this.bindingAttrs.tmp].forEach(function ($element) {
-                        binds.renderTemplate($element, _this2.viewModel, _this2.bindingAttrs, _this2.elementCache);
-                    });
-                    // update cache after all template(s) rendered
-                    this.updateElementCache({
-                        templateCache: true
-                    });
-                }
-                // apply bindings to rendered templates element
-                this.elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
-                    Binder.applyBinding({
-                        elementCache: cache.bindingCache,
-                        updateOption: updateOption,
-                        bindingAttrs: _this2.bindingAttrs,
-                        viewModel: _this2.viewModel
-                    });
-                });
-            }
+            // render and apply binding to template(s)
+            // this is an share function therefore passing 'this' context
+            renderTemplatesBinding({
+                ctx: this,
+                elementCache: this.elementCache,
+                updateOption: updateOption,
+                bindingAttrs: this.bindingAttrs,
+                viewModel: this.viewModel
+            });
 
             // apply bindings to rest of the DOM
             Binder.applyBinding({
@@ -256,7 +239,7 @@ var Binder = function () {
                 bindingAttrs = _ref.bindingAttrs,
                 viewModel = _ref.viewModel;
 
-            if (!elementCache && !updateOption) {
+            if (!elementCache || !updateOption) {
                 return;
             }
 
@@ -350,6 +333,46 @@ var Binder = function () {
     return Binder;
 }();
 
+var renderTemplatesBinding = function renderTemplatesBinding(_ref2) {
+    var ctx = _ref2.ctx,
+        elementCache = _ref2.elementCache,
+        updateOption = _ref2.updateOption,
+        bindingAttrs = _ref2.bindingAttrs,
+        viewModel = _ref2.viewModel;
+
+    if (!elementCache || !bindingAttrs) {
+        return false;
+    }
+    // render and apply binding to template(s) and forOf DOM
+    if (elementCache[bindingAttrs.tmp] && elementCache[bindingAttrs.tmp].length) {
+        // when re-render call with {templateBinding: true}
+        // template and nested templates
+        if (updateOption.templateBinding) {
+            // overwrite updateOption with 'init' bindingUpdateConditions
+            updateOption = createBindingOption(config.bindingUpdateConditions.init);
+
+            elementCache[bindingAttrs.tmp].forEach(function ($element) {
+                binds.renderTemplate($element, viewModel, bindingAttrs, elementCache);
+            });
+            // update cache after all template(s) rendered
+            ctx.updateElementCache({
+                templateCache: true,
+                elementCache: elementCache
+            });
+        }
+        // apply bindings to rendered templates element
+        elementCache[bindingAttrs.tmp].forEach(function (cache) {
+            Binder.applyBinding({
+                elementCache: cache.bindingCache,
+                updateOption: updateOption,
+                bindingAttrs: bindingAttrs,
+                viewModel: viewModel
+            });
+        });
+    }
+    return true;
+};
+
 /**
  * createBindingOption
  * @param {string} condition
@@ -358,8 +381,6 @@ var Binder = function () {
  * generate binding update option object by condition
  * @return {object} updateOption
  */
-
-
 var createBindingOption = function createBindingOption() {
     var condition = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
     var opt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -413,6 +434,7 @@ var createBindingOption = function createBindingOption() {
 
 exports.Binder = Binder;
 exports.createBindingOption = createBindingOption;
+exports.renderTemplatesBinding = renderTemplatesBinding;
 
 },{"./bindings":2,"./config":3,"./domWalker":4,"./pubSub":7,"./util":8}],2:[function(require,module,exports){
 'use strict';
@@ -1355,7 +1377,7 @@ var renderForOfBinding = function renderForOfBinding(forOfBindingData, viewModel
             });
             applyBindings({
                 elementCache: elementCache,
-                viewModel: iterationVm,
+                iterationVm: iterationVm,
                 bindingAttrs: bindingAttrs,
                 isRegenerate: false
             });
@@ -1388,7 +1410,7 @@ var createIterationViewModel = function createIterationViewModel(_ref) {
 
 var applyBindings = function applyBindings(_ref2) {
     var elementCache = _ref2.elementCache,
-        viewModel = _ref2.viewModel,
+        iterationVm = _ref2.iterationVm,
         bindingAttrs = _ref2.bindingAttrs,
         isRegenerate = _ref2.isRegenerate;
 
@@ -1399,11 +1421,22 @@ var applyBindings = function applyBindings(_ref2) {
         bindingUpdateOption = (0, _binder.createBindingOption)();
     }
 
+    // render and apply binding to template(s)
+    // this is an share function therefore passing current APP - 'this' context
+    // viewModel is a dynamic generated iterationVm
+    (0, _binder.renderTemplatesBinding)({
+        ctx: iterationVm.$root.APP,
+        elementCache: elementCache,
+        updateOption: bindingUpdateOption,
+        bindingAttrs: bindingAttrs,
+        viewModel: iterationVm
+    });
+
     _binder.Binder.applyBinding({
         elementCache: elementCache,
         updateOption: bindingUpdateOption,
         bindingAttrs: bindingAttrs,
-        viewModel: viewModel
+        viewModel: iterationVm
     });
 };
 
@@ -1443,7 +1476,7 @@ var generateForOfElements = function generateForOfElements(forOfBindingData, vie
 
         applyBindings({
             elementCache: forOfBindingData.iterationBindingCache[i],
-            viewModel: iterationVm,
+            iterationVm: iterationVm,
             bindingAttrs: bindingAttrs,
             isRegenerate: true
         });

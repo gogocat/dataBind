@@ -2,7 +2,7 @@
 import * as config from './config';
 import * as util from './util';
 import createBindingCache from './domWalker';
-import {Binder, createBindingOption} from './binder';
+import {Binder, createBindingOption, renderTemplatesBinding} from './binder';
 
 let forOfCount = 0;
 
@@ -52,7 +52,7 @@ const renderForOfBinding = (forOfBindingData, viewModel, bindingAttrs) => {
             });
             applyBindings({
                 elementCache: elementCache,
-                viewModel: iterationVm,
+                iterationVm: iterationVm,
                 bindingAttrs: bindingAttrs,
                 isRegenerate: false,
             });
@@ -86,7 +86,7 @@ const createIterationViewModel = ({forOfBindingData, viewModel, iterationData, k
     return iterationVm;
 };
 
-const applyBindings = ({elementCache, viewModel, bindingAttrs, isRegenerate}) => {
+const applyBindings = ({elementCache, iterationVm, bindingAttrs, isRegenerate}) => {
     let bindingUpdateOption;
     if (isRegenerate) {
         bindingUpdateOption = createBindingOption(config.bindingUpdateConditions.init);
@@ -94,11 +94,22 @@ const applyBindings = ({elementCache, viewModel, bindingAttrs, isRegenerate}) =>
         bindingUpdateOption = createBindingOption();
     }
 
+    // render and apply binding to template(s)
+    // this is an share function therefore passing current APP - 'this' context
+    // viewModel is a dynamic generated iterationVm
+    renderTemplatesBinding({
+        ctx: iterationVm.$root.APP,
+        elementCache: elementCache,
+        updateOption: bindingUpdateOption,
+        bindingAttrs: bindingAttrs,
+        viewModel: iterationVm,
+    });
+
     Binder.applyBinding({
         elementCache: elementCache,
         updateOption: bindingUpdateOption,
         bindingAttrs: bindingAttrs,
-        viewModel: viewModel,
+        viewModel: iterationVm,
     });
 };
 
@@ -138,7 +149,7 @@ const generateForOfElements = (forOfBindingData, viewModel, bindingAttrs, iterat
 
         applyBindings({
             elementCache: forOfBindingData.iterationBindingCache[i],
-            viewModel: iterationVm,
+            iterationVm: iterationVm,
             bindingAttrs: bindingAttrs,
             isRegenerate: true,
         });

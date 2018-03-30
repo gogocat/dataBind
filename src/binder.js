@@ -73,8 +73,10 @@ class Binder {
      */
     updateElementCache(opt = {}) {
         let skipForOfParseFn;
+        let elementCache = opt.elementCache || this.elementCache;
 
         if (opt.allCache) {
+            // walk dom from root element to regenerate elementCache
             this.elementCache = createBindingCache({
                 rootNode: this.$rootElement[0],
                 bindingAttrs: this.bindingAttrs,
@@ -82,11 +84,8 @@ class Binder {
         }
         // walk from first rendered template node to create/update child bindingCache
         if (opt.allCache || opt.templateCache) {
-            if (
-                this.elementCache[this.bindingAttrs.tmp] &&
-                this.elementCache[this.bindingAttrs.tmp].length
-            ) {
-                this.elementCache[this.bindingAttrs.tmp].forEach((cache) => {
+            if (elementCache[this.bindingAttrs.tmp] && elementCache[this.bindingAttrs.tmp].length) {
+                elementCache[this.bindingAttrs.tmp].forEach((cache) => {
                     // set skipCheck as skipForOfParseFn whenever an node has
                     // both template and forOf bindings
                     // then the template bindingCache should be an empty object
@@ -123,40 +122,15 @@ class Binder {
             updateOption = createBindingOption('', opt);
         }
 
-        // render and apply binding to template(s) and forOf DOM
-        if (
-            this.elementCache[this.bindingAttrs.tmp] &&
-            this.elementCache[this.bindingAttrs.tmp].length
-        ) {
-            // when re-render call with {templateBinding: true}
-            // template and nested templates
-            if (updateOption.templateBinding) {
-                // overwrite updateOption with 'init' bindingUpdateConditions
-                updateOption = createBindingOption(config.bindingUpdateConditions.init);
-
-                this.elementCache[this.bindingAttrs.tmp].forEach(($element) => {
-                    binds.renderTemplate(
-                        $element,
-                        this.viewModel,
-                        this.bindingAttrs,
-                        this.elementCache
-                    );
-                });
-                // update cache after all template(s) rendered
-                this.updateElementCache({
-                    templateCache: true,
-                });
-            }
-            // apply bindings to rendered templates element
-            this.elementCache[this.bindingAttrs.tmp].forEach((cache) => {
-                Binder.applyBinding({
-                    elementCache: cache.bindingCache,
-                    updateOption: updateOption,
-                    bindingAttrs: this.bindingAttrs,
-                    viewModel: this.viewModel,
-                });
-            });
-        }
+        // render and apply binding to template(s)
+        // this is an share function therefore passing 'this' context
+        renderTemplatesBinding({
+            ctx: this,
+            elementCache: this.elementCache,
+            updateOption: updateOption,
+            bindingAttrs: this.bindingAttrs,
+            viewModel: this.viewModel,
+        });
 
         // apply bindings to rest of the DOM
         Binder.applyBinding({
@@ -170,7 +144,7 @@ class Binder {
     }
 
     static applyBinding({elementCache, updateOption, bindingAttrs, viewModel}) {
-        if (!elementCache && !updateOption) {
+        if (!elementCache || !updateOption) {
             return;
         }
 
@@ -334,6 +308,40 @@ class Binder {
     }
 }
 
+const renderTemplatesBinding = ({ctx, elementCache, updateOption, bindingAttrs, viewModel}) => {
+    if (!elementCache || !bindingAttrs) {
+        return false;
+    }
+    // render and apply binding to template(s) and forOf DOM
+    if (elementCache[bindingAttrs.tmp] && elementCache[bindingAttrs.tmp].length) {
+        // when re-render call with {templateBinding: true}
+        // template and nested templates
+        if (updateOption.templateBinding) {
+            // overwrite updateOption with 'init' bindingUpdateConditions
+            updateOption = createBindingOption(config.bindingUpdateConditions.init);
+
+            elementCache[bindingAttrs.tmp].forEach(($element) => {
+                binds.renderTemplate($element, viewModel, bindingAttrs, elementCache);
+            });
+            // update cache after all template(s) rendered
+            ctx.updateElementCache({
+                templateCache: true,
+                elementCache: elementCache,
+            });
+        }
+        // apply bindings to rendered templates element
+        elementCache[bindingAttrs.tmp].forEach((cache) => {
+            Binder.applyBinding({
+                elementCache: cache.bindingCache,
+                updateOption: updateOption,
+                bindingAttrs: bindingAttrs,
+                viewModel: viewModel,
+            });
+        });
+    }
+    return true;
+};
+
 /**
  * createBindingOption
  * @param {string} condition
@@ -390,4 +398,4 @@ const createBindingOption = (condition = '', opt = {}) => {
     return updateOption;
 };
 
-export {Binder, createBindingOption};
+export {Binder, createBindingOption, renderTemplatesBinding};
