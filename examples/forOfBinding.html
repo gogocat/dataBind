@@ -53,21 +53,20 @@
     <template id="searchResultItemFooter">
         <div class="card-footer result-item__footer">
             <div class="result-item__icon-checkbox-wrap">
-                <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}" data-index="{{data.$index}}"
-                    data-jq-model="searchResults[{{data.$index}}].selected" data-jq-change="onAdMessageCheck">
+                <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}" data-jq-model="searchResults[{{data.$index}}].selected"
+                    data-jq-change="$root.onAdMessageCheck">
                 <label for="{{data.id}}" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
             </div>
-
-            <span data-jq-tmp="{id: 'searchResultItemBookMark', data: 'searchResults[{{data.$index}}]'}" data-index="{{data.$index}}"></span>
+            <span data-jq-tmp="{id: 'searchResultItemBookMark', data: 'result'}"></span>
         </div>
     </template>
 
     <template id="searchResultItemBookMark">
-        <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[{{data.$index}}].bookmarkedCss" data-jq-click="onAdBookmarkClick"
-            data-index="{{data.$index}}"></span>
+        <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="result.bookmarkedCss" data-jq-click="$root.onAdBookmarkClick($index)"></span>
         <span class="oi result-item__icon" data-glyph="thumb-up">{{data.numLikes}}</span>
     </template>
 
+    <!-- form example templates -->
     <template id="formItems">
         <div class="col-8">
             <label for="name" data-jq-css="item.updatedCss" data-jq-text="item.label"></label>

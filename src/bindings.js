@@ -141,8 +141,8 @@ const clickBinding = (cache, viewModel, bindingAttrs) => {
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         $element = $(cache.el);
         $element.off('click.databind').on('click.databind', function(e) {
-            paramList.unshift(e, $element);
-            handlerFn.apply(viewModelContext, paramList);
+            let args = [e, $element].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -173,8 +173,8 @@ const dblclickBinding = (cache, viewModel, bindingAttrs) => {
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         $element = $(cache.el);
         $element.off('dblclick.databind').on('dblclick.databind', function(e) {
-            paramList.unshift(e, $element);
-            handlerFn.apply(viewModelContext, paramList);
+            let args = [e, $element].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -205,8 +205,8 @@ const blurBinding = (cache, viewModel, bindingAttrs) => {
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         $element = $(cache.el);
         $element.off('blur.databind').on('blur.databind', function(e) {
-            paramList.unshift(e, $element);
-            handlerFn.apply(viewModelContext, paramList);
+            let args = [e, $element].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -237,8 +237,8 @@ const focusBinding = (cache, viewModel, bindingAttrs) => {
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         $element = $(cache.el);
         $element.off('focus.databind').on('focus.databind', function(e) {
-            paramList.unshift(e, $element);
-            handlerFn.apply(viewModelContext, paramList);
+            let args = [e, $element].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -282,8 +282,8 @@ const changeBinding = (cache, viewModel, bindingAttrs) => {
                 oldValue = util.getViewModelValue(viewModel, modelDataKey);
                 util.setViewModelValue(viewModel, modelDataKey, newValue);
             }
-            paramList.unshift(e, $element, newValue, oldValue);
-            handlerFn.apply(viewModelContext, paramList);
+            let args = [e, $element, newValue, oldValue].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
             oldValue = newValue;
         });
     }
@@ -353,8 +353,8 @@ const submitBinding = (cache, viewModel, bindingAttrs) => {
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         // assing on change event
         $element.off('submit.databind').on('submit.databind', function(e) {
-            paramList.unshift(e, $element, util.getFormData($element));
-            handlerFn.apply(viewModelContext, paramList);
+            let args = [e, $element, util.getFormData($element)].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -380,7 +380,8 @@ const textBinding = (cache, viewModel, bindingAttrs) => {
     if (typeof newValue === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, newValue);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        newValue = newValue.apply(viewModelContext, paramList);
+        let args = paramList.slice(0);
+        newValue = newValue.apply(viewModelContext, args);
     }
     let oldValue = cache.el.textContent;
 
@@ -423,8 +424,8 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
         if (typeof shouldShow === 'function') {
             viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
             paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-            paramList.unshift(oldShowStatus, $element);
-            shouldShow = shouldShow.apply(viewModelContext, paramList);
+            let args = [oldShowStatus, $element].concat(paramList);
+            shouldShow = shouldShow.apply(viewModelContext, args);
         }
 
         shouldShow = Boolean(shouldShow);
@@ -483,8 +484,8 @@ const cssBinding = (cache, viewModel, bindingAttrs) => {
     if (typeof vmCssListObj === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        paramList.unshift(oldCssList, $element);
-        vmCssListObj = vmCssListObj.apply(viewModelContext, paramList);
+        let args = [oldCssList, $element].concat(paramList);
+        vmCssListObj = vmCssListObj.apply(viewModelContext, args);
     }
 
     if (util.isPlainObject(vmCssListObj)) {
@@ -563,8 +564,8 @@ const attrBinding = (cache, viewModel, bindingAttrs) => {
     if (typeof vmAttrObj === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        paramList.push(oldAttrObj, $element);
-        vmAttrObj = vmAttrObj.apply(viewModelContext, paramList);
+        let args = [oldAttrObj, $element].concat(paramList);
+        vmAttrObj = vmAttrObj.apply(viewModelContext, args);
     }
 
     if (!util.isPlainObject(vmAttrObj) || util.isEmptyObject(vmAttrObj)) {

@@ -43,7 +43,7 @@
             ];
         }
 
-        getInputIdName(index) {
+        getInputIdName(oldAttrObj, $el, index) {
             let inputSetting = this.personalDetails[index];
             return {
                 id: inputSetting.inputName,
@@ -183,12 +183,16 @@
                 numLikes: 8,
             },
         ],
-        getResultItemAttr: function(index) {
+        getResultItemAttr: function(oldAttrObj, $el, index) {
             let self = this;
             return {
                 src: self.searchResults[index].image || '',
                 alt: self.searchResults[index].title || '',
             };
+        },
+        onAdBookmarkClick: function(e, $el, index) {
+            e.preventDefault();
+            console.log('onAdBookmarkClick: ', $el, index);
         },
     };
 

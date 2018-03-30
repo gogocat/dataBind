@@ -602,8 +602,8 @@ var clickBinding = function clickBinding(cache, viewModel, bindingAttrs) {
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         $element = $(cache.el);
         $element.off('click.databind').on('click.databind', function (e) {
-            paramList.unshift(e, $element);
-            handlerFn.apply(viewModelContext, paramList);
+            var args = [e, $element].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -634,8 +634,8 @@ var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs) {
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         $element = $(cache.el);
         $element.off('dblclick.databind').on('dblclick.databind', function (e) {
-            paramList.unshift(e, $element);
-            handlerFn.apply(viewModelContext, paramList);
+            var args = [e, $element].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -666,8 +666,8 @@ var blurBinding = function blurBinding(cache, viewModel, bindingAttrs) {
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         $element = $(cache.el);
         $element.off('blur.databind').on('blur.databind', function (e) {
-            paramList.unshift(e, $element);
-            handlerFn.apply(viewModelContext, paramList);
+            var args = [e, $element].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -698,8 +698,8 @@ var focusBinding = function focusBinding(cache, viewModel, bindingAttrs) {
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         $element = $(cache.el);
         $element.off('focus.databind').on('focus.databind', function (e) {
-            paramList.unshift(e, $element);
-            handlerFn.apply(viewModelContext, paramList);
+            var args = [e, $element].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -743,8 +743,8 @@ var changeBinding = function changeBinding(cache, viewModel, bindingAttrs) {
                 oldValue = util.getViewModelValue(viewModel, modelDataKey);
                 util.setViewModelValue(viewModel, modelDataKey, newValue);
             }
-            paramList.unshift(e, $element, newValue, oldValue);
-            handlerFn.apply(viewModelContext, paramList);
+            var args = [e, $element, newValue, oldValue].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
             oldValue = newValue;
         });
     }
@@ -814,8 +814,8 @@ var submitBinding = function submitBinding(cache, viewModel, bindingAttrs) {
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         // assing on change event
         $element.off('submit.databind').on('submit.databind', function (e) {
-            paramList.unshift(e, $element, util.getFormData($element));
-            handlerFn.apply(viewModelContext, paramList);
+            var args = [e, $element, util.getFormData($element)].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -841,7 +841,8 @@ var textBinding = function textBinding(cache, viewModel, bindingAttrs) {
     if (typeof newValue === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, newValue);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        newValue = newValue.apply(viewModelContext, paramList);
+        var args = paramList.slice(0);
+        newValue = newValue.apply(viewModelContext, args);
     }
     var oldValue = cache.el.textContent;
 
@@ -884,8 +885,8 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
         if (typeof shouldShow === 'function') {
             viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
             paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-            paramList.unshift(oldShowStatus, $element);
-            shouldShow = shouldShow.apply(viewModelContext, paramList);
+            var args = [oldShowStatus, $element].concat(paramList);
+            shouldShow = shouldShow.apply(viewModelContext, args);
         }
 
         shouldShow = Boolean(shouldShow);
@@ -944,8 +945,8 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     if (typeof vmCssListObj === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        paramList.unshift(oldCssList, $element);
-        vmCssListObj = vmCssListObj.apply(viewModelContext, paramList);
+        var args = [oldCssList, $element].concat(paramList);
+        vmCssListObj = vmCssListObj.apply(viewModelContext, args);
     }
 
     if (util.isPlainObject(vmCssListObj)) {
@@ -1024,8 +1025,8 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
     if (typeof vmAttrObj === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        paramList.push(oldAttrObj, $element);
-        vmAttrObj = vmAttrObj.apply(viewModelContext, paramList);
+        var args = [oldAttrObj, $element].concat(paramList);
+        vmAttrObj = vmAttrObj.apply(viewModelContext, args);
     }
 
     if (!util.isPlainObject(vmAttrObj) || util.isEmptyObject(vmAttrObj)) {
