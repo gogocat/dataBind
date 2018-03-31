@@ -482,14 +482,13 @@ var compileTemplate = function compileTemplate(id) {
     var templateString = void 0;
     var templateElement = void 0;
 
-    if (templateCache[id]) {
-        return templateCache[id](templateData);
+    if (!templateCache[id]) {
+        templateElement = document.getElementById(id);
+        templateString = templateElement ? templateElement.innerHTML : '';
+        templateCache[id] = _.template(templateString, {
+            variable: 'data'
+        });
     }
-    templateElement = document.getElementById(id);
-    templateString = templateElement ? templateElement.innerHTML : ''; // $('#' + id).html() || '';
-    templateCache[id] = _.template(templateString, {
-        variable: 'data'
-    });
 
     return templateCache[id](templateData);
 };
@@ -520,8 +519,8 @@ var renderTemplate = function renderTemplate(cache, viewModel, bindingAttrs, ele
     }
 
     $element = $(cache.el);
-    $index = $element.attr(config.dataIndexAttr);
-    if ($index) {
+    $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.attr(config.dataIndexAttr);
+    if (typeof $index !== 'undefined') {
         viewData.$index = $index;
     }
     $domFragment = $domFragment ? $domFragment : $('<div/>');

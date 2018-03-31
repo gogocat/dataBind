@@ -20,14 +20,13 @@ const compileTemplate = (id, templateData = null) => {
     let templateString;
     let templateElement;
 
-    if (templateCache[id]) {
-        return templateCache[id](templateData);
+    if (!templateCache[id]) {
+        templateElement = document.getElementById(id);
+        templateString = templateElement ? templateElement.innerHTML : '';
+        templateCache[id] = _.template(templateString, {
+            variable: 'data',
+        });
     }
-    templateElement = document.getElementById(id);
-    templateString = templateElement ? templateElement.innerHTML : ''; // $('#' + id).html() || '';
-    templateCache[id] = _.template(templateString, {
-        variable: 'data',
-    });
 
     return templateCache[id](templateData);
 };
@@ -59,8 +58,11 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
     }
 
     $element = $(cache.el);
-    $index = $element.attr(config.dataIndexAttr);
-    if ($index) {
+    $index =
+        typeof viewModel.$index !== 'undefined'
+            ? viewModel.$index
+            : $element.attr(config.dataIndexAttr);
+    if (typeof $index !== 'undefined') {
         viewData.$index = $index;
     }
     $domFragment = $domFragment ? $domFragment : $('<div/>');
