@@ -10,20 +10,17 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="bootstrap/css/open-iconic.css">
+    <link rel="stylesheet" href="bootstrap/css/homeservices.css">
 </head>
 
 <body>
-
     <div class="container">
         <h5>For of binding complex demo</h5>
-
         <div class="container search-result" data-jq-comp="search-results-component">
             <h4 id="searchResultTitle" class="text-center section-title" data-jq-text="searchResultTitle"></h4>
-
             <div id="search-result-columns" class="card-columns" data-jq-tmp="{id: 'searchResultItem', data: 'searchResults', append: true}">
             </div>
         </div>
-
     </div>
 
     <!-- searchResultItem test with deep nested templates -->
@@ -36,25 +33,35 @@
     </template>
 
     <template id="searchResultItemBody">
-        <p>searchResultItemBody index: {{data.$index}}</p>
         <h4 class="card-title">{{data.title}}</h4>
         <p class="card-text">{{data.description}}</p>
+        <small>searchResultItemBody index: {{data.$index}}</small>
     </template>
 
     <template id="searchResultItemFooter">
         <div class="card-footer result-item__footer">
+            <small>searchResultItemFooter index: {{data.$index}}</small>
             <div class="result-item__icon-checkbox-wrap">
-                <p>searchResultItemFooter index: {{data.$index}}</p>
                 <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}" data-jq-model="$root.searchResults[{{data.$index}}].selected"
                     data-jq-change="$root.onAdMessageCheck($index)">
                 <label for="{{data.id}}" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlSelect1">Example select</label>
+                <select class="form-control" id="exampleFormControlSelect1">
+                    <option>---- Please select ----</option>
+                    <!-- TODO: data-jq-attr called 7 times because it follow the outter forOf loop -->
+                    <option data-jq-for="option of result.options" data-jq-text="option.text" data-jq-attr="$root.setResultOptionAttr($index)"></option>
+                </select>
             </div>
             <span data-jq-tmp="{id: 'searchResultItemBookMark', data: 'result'}"></span>
         </div>
     </template>
 
     <template id="searchResultItemBookMark">
-        <p>searchResultItemBookMark index: {{data.$index}}</p>
+        <div>
+            <small>searchResultItemBookMark index: {{data.$index}}</small>
+        </div>
         <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="result.bookmarkedCss" data-jq-click="$root.onAdBookmarkClick($index)"></span>
         <span class="oi result-item__icon" data-glyph="thumb-up">{{data.numLikes}}</span>
     </template>

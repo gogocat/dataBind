@@ -321,6 +321,14 @@ const resolveParamList = (viewModel, paramList) => {
     });
 };
 
+const throwErrorMessage = (err = null, errorMessage = '') => {
+    let message = err && err.message ? err.message : errorMessage;
+    if (typeof console.error === 'function') {
+        return console.error(message);
+    }
+    return console.log(message);
+};
+
 export {
     REGEX,
     isArray,
@@ -341,4 +349,5 @@ export {
     insertAfter,
     resolveViewModelContext,
     resolveParamList,
+    throwErrorMessage,
 };

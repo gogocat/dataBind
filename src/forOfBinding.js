@@ -6,7 +6,7 @@ import {Binder, createBindingOption, renderTemplatesBinding} from './binder';
 
 let forOfCount = 0;
 
-const renderForOfBinding = (forOfBindingData, viewModel, bindingAttrs) => {
+const renderForOfBinding = ({forOfBindingData, viewModel, bindingAttrs}) => {
     if (!forOfBindingData || !viewModel || !bindingAttrs) {
         return;
     }
@@ -22,7 +22,8 @@ const renderForOfBinding = (forOfBindingData, viewModel, bindingAttrs) => {
         keys = Object.keys(iterationData);
         iterationDataLength = keys.length;
     } else {
-        throw new TypeError('iterationData is not an plain object or array');
+        // throw error but let script contince to run
+        return util.throwErrorMessage(null, 'iterationData is not an plain object or array');
     }
 
     // assign forOf internal id to forOfBindingData once
@@ -79,7 +80,7 @@ const createIterationViewModel = ({forOfBindingData, viewModel, iterationData, k
         ? iterationData[keys[index]]
         : iterationData[index];
     // populate common binding data reference
-    iterationVm[config.bindingDataReference.rootDataKey] = viewModel;
+    iterationVm[config.bindingDataReference.rootDataKey] = viewModel.$root || viewModel;
     iterationVm[config.bindingDataReference.currentData] =
         iterationVm[forOfBindingData.iterator.alias];
     iterationVm[config.bindingDataReference.currentIndex] = index;
@@ -95,7 +96,7 @@ const applyBindings = ({elementCache, iterationVm, bindingAttrs, isRegenerate}) 
     }
 
     // render and apply binding to template(s)
-    // this is an share function therefore passing current APP - 'this' context
+    // this is an share function therefore passing current APP 'this' context
     // viewModel is a dynamic generated iterationVm
     renderTemplatesBinding({
         ctx: iterationVm.$root.APP,

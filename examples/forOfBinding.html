@@ -18,7 +18,7 @@
         <h5>For of binding</h5>
         <div data-jq-comp="forOfComponent">
             <h2>Before for-of</h2>
-            <div class="form-row" data-jq-for="item of personalDetails" data-jq-show="item.show" data-jq-tmp="{id:'formItems', data: 'personalDetails'}">
+            <div class="form-row" data-jq-for="item of personalDetails" data-jq-show="item.show" data-jq-tmp="{id:'formItems', data: '$root.personalDetails'}">
             </div>
             <h2>after for-of</h2>
             <div>

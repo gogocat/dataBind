@@ -645,7 +645,11 @@ const forOfBinding = (cache, viewModel, bindingAttrs) => {
         }
     }
 
-    renderForOfBinding(cache, viewModel, bindingAttrs);
+    renderForOfBinding({
+        forOfBindingData: cache,
+        viewModel: viewModel,
+        bindingAttrs: bindingAttrs,
+    });
 };
 
 export {

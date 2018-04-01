@@ -15,6 +15,11 @@
                 image: 'bootstrap/images/pic-home.jpg',
                 bookmarked: false,
                 numLikes: 110,
+                options: [
+                    {text: '1', value: '1'},
+                    {text: '2', value: '2'},
+                    {text: '3', value: '3'},
+                ],
             },
             {
                 id: '456',
@@ -25,6 +30,11 @@
                 bookmarked: false,
                 numLikes: 8,
                 selected: true,
+                options: [
+                    {text: '1', value: '1'},
+                    {text: '2', value: '2'},
+                    {text: '3', value: '3'},
+                ],
             },
             {
                 id: '789',
@@ -36,6 +46,11 @@
                 numLikes: 8,
                 highlight: true,
                 highlightCss: 'result-item--highlight',
+                options: [
+                    {text: '1', value: '1'},
+                    {text: '2', value: '2'},
+                    {text: '3', value: '3'},
+                ],
             },
             {
                 id: '888',
@@ -46,6 +61,11 @@
                 bookmarked: false,
                 numLikes: 8,
                 selected: true,
+                options: [
+                    {text: '1', value: '1'},
+                    {text: '2', value: '2'},
+                    {text: '3', value: '3'},
+                ],
             },
             {
                 id: '222',
@@ -55,6 +75,11 @@
                 image: '',
                 bookmarked: false,
                 numLikes: 8,
+                options: [
+                    {text: '1', value: '1'},
+                    {text: '2', value: '2'},
+                    {text: '3', value: '3'},
+                ],
             },
             {
                 id: '333',
@@ -65,6 +90,11 @@
                 bookmarked: true,
                 bookmarkedCss: 'active',
                 numLikes: 8,
+                options: [
+                    {text: '1', value: '1'},
+                    {text: '2', value: '2'},
+                    {text: '3', value: '3'},
+                ],
             },
             {
                 id: '444',
@@ -74,6 +104,11 @@
                 image: 'bootstrap/images/pic-backyard.jpg',
                 bookmarked: false,
                 numLikes: 8,
+                options: [
+                    {text: '1', value: '1'},
+                    {text: '2', value: '2'},
+                    {text: '3', value: '3'},
+                ],
             },
         ],
         getResultItemAttr: function(oldAttrObj, $el, index) {
@@ -82,6 +117,15 @@
                 return {
                     src: self.searchResults[index].image,
                     alt: self.searchResults[index].title || '',
+                };
+            }
+        },
+        setResultOptionAttr: function(oldAttrObj, $el, index) {
+            let self = this;
+            if (self.searchResults[0].options) {
+                // todo: the index here is the outter loop index
+                return {
+                    value: self.searchResults[0].options[index].value,
                 };
             }
         },
@@ -97,6 +141,9 @@
     // start binding on DOM ready
     $(document).ready(function() {
         // formComponentC - test for-of binding
+        // debug
+        // viewModel.searchResults.splice(1, viewModel.searchResults.length - 1);
+
         searchResultsComponent = dataBind.init(
             $('[data-jq-comp="search-results-component"]'),
             viewModel

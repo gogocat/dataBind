@@ -1103,7 +1103,11 @@ var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
         }
     }
 
-    (0, _forOfBinding2['default'])(cache, viewModel, bindingAttrs);
+    (0, _forOfBinding2['default'])({
+        forOfBindingData: cache,
+        viewModel: viewModel,
+        bindingAttrs: bindingAttrs
+    });
 };
 
 exports.renderTemplate = renderTemplate;
@@ -1241,12 +1245,34 @@ var createBindingCache = function createBindingCache(_ref) {
         return node.tagName === 'SVG' || node.getAttribute(bindingAttrs.comp);
     };
 
+    var populateBindingCache = function populateBindingCache(node, attrObj, key) {
+        var attrValue = void 0;
+        var cacheData = void 0;
+
+        if (bindingAttrsMap[key] && attrObj[key]) {
+            bindingCache[key] = bindingCache[key] || [];
+            attrValue = attrObj[key].trim();
+            cacheData = {
+                el: node,
+                dataKey: attrValue
+            };
+
+            // for store function call parameters eg. '$index', '$root'
+            // useful with DOM for-loop template as reference to binding data
+            var paramList = util.getFunctionParameterList(attrValue);
+            if (paramList) {
+                cacheData.parameters = paramList;
+                cacheData.dataKey = cacheData.dataKey.replace(util.REGEX.FUNCTIONPARAM, '').trim();
+            }
+
+            bindingCache[key].push(cacheData);
+        }
+    };
+
     var parseNode = function parseNode(node) {
         var skipCheckFn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultSkipCheck;
 
         var attrObj = void 0;
-        var attrValue = void 0;
-        var cacheData = void 0;
         var isSkipForOfChild = false;
 
         if (node.nodeType === 1 && node.hasAttributes()) {
@@ -1264,28 +1290,12 @@ var createBindingCache = function createBindingCache(_ref) {
 
             if (attrObj[bindingAttrs.forOf]) {
                 isSkipForOfChild = true;
+                populateBindingCache(node, attrObj, bindingAttrs.forOf);
+            } else {
+                Object.keys(attrObj).forEach(function (key) {
+                    populateBindingCache(node, attrObj, key);
+                });
             }
-
-            Object.keys(attrObj).forEach(function (key) {
-                if (bindingAttrsMap[key] && attrObj[key]) {
-                    bindingCache[key] = bindingCache[key] || [];
-                    attrValue = attrObj[key].trim();
-                    cacheData = {
-                        el: node,
-                        dataKey: attrValue
-                    };
-
-                    // for store function call parameters eg. '$index', '$root'
-                    // useful with DOM for-loop template as reference to binding data
-                    var paramList = util.getFunctionParameterList(attrValue);
-                    if (paramList) {
-                        cacheData.parameters = paramList;
-                        cacheData.dataKey = cacheData.dataKey.replace(util.REGEX.FUNCTIONPARAM, '').trim();
-                    }
-
-                    bindingCache[key].push(cacheData);
-                }
-            });
 
             // after cache forOf skip parse child nodes
             if (isSkipForOfChild) {
@@ -1331,7 +1341,11 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 /* eslint-disable no-invalid-this */
 var forOfCount = 0;
 
-var renderForOfBinding = function renderForOfBinding(forOfBindingData, viewModel, bindingAttrs) {
+var renderForOfBinding = function renderForOfBinding(_ref) {
+    var forOfBindingData = _ref.forOfBindingData,
+        viewModel = _ref.viewModel,
+        bindingAttrs = _ref.bindingAttrs;
+
     if (!forOfBindingData || !viewModel || !bindingAttrs) {
         return;
     }
@@ -1347,7 +1361,8 @@ var renderForOfBinding = function renderForOfBinding(forOfBindingData, viewModel
         keys = Object.keys(iterationData);
         iterationDataLength = keys.length;
     } else {
-        throw new TypeError('iterationData is not an plain object or array');
+        // throw error but let script contince to run
+        return util.throwErrorMessage(null, 'iterationData is not an plain object or array');
     }
 
     // assign forOf internal id to forOfBindingData once
@@ -1392,27 +1407,27 @@ var renderForOfBinding = function renderForOfBinding(forOfBindingData, viewModel
     return insertRenderedElements(forOfBindingData, fragment);
 };
 
-var createIterationViewModel = function createIterationViewModel(_ref) {
-    var forOfBindingData = _ref.forOfBindingData,
-        viewModel = _ref.viewModel,
-        iterationData = _ref.iterationData,
-        keys = _ref.keys,
-        index = _ref.index;
+var createIterationViewModel = function createIterationViewModel(_ref2) {
+    var forOfBindingData = _ref2.forOfBindingData,
+        viewModel = _ref2.viewModel,
+        iterationData = _ref2.iterationData,
+        keys = _ref2.keys,
+        index = _ref2.index;
 
     var iterationVm = {};
     iterationVm[forOfBindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
     // populate common binding data reference
-    iterationVm[config.bindingDataReference.rootDataKey] = viewModel;
+    iterationVm[config.bindingDataReference.rootDataKey] = viewModel.$root || viewModel;
     iterationVm[config.bindingDataReference.currentData] = iterationVm[forOfBindingData.iterator.alias];
     iterationVm[config.bindingDataReference.currentIndex] = index;
     return iterationVm;
 };
 
-var applyBindings = function applyBindings(_ref2) {
-    var elementCache = _ref2.elementCache,
-        iterationVm = _ref2.iterationVm,
-        bindingAttrs = _ref2.bindingAttrs,
-        isRegenerate = _ref2.isRegenerate;
+var applyBindings = function applyBindings(_ref3) {
+    var elementCache = _ref3.elementCache,
+        iterationVm = _ref3.iterationVm,
+        bindingAttrs = _ref3.bindingAttrs,
+        isRegenerate = _ref3.isRegenerate;
 
     var bindingUpdateOption = void 0;
     if (isRegenerate) {
@@ -1422,7 +1437,7 @@ var applyBindings = function applyBindings(_ref2) {
     }
 
     // render and apply binding to template(s)
-    // this is an share function therefore passing current APP - 'this' context
+    // this is an share function therefore passing current APP 'this' context
     // viewModel is a dynamic generated iterationVm
     (0, _binder.renderTemplatesBinding)({
         ctx: iterationVm.$root.APP,
@@ -1780,7 +1795,7 @@ exports.publishEvent = publishEvent;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.resolveParamList = exports.resolveViewModelContext = exports.insertAfter = exports.cloneDomNode = exports.getNodeAttrObj = exports.invertObj = exports.getFunctionParameterList = exports.getFormData = exports.arrayRemoveMatch = exports.debounceRaf = exports.parseStringToJson = exports.setViewModelValue = exports.getViewModelValue = exports.generateElementCache = exports.extend = exports.isEmptyObject = exports.isPlainObject = exports.isArray = exports.REGEX = undefined;
+exports.throwErrorMessage = exports.resolveParamList = exports.resolveViewModelContext = exports.insertAfter = exports.cloneDomNode = exports.getNodeAttrObj = exports.invertObj = exports.getFunctionParameterList = exports.getFormData = exports.arrayRemoveMatch = exports.debounceRaf = exports.parseStringToJson = exports.setViewModelValue = exports.getViewModelValue = exports.generateElementCache = exports.extend = exports.isEmptyObject = exports.isPlainObject = exports.isArray = exports.REGEX = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -2109,6 +2124,17 @@ var resolveParamList = function resolveParamList(viewModel, paramList) {
     });
 };
 
+var throwErrorMessage = function throwErrorMessage() {
+    var err = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var errorMessage = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+
+    var message = err && err.message ? err.message : errorMessage;
+    if (typeof console.error === 'function') {
+        return console.error(message);
+    }
+    return console.log(message);
+};
+
 exports.REGEX = REGEX;
 exports.isArray = isArray;
 exports.isPlainObject = isPlainObject;
@@ -2128,6 +2154,7 @@ exports.cloneDomNode = cloneDomNode;
 exports.insertAfter = insertAfter;
 exports.resolveViewModelContext = resolveViewModelContext;
 exports.resolveParamList = resolveParamList;
+exports.throwErrorMessage = throwErrorMessage;
 
 },{"./config":3}]},{},[6])
 
