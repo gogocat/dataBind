@@ -141,7 +141,7 @@
     $(document).ready(function() {
         // formComponentC - test for-of binding
         // debug
-        viewModel.searchResults.splice(1, viewModel.searchResults.length - 1);
+        // viewModel.searchResults.splice(1, viewModel.searchResults.length - 1);
 
         searchResultsComponent = dataBind.init(
             $('[data-jq-comp="search-results-component"]'),

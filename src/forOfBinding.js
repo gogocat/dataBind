@@ -187,9 +187,28 @@ const wrapCommentAround = (id, fragment) => {
  * @description remove elments by range
  */
 const removeElemnetsByCommentWrap = (forOfBindingData) => {
-    if (forOfBindingData.docRange) {
-        return forOfBindingData.docRange.deleteContents();
+    if (!forOfBindingData.docRange) {
+        forOfBindingData.docRange = document.createRange();
     }
+
+    // insert rendered fragment after the previousNonTemplateElement
+    if (forOfBindingData.previousNonTemplateElement) {
+        // update docRange start and end match the wrapped comment node
+        forOfBindingData.docRange.setStartBefore(
+            forOfBindingData.previousNonTemplateElement.nextSibling
+        );
+        setDocRangeEndAfter(
+            forOfBindingData.previousNonTemplateElement.nextSibling,
+            forOfBindingData
+        );
+    } else {
+        // insert before next non template element
+        // update docRange start and end match the wrapped comment node
+        forOfBindingData.docRange.setStartBefore(forOfBindingData.parentElement.firstChild);
+        setDocRangeEndAfter(forOfBindingData.parentElement.firstChild, forOfBindingData);
+    }
+
+    return forOfBindingData.docRange.deleteContents();
 };
 
 /**
@@ -238,28 +257,12 @@ const insertRenderedElements = (forOfBindingData, fragment) => {
     // remove original dom template
     removeDomTemplateElement(forOfBindingData);
 
-    // create range object
-    // TODO: if user deleted content. Then needs to clean up using Range.detach()
-    // in nested forOf docRange startCotainer and endContainer are still document-frament
-    // therefore unable to remove from DOM
-    if (!forOfBindingData.docRange) {
-        forOfBindingData.docRange = document.createRange();
-    }
-
     // insert rendered fragment after the previousNonTemplateElement
     if (forOfBindingData.previousNonTemplateElement) {
         util.insertAfter(
             forOfBindingData.parentElement,
             fragment,
             forOfBindingData.previousNonTemplateElement
-        );
-        // update docRange start and end match the wrapped comment node
-        forOfBindingData.docRange.setStartBefore(
-            forOfBindingData.previousNonTemplateElement.nextSibling
-        );
-        setDocRangeEndAfter(
-            forOfBindingData.previousNonTemplateElement.nextSibling,
-            forOfBindingData
         );
     } else {
         // insert before next non template element
@@ -272,9 +275,6 @@ const insertRenderedElements = (forOfBindingData, fragment) => {
             // insert from parent
             forOfBindingData.parentElement.appendChild(fragment);
         }
-        // update docRange start and end match the wrapped comment node
-        forOfBindingData.docRange.setStartBefore(forOfBindingData.parentElement.firstChild);
-        setDocRangeEndAfter(forOfBindingData.parentElement.firstChild, forOfBindingData);
     }
 };
 
