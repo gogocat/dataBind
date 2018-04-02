@@ -948,10 +948,10 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
         vmCssListObj = vmCssListObj.apply(viewModelContext, args);
     }
 
-    if (util.isPlainObject(vmCssListObj)) {
-        isViewDataObject = true;
-    } else if (typeof vmCssListObj === 'string') {
+    if (typeof vmCssListObj === 'string') {
         isViewDataString = true;
+    } else if (util.isPlainObject(vmCssListObj)) {
+        isViewDataObject = true;
     } else {
         // reject if vmCssListObj is not an object or string
         return;
@@ -971,11 +971,13 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     // get current css classes from element
     domCssList = cache.el.classList;
     // clone domCssList as new array
-    $.each(domCssList, function (i, v) {
-        cssList.push(v);
-    });
+    var domCssListLength = domCssList.length;
+    for (var i = 0; i < domCssListLength; i += 1) {
+        cssList.push(cssList[i]);
+    }
 
     if (isViewDataObject) {
+        // TODO: optimise this use pure js loop
         $.each(vmCssListObj, function (k, v) {
             var i = cssList.indexOf(k);
             if (v === true) {
@@ -993,9 +995,13 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     // unique cssList array
     cssList = _.uniq(cssList).join(' ');
     // replace all css classes
-    $element.attr('class', cssList);
+    // TODO: this is the slowness part. Try only update changed css in the classList
+    // rather than replace the whole class attribute
+    cache.el.setAttribute('class', cssList);
     // update element data
     elementData.cssList = newCssList;
+    // TODO: may not need to store data in jquery data object.
+    // can store in current cache object
     $element.data(elementDataNamespace, elementData);
 };
 
@@ -1596,16 +1602,6 @@ var insertRenderedElements = function insertRenderedElements(forOfBindingData, f
     // insert rendered fragment after the previousNonTemplateElement
     if (forOfBindingData.previousNonTemplateElement) {
         util.insertAfter(forOfBindingData.parentElement, fragment, forOfBindingData.previousNonTemplateElement);
-        /*
-        // update docRange start and end match the wrapped comment node
-        forOfBindingData.docRange.setStartBefore(
-            forOfBindingData.previousNonTemplateElement.nextSibling
-        );
-        setDocRangeEndAfter(
-            forOfBindingData.previousNonTemplateElement.nextSibling,
-            forOfBindingData
-        );
-        */
     } else {
         // insert before next non template element
         if (forOfBindingData.nextNonTemplateElement) {
@@ -1614,11 +1610,6 @@ var insertRenderedElements = function insertRenderedElements(forOfBindingData, f
             // insert from parent
             forOfBindingData.parentElement.appendChild(fragment);
         }
-        /*
-        // update docRange start and end match the wrapped comment node
-        forOfBindingData.docRange.setStartBefore(forOfBindingData.parentElement.firstChild);
-        setDocRangeEndAfter(forOfBindingData.parentElement.firstChild, forOfBindingData);
-        */
     }
 };
 
