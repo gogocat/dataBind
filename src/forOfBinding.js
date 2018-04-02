@@ -213,6 +213,7 @@ const removeDomTemplateElement = (forOfBindingData) => {
  * recursive execution to find last wrapping comment node
  * and set as forOfBindingData.docRange.setEndAfter
  * if not found deleteContents will has no operation
+ * @return {undefined}
  */
 const setDocRangeEndAfter = (node, forOfBindingData) => {
     let id = forOfBindingData.id;
@@ -224,7 +225,7 @@ const setDocRangeEndAfter = (node, forOfBindingData) => {
     // check last wrap comment node
     if (node) {
         if (node.nodeType === 8 && node.textContent === endTextContent) {
-            forOfBindingData.docRange.setEndAfter(node);
+            return forOfBindingData.docRange.setEndAfter(node);
         }
         setDocRangeEndAfter(node, forOfBindingData);
     }
@@ -239,6 +240,8 @@ const insertRenderedElements = (forOfBindingData, fragment) => {
 
     // create range object
     // TODO: if user deleted content. Then needs to clean up using Range.detach()
+    // in nested forOf docRange startCotainer and endContainer are still document-frament
+    // therefore unable to remove from DOM
     if (!forOfBindingData.docRange) {
         forOfBindingData.docRange = document.createRange();
     }

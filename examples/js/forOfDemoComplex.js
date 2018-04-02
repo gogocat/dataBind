@@ -120,12 +120,11 @@
                 };
             }
         },
-        setResultOptionAttr: function(oldAttrObj, $el, index) {
-            let self = this;
-            if (self.searchResults[0].options) {
+        setResultOptionAttr: function(oldAttrObj, $el, $data) {
+            if ($data && $data.value) {
                 // todo: the index here is the outter loop index
                 return {
-                    value: self.searchResults[0].options[index].value,
+                    value: $data.value,
                 };
             }
         },
@@ -142,7 +141,7 @@
     $(document).ready(function() {
         // formComponentC - test for-of binding
         // debug
-        // viewModel.searchResults.splice(1, viewModel.searchResults.length - 1);
+        viewModel.searchResults.splice(1, viewModel.searchResults.length - 1);
 
         searchResultsComponent = dataBind.init(
             $('[data-jq-comp="search-results-component"]'),

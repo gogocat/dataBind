@@ -1554,6 +1554,7 @@ var removeDomTemplateElement = function removeDomTemplateElement(forOfBindingDat
  * recursive execution to find last wrapping comment node
  * and set as forOfBindingData.docRange.setEndAfter
  * if not found deleteContents will has no operation
+ * @return {undefined}
  */
 var setDocRangeEndAfter = function setDocRangeEndAfter(node, forOfBindingData) {
     var id = forOfBindingData.id;
@@ -1565,7 +1566,7 @@ var setDocRangeEndAfter = function setDocRangeEndAfter(node, forOfBindingData) {
     // check last wrap comment node
     if (node) {
         if (node.nodeType === 8 && node.textContent === endTextContent) {
-            forOfBindingData.docRange.setEndAfter(node);
+            return forOfBindingData.docRange.setEndAfter(node);
         }
         setDocRangeEndAfter(node, forOfBindingData);
     }
@@ -2115,10 +2116,16 @@ var resolveParamList = function resolveParamList(viewModel, paramList) {
     }
     return paramList.map(function (param) {
         param = param.trim();
+
         if (param === config.bindingDataReference.currentIndex) {
+            // convert '$index' to value
             param = viewModel[config.bindingDataReference.currentIndex];
+        } else if (param === config.bindingDataReference.currentData) {
+            // convert '$data' to value
+            param = viewModel[config.bindingDataReference.currentData];
         } else if (param === config.bindingDataReference.rootDataKey) {
-            param = viewModel;
+            // convert '$root' to root viewModel
+            param = viewModel[config.bindingDataReference.rootDataKey] || viewModel;
         }
         return param;
     });

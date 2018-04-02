@@ -312,10 +312,16 @@ const resolveParamList = (viewModel, paramList) => {
     }
     return paramList.map((param) => {
         param = param.trim();
+
         if (param === config.bindingDataReference.currentIndex) {
+            // convert '$index' to value
             param = viewModel[config.bindingDataReference.currentIndex];
+        } else if (param === config.bindingDataReference.currentData) {
+            // convert '$data' to value
+            param = viewModel[config.bindingDataReference.currentData];
         } else if (param === config.bindingDataReference.rootDataKey) {
-            param = viewModel;
+            // convert '$root' to root viewModel
+            param = viewModel[config.bindingDataReference.rootDataKey] || viewModel;
         }
         return param;
     });

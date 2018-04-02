@@ -50,8 +50,7 @@
                 <label for="exampleFormControlSelect1">Example select</label>
                 <select class="form-control" id="exampleFormControlSelect1">
                     <option>---- Please select ----</option>
-                    <!-- TODO: data-jq-attr called 7 times because it follow the outter forOf loop -->
-                    <option data-jq-for="option of result.options" data-jq-text="option.text" data-jq-attr="$root.setResultOptionAttr($index)"></option>
+                    <option data-jq-for="option of result.options" data-jq-text="option.text" data-jq-attr="$root.setResultOptionAttr($data)"></option>
                 </select>
             </div>
             <span data-jq-tmp="{id: 'searchResultItemBookMark', data: 'result'}"></span>
