@@ -42,7 +42,7 @@
         <div class="card-footer result-item__footer">
             <small>searchResultItemFooter index: {{data.$index}}</small>
             <div class="result-item__icon-checkbox-wrap">
-                <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}" data-jq-model="$root.searchResults[{{data.$index}}].selected"
+                <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}" data-jq-model="$data.selected"
                     data-jq-change="$root.onAdMessageCheck($index)">
                 <label for="{{data.id}}" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
             </div>

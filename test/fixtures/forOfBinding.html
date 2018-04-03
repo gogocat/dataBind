@@ -1,57 +1,50 @@
-<div class="container search-result" data-jq-comp="search-results-component">
-    <h4 id="searchResultTitle" class="text-center section-title" data-jq-text="searchResultTitle">Featured service providers</h4>
-
-    <div id="search-result-columns" class="card-columns" data-jq-tmp="{id: 'searchResultItem', data: '$root', append: true}">
+<div class="container">
+    <h5>For of binding complex demo</h5>
+    <div class="container search-result" data-jq-comp="search-results-component">
+        <h4 id="searchResultTitle" class="text-center section-title" data-jq-text="searchResultTitle"></h4>
+        <div id="search-result-columns" class="card-columns" data-jq-tmp="{id: 'searchResultItem', data: 'searchResults'}">
+        </div>
     </div>
 </div>
 
 <!-- searchResultItem test with deep nested templates -->
-<script id="searchResultItem" type="text/html">
-        <%  
-            _.each(data.searchResults, function(result, index) {
-                if (index < data.startIndex) {
-                    console.log('data.startIndex: ', data.startIndex);
-                    return;
-                }
-        %>
-            <div class="card result-item" data-index="{{index}}" data-jq-css="searchResults[{{index}}].highlightCss">
-                <% if (result.image) { %>
-                    <img class="card-img-top result-item__img" src="{{result.image}}" alt="{{result.title}}">
-                    <% } %>
-                        <div class="card-body" data-jq-tmp="{id: 'searchResultItemBody', data: 'searchResults[{{index}}]'}"></div>
-                        <div data-jq-tmp="{id: 'searchResultItemFooter', data: 'searchResults[{{index}}]'}" data-index="{{index}}"></div>
-            </div>
-            <% }); %>
-    </script>
+<template id="searchResultItem">
+    <div class="card result-item" data-jq-for="result in searchResults" data-jq-css="result.highlightCss">
+        <img class="card-img-top result-item__img" data-jq-attr="$root.getResultItemAttr($index)">
+        <div class="card-body" data-jq-tmp="{id: 'searchResultItemBody', data: 'result'}"></div>
+        <div data-jq-tmp="{id: 'searchResultItemFooter', data: 'result'}"></div>
+    </div>
+</template>
 
-<script id="searchResultItemBody" type="text/html">
-        <h4 class="card-title">{{data.title}}</h4>
-        <p class="card-text">{{data.description}}</p>
-    </script>
+<template id="searchResultItemBody">
+    <h4 class="card-title">{{data.title}}</h4>
+    <p class="card-text">{{data.description}}</p>
+    <small class="bodyIndex">searchResultItemBody index: {{data.$index}}</small>
+</template>
 
-<script id="searchResultItemFooter" type="text/html">
-        <div class="card-footer result-item__footer">
-            <div class="result-item__icon-checkbox-wrap">
-                <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}" data-index="{{data.$index}}" data-jq-model="searchResults[{{data.$index}}].selected" data-jq-change="onAdMessageCheck">
-                <label for="{{data.id}}" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
-            </div>
-
-            <span data-jq-tmp="{id: 'searchResultItemBookMark', data: 'searchResults[{{data.$index}}]'}" data-index="{{data.$index}}"></span>
+<template id="searchResultItemFooter">
+    <div class="card-footer result-item__footer">
+        <small class="footerIndex">searchResultItemFooter index: {{data.$index}}</small>
+        <div class="result-item__icon-checkbox-wrap">
+            <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}" data-jq-model="$data.selected"
+                data-jq-change="$root.onAdMessageCheck($index)">
+            <label for="{{data.id}}" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
         </div>
-    </script>
+        <div class="form-group">
+            <label for="exampleFormControlSelect1">Example select</label>
+            <select class="form-control" id="exampleFormControlSelect1">
+                <option>---- Please select ----</option>
+                <option data-jq-for="option of result.options" data-jq-text="option.text" data-jq-attr="$root.setResultOptionAttr($data)"></option>
+            </select>
+        </div>
+        <span data-jq-tmp="{id: 'searchResultItemBookMark', data: 'result'}"></span>
+    </div>
+</template>
 
-<script id="searchResultItemBookMark" type="text/html">
-        <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[{{data.$index}}].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="{{data.$index}}"></span>
-        <span class="oi result-item__icon" data-glyph="thumb-up">{{data.numLikes}}</span>
-    </script>
-
-<!-- bootstrap 4 JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="../vendors/jquery-3.2.1.min.js"></script>
-<!-- dataBind JavaScript -->
-<script src="../vendors/lodash.custom.min.js"></script>
-<!-- <script src="../dist/js/dataBind.js"></script> -->
-<script src="../dist/js/dataBind.js"></script>
-
-<!-- demo components JavaScript -->
-<script src="bootstrap/js/compSearchResults.js"></script>
+<template id="searchResultItemBookMark">
+    <div>
+        <small class="bookMarkIndex">searchResultItemBookMark index: {{data.$index}}</small>
+    </div>
+    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="result.bookmarkedCss" data-jq-click="$root.onAdBookmarkClick($index)"></span>
+    <span class="oi result-item__icon" data-glyph="thumb-up">{{data.numLikes}}</span>
+</template>
