@@ -973,7 +973,7 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     // clone domCssList as new array
     var domCssListLength = domCssList.length;
     for (var i = 0; i < domCssListLength; i += 1) {
-        cssList.push(cssList[i]);
+        cssList.push(domCssList[i]);
     }
 
     if (isViewDataObject) {

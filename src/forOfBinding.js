@@ -208,6 +208,9 @@ const removeElemnetsByCommentWrap = (forOfBindingData) => {
         setDocRangeEndAfter(forOfBindingData.parentElement.firstChild, forOfBindingData);
     }
 
+    // TODO - clean up before remove
+    // loop over forOfBindingData.iterationBindingCache and call jquery remove data
+
     return forOfBindingData.docRange.deleteContents();
 };
 
@@ -219,6 +222,8 @@ const removeElemnetsByCommentWrap = (forOfBindingData) => {
 const removeDomTemplateElement = (forOfBindingData) => {
     // first render - forElement is live DOM element so has parentNode
     if (forOfBindingData.el.parentNode) {
+        // TODO - clean up before remove
+        // loop over forOfBindingData.iterationBindingCache and call jquery remove data
         return forOfBindingData.el.parentNode.removeChild(forOfBindingData.el);
     }
     removeElemnetsByCommentWrap(forOfBindingData);

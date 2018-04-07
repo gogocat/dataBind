@@ -196,8 +196,7 @@ describe('Given form-component initised', function() {
 
     it('When #message range input changed with xss html then viewModel data should have escaped value and updated', function(done) {
         var newMessage = 'This is a new message for test <script>alert(xss)</script>',
-            escapedMessage =
-                'This is a new message for test &lt;script&gt;alert(xss)&lt;/script&gt;';
+            escapedMessage = 'This is a new message for test &lt;script&gt;alert(xss)&lt;/script&gt;';
 
         setTimeout(function() {
             $('#message')

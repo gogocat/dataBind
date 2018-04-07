@@ -515,7 +515,7 @@ const cssBinding = (cache, viewModel, bindingAttrs) => {
     // clone domCssList as new array
     let domCssListLength = domCssList.length;
     for (let i = 0; i < domCssListLength; i += 1) {
-        cssList.push(cssList[i]);
+        cssList.push(domCssList[i]);
     }
 
     if (isViewDataObject) {
