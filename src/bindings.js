@@ -7,7 +7,6 @@ let $domFragment = null;
 let $templateRoot = null;
 let nestTemplatesCount = 0;
 let templateCache = {};
-let elementDataNamespace = 'dataBind';
 
 /**
  * compileTemplate
@@ -129,7 +128,6 @@ const clickBinding = (cache, viewModel, bindingAttrs) => {
     let handlerName = cache.dataKey;
     let paramList = cache.parameters;
     let handlerFn;
-    let $element;
     let viewModelContext;
 
     if (!handlerName) {
@@ -141,11 +139,12 @@ const clickBinding = (cache, viewModel, bindingAttrs) => {
     if (typeof handlerFn === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        $element = $(cache.el);
-        $element.off('click.databind').on('click.databind', function(e) {
-            let args = [e, $element].concat(paramList);
-            handlerFn.apply(viewModelContext, args);
-        });
+        $(cache.el)
+            .off('click.databind')
+            .on('click.databind', function(e) {
+                let args = [e, $(this)].concat(paramList);
+                handlerFn.apply(viewModelContext, args);
+            });
     }
 };
 
@@ -161,7 +160,6 @@ const dblclickBinding = (cache, viewModel, bindingAttrs) => {
     let handlerName = cache.dataKey;
     let paramList = cache.parameters;
     let handlerFn;
-    let $element;
     let viewModelContext;
 
     if (!handlerName) {
@@ -173,11 +171,12 @@ const dblclickBinding = (cache, viewModel, bindingAttrs) => {
     if (typeof handlerFn === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        $element = $(cache.el);
-        $element.off('dblclick.databind').on('dblclick.databind', function(e) {
-            let args = [e, $element].concat(paramList);
-            handlerFn.apply(viewModelContext, args);
-        });
+        $(cache.el)
+            .off('dblclick.databind')
+            .on('dblclick.databind', function(e) {
+                let args = [e, $(this)].concat(paramList);
+                handlerFn.apply(viewModelContext, args);
+            });
     }
 };
 
@@ -193,7 +192,6 @@ const blurBinding = (cache, viewModel, bindingAttrs) => {
     let handlerName = cache.dataKey;
     let paramList = cache.parameters;
     let handlerFn;
-    let $element;
     let viewModelContext;
 
     if (!handlerName) {
@@ -205,11 +203,13 @@ const blurBinding = (cache, viewModel, bindingAttrs) => {
     if (typeof handlerFn === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        $element = $(cache.el);
-        $element.off('blur.databind').on('blur.databind', function(e) {
-            let args = [e, $element].concat(paramList);
-            handlerFn.apply(viewModelContext, args);
-        });
+
+        $(cache.el)
+            .off('blur.databind')
+            .on('blur.databind', function(e) {
+                let args = [e, $(this)].concat(paramList);
+                handlerFn.apply(viewModelContext, args);
+            });
     }
 };
 
@@ -225,7 +225,6 @@ const focusBinding = (cache, viewModel, bindingAttrs) => {
     let handlerName = cache.dataKey;
     let paramList = cache.parameters;
     let handlerFn;
-    let $element;
     let viewModelContext;
 
     if (!handlerName) {
@@ -237,11 +236,12 @@ const focusBinding = (cache, viewModel, bindingAttrs) => {
     if (typeof handlerFn === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        $element = $(cache.el);
-        $element.off('focus.databind').on('focus.databind', function(e) {
-            let args = [e, $element].concat(paramList);
-            handlerFn.apply(viewModelContext, args);
-        });
+        $(cache.el)
+            .off('focus.databind')
+            .on('focus.databind', function(e) {
+                let args = [e, $(this)].concat(paramList);
+                handlerFn.apply(viewModelContext, args);
+            });
     }
 };
 
@@ -257,10 +257,8 @@ const changeBinding = (cache, viewModel, bindingAttrs) => {
     let paramList = cache.parameters;
     let modelDataKey = cache.el.getAttribute(bindingAttrs.model);
     let handlerFn;
-    let isCheckbox;
     let newValue;
     let oldValue;
-    let $element;
     let viewModelContext;
 
     if (!handlerName) {
@@ -269,25 +267,26 @@ const changeBinding = (cache, viewModel, bindingAttrs) => {
 
     handlerFn = util.getViewModelValue(viewModel, handlerName);
 
-    $element = $(cache.el);
-
     if (typeof handlerFn === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
 
-        isCheckbox = $element.is(':checkbox');
         // assing on change event
-        $element.off('change.databind').on('change.databind', function(e) {
-            newValue = isCheckbox ? $element.prop('checked') : _.escape($element.val());
-            // set data to viewModel
-            if (modelDataKey) {
-                oldValue = util.getViewModelValue(viewModel, modelDataKey);
-                util.setViewModelValue(viewModel, modelDataKey, newValue);
-            }
-            let args = [e, $element, newValue, oldValue].concat(paramList);
-            handlerFn.apply(viewModelContext, args);
-            oldValue = newValue;
-        });
+        $(cache.el)
+            .off('change.databind')
+            .on('change.databind', function(e) {
+                let $this = $(this);
+                let isCheckbox = $this.is(':checkbox');
+                newValue = isCheckbox ? $this.prop('checked') : _.escape($this.val());
+                // set data to viewModel
+                if (modelDataKey) {
+                    oldValue = util.getViewModelValue(viewModel, modelDataKey);
+                    util.setViewModelValue(viewModel, modelDataKey, newValue);
+                }
+                let args = [e, $this, newValue, oldValue].concat(paramList);
+                handlerFn.apply(viewModelContext, args);
+                oldValue = newValue;
+            });
     }
 };
 
@@ -411,9 +410,10 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
         return;
     }
 
+    cache.elementData = cache.elementData || {};
+
     let $element = $(cache.el);
-    let elementData = $element.data(elementDataNamespace) || {};
-    let oldShowStatus = elementData.showStatus;
+    let oldShowStatus = cache.elementData.showStatus;
     let isInvertBoolean = dataKey.charAt(0) === '!';
     let shouldShow;
     let viewModelContext;
@@ -438,8 +438,7 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
         }
 
         // store new show status
-        elementData.showStatus = shouldShow;
-        $element.data(elementDataNamespace, elementData);
+        cache.elementData.showStatus = shouldShow;
 
         // reverse if has '!' expression from DOM deceleration
         if (isInvertBoolean) {
@@ -471,9 +470,11 @@ const cssBinding = (cache, viewModel, bindingAttrs) => {
         return;
     }
 
+    cache.elementData = cache.elementData || {};
+    cache.elementData.cssList = cache.elementData.cssList || '';
+
     let $element = $(cache.el);
-    let elementData = $element.data(elementDataNamespace) || {};
-    let oldCssList = elementData.cssList || '';
+    let oldCssList = cache.elementData.cssList;
     let newCssList = '';
     let vmCssListObj = util.getViewModelValue(viewModel, dataKey);
     let vmCssListArray;
@@ -541,10 +542,7 @@ const cssBinding = (cache, viewModel, bindingAttrs) => {
     // rather than replace the whole class attribute
     cache.el.setAttribute('class', cssList);
     // update element data
-    elementData.cssList = newCssList;
-    // TODO: may not need to store data in jquery data object.
-    // can store in current cache object
-    $element.data(elementDataNamespace, elementData);
+    cache.elementData.cssList = newCssList;
 };
 
 /**
@@ -563,9 +561,11 @@ const attrBinding = (cache, viewModel, bindingAttrs) => {
         return;
     }
 
+    cache.elementData = cache.elementData || {};
+    cache.elementData.attrObj = cache.elementData.attrObj || {};
+
     let $element = $(cache.el);
-    let elementData = $element.data(elementDataNamespace) || {};
-    let oldAttrObj = elementData.attrObj || {};
+    let oldAttrObj = cache.elementData.attrObj;
     let vmAttrObj = util.getViewModelValue(viewModel, dataKey);
     let viewModelContext;
 
@@ -614,8 +614,7 @@ const attrBinding = (cache, viewModel, bindingAttrs) => {
         }
     }
     // update element data
-    elementData.attrObj = vmAttrObj;
-    $element.data(elementDataNamespace, elementData);
+    cache.elementData.attrObj = vmAttrObj;
 };
 
 /**

@@ -467,7 +467,6 @@ var $domFragment = null;
 var $templateRoot = null;
 var nestTemplatesCount = 0;
 var templateCache = {};
-var elementDataNamespace = 'dataBind';
 
 /**
  * compileTemplate
@@ -587,7 +586,6 @@ var clickBinding = function clickBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
     var paramList = cache.parameters;
     var handlerFn = void 0;
-    var $element = void 0;
     var viewModelContext = void 0;
 
     if (!handlerName) {
@@ -599,9 +597,8 @@ var clickBinding = function clickBinding(cache, viewModel, bindingAttrs) {
     if (typeof handlerFn === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        $element = $(cache.el);
-        $element.off('click.databind').on('click.databind', function (e) {
-            var args = [e, $element].concat(paramList);
+        $(cache.el).off('click.databind').on('click.databind', function (e) {
+            var args = [e, $(this)].concat(paramList);
             handlerFn.apply(viewModelContext, args);
         });
     }
@@ -619,7 +616,6 @@ var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
     var paramList = cache.parameters;
     var handlerFn = void 0;
-    var $element = void 0;
     var viewModelContext = void 0;
 
     if (!handlerName) {
@@ -631,9 +627,8 @@ var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs) {
     if (typeof handlerFn === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        $element = $(cache.el);
-        $element.off('dblclick.databind').on('dblclick.databind', function (e) {
-            var args = [e, $element].concat(paramList);
+        $(cache.el).off('dblclick.databind').on('dblclick.databind', function (e) {
+            var args = [e, $(this)].concat(paramList);
             handlerFn.apply(viewModelContext, args);
         });
     }
@@ -651,7 +646,6 @@ var blurBinding = function blurBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
     var paramList = cache.parameters;
     var handlerFn = void 0;
-    var $element = void 0;
     var viewModelContext = void 0;
 
     if (!handlerName) {
@@ -663,9 +657,9 @@ var blurBinding = function blurBinding(cache, viewModel, bindingAttrs) {
     if (typeof handlerFn === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        $element = $(cache.el);
-        $element.off('blur.databind').on('blur.databind', function (e) {
-            var args = [e, $element].concat(paramList);
+
+        $(cache.el).off('blur.databind').on('blur.databind', function (e) {
+            var args = [e, $(this)].concat(paramList);
             handlerFn.apply(viewModelContext, args);
         });
     }
@@ -683,7 +677,6 @@ var focusBinding = function focusBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
     var paramList = cache.parameters;
     var handlerFn = void 0;
-    var $element = void 0;
     var viewModelContext = void 0;
 
     if (!handlerName) {
@@ -695,9 +688,8 @@ var focusBinding = function focusBinding(cache, viewModel, bindingAttrs) {
     if (typeof handlerFn === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        $element = $(cache.el);
-        $element.off('focus.databind').on('focus.databind', function (e) {
-            var args = [e, $element].concat(paramList);
+        $(cache.el).off('focus.databind').on('focus.databind', function (e) {
+            var args = [e, $(this)].concat(paramList);
             handlerFn.apply(viewModelContext, args);
         });
     }
@@ -715,10 +707,8 @@ var changeBinding = function changeBinding(cache, viewModel, bindingAttrs) {
     var paramList = cache.parameters;
     var modelDataKey = cache.el.getAttribute(bindingAttrs.model);
     var handlerFn = void 0;
-    var isCheckbox = void 0;
     var newValue = void 0;
     var oldValue = void 0;
-    var $element = void 0;
     var viewModelContext = void 0;
 
     if (!handlerName) {
@@ -727,22 +717,21 @@ var changeBinding = function changeBinding(cache, viewModel, bindingAttrs) {
 
     handlerFn = util.getViewModelValue(viewModel, handlerName);
 
-    $element = $(cache.el);
-
     if (typeof handlerFn === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
 
-        isCheckbox = $element.is(':checkbox');
         // assing on change event
-        $element.off('change.databind').on('change.databind', function (e) {
-            newValue = isCheckbox ? $element.prop('checked') : _.escape($element.val());
+        $(cache.el).off('change.databind').on('change.databind', function (e) {
+            var $this = $(this);
+            var isCheckbox = $this.is(':checkbox');
+            newValue = isCheckbox ? $this.prop('checked') : _.escape($this.val());
             // set data to viewModel
             if (modelDataKey) {
                 oldValue = util.getViewModelValue(viewModel, modelDataKey);
                 util.setViewModelValue(viewModel, modelDataKey, newValue);
             }
-            var args = [e, $element, newValue, oldValue].concat(paramList);
+            var args = [e, $this, newValue, oldValue].concat(paramList);
             handlerFn.apply(viewModelContext, args);
             oldValue = newValue;
         });
@@ -869,9 +858,10 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
         return;
     }
 
+    cache.elementData = cache.elementData || {};
+
     var $element = $(cache.el);
-    var elementData = $element.data(elementDataNamespace) || {};
-    var oldShowStatus = elementData.showStatus;
+    var oldShowStatus = cache.elementData.showStatus;
     var isInvertBoolean = dataKey.charAt(0) === '!';
     var shouldShow = void 0;
     var viewModelContext = void 0;
@@ -896,8 +886,7 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
         }
 
         // store new show status
-        elementData.showStatus = shouldShow;
-        $element.data(elementDataNamespace, elementData);
+        cache.elementData.showStatus = shouldShow;
 
         // reverse if has '!' expression from DOM deceleration
         if (isInvertBoolean) {
@@ -929,9 +918,11 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
         return;
     }
 
+    cache.elementData = cache.elementData || {};
+    cache.elementData.cssList = cache.elementData.cssList || '';
+
     var $element = $(cache.el);
-    var elementData = $element.data(elementDataNamespace) || {};
-    var oldCssList = elementData.cssList || '';
+    var oldCssList = cache.elementData.cssList;
     var newCssList = '';
     var vmCssListObj = util.getViewModelValue(viewModel, dataKey);
     var vmCssListArray = void 0;
@@ -999,10 +990,7 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     // rather than replace the whole class attribute
     cache.el.setAttribute('class', cssList);
     // update element data
-    elementData.cssList = newCssList;
-    // TODO: may not need to store data in jquery data object.
-    // can store in current cache object
-    $element.data(elementDataNamespace, elementData);
+    cache.elementData.cssList = newCssList;
 };
 
 /**
@@ -1021,9 +1009,11 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
         return;
     }
 
+    cache.elementData = cache.elementData || {};
+    cache.elementData.attrObj = cache.elementData.attrObj || {};
+
     var $element = $(cache.el);
-    var elementData = $element.data(elementDataNamespace) || {};
-    var oldAttrObj = elementData.attrObj || {};
+    var oldAttrObj = cache.elementData.attrObj;
     var vmAttrObj = util.getViewModelValue(viewModel, dataKey);
     var viewModelContext = void 0;
 
@@ -1072,8 +1062,7 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
         }
     }
     // update element data
-    elementData.attrObj = vmAttrObj;
-    $element.data(elementDataNamespace, elementData);
+    cache.elementData.attrObj = vmAttrObj;
 };
 
 /**
@@ -1550,6 +1539,9 @@ var removeElemnetsByCommentWrap = function removeElemnetsByCommentWrap(forOfBind
         setDocRangeEndAfter(forOfBindingData.parentElement.firstChild, forOfBindingData);
     }
 
+    // TODO - clean up before remove
+    // loop over forOfBindingData.iterationBindingCache and call jquery remove data
+
     return forOfBindingData.docRange.deleteContents();
 };
 
@@ -1561,6 +1553,8 @@ var removeElemnetsByCommentWrap = function removeElemnetsByCommentWrap(forOfBind
 var removeDomTemplateElement = function removeDomTemplateElement(forOfBindingData) {
     // first render - forElement is live DOM element so has parentNode
     if (forOfBindingData.el.parentNode) {
+        // TODO - clean up before remove
+        // loop over forOfBindingData.iterationBindingCache and call jquery remove data
         return forOfBindingData.el.parentNode.removeChild(forOfBindingData.el);
     }
     removeElemnetsByCommentWrap(forOfBindingData);
