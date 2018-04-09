@@ -137,20 +137,76 @@
         },
     };
 
+    const generateRamdomData = () => {
+        let data = [];
+        const getRandomNumber = (x, y) => {
+            return Math.floor(Math.random() * (y - x + 1) + x);
+        };
+        const randomSeed = getRandomNumber(1, 30);
+        const images = [
+            'bootstrap/images/pic-home.jpg',
+            'bootstrap/images/pic-carpenter.jpg',
+            'bootstrap/images/pic-deck.jpg',
+            'bootstrap/images/pic-bathrooms.jpg',
+            'bootstrap/images/pic-backyard.jpg',
+        ];
+        const descriptions = [
+            'This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.',
+            'This card has supporting text below as a natural lead-in to additional content.',
+            'This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.',
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.',
+            'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+        ];
+
+        for (let i = 0; i < randomSeed; i += 1) {
+            data.push({
+                id: i,
+                title: 'Sample gardening service',
+                description: descriptions[getRandomNumber(0, descriptions.length - 1)],
+                image: images[getRandomNumber(0, images.length - 1)],
+                bookmarked: false,
+                numLikes: i * randomSeed,
+                options: [
+                    {text: i, value: i},
+                    {text: i + 1, value: i + 1},
+                    {text: i + 2, value: i + 2},
+                ],
+            });
+        }
+
+        return data;
+    };
+
+    const updateResults = () => {
+        window.updateInterval = setInterval(function() {
+            viewModel.searchResults = generateRamdomData();
+            searchResultsComponent.render();
+        });
+    };
+
     // start binding on DOM ready
     $(document).ready(function() {
-        // formComponentC - test for-of binding
         // debug
-        // viewModel.searchResults.splice(1, viewModel.searchResults.length - 1);
-
         searchResultsComponent = dataBind.init(
             $('[data-jq-comp="search-results-component"]'),
             viewModel
         );
+
         searchResultsComponent.render().then(function() {
             // for debug
             console.log(searchResultsComponent);
             window.searchResultsComponent = searchResultsComponent;
+
+            $('#btnRandomRender').on('click', function(e) {
+                e.preventDefault();
+                updateResults();
+            });
+
+            $('#btnStopRandomRender').on('click', function(e) {
+                e.preventDefault();
+                clearInterval(window.updateInterval);
+            });
         });
     });
 })(jQuery, window);

@@ -36,9 +36,9 @@ describe('When search-results-component with forOf binding inited', function() {
                     numLikes: 8,
                     selected: true,
                     options: [
-                        {text: '1', value: '1'},
-                        {text: '2', value: '2'},
-                        {text: '3', value: '3'},
+                        {text: '4', value: '4'},
+                        {text: '5', value: '5'},
+                        {text: '6', value: '6'},
                     ],
                 },
                 {
@@ -52,9 +52,9 @@ describe('When search-results-component with forOf binding inited', function() {
                     highlight: true,
                     highlightCss: 'result-item--highlight',
                     options: [
-                        {text: '1', value: '1'},
-                        {text: '2', value: '2'},
-                        {text: '3', value: '3'},
+                        {text: '7', value: '7'},
+                        {text: '8', value: '8'},
+                        {text: '9', value: '9'},
                     ],
                 },
             ],
@@ -145,10 +145,12 @@ describe('When search-results-component with forOf binding inited', function() {
 					var $body = $result.find('.card-body');
 					var $footer = $result.find('.result-item__footer');
 					var $checkbox = $footer.find('.result-item__icon-checkbox');
+					var $options = $footer.find('select.form-control option');
 					var imgSrc = $img.attr('src') || '';
 					var bodyIndex = $body.find('.bodyIndex').text();
 					var footerIndex = $footer.find('.footerIndex').text();
 					var bookMarkIndex = $result.find('.bookMarkIndex').text();
+					var searchResult = namespace.viewModel.searchResults[index];
 					
 					bodyIndex = bodyIndex.charAt(bodyIndex.length - 1);
 					footerIndex = footerIndex.charAt(footerIndex.length - 1);
@@ -161,7 +163,11 @@ describe('When search-results-component with forOf binding inited', function() {
 					expect($footer.length).not.toBe(0);
 					expect(footerIndex).toEqual(indexString);
 					expect(bookMarkIndex).toEqual(indexString);
-					expect($checkbox.is(':checked')).toEqual(Boolean(namespace.viewModel.searchResults[index].selected));
+					expect($checkbox.is(':checked')).toEqual(Boolean(searchResult.selected));
+					// first option is not from data
+					expect($options.length).toEqual(searchResult.options.length + 1);
+					expect($options.eq(index + 1).text()).toEqual(searchResult.options[index].text);
+					expect($options.eq(index + 1).val()).toEqual(searchResult.options[index].value);
 				});
 				
 				done();

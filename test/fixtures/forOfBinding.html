@@ -31,8 +31,8 @@
             <label for="{{data.id}}" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
         </div>
         <div class="form-group">
-            <label for="exampleFormControlSelect1">Example select</label>
-            <select class="form-control" id="exampleFormControlSelect1">
+            <label for="exampleFormControlSelect-{{data.$index}}">Example select</label>
+            <select class="form-control" id="exampleFormControlSelect-{{data.$index}}">
                 <option>---- Please select ----</option>
                 <option data-jq-for="option of result.options" data-jq-text="option.text" data-jq-attr="$root.setResultOptionAttr($data)"></option>
             </select>
