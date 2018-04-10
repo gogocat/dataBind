@@ -43,7 +43,7 @@ const createBindingCache = ({rootNode = null, bindingAttrs = {}, skipCheck}) => 
     };
 
     const defaultSkipCheck = (node) => {
-        return node.tagName === 'SVG' || node.getAttribute(bindingAttrs.comp);
+        return node.tagName === 'SVG' || node.hasAttribute(bindingAttrs.comp);
     };
 
     const populateBindingCache = (node, attrObj, key) => {

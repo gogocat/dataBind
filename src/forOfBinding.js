@@ -63,26 +63,17 @@ const renderForOfBinding = ({forOfBindingData, viewModel, bindingAttrs}) => {
     }
 
     // generate forOfBinding elements into fragment
-    let fragment = generateForOfElements(
-        forOfBindingData,
-        viewModel,
-        bindingAttrs,
-        iterationData,
-        keys
-    );
+    let fragment = generateForOfElements(forOfBindingData, viewModel, bindingAttrs, iterationData, keys);
     // insert fragment content into DOM
     return insertRenderedElements(forOfBindingData, fragment);
 };
 
 const createIterationViewModel = ({forOfBindingData, viewModel, iterationData, keys, index}) => {
     let iterationVm = {};
-    iterationVm[forOfBindingData.iterator.alias] = keys
-        ? iterationData[keys[index]]
-        : iterationData[index];
+    iterationVm[forOfBindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
     // populate common binding data reference
     iterationVm[config.bindingDataReference.rootDataKey] = viewModel.$root || viewModel;
-    iterationVm[config.bindingDataReference.currentData] =
-        iterationVm[forOfBindingData.iterator.alias];
+    iterationVm[config.bindingDataReference.currentData] = iterationVm[forOfBindingData.iterator.alias];
     iterationVm[config.bindingDataReference.currentIndex] = index;
     return iterationVm;
 };
@@ -194,13 +185,8 @@ const removeElemnetsByCommentWrap = (forOfBindingData) => {
     // insert rendered fragment after the previousNonTemplateElement
     if (forOfBindingData.previousNonTemplateElement) {
         // update docRange start and end match the wrapped comment node
-        forOfBindingData.docRange.setStartBefore(
-            forOfBindingData.previousNonTemplateElement.nextSibling
-        );
-        setDocRangeEndAfter(
-            forOfBindingData.previousNonTemplateElement.nextSibling,
-            forOfBindingData
-        );
+        forOfBindingData.docRange.setStartBefore(forOfBindingData.previousNonTemplateElement.nextSibling);
+        setDocRangeEndAfter(forOfBindingData.previousNonTemplateElement.nextSibling, forOfBindingData);
     } else {
         // insert before next non template element
         // update docRange start and end match the wrapped comment node
@@ -264,18 +250,11 @@ const insertRenderedElements = (forOfBindingData, fragment) => {
 
     // insert rendered fragment after the previousNonTemplateElement
     if (forOfBindingData.previousNonTemplateElement) {
-        util.insertAfter(
-            forOfBindingData.parentElement,
-            fragment,
-            forOfBindingData.previousNonTemplateElement
-        );
+        util.insertAfter(forOfBindingData.parentElement, fragment, forOfBindingData.previousNonTemplateElement);
     } else {
         // insert before next non template element
         if (forOfBindingData.nextNonTemplateElement) {
-            forOfBindingData.parentElement.insertBefore(
-                fragment,
-                forOfBindingData.nextNonTemplateElement
-            );
+            forOfBindingData.parentElement.insertBefore(fragment, forOfBindingData.nextNonTemplateElement);
         } else if (forOfBindingData.parentElement) {
             // insert from parent
             forOfBindingData.parentElement.appendChild(fragment);

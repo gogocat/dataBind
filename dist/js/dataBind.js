@@ -1237,7 +1237,7 @@ var createBindingCache = function createBindingCache(_ref) {
     };
 
     var defaultSkipCheck = function defaultSkipCheck(node) {
-        return node.tagName === 'SVG' || node.getAttribute(bindingAttrs.comp);
+        return node.tagName === 'SVG' || node.hasAttribute(bindingAttrs.comp);
     };
 
     var populateBindingCache = function populateBindingCache(node, attrObj, key) {
