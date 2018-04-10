@@ -29,7 +29,7 @@ const getAttributesObject = (node) => {
     return ret;
 };
 
-const createBindingCache = (rootNode = null, bindingAttrs = {}, skipCheck) => {
+const createBindingCache = ({rootNode = null, bindingAttrs = {}, skipCheck}) => {
     let bindingCache = {};
 
     if (!rootNode instanceof window.Node) {
@@ -42,47 +42,64 @@ const createBindingCache = (rootNode = null, bindingAttrs = {}, skipCheck) => {
         return node.tagName === 'SVG';
     };
 
-    const defaultSkipCheck =
-        typeof skipCheck === 'function'
-            ? skipCheck
-            : (node) => {
-                return node.tagName === 'SVG' || node.getAttribute(bindingAttrs.comp);
+    const defaultSkipCheck = (node) => {
+        return node.tagName === 'SVG' || node.hasAttribute(bindingAttrs.comp);
+    };
+
+    const populateBindingCache = (node, attrObj, key) => {
+        let attrValue;
+        let cacheData;
+
+        if (bindingAttrsMap[key] && attrObj[key]) {
+            bindingCache[key] = bindingCache[key] || [];
+            attrValue = attrObj[key].trim();
+            cacheData = {
+                el: node,
+                dataKey: attrValue,
             };
+
+            // for store function call parameters eg. '$index', '$root'
+            // useful with DOM for-loop template as reference to binding data
+            let paramList = util.getFunctionParameterList(attrValue);
+            if (paramList) {
+                cacheData.parameters = paramList;
+                cacheData.dataKey = cacheData.dataKey.replace(util.REGEX.FUNCTIONPARAM, '').trim();
+            }
+
+            bindingCache[key].push(cacheData);
+        }
+    };
 
     const parseNode = (node, skipCheckFn = defaultSkipCheck) => {
         let attrObj;
-        let attrValue;
-        let cacheData;
+        let isSkipForOfChild = false;
 
         if (node.nodeType === 1 && node.hasAttributes()) {
             if (skipCheckFn(node)) {
                 return false;
             }
 
+            if (typeof skipCheck === 'function' && skipCheck(node)) {
+                return false;
+            }
+
+            // when creating sub bindingCache if is for tmp binding
+            // skip same element that has forOf binding the  forOf is alredy parsed
             attrObj = getAttributesObject(node);
 
-            Object.keys(attrObj).forEach((key) => {
-                if (bindingAttrsMap[key] && attrObj[key]) {
-                    bindingCache[key] = bindingCache[key] || [];
-                    attrValue = attrObj[key].trim();
-                    cacheData = {
-                        el: node,
-                        dataKey: attrValue,
-                    };
+            if (attrObj[bindingAttrs.forOf]) {
+                isSkipForOfChild = true;
+                populateBindingCache(node, attrObj, bindingAttrs.forOf);
+            } else {
+                Object.keys(attrObj).forEach((key) => {
+                    populateBindingCache(node, attrObj, key);
+                });
+            }
 
-                    // TODO - for store function call parameters eg. '$data', '$root'
-                    // useful with DOM for-loop template as reference to binding data
-                    /*
-                    paramList = util.getFunctionParameterList(attrValue);
-                    if (paramList) {
-                        cacheData.parameters = paramList;
-                        cacheData.dataKey =
-                            cacheData.dataKey.replace(util.REGEX.FUNCTIONPARAM, '').trim();
-                    }
-                    */
-                    bindingCache[key].push(cacheData);
-                }
-            });
+            // after cache forOf skip parse child nodes
+            if (isSkipForOfChild) {
+                return false;
+            }
         }
         return true;
     };

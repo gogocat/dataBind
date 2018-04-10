@@ -1,5 +1,5 @@
 import * as config from './config';
-import Binder from './binder';
+import {Binder} from './binder';
 
 let bindingAttrs = config.bindingAttrs;
 let templateSettings = config.templateSettings;
@@ -22,4 +22,5 @@ const init = ($rootElement, viewModel = null) => {
 window.dataBind = {
     use: use,
     init: init,
+    version: '@version@',
 };

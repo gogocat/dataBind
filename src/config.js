@@ -1,4 +1,4 @@
-let bindingAttrs = {
+const bindingAttrs = {
     comp: 'data-jq-comp',
     tmp: 'data-jq-tmp',
     text: 'data-jq-text',
@@ -14,14 +14,38 @@ let bindingAttrs = {
     attr: 'data-jq-attr',
     forOf: 'data-jq-for',
 };
-let serverRenderedAttr = 'data-server-rendered';
-let dataIndexAttr = 'data-index';
+const serverRenderedAttr = 'data-server-rendered';
+const dataIndexAttr = 'data-index';
+const commentPrefix = 'data-forOf-';
 
 // global setting of underscore template inteprolate default token
-let templateSettings = {
+const templateSettings = {
     evaluate: /<%([\s\S]+?)%>/g,
     interpolate: /\{\{=(.+?)\}\}/g,
     escape: /\{\{(.+?)\}\}/g,
 };
 
-export {bindingAttrs, dataIndexAttr, templateSettings, serverRenderedAttr};
+const bindingDataReference = {
+    rootDataKey: '$root',
+    currentData: '$data',
+    currentIndex: '$index',
+};
+
+const bindingUpdateConditions = {
+    serverRendered: 'SERVER-RENDERED',
+    init: 'INIT',
+};
+
+// maximum string length before running regex
+const maxDatakeyLength = 50;
+
+export {
+    bindingAttrs,
+    dataIndexAttr,
+    templateSettings,
+    serverRenderedAttr,
+    commentPrefix,
+    bindingUpdateConditions,
+    bindingDataReference,
+    maxDatakeyLength,
+};

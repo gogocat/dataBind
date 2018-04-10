@@ -1,3 +1,5 @@
+import * as config from './config';
+
 // require to use lodash
 _ = window._ || {};
 
@@ -126,6 +128,9 @@ const getFormData = ($form) => {
  * @return {array} paramlist
  */
 const getFunctionParameterList = (str) => {
+    if (!str || str.length > config.maxDatakeyLength) {
+        return;
+    }
     let paramlist = str.match(REGEX.FUNCTIONPARAM);
 
     if (paramlist && paramlist[1]) {
@@ -260,6 +265,76 @@ const isMergebleObject = (item) => {
     return isObject(item) && !isArray(item);
 };
 
+/**
+ * cloneDomNode
+ * @param {object} element
+ * @return {object} cloned element
+ * @description helper function to clone node
+ */
+const cloneDomNode = (element) => {
+    return element.cloneNode(true);
+};
+
+/**
+ * insertAfter
+ * @param {object} parentNode
+ * @param {object} newNode
+ * @param {object} referenceNode
+ * @return {object} node
+ * @description helper function to insert new node before the reference node
+ */
+const insertAfter = (parentNode, newNode, referenceNode) => {
+    let refNextElement =
+        referenceNode && referenceNode.nextSibling ? referenceNode.nextSibling : null;
+    return parentNode.insertBefore(newNode, refNextElement);
+};
+
+const resolveViewModelContext = (viewModel, datakey) => {
+    let ret = viewModel;
+    let bindingDataContext;
+    if (typeof datakey !== 'string') {
+        return ret;
+    }
+    bindingDataContext = datakey.split('.');
+    if (bindingDataContext.length > 1) {
+        if (bindingDataContext[0] === config.bindingDataReference.rootDataKey) {
+            ret = viewModel[config.bindingDataReference.rootDataKey] || viewModel;
+        } else if (bindingDataContext[0] === config.bindingDataReference.currentData) {
+            ret = viewModel[config.bindingDataReference.currentData] || viewModel;
+        }
+    }
+    return ret;
+};
+
+const resolveParamList = (viewModel, paramList) => {
+    if (!viewModel || !isArray(paramList)) {
+        return;
+    }
+    return paramList.map((param) => {
+        param = param.trim();
+
+        if (param === config.bindingDataReference.currentIndex) {
+            // convert '$index' to value
+            param = viewModel[config.bindingDataReference.currentIndex];
+        } else if (param === config.bindingDataReference.currentData) {
+            // convert '$data' to value
+            param = viewModel[config.bindingDataReference.currentData];
+        } else if (param === config.bindingDataReference.rootDataKey) {
+            // convert '$root' to root viewModel
+            param = viewModel[config.bindingDataReference.rootDataKey] || viewModel;
+        }
+        return param;
+    });
+};
+
+const throwErrorMessage = (err = null, errorMessage = '') => {
+    let message = err && err.message ? err.message : errorMessage;
+    if (typeof console.error === 'function') {
+        return console.error(message);
+    }
+    return console.log(message);
+};
+
 export {
     REGEX,
     isArray,
@@ -276,4 +351,9 @@ export {
     getFunctionParameterList,
     invertObj,
     getNodeAttrObj,
+    cloneDomNode,
+    insertAfter,
+    resolveViewModelContext,
+    resolveParamList,
+    throwErrorMessage,
 };

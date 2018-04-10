@@ -10,6 +10,7 @@ const header = require('gulp-header');
 const uglify = require('gulp-uglify');
 const pump = require('pump');
 const rename = require('gulp-rename');
+const replace = require('gulp-replace');
 
 // shorthands
 const entryFilePath = './src/index.js';
@@ -62,6 +63,7 @@ gulp.task('bundle', () => {
         )
         .on('error', util.log)
         .pipe(sourcemaps.write('.'))
+        .pipe(replace('@version@', pkg.version))
         .pipe(gulp.dest(distJsPath));
 });
 

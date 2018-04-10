@@ -17,14 +17,17 @@
 
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <a class="navbar-brand" href="#">Navbar</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
         <div class="collapse navbar-collapse" id="navbarsExampleDefault">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="#">Home
+                        <span class="sr-only">(current)</span>
+                    </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Link</a>
@@ -33,7 +36,8 @@
                     <a class="nav-link disabled" href="#">Disabled</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                    <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false">Dropdown</a>
                     <div class="dropdown-menu" aria-labelledby="dropdown01">
                         <a class="dropdown-item" href="#">Action</a>
                         <a class="dropdown-item" href="#">Another action</a>
@@ -59,13 +63,15 @@
             <form id="search-form" data-jq-submit="onSearchSubmit">
                 <div class="form-row">
                     <div class="col-8" id="scrollable-dropdown-menu">
-                        <input id="searchWord" name="searchWord" type="text" class="form-control typeahead" value="" data-jq-model="searchWord" data-jq-change="onSearchWordChange" required>
+                        <input id="searchWord" name="searchWord" type="text" class="form-control typeahead" value="" data-jq-model="searchWord" data-jq-change="onSearchWordChange"
+                            required>
                         <label for="searchWord" class="search-bar__label search-bar__label--large">I'm looking for...</label>
                         <span class="search-bar__focus-bar"></span>
                     </div>
                     <div class="col-3 input-group">
                         <span class="oi search-bar__map-marker" data-glyph="map-marker"></span>
-                        <input id="location" name="location" type="text" class="form-control" data-jq-model="searchLocation" data-jq-change="onSearchLocationChange" placeholder="Location" value="Sydney" aria-label="Location">
+                        <input id="location" name="location" type="text" class="form-control" data-jq-model="searchLocation" data-jq-change="onSearchLocationChange"
+                            placeholder="Location" value="Sydney" aria-label="Location">
                         <span class="search-bar__focus-bar"></span>
                     </div>
                     <div class="col">
@@ -91,14 +97,17 @@
                 <img class="card-img-top result-item__img" src="bootstrap/images/pic-home.jpg" alt="Card image">
                 <div class="card-body">
                     <h4 class="card-title">Card title that wraps to a new line</h4>
-                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content
+                        is a little bit longer.</p>
                 </div>
                 <div class="card-footer result-item__footer">
                     <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid0" name="adid0" data-index="0" data-jq-model="searchResults[0].selected" data-jq-change="onAdMessageCheck">
+                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid0" name="adid0" data-index="0" data-jq-model="searchResults[0].selected"
+                            data-jq-change="onAdMessageCheck">
                         <label for="adid0" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
                     </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[0].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="0"></span>
+                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[0].bookmarkedCss" data-jq-click="onAdBookmarkClick"
+                        data-index="0"></span>
                     <span class="oi result-item__icon" data-glyph="thumb-up">99</span>
                 </div>
             </div>
@@ -106,14 +115,17 @@
             <div class="card result-item" data-index="1">
                 <div class="card-body">
                     <h4 class="card-title">Card title</h4>
-                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card
+                        has even longer content than the first to show that equal height action.</p>
                 </div>
                 <div class="card-footer result-item__footer">
                     <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid1" name="adid1" data-index="1" data-jq-model="searchResults[1].selected" data-jq-change="onAdMessageCheck">
+                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid1" name="adid1" data-index="1" data-jq-model="searchResults[1].selected"
+                            data-jq-change="onAdMessageCheck">
                         <label for="adid1" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
                     </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[1].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="1"></span>
+                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[1].bookmarkedCss" data-jq-click="onAdBookmarkClick"
+                        data-index="1"></span>
                     <span class="oi result-item__icon" data-glyph="thumb-up">9</span>
                 </div>
             </div>
@@ -126,10 +138,12 @@
                 </div>
                 <div class="card-footer result-item__footer">
                     <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid2" name="adid2" data-index="2" data-jq-model="searchResults[2].selected" data-jq-change="onAdMessageCheck">
+                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid2" name="adid2" data-index="2" data-jq-model="searchResults[2].selected"
+                            data-jq-change="onAdMessageCheck">
                         <label for="adid2" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
                     </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[2].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="2"></span>
+                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[2].bookmarkedCss" data-jq-click="onAdBookmarkClick"
+                        data-index="2"></span>
                     <span class="oi result-item__icon" data-glyph="thumb-up">24</span>
                 </div>
             </div>
@@ -142,10 +156,12 @@
                 </div>
                 <div class="card-footer result-item__footer">
                     <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid3" name="adid3" data-index="3" data-jq-model="searchResults[3].selected" data-jq-change="onAdMessageCheck">
+                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid3" name="adid3" data-index="3" data-jq-model="searchResults[3].selected"
+                            data-jq-change="onAdMessageCheck">
                         <label for="adid3" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
                     </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[3].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="3"></span>
+                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[3].bookmarkedCss" data-jq-click="onAdBookmarkClick"
+                        data-index="3"></span>
                     <span class="oi result-item__icon" data-glyph="thumb-up">8</span>
                 </div>
             </div>
@@ -157,10 +173,12 @@
                 </div>
                 <div class="card-footer result-item__footer">
                     <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid4" name="adid4" data-index="4" data-jq-model="searchResults[4].selected" data-jq-change="onAdMessageCheck">
+                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid4" name="adid4" data-index="4" data-jq-model="searchResults[4].selected"
+                            data-jq-change="onAdMessageCheck">
                         <label for="adid4" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
                     </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[4].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="4"></span>
+                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[4].bookmarkedCss" data-jq-click="onAdBookmarkClick"
+                        data-index="4"></span>
                     <span class="oi result-item__icon" data-glyph="thumb-up">68</span>
                 </div>
             </div>
@@ -169,14 +187,17 @@
                 <img class="card-img-top result-item__img" src="bootstrap/images/pic-bathrooms.jpg" alt="Card image">
                 <div class="card-body">
                     <h4 class="card-title">Card title that wraps to a new line</h4>
-                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content
+                        is a little bit longer.</p>
                 </div>
                 <div class="card-footer result-item__footer">
                     <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid5" name="adid5" data-index="5" data-jq-model="searchResults[5].selected" data-jq-change="onAdMessageCheck">
+                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid5" name="adid5" data-index="5" data-jq-model="searchResults[5].selected"
+                            data-jq-change="onAdMessageCheck">
                         <label for="adid5" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
                     </div>
-                    <span class="oi result-item__icon active" data-glyph="bookmark" data-jq-css="searchResults[5].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="5"></span>
+                    <span class="oi result-item__icon active" data-glyph="bookmark" data-jq-css="searchResults[5].bookmarkedCss" data-jq-click="onAdBookmarkClick"
+                        data-index="5"></span>
                     <span class="oi result-item__icon" data-glyph="thumb-up">99+</span>
                 </div>
             </div>
@@ -184,14 +205,17 @@
             <div class="card result-item" data-index="6">
                 <div class="card-body">
                     <h4 class="card-title">Card title</h4>
-                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card
+                        has even longer content than the first to show that equal height action.</p>
                 </div>
                 <div class="card-footer result-item__footer">
                     <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid6" name="adid6" data-index="6" data-jq-model="searchResults[6].selected" data-jq-change="onAdMessageCheck">
+                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid6" name="adid6" data-index="6" data-jq-model="searchResults[6].selected"
+                            data-jq-change="onAdMessageCheck">
                         <label for="adid6" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
                     </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[6].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="6"></span>
+                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[6].bookmarkedCss" data-jq-click="onAdBookmarkClick"
+                        data-index="6"></span>
                     <span class="oi result-item__icon" data-glyph="thumb-up">9</span>
                 </div>
             </div>
@@ -204,10 +228,12 @@
                 </div>
                 <div class="card-footer result-item__footer">
                     <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid7" name="adid7" data-index="7" data-jq-model="searchResults[7].selected" data-jq-change="onAdMessageCheck">
+                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid7" name="adid7" data-index="7" data-jq-model="searchResults[7].selected"
+                            data-jq-change="onAdMessageCheck">
                         <label for="adid7" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
                     </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[7].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="7"></span>
+                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[7].bookmarkedCss" data-jq-click="onAdBookmarkClick"
+                        data-index="7"></span>
                     <span class="oi result-item__icon" data-glyph="thumb-up">24</span>
                 </div>
             </div>
@@ -218,7 +244,8 @@
             <span data-jq-show="!loading">More</span>
         </button>
 
-        <div class="mass-message__trigger-wrap" data-jq-css="messageTriggerCss" data-jq-click="onMessageTriggerClick" data-toggle="modal" data-target="#message-modal">
+        <div class="mass-message__trigger-wrap" data-jq-css="messageTriggerCss" data-jq-click="onMessageTriggerClick" data-toggle="modal"
+            data-target="#message-modal">
             <div class="mass-message__trigger">
                 <span class="oi mass-message__trigger-icon" data-glyph="pencil" aria-label="write message"></span>
             </div>
@@ -231,24 +258,29 @@
         </div>
     </footer>
 
-    <div id="message-modal" class="modal fade" data-jq-comp="message-dialog-component" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div id="message-modal" class="modal fade" data-jq-comp="message-dialog-component" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg message-modal" role="document">
             <div class="modal-content message-modal__content">
                 <form id="formMessage" data-jq-submit="onMessageSubmit">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">Send Message</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                            <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
                         <div data-jq-show="!sendingMessage">
                             <div class="alert alert-primary" role="alert">
                                 <h4 class="alert-heading">Well done!</h4>
-                                <p>Send a single message to all <strong data-jq-text="numSelectedProviders"></strong> selected service providers with just one click.</p>
-                                <p>This message will be send to <span data-jq-text="selectedProviders"></span></p>
+                                <p>Send a single message to all
+                                    <strong data-jq-text="numSelectedProviders"></strong> selected service providers with just one click.</p>
+                                <p>This message will be send to
+                                    <span data-jq-text="selectedProviders"></span>
+                                </p>
                                 <hr>
-                                <p class="mb-0"><strong>Tips:</strong> Provide details of your job request to have more accurate quotes.</p>
+                                <p class="mb-0">
+                                    <strong>Tips:</strong> Provide details of your job request to have more accurate quotes.</p>
                             </div>
                             <div class="form-group">
                                 <label for="message">Message</label>
@@ -257,7 +289,9 @@
                         </div>
                         <div data-jq-show="sendingMessage" class="message-modal__content-success">
                             <span class="oi message-modal__icon-success" data-glyph="check"></span>
-                            <p>Your message successfully send to <span data-jq-text="selectedProviders"></span></p>
+                            <p>Your message successfully send to
+                                <span data-jq-text="selectedProviders"></span>
+                            </p>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
@@ -322,7 +356,7 @@
     <!-- dataBind JavaScript -->
     <script src="../vendors/lodash.custom.min.js"></script>
     <!-- <script src="../dist/js/dataBind.js"></script> -->
-    <script src="../integrationtests/test-tmp/js/dataBind.js"></script>
+    <script src="../dist/js/dataBind.js"></script>
 
     <!-- demo components JavaScript -->
     <script src="bootstrap/js/compSearchBar.js"></script>

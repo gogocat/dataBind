@@ -5,7 +5,7 @@ import createBindingCache from './domWalker';
 import * as pubSub from './pubSub';
 
 let compIdIndex = 0;
-const rootDataKey = '$root';
+const rootDataKey = config.bindingDataReference.rootDataKey;
 
 class Binder {
     constructor($rootElement, viewModel, bindingAttrs) {
@@ -52,7 +52,10 @@ class Binder {
         // store viewModel data as $root for easy access
         this.$rootElement.data(rootDataKey, this.viewModel);
 
-        this.elementCache = createBindingCache(this.$rootElement[0], this.bindingAttrs);
+        this.elementCache = createBindingCache({
+            rootNode: this.$rootElement[0],
+            bindingAttrs: this.bindingAttrs,
+        });
 
         // updateElementCache if server rendered on init
         if (this.isServerRendered && !this.initRendered) {
@@ -63,99 +66,71 @@ class Binder {
         return this;
     }
 
+    /**
+     * updateElementCache
+     * @param {object} opt
+     * @description call createBindingCache to parse view and generate bindingCache
+     */
     updateElementCache(opt = {}) {
+        let skipForOfParseFn;
+        let elementCache = opt.elementCache || this.elementCache;
+
         if (opt.allCache) {
-            this.elementCache = createBindingCache(this.$rootElement[0], this.bindingAttrs);
+            // walk dom from root element to regenerate elementCache
+            this.elementCache = createBindingCache({
+                rootNode: this.$rootElement[0],
+                bindingAttrs: this.bindingAttrs,
+            });
         }
-        // walk DOM from each rendered template(s) and cache bindings in 'bindingCache'
+        // walk from first rendered template node to create/update child bindingCache
         if (opt.allCache || opt.templateCache) {
-            if (
-                this.elementCache[this.bindingAttrs.tmp] &&
-                this.elementCache[this.bindingAttrs.tmp].length
-            ) {
-                this.elementCache[this.bindingAttrs.tmp].forEach((cache) => {
-                    cache.bindingCache = createBindingCache(cache.el, this.bindingAttrs);
+            if (elementCache[this.bindingAttrs.tmp] && elementCache[this.bindingAttrs.tmp].length) {
+                elementCache[this.bindingAttrs.tmp].forEach((cache) => {
+                    // set skipCheck as skipForOfParseFn whenever an node has
+                    // both template and forOf bindings
+                    // then the template bindingCache should be an empty object
+                    if (cache.el.hasAttribute(this.bindingAttrs.forOf)) {
+                        skipForOfParseFn = (node) => {
+                            return true;
+                        };
+                    }
+                    cache.bindingCache = createBindingCache({
+                        rootNode: cache.el,
+                        bindingAttrs: this.bindingAttrs,
+                        skipCheck: skipForOfParseFn,
+                    });
                 });
             }
         }
     }
 
     render(opt = {}) {
-        let visualBindingOptions = {
-            templateBinding: false,
-            textBinding: true,
-            cssBinding: true,
-            showBinding: true,
-            modelBinding: true,
-            attrBinding: true,
-            forOfBinding: true,
-        };
-        let eventsBindingOptions = {
-            changeBinding: true,
-            clickBinding: true,
-            dblclickBinding: true,
-            blurBinding: true,
-            focusBinding: true,
-            submitBinding: true,
-        };
-        let serverRenderedOptions = {
-            templateBinding: false,
-            textBinding: false,
-            cssBinding: false,
-            showBinding: false,
-            modelBinding: false,
-            attrBinding: false,
-            forOfBinding: false,
-        };
         let updateOption = {};
-
         if (!this.initRendered) {
             // only update eventsBinding if server rendered
             if (this.isServerRendered) {
                 this.$rootElement.removeAttr(config.serverRenderedAttr);
-                updateOption = $.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
+                updateOption = createBindingOption(
+                    config.bindingUpdateConditions.serverRendered,
+                    opt
+                );
             } else {
-                // flag to update template binding
-                opt.templateBinding = true;
-                updateOption = $.extend({}, visualBindingOptions, eventsBindingOptions, opt);
+                updateOption = createBindingOption(config.bindingUpdateConditions.init, opt);
             }
         } else {
             // when called again only update visualBinding options
-            updateOption = $.extend({}, visualBindingOptions, opt);
+            updateOption = createBindingOption('', opt);
         }
 
-        // apply binding to rendered templates
-        if (
-            this.elementCache[this.bindingAttrs.tmp] &&
-            this.elementCache[this.bindingAttrs.tmp].length
-        ) {
-            // render template and nested templates
-            if (updateOption.templateBinding) {
-                $.extend(updateOption, eventsBindingOptions);
-
-                this.elementCache[this.bindingAttrs.tmp].forEach(($element) => {
-                    binds.renderTemplate(
-                        $element,
-                        this.viewModel,
-                        this.bindingAttrs,
-                        this.elementCache
-                    );
-                });
-                // update cache after template(s) rendered
-                this.updateElementCache({
-                    templateCache: true,
-                });
-            }
-            // apply bindings to rendered templates
-            this.elementCache[this.bindingAttrs.tmp].forEach((cache) => {
-                Binder.applyBinding({
-                    elementCache: cache.bindingCache,
-                    updateOption: updateOption,
-                    bindingAttrs: this.bindingAttrs,
-                    viewModel: this.viewModel,
-                });
-            });
-        }
+        // render and apply binding to template(s)
+        // this is an share function therefore passing 'this' context
+        renderTemplatesBinding({
+            ctx: this,
+            elementCache: this.elementCache,
+            updateOption: updateOption,
+            bindingAttrs: this.bindingAttrs,
+            viewModel: this.viewModel,
+        });
 
         // apply bindings to rest of the DOM
         Binder.applyBinding({
@@ -168,10 +143,8 @@ class Binder {
         this.initRendered = true;
     }
 
-    static applyBinding(opt = {}) {
-        const {elementCache, updateOption, bindingAttrs, viewModel} = opt;
-
-        if (!elementCache && !updateOption) {
+    static applyBinding({elementCache, updateOption, bindingAttrs, viewModel}) {
+        if (!elementCache || !updateOption) {
             return;
         }
 
@@ -335,4 +308,94 @@ class Binder {
     }
 }
 
-export default Binder;
+const renderTemplatesBinding = ({ctx, elementCache, updateOption, bindingAttrs, viewModel}) => {
+    if (!elementCache || !bindingAttrs) {
+        return false;
+    }
+    // render and apply binding to template(s) and forOf DOM
+    if (elementCache[bindingAttrs.tmp] && elementCache[bindingAttrs.tmp].length) {
+        // when re-render call with {templateBinding: true}
+        // template and nested templates
+        if (updateOption.templateBinding) {
+            // overwrite updateOption with 'init' bindingUpdateConditions
+            updateOption = createBindingOption(config.bindingUpdateConditions.init);
+
+            elementCache[bindingAttrs.tmp].forEach(($element) => {
+                binds.renderTemplate($element, viewModel, bindingAttrs, elementCache);
+            });
+            // update cache after all template(s) rendered
+            ctx.updateElementCache({
+                templateCache: true,
+                elementCache: elementCache,
+            });
+        }
+        // apply bindings to rendered templates element
+        elementCache[bindingAttrs.tmp].forEach((cache) => {
+            Binder.applyBinding({
+                elementCache: cache.bindingCache,
+                updateOption: updateOption,
+                bindingAttrs: bindingAttrs,
+                viewModel: viewModel,
+            });
+        });
+    }
+    return true;
+};
+
+/**
+ * createBindingOption
+ * @param {string} condition
+ * @param {object} opt
+ * @description
+ * generate binding update option object by condition
+ * @return {object} updateOption
+ */
+const createBindingOption = (condition = '', opt = {}) => {
+    let visualBindingOptions = {
+        templateBinding: false,
+        textBinding: true,
+        cssBinding: true,
+        showBinding: true,
+        modelBinding: true,
+        attrBinding: true,
+        forOfBinding: true,
+    };
+    let eventsBindingOptions = {
+        changeBinding: true,
+        clickBinding: true,
+        dblclickBinding: true,
+        blurBinding: true,
+        focusBinding: true,
+        submitBinding: true,
+    };
+    // this is visualBindingOptions but everything fals
+    // keep it static instead dynamic for performance purpose
+    let serverRenderedOptions = {
+        templateBinding: false,
+        textBinding: false,
+        cssBinding: false,
+        showBinding: false,
+        modelBinding: false,
+        attrBinding: false,
+        forOfBinding: false,
+    };
+    let updateOption = {};
+
+    switch (condition) {
+    case config.bindingUpdateConditions.serverRendered:
+        updateOption = util.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
+        break;
+    case config.bindingUpdateConditions.init:
+        // flag templateBinding to true to render tempalte(s)
+        opt.templateBinding = true;
+        updateOption = util.extend({}, visualBindingOptions, eventsBindingOptions, opt);
+        break;
+    default:
+        // when called again only update visualBinding options
+        updateOption = util.extend({}, visualBindingOptions, opt);
+    }
+
+    return updateOption;
+};
+
+export {Binder, createBindingOption, renderTemplatesBinding};

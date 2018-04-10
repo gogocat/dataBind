@@ -1,6 +1,6 @@
 {
     "name": "dataBind",
-    "version": "1.1.0",
+    "version": "1.6.0",
     "description": "Simple MV* framework work with jQuery and underscore template",
     "main": "index.js",
     "scripts": {
@@ -10,11 +10,7 @@
         "type": "git",
         "url": "git+https://github.com/gogocat/dataBind.git"
     },
-    "keywords": [
-        "jquery",
-        "data",
-        "binding"
-    ],
+    "keywords": ["jquery", "data", "binding"],
     "author": "adam chow",
     "license": "MIT",
     "bugs": {
@@ -49,6 +45,7 @@
         "gulp-header": "^2.0.1",
         "gulp-istanbul": "^1.1.3",
         "gulp-rename": "^1.2.2",
+        "gulp-replace": "^0.6.1",
         "gulp-sourcemaps": "^2.6.4",
         "gulp-uglify": "^3.0.0",
         "gulp-util": "^3.0.8",

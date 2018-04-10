@@ -1,7 +1,8 @@
 {
     "editor.formatOnSave": true,
+    "editor.rulers": [120],
+    "editor.wordWrap": "off",
     "javascript.format.enable": false,
     "prettier.eslintIntegration": true,
-    "files.trimFinalNewlines": true,
-    "editor.rulers": [100]
+    "files.trimFinalNewlines": true
 }

@@ -1,6 +1,6 @@
 /**
  * dataBind - Simple MV* framework work with jQuery and underscore template
- * @version v1.1.0
+ * @version v1.6.0
  * @link https://github.com/gogocat/dataBind#readme
  * @license MIT
  */
@@ -10,6 +10,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.renderTemplatesBinding = exports.createBindingOption = exports.Binder = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -42,7 +43,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var compIdIndex = 0;
-var rootDataKey = '$root';
+var rootDataKey = config.bindingDataReference.rootDataKey;
 
 var Binder = function () {
     function Binder($rootElement, viewModel, bindingAttrs) {
@@ -89,7 +90,10 @@ var Binder = function () {
             // store viewModel data as $root for easy access
             this.$rootElement.data(rootDataKey, this.viewModel);
 
-            this.elementCache = (0, _domWalker2['default'])(this.$rootElement[0], this.bindingAttrs);
+            this.elementCache = (0, _domWalker2['default'])({
+                rootNode: this.$rootElement[0],
+                bindingAttrs: this.bindingAttrs
+            });
 
             // updateElementCache if server rendered on init
             if (this.isServerRendered && !this.initRendered) {
@@ -99,6 +103,13 @@ var Binder = function () {
             }
             return this;
         }
+
+        /**
+         * updateElementCache
+         * @param {object} opt
+         * @description call createBindingCache to parse view and generate bindingCache
+         */
+
     }, {
         key: 'updateElementCache',
         value: function updateElementCache() {
@@ -106,14 +117,33 @@ var Binder = function () {
 
             var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
+            var skipForOfParseFn = void 0;
+            var elementCache = opt.elementCache || this.elementCache;
+
             if (opt.allCache) {
-                this.elementCache = (0, _domWalker2['default'])(this.$rootElement[0], this.bindingAttrs);
+                // walk dom from root element to regenerate elementCache
+                this.elementCache = (0, _domWalker2['default'])({
+                    rootNode: this.$rootElement[0],
+                    bindingAttrs: this.bindingAttrs
+                });
             }
-            // walk DOM from each rendered template(s) and cache bindings in 'bindingCache'
+            // walk from first rendered template node to create/update child bindingCache
             if (opt.allCache || opt.templateCache) {
-                if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
-                    this.elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
-                        cache.bindingCache = (0, _domWalker2['default'])(cache.el, _this.bindingAttrs);
+                if (elementCache[this.bindingAttrs.tmp] && elementCache[this.bindingAttrs.tmp].length) {
+                    elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
+                        // set skipCheck as skipForOfParseFn whenever an node has
+                        // both template and forOf bindings
+                        // then the template bindingCache should be an empty object
+                        if (cache.el.hasAttribute(_this.bindingAttrs.forOf)) {
+                            skipForOfParseFn = function skipForOfParseFn(node) {
+                                return true;
+                            };
+                        }
+                        cache.bindingCache = (0, _domWalker2['default'])({
+                            rootNode: cache.el,
+                            bindingAttrs: _this.bindingAttrs,
+                            skipCheck: skipForOfParseFn
+                        });
                     });
                 }
             }
@@ -121,77 +151,31 @@ var Binder = function () {
     }, {
         key: 'render',
         value: function render() {
-            var _this2 = this;
-
             var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-            var visualBindingOptions = {
-                templateBinding: false,
-                textBinding: true,
-                cssBinding: true,
-                showBinding: true,
-                modelBinding: true,
-                attrBinding: true,
-                forOfBinding: true
-            };
-            var eventsBindingOptions = {
-                changeBinding: true,
-                clickBinding: true,
-                dblclickBinding: true,
-                blurBinding: true,
-                focusBinding: true,
-                submitBinding: true
-            };
-            var serverRenderedOptions = {
-                templateBinding: false,
-                textBinding: false,
-                cssBinding: false,
-                showBinding: false,
-                modelBinding: false,
-                attrBinding: false,
-                forOfBinding: false
-            };
             var updateOption = {};
-
             if (!this.initRendered) {
                 // only update eventsBinding if server rendered
                 if (this.isServerRendered) {
                     this.$rootElement.removeAttr(config.serverRenderedAttr);
-                    updateOption = $.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
+                    updateOption = createBindingOption(config.bindingUpdateConditions.serverRendered, opt);
                 } else {
-                    // flag to update template binding
-                    opt.templateBinding = true;
-                    updateOption = $.extend({}, visualBindingOptions, eventsBindingOptions, opt);
+                    updateOption = createBindingOption(config.bindingUpdateConditions.init, opt);
                 }
             } else {
                 // when called again only update visualBinding options
-                updateOption = $.extend({}, visualBindingOptions, opt);
+                updateOption = createBindingOption('', opt);
             }
 
-            // apply binding to rendered templates
-            if (this.elementCache[this.bindingAttrs.tmp] && this.elementCache[this.bindingAttrs.tmp].length) {
-                // render template and nested templates
-                if (updateOption.templateBinding) {
-                    $.extend(updateOption, eventsBindingOptions);
-
-                    this.elementCache[this.bindingAttrs.tmp].forEach(function ($element) {
-                        binds.renderTemplate($element, _this2.viewModel, _this2.bindingAttrs, _this2.elementCache);
-                    });
-                    // update cache after template(s) rendered
-                    this.updateElementCache({
-                        templateCache: true
-                    });
-                }
-                // apply bindings to rendered templates
-                this.elementCache[this.bindingAttrs.tmp].forEach(function (cache) {
-                    Binder.applyBinding({
-                        elementCache: cache.bindingCache,
-                        updateOption: updateOption,
-                        bindingAttrs: _this2.bindingAttrs,
-                        viewModel: _this2.viewModel
-                    });
-                });
-            }
+            // render and apply binding to template(s)
+            // this is an share function therefore passing 'this' context
+            renderTemplatesBinding({
+                ctx: this,
+                elementCache: this.elementCache,
+                updateOption: updateOption,
+                bindingAttrs: this.bindingAttrs,
+                viewModel: this.viewModel
+            });
 
             // apply bindings to rest of the DOM
             Binder.applyBinding({
@@ -249,15 +233,13 @@ var Binder = function () {
         }
     }], [{
         key: 'applyBinding',
-        value: function applyBinding() {
-            var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-            var elementCache = opt.elementCache,
-                updateOption = opt.updateOption,
-                bindingAttrs = opt.bindingAttrs,
-                viewModel = opt.viewModel;
+        value: function applyBinding(_ref) {
+            var elementCache = _ref.elementCache,
+                updateOption = _ref.updateOption,
+                bindingAttrs = _ref.bindingAttrs,
+                viewModel = _ref.viewModel;
 
-
-            if (!elementCache && !updateOption) {
+            if (!elementCache || !updateOption) {
                 return;
             }
 
@@ -351,15 +333,119 @@ var Binder = function () {
     return Binder;
 }();
 
-exports['default'] = Binder;
+var renderTemplatesBinding = function renderTemplatesBinding(_ref2) {
+    var ctx = _ref2.ctx,
+        elementCache = _ref2.elementCache,
+        updateOption = _ref2.updateOption,
+        bindingAttrs = _ref2.bindingAttrs,
+        viewModel = _ref2.viewModel;
 
-},{"./bindings":2,"./config":3,"./domWalker":4,"./pubSub":6,"./util":7}],2:[function(require,module,exports){
+    if (!elementCache || !bindingAttrs) {
+        return false;
+    }
+    // render and apply binding to template(s) and forOf DOM
+    if (elementCache[bindingAttrs.tmp] && elementCache[bindingAttrs.tmp].length) {
+        // when re-render call with {templateBinding: true}
+        // template and nested templates
+        if (updateOption.templateBinding) {
+            // overwrite updateOption with 'init' bindingUpdateConditions
+            updateOption = createBindingOption(config.bindingUpdateConditions.init);
+
+            elementCache[bindingAttrs.tmp].forEach(function ($element) {
+                binds.renderTemplate($element, viewModel, bindingAttrs, elementCache);
+            });
+            // update cache after all template(s) rendered
+            ctx.updateElementCache({
+                templateCache: true,
+                elementCache: elementCache
+            });
+        }
+        // apply bindings to rendered templates element
+        elementCache[bindingAttrs.tmp].forEach(function (cache) {
+            Binder.applyBinding({
+                elementCache: cache.bindingCache,
+                updateOption: updateOption,
+                bindingAttrs: bindingAttrs,
+                viewModel: viewModel
+            });
+        });
+    }
+    return true;
+};
+
+/**
+ * createBindingOption
+ * @param {string} condition
+ * @param {object} opt
+ * @description
+ * generate binding update option object by condition
+ * @return {object} updateOption
+ */
+var createBindingOption = function createBindingOption() {
+    var condition = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+    var opt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    var visualBindingOptions = {
+        templateBinding: false,
+        textBinding: true,
+        cssBinding: true,
+        showBinding: true,
+        modelBinding: true,
+        attrBinding: true,
+        forOfBinding: true
+    };
+    var eventsBindingOptions = {
+        changeBinding: true,
+        clickBinding: true,
+        dblclickBinding: true,
+        blurBinding: true,
+        focusBinding: true,
+        submitBinding: true
+    };
+    // this is visualBindingOptions but everything fals
+    // keep it static instead dynamic for performance purpose
+    var serverRenderedOptions = {
+        templateBinding: false,
+        textBinding: false,
+        cssBinding: false,
+        showBinding: false,
+        modelBinding: false,
+        attrBinding: false,
+        forOfBinding: false
+    };
+    var updateOption = {};
+
+    switch (condition) {
+        case config.bindingUpdateConditions.serverRendered:
+            updateOption = util.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
+            break;
+        case config.bindingUpdateConditions.init:
+            // flag templateBinding to true to render tempalte(s)
+            opt.templateBinding = true;
+            updateOption = util.extend({}, visualBindingOptions, eventsBindingOptions, opt);
+            break;
+        default:
+            // when called again only update visualBinding options
+            updateOption = util.extend({}, visualBindingOptions, opt);
+    }
+
+    return updateOption;
+};
+
+exports.Binder = Binder;
+exports.createBindingOption = createBindingOption;
+exports.renderTemplatesBinding = renderTemplatesBinding;
+
+},{"./bindings":2,"./config":3,"./domWalker":4,"./pubSub":7,"./util":8}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.forOfBinding = exports.attrBinding = exports.cssBinding = exports.showBinding = exports.textBinding = exports.submitBinding = exports.modelBinding = exports.changeBinding = exports.focusBinding = exports.blurBinding = exports.dblclickBinding = exports.clickBinding = exports.renderTemplate = undefined;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; /* eslint-disable no-invalid-this */
+
 
 var _config = require('./config');
 
@@ -369,14 +455,18 @@ var _util = require('./util');
 
 var util = _interopRequireWildcard(_util);
 
+var _forOfBinding = require('./forOfBinding');
+
+var _forOfBinding2 = _interopRequireDefault(_forOfBinding);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
-/* eslint-disable no-invalid-this */
 var $domFragment = null;
 var $templateRoot = null;
 var nestTemplatesCount = 0;
 var templateCache = {};
-var elementDataNamespace = 'dataBind';
 
 /**
  * compileTemplate
@@ -391,14 +481,13 @@ var compileTemplate = function compileTemplate(id) {
     var templateString = void 0;
     var templateElement = void 0;
 
-    if (templateCache[id]) {
-        return templateCache[id](templateData);
+    if (!templateCache[id]) {
+        templateElement = document.getElementById(id);
+        templateString = templateElement ? templateElement.innerHTML : '';
+        templateCache[id] = _.template(templateString, {
+            variable: 'data'
+        });
     }
-    templateElement = document.getElementById(id);
-    templateString = templateElement ? templateElement.innerHTML : ''; // $('#' + id).html() || '';
-    templateCache[id] = _.template(templateString, {
-        variable: 'data'
-    });
 
     return templateCache[id](templateData);
 };
@@ -429,8 +518,8 @@ var renderTemplate = function renderTemplate(cache, viewModel, bindingAttrs, ele
     }
 
     $element = $(cache.el);
-    $index = $element.attr(config.dataIndexAttr);
-    if ($index) {
+    $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.attr(config.dataIndexAttr);
+    if (typeof $index !== 'undefined') {
         viewData.$index = $index;
     }
     $domFragment = $domFragment ? $domFragment : $('<div/>');
@@ -495,8 +584,9 @@ var renderTemplate = function renderTemplate(cache, viewModel, bindingAttrs, ele
  */
 var clickBinding = function clickBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
+    var paramList = cache.parameters;
     var handlerFn = void 0;
-    var $element = void 0;
+    var viewModelContext = void 0;
 
     if (!handlerName) {
         return;
@@ -505,9 +595,11 @@ var clickBinding = function clickBinding(cache, viewModel, bindingAttrs) {
     handlerFn = util.getViewModelValue(viewModel, handlerName);
 
     if (typeof handlerFn === 'function') {
-        $element = $(cache.el);
-        $element.off('click.databind').on('click.databind', function (e) {
-            handlerFn.call(viewModel, e, $element);
+        viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+        $(cache.el).off('click.databind').on('click.databind', function (e) {
+            var args = [e, $(this)].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -522,8 +614,9 @@ var clickBinding = function clickBinding(cache, viewModel, bindingAttrs) {
  */
 var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
+    var paramList = cache.parameters;
     var handlerFn = void 0;
-    var $element = void 0;
+    var viewModelContext = void 0;
 
     if (!handlerName) {
         return;
@@ -532,9 +625,11 @@ var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs) {
     handlerFn = util.getViewModelValue(viewModel, handlerName);
 
     if (typeof handlerFn === 'function') {
-        $element = $(cache.el);
-        $element.off('dblclick.databind').on('dblclick.databind', function (e) {
-            handlerFn.call(viewModel, e, $element);
+        viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+        $(cache.el).off('dblclick.databind').on('dblclick.databind', function (e) {
+            var args = [e, $(this)].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -549,8 +644,9 @@ var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs) {
  */
 var blurBinding = function blurBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
+    var paramList = cache.parameters;
     var handlerFn = void 0;
-    var $element = void 0;
+    var viewModelContext = void 0;
 
     if (!handlerName) {
         return;
@@ -559,9 +655,12 @@ var blurBinding = function blurBinding(cache, viewModel, bindingAttrs) {
     handlerFn = util.getViewModelValue(viewModel, handlerName);
 
     if (typeof handlerFn === 'function') {
-        $element = $(cache.el);
-        $element.off('blur.databind').on('blur.databind', function (e) {
-            handlerFn.call(viewModel, e, $element);
+        viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+
+        $(cache.el).off('blur.databind').on('blur.databind', function (e) {
+            var args = [e, $(this)].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -576,8 +675,9 @@ var blurBinding = function blurBinding(cache, viewModel, bindingAttrs) {
  */
 var focusBinding = function focusBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
+    var paramList = cache.parameters;
     var handlerFn = void 0;
-    var $element = void 0;
+    var viewModelContext = void 0;
 
     if (!handlerName) {
         return;
@@ -586,9 +686,11 @@ var focusBinding = function focusBinding(cache, viewModel, bindingAttrs) {
     handlerFn = util.getViewModelValue(viewModel, handlerName);
 
     if (typeof handlerFn === 'function') {
-        $element = $(cache.el);
-        $element.off('focus.databind').on('focus.databind', function (e) {
-            handlerFn.call(viewModel, e, $element);
+        viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+        $(cache.el).off('focus.databind').on('focus.databind', function (e) {
+            var args = [e, $(this)].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -602,12 +704,12 @@ var focusBinding = function focusBinding(cache, viewModel, bindingAttrs) {
  */
 var changeBinding = function changeBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
+    var paramList = cache.parameters;
     var modelDataKey = cache.el.getAttribute(bindingAttrs.model);
     var handlerFn = void 0;
-    var isCheckbox = void 0;
     var newValue = void 0;
     var oldValue = void 0;
-    var $element = void 0;
+    var viewModelContext = void 0;
 
     if (!handlerName) {
         return;
@@ -615,19 +717,22 @@ var changeBinding = function changeBinding(cache, viewModel, bindingAttrs) {
 
     handlerFn = util.getViewModelValue(viewModel, handlerName);
 
-    $element = $(cache.el);
-
     if (typeof handlerFn === 'function') {
-        isCheckbox = $element.is(':checkbox');
+        viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+
         // assing on change event
-        $element.off('change.databind').on('change.databind', function (e) {
-            newValue = isCheckbox ? $element.prop('checked') : _.escape($element.val());
+        $(cache.el).off('change.databind').on('change.databind', function (e) {
+            var $this = $(this);
+            var isCheckbox = $this.is(':checkbox');
+            newValue = isCheckbox ? $this.prop('checked') : _.escape($this.val());
             // set data to viewModel
             if (modelDataKey) {
                 oldValue = util.getViewModelValue(viewModel, modelDataKey);
                 util.setViewModelValue(viewModel, modelDataKey, newValue);
             }
-            handlerFn.call(viewModel, e, $element, newValue, oldValue);
+            var args = [e, $this, newValue, oldValue].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
             oldValue = newValue;
         });
     }
@@ -680,8 +785,10 @@ var modelBinding = function modelBinding(cache, viewModel, bindingAttrs) {
  */
 var submitBinding = function submitBinding(cache, viewModel, bindingAttrs) {
     var handlerName = cache.dataKey;
+    var paramList = cache.parameters;
     var handlerFn = void 0;
     var $element = void 0;
+    var viewModelContext = void 0;
 
     if (!handlerName) {
         return;
@@ -691,9 +798,12 @@ var submitBinding = function submitBinding(cache, viewModel, bindingAttrs) {
     $element = $(cache.el);
 
     if (typeof handlerFn === 'function') {
+        viewModelContext = util.resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
         // assing on change event
         $element.off('submit.databind').on('submit.databind', function (e) {
-            handlerFn.call(viewModel, e, $element, util.getFormData($element));
+            var args = [e, $element, util.getFormData($element)].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
         });
     }
 };
@@ -708,15 +818,23 @@ var submitBinding = function submitBinding(cache, viewModel, bindingAttrs) {
  */
 var textBinding = function textBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
+    var paramList = cache.parameters;
+    var viewModelContext = void 0;
 
     if (!dataKey) {
         return;
     }
 
     var newValue = util.getViewModelValue(viewModel, dataKey);
+    if (typeof newValue === 'function') {
+        viewModelContext = util.resolveViewModelContext(viewModel, newValue);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+        var args = paramList.slice(0);
+        newValue = newValue.apply(viewModelContext, args);
+    }
     var oldValue = cache.el.textContent;
 
-    if (typeof newValue !== 'undefined' && newValue !== null) {
+    if (typeof newValue !== 'undefined' && (typeof newValue === 'undefined' ? 'undefined' : _typeof(newValue)) !== 'object' && newValue !== null) {
         if (newValue !== oldValue) {
             cache.el.textContent = newValue;
         }
@@ -734,16 +852,19 @@ var textBinding = function textBinding(cache, viewModel, bindingAttrs) {
  */
 var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
+    var paramList = cache.parameters;
 
     if (!dataKey) {
         return;
     }
 
+    cache.elementData = cache.elementData || {};
+
     var $element = $(cache.el);
-    var elementData = $element.data(elementDataNamespace) || {};
-    var oldShowStatus = elementData.showStatus;
+    var oldShowStatus = cache.elementData.showStatus;
     var isInvertBoolean = dataKey.charAt(0) === '!';
     var shouldShow = void 0;
+    var viewModelContext = void 0;
 
     dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
     shouldShow = util.getViewModelValue(viewModel, dataKey);
@@ -751,7 +872,10 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
     // do nothing if data in viewModel is undefined
     if (typeof shouldShow !== 'undefined' && shouldShow !== null) {
         if (typeof shouldShow === 'function') {
-            shouldShow = shouldShow.call(viewModel, oldShowStatus, $element);
+            viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
+            paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+            var args = [oldShowStatus, $element].concat(paramList);
+            shouldShow = shouldShow.apply(viewModelContext, args);
         }
 
         shouldShow = Boolean(shouldShow);
@@ -762,8 +886,7 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
         }
 
         // store new show status
-        elementData.showStatus = shouldShow;
-        $element.data(elementDataNamespace, elementData);
+        cache.elementData.showStatus = shouldShow;
 
         // reverse if has '!' expression from DOM deceleration
         if (isInvertBoolean) {
@@ -789,14 +912,17 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
  */
 var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
+    var paramList = cache.parameters;
 
     if (!dataKey) {
         return;
     }
 
+    cache.elementData = cache.elementData || {};
+    cache.elementData.cssList = cache.elementData.cssList || '';
+
     var $element = $(cache.el);
-    var elementData = $element.data(elementDataNamespace) || {};
-    var oldCssList = elementData.cssList || '';
+    var oldCssList = cache.elementData.cssList;
     var newCssList = '';
     var vmCssListObj = util.getViewModelValue(viewModel, dataKey);
     var vmCssListArray = void 0;
@@ -804,15 +930,19 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     var isViewDataString = false;
     var domCssList = void 0;
     var cssList = [];
+    var viewModelContext = void 0;
 
     if (typeof vmCssListObj === 'function') {
-        vmCssListObj = vmCssListObj.call(viewModel, oldCssList, $element);
+        viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+        var args = [oldCssList, $element].concat(paramList);
+        vmCssListObj = vmCssListObj.apply(viewModelContext, args);
     }
 
-    if (util.isPlainObject(vmCssListObj)) {
-        isViewDataObject = true;
-    } else if (typeof vmCssListObj === 'string') {
+    if (typeof vmCssListObj === 'string') {
         isViewDataString = true;
+    } else if (util.isPlainObject(vmCssListObj)) {
+        isViewDataObject = true;
     } else {
         // reject if vmCssListObj is not an object or string
         return;
@@ -832,11 +962,13 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     // get current css classes from element
     domCssList = cache.el.classList;
     // clone domCssList as new array
-    $.each(domCssList, function (i, v) {
-        cssList.push(v);
-    });
+    var domCssListLength = domCssList.length;
+    for (var i = 0; i < domCssListLength; i += 1) {
+        cssList.push(domCssList[i]);
+    }
 
     if (isViewDataObject) {
+        // TODO: optimise this use pure js loop
         $.each(vmCssListObj, function (k, v) {
             var i = cssList.indexOf(k);
             if (v === true) {
@@ -854,10 +986,11 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     // unique cssList array
     cssList = _.uniq(cssList).join(' ');
     // replace all css classes
-    $element.attr('class', cssList);
+    // TODO: this is the slowness part. Try only update changed css in the classList
+    // rather than replace the whole class attribute
+    cache.el.setAttribute('class', cssList);
     // update element data
-    elementData.cssList = newCssList;
-    $element.data(elementDataNamespace, elementData);
+    cache.elementData.cssList = newCssList;
 };
 
 /**
@@ -870,18 +1003,25 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
  */
 var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
+    var paramList = cache.parameters;
 
     if (!dataKey) {
         return;
     }
 
+    cache.elementData = cache.elementData || {};
+    cache.elementData.attrObj = cache.elementData.attrObj || {};
+
     var $element = $(cache.el);
-    var elementData = $element.data(elementDataNamespace) || {};
-    var oldAttrObj = elementData.attrObj || {};
+    var oldAttrObj = cache.elementData.attrObj;
     var vmAttrObj = util.getViewModelValue(viewModel, dataKey);
+    var viewModelContext = void 0;
 
     if (typeof vmAttrObj === 'function') {
-        vmAttrObj = vmAttrObj.call(viewModel, oldAttrObj, $element);
+        viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+        var args = [oldAttrObj, $element].concat(paramList);
+        vmAttrObj = vmAttrObj.apply(viewModelContext, args);
     }
 
     if (!util.isPlainObject(vmAttrObj) || util.isEmptyObject(vmAttrObj)) {
@@ -922,8 +1062,7 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
         }
     }
     // update element data
-    elementData.attrObj = vmAttrObj;
-    $element.data(elementDataNamespace, elementData);
+    cache.elementData.attrObj = vmAttrObj;
 };
 
 /**
@@ -937,21 +1076,33 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
 var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
 
-    if (!dataKey) {
+    if (!dataKey || dataKey.length > config.maxDatakeyLength) {
         return;
     }
 
-    var forExpMatch = dataKey.match(util.REGEX.FOROF);
-    if (forExpMatch) {
+    if (!cache.iterator) {
+        var forExpMatch = dataKey.match(util.REGEX.FOROF);
+
+        if (!forExpMatch) {
+            return;
+        }
+
         cache.iterator = {};
         cache.iterator.alias = forExpMatch[1].trim();
+
         if (forExpMatch[2]) {
-            var vmDataKey = forExpMatch[2].trim();
-            cache.iterator.dataKey = vmDataKey;
-            cache.iterator.data = util.getViewModelValue(viewModel, vmDataKey);
+            cache.iterator.dataKey = forExpMatch[2].trim();
+            cache.parentElement = cache.el.parentElement;
+            cache.previousNonTemplateElement = cache.el.previousSibling;
+            cache.nextNonTemplateElement = cache.el.nextSibling;
         }
     }
-    // console.log('forOfBinding cache: ', cache);
+
+    (0, _forOfBinding2['default'])({
+        forOfBindingData: cache,
+        viewModel: viewModel,
+        bindingAttrs: bindingAttrs
+    });
 };
 
 exports.renderTemplate = renderTemplate;
@@ -968,7 +1119,7 @@ exports.cssBinding = cssBinding;
 exports.attrBinding = attrBinding;
 exports.forOfBinding = forOfBinding;
 
-},{"./config":3,"./util":7}],3:[function(require,module,exports){
+},{"./config":3,"./forOfBinding":5,"./util":8}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -992,6 +1143,7 @@ var bindingAttrs = {
 };
 var serverRenderedAttr = 'data-server-rendered';
 var dataIndexAttr = 'data-index';
+var commentPrefix = 'data-forOf-';
 
 // global setting of underscore template inteprolate default token
 var templateSettings = {
@@ -1000,10 +1152,28 @@ var templateSettings = {
     escape: /\{\{(.+?)\}\}/g
 };
 
+var bindingDataReference = {
+    rootDataKey: '$root',
+    currentData: '$data',
+    currentIndex: '$index'
+};
+
+var bindingUpdateConditions = {
+    serverRendered: 'SERVER-RENDERED',
+    init: 'INIT'
+};
+
+// maximum string length before running regex
+var maxDatakeyLength = 50;
+
 exports.bindingAttrs = bindingAttrs;
 exports.dataIndexAttr = dataIndexAttr;
 exports.templateSettings = templateSettings;
 exports.serverRenderedAttr = serverRenderedAttr;
+exports.commentPrefix = commentPrefix;
+exports.bindingUpdateConditions = bindingUpdateConditions;
+exports.bindingDataReference = bindingDataReference;
+exports.maxDatakeyLength = maxDatakeyLength;
 
 },{}],4:[function(require,module,exports){
 'use strict';
@@ -1047,10 +1217,12 @@ var getAttributesObject = function getAttributesObject(node) {
     return ret;
 };
 
-var createBindingCache = function createBindingCache() {
-    var rootNode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    var bindingAttrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var skipCheck = arguments[2];
+var createBindingCache = function createBindingCache(_ref) {
+    var _ref$rootNode = _ref.rootNode,
+        rootNode = _ref$rootNode === undefined ? null : _ref$rootNode,
+        _ref$bindingAttrs = _ref.bindingAttrs,
+        bindingAttrs = _ref$bindingAttrs === undefined ? {} : _ref$bindingAttrs,
+        skipCheck = _ref.skipCheck;
 
     var bindingCache = {};
 
@@ -1064,46 +1236,66 @@ var createBindingCache = function createBindingCache() {
         return node.tagName === 'SVG';
     };
 
-    var defaultSkipCheck = typeof skipCheck === 'function' ? skipCheck : function (node) {
-        return node.tagName === 'SVG' || node.getAttribute(bindingAttrs.comp);
+    var defaultSkipCheck = function defaultSkipCheck(node) {
+        return node.tagName === 'SVG' || node.hasAttribute(bindingAttrs.comp);
+    };
+
+    var populateBindingCache = function populateBindingCache(node, attrObj, key) {
+        var attrValue = void 0;
+        var cacheData = void 0;
+
+        if (bindingAttrsMap[key] && attrObj[key]) {
+            bindingCache[key] = bindingCache[key] || [];
+            attrValue = attrObj[key].trim();
+            cacheData = {
+                el: node,
+                dataKey: attrValue
+            };
+
+            // for store function call parameters eg. '$index', '$root'
+            // useful with DOM for-loop template as reference to binding data
+            var paramList = util.getFunctionParameterList(attrValue);
+            if (paramList) {
+                cacheData.parameters = paramList;
+                cacheData.dataKey = cacheData.dataKey.replace(util.REGEX.FUNCTIONPARAM, '').trim();
+            }
+
+            bindingCache[key].push(cacheData);
+        }
     };
 
     var parseNode = function parseNode(node) {
         var skipCheckFn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultSkipCheck;
 
         var attrObj = void 0;
-        var attrValue = void 0;
-        var cacheData = void 0;
+        var isSkipForOfChild = false;
 
         if (node.nodeType === 1 && node.hasAttributes()) {
             if (skipCheckFn(node)) {
                 return false;
             }
 
+            if (typeof skipCheck === 'function' && skipCheck(node)) {
+                return false;
+            }
+
+            // when creating sub bindingCache if is for tmp binding
+            // skip same element that has forOf binding the  forOf is alredy parsed
             attrObj = getAttributesObject(node);
 
-            Object.keys(attrObj).forEach(function (key) {
-                if (bindingAttrsMap[key] && attrObj[key]) {
-                    bindingCache[key] = bindingCache[key] || [];
-                    attrValue = attrObj[key].trim();
-                    cacheData = {
-                        el: node,
-                        dataKey: attrValue
-                    };
+            if (attrObj[bindingAttrs.forOf]) {
+                isSkipForOfChild = true;
+                populateBindingCache(node, attrObj, bindingAttrs.forOf);
+            } else {
+                Object.keys(attrObj).forEach(function (key) {
+                    populateBindingCache(node, attrObj, key);
+                });
+            }
 
-                    // TODO - for store function call parameters eg. '$data', '$root'
-                    // useful with DOM for-loop template as reference to binding data
-                    /*
-                    paramList = util.getFunctionParameterList(attrValue);
-                    if (paramList) {
-                        cacheData.parameters = paramList;
-                        cacheData.dataKey =
-                            cacheData.dataKey.replace(util.REGEX.FUNCTIONPARAM, '').trim();
-                    }
-                    */
-                    bindingCache[key].push(cacheData);
-                }
-            });
+            // after cache forOf skip parse child nodes
+            if (isSkipForOfChild) {
+                return false;
+            }
         }
         return true;
     };
@@ -1116,7 +1308,308 @@ var createBindingCache = function createBindingCache() {
 
 exports['default'] = createBindingCache;
 
-},{"./util":7}],5:[function(require,module,exports){
+},{"./util":8}],5:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _config = require('./config');
+
+var config = _interopRequireWildcard(_config);
+
+var _util = require('./util');
+
+var util = _interopRequireWildcard(_util);
+
+var _domWalker = require('./domWalker');
+
+var _domWalker2 = _interopRequireDefault(_domWalker);
+
+var _binder = require('./binder');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+/* eslint-disable no-invalid-this */
+var forOfCount = 0;
+
+var renderForOfBinding = function renderForOfBinding(_ref) {
+    var forOfBindingData = _ref.forOfBindingData,
+        viewModel = _ref.viewModel,
+        bindingAttrs = _ref.bindingAttrs;
+
+    if (!forOfBindingData || !viewModel || !bindingAttrs) {
+        return;
+    }
+    var keys = void 0;
+    var iterationDataLength = void 0;
+    var iterationData = util.getViewModelValue(viewModel, forOfBindingData.iterator.dataKey);
+    var isRegenerate = false;
+
+    // check iterationData and set iterationDataLength
+    if (util.isArray(iterationData)) {
+        iterationDataLength = iterationData.length;
+    } else if (util.isPlainObject(iterationData)) {
+        keys = Object.keys(iterationData);
+        iterationDataLength = keys.length;
+    } else {
+        // throw error but let script contince to run
+        return util.throwErrorMessage(null, 'iterationData is not an plain object or array');
+    }
+
+    // assign forOf internal id to forOfBindingData once
+    if (typeof forOfBindingData.id === 'undefined') {
+        forOfBindingData.id = forOfCount;
+        forOfCount += 1;
+        // store iterationDataLength
+        forOfBindingData.iterationSize = iterationDataLength;
+        // remove orignal node for-of attributes
+        forOfBindingData.el.removeAttribute(bindingAttrs.forOf);
+        isRegenerate = true;
+    } else {
+        // only regenerate cache if iterationDataLength changed
+        isRegenerate = forOfBindingData.iterationSize !== iterationDataLength;
+        // update iterationSize
+        forOfBindingData.iterationSize = iterationDataLength;
+    }
+
+    if (!isRegenerate) {
+        forOfBindingData.iterationBindingCache.forEach(function (elementCache, i) {
+            var iterationVm = createIterationViewModel({
+                forOfBindingData: forOfBindingData,
+                viewModel: viewModel,
+                iterationData: iterationData,
+                keys: keys,
+                index: i
+            });
+            applyBindings({
+                elementCache: elementCache,
+                iterationVm: iterationVm,
+                bindingAttrs: bindingAttrs,
+                isRegenerate: false
+            });
+        });
+
+        return;
+    }
+
+    // generate forOfBinding elements into fragment
+    var fragment = generateForOfElements(forOfBindingData, viewModel, bindingAttrs, iterationData, keys);
+    // insert fragment content into DOM
+    return insertRenderedElements(forOfBindingData, fragment);
+};
+
+var createIterationViewModel = function createIterationViewModel(_ref2) {
+    var forOfBindingData = _ref2.forOfBindingData,
+        viewModel = _ref2.viewModel,
+        iterationData = _ref2.iterationData,
+        keys = _ref2.keys,
+        index = _ref2.index;
+
+    var iterationVm = {};
+    iterationVm[forOfBindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
+    // populate common binding data reference
+    iterationVm[config.bindingDataReference.rootDataKey] = viewModel.$root || viewModel;
+    iterationVm[config.bindingDataReference.currentData] = iterationVm[forOfBindingData.iterator.alias];
+    iterationVm[config.bindingDataReference.currentIndex] = index;
+    return iterationVm;
+};
+
+var applyBindings = function applyBindings(_ref3) {
+    var elementCache = _ref3.elementCache,
+        iterationVm = _ref3.iterationVm,
+        bindingAttrs = _ref3.bindingAttrs,
+        isRegenerate = _ref3.isRegenerate;
+
+    var bindingUpdateOption = void 0;
+    if (isRegenerate) {
+        bindingUpdateOption = (0, _binder.createBindingOption)(config.bindingUpdateConditions.init);
+    } else {
+        bindingUpdateOption = (0, _binder.createBindingOption)();
+    }
+
+    // render and apply binding to template(s)
+    // this is an share function therefore passing current APP 'this' context
+    // viewModel is a dynamic generated iterationVm
+    (0, _binder.renderTemplatesBinding)({
+        ctx: iterationVm.$root.APP,
+        elementCache: elementCache,
+        updateOption: bindingUpdateOption,
+        bindingAttrs: bindingAttrs,
+        viewModel: iterationVm
+    });
+
+    _binder.Binder.applyBinding({
+        elementCache: elementCache,
+        updateOption: bindingUpdateOption,
+        bindingAttrs: bindingAttrs,
+        viewModel: iterationVm
+    });
+};
+
+var generateForOfElements = function generateForOfElements(forOfBindingData, viewModel, bindingAttrs, iterationData, keys) {
+    var fragment = document.createDocumentFragment();
+    var iterationDataLength = forOfBindingData.iterationSize;
+    var clonedItem = void 0;
+    var iterationVm = void 0;
+    var iterationBindingCache = void 0;
+    var i = 0;
+
+    // create or clear exisitng iterationBindingCache
+    if (util.isArray(forOfBindingData.iterationBindingCache)) {
+        forOfBindingData.iterationBindingCache.length = 0;
+    } else {
+        forOfBindingData.iterationBindingCache = [];
+    }
+
+    // generate forOf and append to DOM
+    for (i = 0; i < iterationDataLength; i += 1) {
+        clonedItem = util.cloneDomNode(forOfBindingData.el);
+        // create an iterationVm match iterator alias
+        iterationVm = createIterationViewModel({
+            forOfBindingData: forOfBindingData,
+            viewModel: viewModel,
+            iterationData: iterationData,
+            keys: keys,
+            index: i
+        });
+        // create bindingCache per iteration
+        iterationBindingCache = (0, _domWalker2['default'])({
+            rootNode: clonedItem,
+            bindingAttrs: bindingAttrs
+        });
+
+        forOfBindingData.iterationBindingCache.push(iterationBindingCache);
+
+        applyBindings({
+            elementCache: forOfBindingData.iterationBindingCache[i],
+            iterationVm: iterationVm,
+            bindingAttrs: bindingAttrs,
+            isRegenerate: true
+        });
+
+        fragment.appendChild(clonedItem);
+    }
+
+    return fragment;
+};
+
+/**
+ * wrapCommentAround
+ * @param {number} id
+ * @param {domFragment} fragment
+ * @return {object} DOM fragment
+ * @description
+ * wrap frament with comment node
+ */
+var wrapCommentAround = function wrapCommentAround(id, fragment) {
+    var commentBegin = void 0;
+    var commentEnd = void 0;
+    var prefix = config.commentPrefix + id;
+    commentBegin = document.createComment(prefix);
+    commentEnd = document.createComment(prefix + '-end');
+    fragment.insertBefore(commentBegin, fragment.firstChild);
+    fragment.appendChild(commentEnd);
+    return fragment;
+};
+
+/**
+ * removeElemnetsByCommentWrap
+ * @param {object} forOfBindingData
+ * @return {undefined}
+ * @description remove elments by range
+ */
+var removeElemnetsByCommentWrap = function removeElemnetsByCommentWrap(forOfBindingData) {
+    if (!forOfBindingData.docRange) {
+        forOfBindingData.docRange = document.createRange();
+    }
+
+    // insert rendered fragment after the previousNonTemplateElement
+    if (forOfBindingData.previousNonTemplateElement) {
+        // update docRange start and end match the wrapped comment node
+        forOfBindingData.docRange.setStartBefore(forOfBindingData.previousNonTemplateElement.nextSibling);
+        setDocRangeEndAfter(forOfBindingData.previousNonTemplateElement.nextSibling, forOfBindingData);
+    } else {
+        // insert before next non template element
+        // update docRange start and end match the wrapped comment node
+        forOfBindingData.docRange.setStartBefore(forOfBindingData.parentElement.firstChild);
+        setDocRangeEndAfter(forOfBindingData.parentElement.firstChild, forOfBindingData);
+    }
+
+    // TODO - clean up before remove
+    // loop over forOfBindingData.iterationBindingCache and call jquery remove data
+
+    return forOfBindingData.docRange.deleteContents();
+};
+
+/**
+ * removeDomTemplateElement
+ * @param {object} forOfBindingData
+ * @return {object} null
+ */
+var removeDomTemplateElement = function removeDomTemplateElement(forOfBindingData) {
+    // first render - forElement is live DOM element so has parentNode
+    if (forOfBindingData.el.parentNode) {
+        // TODO - clean up before remove
+        // loop over forOfBindingData.iterationBindingCache and call jquery remove data
+        return forOfBindingData.el.parentNode.removeChild(forOfBindingData.el);
+    }
+    removeElemnetsByCommentWrap(forOfBindingData);
+};
+
+/**
+ * setDocRangeEndAfter
+ * @param {object} node
+ * @param {object} forOfBindingData
+ * @description
+ * recursive execution to find last wrapping comment node
+ * and set as forOfBindingData.docRange.setEndAfter
+ * if not found deleteContents will has no operation
+ * @return {undefined}
+ */
+var setDocRangeEndAfter = function setDocRangeEndAfter(node, forOfBindingData) {
+    var id = forOfBindingData.id;
+    var startTextContent = config.commentPrefix + id;
+    var endTextContent = startTextContent + '-end';
+
+    node = node.nextSibling;
+
+    // check last wrap comment node
+    if (node) {
+        if (node.nodeType === 8 && node.textContent === endTextContent) {
+            return forOfBindingData.docRange.setEndAfter(node);
+        }
+        setDocRangeEndAfter(node, forOfBindingData);
+    }
+};
+
+var insertRenderedElements = function insertRenderedElements(forOfBindingData, fragment) {
+    // wrap around with comment
+    fragment = wrapCommentAround(forOfBindingData.id, fragment);
+
+    // remove original dom template
+    removeDomTemplateElement(forOfBindingData);
+
+    // insert rendered fragment after the previousNonTemplateElement
+    if (forOfBindingData.previousNonTemplateElement) {
+        util.insertAfter(forOfBindingData.parentElement, fragment, forOfBindingData.previousNonTemplateElement);
+    } else {
+        // insert before next non template element
+        if (forOfBindingData.nextNonTemplateElement) {
+            forOfBindingData.parentElement.insertBefore(fragment, forOfBindingData.nextNonTemplateElement);
+        } else if (forOfBindingData.parentElement) {
+            // insert from parent
+            forOfBindingData.parentElement.appendChild(fragment);
+        }
+    }
+};
+
+exports['default'] = renderForOfBinding;
+
+},{"./binder":1,"./config":3,"./domWalker":4,"./util":8}],6:[function(require,module,exports){
 'use strict';
 
 var _config = require('./config');
@@ -1124,10 +1617,6 @@ var _config = require('./config');
 var config = _interopRequireWildcard(_config);
 
 var _binder = require('./binder');
-
-var _binder2 = _interopRequireDefault(_binder);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
@@ -1149,16 +1638,17 @@ var init = function init($rootElement) {
     var viewModel = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
     _.templateSettings = templateSettings;
-    return new _binder2['default']($rootElement, viewModel, bindingAttrs);
+    return new _binder.Binder($rootElement, viewModel, bindingAttrs);
 };
 
 // expose to global
 window.dataBind = {
     use: use,
-    init: init
+    init: init,
+    version: '1.6.0'
 };
 
-},{"./binder":1,"./config":3}],6:[function(require,module,exports){
+},{"./binder":1,"./config":3}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1302,14 +1792,21 @@ exports.unsubscribeEvent = unsubscribeEvent;
 exports.unsubscribeAllEvent = unsubscribeAllEvent;
 exports.publishEvent = publishEvent;
 
-},{"./util":7}],7:[function(require,module,exports){
+},{"./util":8}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.throwErrorMessage = exports.resolveParamList = exports.resolveViewModelContext = exports.insertAfter = exports.cloneDomNode = exports.getNodeAttrObj = exports.invertObj = exports.getFunctionParameterList = exports.getFormData = exports.arrayRemoveMatch = exports.debounceRaf = exports.parseStringToJson = exports.setViewModelValue = exports.getViewModelValue = exports.generateElementCache = exports.extend = exports.isEmptyObject = exports.isPlainObject = exports.isArray = exports.REGEX = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _config = require('./config');
+
+var config = _interopRequireWildcard(_config);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
 // require to use lodash
 _ = window._ || {};
@@ -1431,6 +1928,9 @@ var getFormData = function getFormData($form) {
  * @return {array} paramlist
  */
 var getFunctionParameterList = function getFunctionParameterList(str) {
+    if (!str || str.length > config.maxDatakeyLength) {
+        return;
+    }
     var paramlist = str.match(REGEX.FUNCTIONPARAM);
 
     if (paramlist && paramlist[1]) {
@@ -1572,6 +2072,78 @@ var isMergebleObject = function isMergebleObject(item) {
     return isObject(item) && !isArray(item);
 };
 
+/**
+ * cloneDomNode
+ * @param {object} element
+ * @return {object} cloned element
+ * @description helper function to clone node
+ */
+var cloneDomNode = function cloneDomNode(element) {
+    return element.cloneNode(true);
+};
+
+/**
+ * insertAfter
+ * @param {object} parentNode
+ * @param {object} newNode
+ * @param {object} referenceNode
+ * @return {object} node
+ * @description helper function to insert new node before the reference node
+ */
+var insertAfter = function insertAfter(parentNode, newNode, referenceNode) {
+    var refNextElement = referenceNode && referenceNode.nextSibling ? referenceNode.nextSibling : null;
+    return parentNode.insertBefore(newNode, refNextElement);
+};
+
+var resolveViewModelContext = function resolveViewModelContext(viewModel, datakey) {
+    var ret = viewModel;
+    var bindingDataContext = void 0;
+    if (typeof datakey !== 'string') {
+        return ret;
+    }
+    bindingDataContext = datakey.split('.');
+    if (bindingDataContext.length > 1) {
+        if (bindingDataContext[0] === config.bindingDataReference.rootDataKey) {
+            ret = viewModel[config.bindingDataReference.rootDataKey] || viewModel;
+        } else if (bindingDataContext[0] === config.bindingDataReference.currentData) {
+            ret = viewModel[config.bindingDataReference.currentData] || viewModel;
+        }
+    }
+    return ret;
+};
+
+var resolveParamList = function resolveParamList(viewModel, paramList) {
+    if (!viewModel || !isArray(paramList)) {
+        return;
+    }
+    return paramList.map(function (param) {
+        param = param.trim();
+
+        if (param === config.bindingDataReference.currentIndex) {
+            // convert '$index' to value
+            param = viewModel[config.bindingDataReference.currentIndex];
+        } else if (param === config.bindingDataReference.currentData) {
+            // convert '$data' to value
+            param = viewModel[config.bindingDataReference.currentData];
+        } else if (param === config.bindingDataReference.rootDataKey) {
+            // convert '$root' to root viewModel
+            param = viewModel[config.bindingDataReference.rootDataKey] || viewModel;
+        }
+        return param;
+    });
+};
+
+var throwErrorMessage = function throwErrorMessage() {
+    var err = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var errorMessage = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+
+    var message = err && err.message ? err.message : errorMessage;
+    if (typeof console.error === 'function') {
+        return console.error(message);
+    }
+    return console.log(message);
+};
+
 exports.REGEX = REGEX;
 exports.isArray = isArray;
 exports.isPlainObject = isPlainObject;
@@ -1587,8 +2159,13 @@ exports.getFormData = getFormData;
 exports.getFunctionParameterList = getFunctionParameterList;
 exports.invertObj = invertObj;
 exports.getNodeAttrObj = getNodeAttrObj;
+exports.cloneDomNode = cloneDomNode;
+exports.insertAfter = insertAfter;
+exports.resolveViewModelContext = resolveViewModelContext;
+exports.resolveParamList = resolveParamList;
+exports.throwErrorMessage = throwErrorMessage;
 
-},{}]},{},[5])
+},{"./config":3}]},{},[6])
 
 
 //# sourceMappingURL=dataBind.js.map
