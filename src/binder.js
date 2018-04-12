@@ -30,8 +30,7 @@ class Binder {
 
         this.render = util.debounceRaf(this.render, this);
 
-        this.isServerRendered =
-            typeof this.$rootElement.attr(config.serverRenderedAttr) !== 'undefined';
+        this.isServerRendered = typeof this.$rootElement.attr(config.serverRenderedAttr) !== 'undefined';
 
         // inject instance into viewModel
         this.viewModel.APP = this;
