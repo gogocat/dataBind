@@ -1099,7 +1099,7 @@ var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
     }
 
     (0, _forOfBinding2['default'])({
-        forOfBindingData: cache,
+        bindingData: cache,
         viewModel: viewModel,
         bindingAttrs: bindingAttrs
     });
@@ -1139,7 +1139,9 @@ var bindingAttrs = {
     show: 'data-jq-show',
     css: 'data-jq-css',
     attr: 'data-jq-attr',
-    forOf: 'data-jq-for'
+    forOf: 'data-jq-for',
+    'if': 'data-jq-if',
+    'switch': 'data-jq-switch'
 };
 var serverRenderedAttr = 'data-server-rendered';
 var dataIndexAttr = 'data-index';
@@ -1337,16 +1339,16 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var forOfCount = 0;
 
 var renderForOfBinding = function renderForOfBinding(_ref) {
-    var forOfBindingData = _ref.forOfBindingData,
+    var bindingData = _ref.bindingData,
         viewModel = _ref.viewModel,
         bindingAttrs = _ref.bindingAttrs;
 
-    if (!forOfBindingData || !viewModel || !bindingAttrs) {
+    if (!bindingData || !viewModel || !bindingAttrs) {
         return;
     }
     var keys = void 0;
     var iterationDataLength = void 0;
-    var iterationData = util.getViewModelValue(viewModel, forOfBindingData.iterator.dataKey);
+    var iterationData = util.getViewModelValue(viewModel, bindingData.iterator.dataKey);
     var isRegenerate = false;
 
     // check iterationData and set iterationDataLength
@@ -1360,26 +1362,26 @@ var renderForOfBinding = function renderForOfBinding(_ref) {
         return util.throwErrorMessage(null, 'iterationData is not an plain object or array');
     }
 
-    // assign forOf internal id to forOfBindingData once
-    if (typeof forOfBindingData.id === 'undefined') {
-        forOfBindingData.id = forOfCount;
+    // assign forOf internal id to bindingData once
+    if (typeof bindingData.id === 'undefined') {
+        bindingData.id = forOfCount;
         forOfCount += 1;
         // store iterationDataLength
-        forOfBindingData.iterationSize = iterationDataLength;
+        bindingData.iterationSize = iterationDataLength;
         // remove orignal node for-of attributes
-        forOfBindingData.el.removeAttribute(bindingAttrs.forOf);
+        bindingData.el.removeAttribute(bindingAttrs.forOf);
         isRegenerate = true;
     } else {
         // only regenerate cache if iterationDataLength changed
-        isRegenerate = forOfBindingData.iterationSize !== iterationDataLength;
+        isRegenerate = bindingData.iterationSize !== iterationDataLength;
         // update iterationSize
-        forOfBindingData.iterationSize = iterationDataLength;
+        bindingData.iterationSize = iterationDataLength;
     }
 
     if (!isRegenerate) {
-        forOfBindingData.iterationBindingCache.forEach(function (elementCache, i) {
+        bindingData.iterationBindingCache.forEach(function (elementCache, i) {
             var iterationVm = createIterationViewModel({
-                forOfBindingData: forOfBindingData,
+                bindingData: bindingData,
                 viewModel: viewModel,
                 iterationData: iterationData,
                 keys: keys,
@@ -1397,23 +1399,23 @@ var renderForOfBinding = function renderForOfBinding(_ref) {
     }
 
     // generate forOfBinding elements into fragment
-    var fragment = generateForOfElements(forOfBindingData, viewModel, bindingAttrs, iterationData, keys);
+    var fragment = generateForOfElements(bindingData, viewModel, bindingAttrs, iterationData, keys);
     // insert fragment content into DOM
-    return insertRenderedElements(forOfBindingData, fragment);
+    return insertRenderedElements(bindingData, fragment);
 };
 
 var createIterationViewModel = function createIterationViewModel(_ref2) {
-    var forOfBindingData = _ref2.forOfBindingData,
+    var bindingData = _ref2.bindingData,
         viewModel = _ref2.viewModel,
         iterationData = _ref2.iterationData,
         keys = _ref2.keys,
         index = _ref2.index;
 
     var iterationVm = {};
-    iterationVm[forOfBindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
+    iterationVm[bindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
     // populate common binding data reference
     iterationVm[config.bindingDataReference.rootDataKey] = viewModel.$root || viewModel;
-    iterationVm[config.bindingDataReference.currentData] = iterationVm[forOfBindingData.iterator.alias];
+    iterationVm[config.bindingDataReference.currentData] = iterationVm[bindingData.iterator.alias];
     iterationVm[config.bindingDataReference.currentIndex] = index;
     return iterationVm;
 };
@@ -1450,27 +1452,27 @@ var applyBindings = function applyBindings(_ref3) {
     });
 };
 
-var generateForOfElements = function generateForOfElements(forOfBindingData, viewModel, bindingAttrs, iterationData, keys) {
+var generateForOfElements = function generateForOfElements(bindingData, viewModel, bindingAttrs, iterationData, keys) {
     var fragment = document.createDocumentFragment();
-    var iterationDataLength = forOfBindingData.iterationSize;
+    var iterationDataLength = bindingData.iterationSize;
     var clonedItem = void 0;
     var iterationVm = void 0;
     var iterationBindingCache = void 0;
     var i = 0;
 
     // create or clear exisitng iterationBindingCache
-    if (util.isArray(forOfBindingData.iterationBindingCache)) {
-        forOfBindingData.iterationBindingCache.length = 0;
+    if (util.isArray(bindingData.iterationBindingCache)) {
+        bindingData.iterationBindingCache.length = 0;
     } else {
-        forOfBindingData.iterationBindingCache = [];
+        bindingData.iterationBindingCache = [];
     }
 
     // generate forOf and append to DOM
     for (i = 0; i < iterationDataLength; i += 1) {
-        clonedItem = util.cloneDomNode(forOfBindingData.el);
+        clonedItem = util.cloneDomNode(bindingData.el);
         // create an iterationVm match iterator alias
         iterationVm = createIterationViewModel({
-            forOfBindingData: forOfBindingData,
+            bindingData: bindingData,
             viewModel: viewModel,
             iterationData: iterationData,
             keys: keys,
@@ -1482,10 +1484,10 @@ var generateForOfElements = function generateForOfElements(forOfBindingData, vie
             bindingAttrs: bindingAttrs
         });
 
-        forOfBindingData.iterationBindingCache.push(iterationBindingCache);
+        bindingData.iterationBindingCache.push(iterationBindingCache);
 
         applyBindings({
-            elementCache: forOfBindingData.iterationBindingCache[i],
+            elementCache: bindingData.iterationBindingCache[i],
             iterationVm: iterationVm,
             bindingAttrs: bindingAttrs,
             isRegenerate: true
@@ -1518,60 +1520,60 @@ var wrapCommentAround = function wrapCommentAround(id, fragment) {
 
 /**
  * removeElemnetsByCommentWrap
- * @param {object} forOfBindingData
+ * @param {object} bindingData
  * @return {undefined}
  * @description remove elments by range
  */
-var removeElemnetsByCommentWrap = function removeElemnetsByCommentWrap(forOfBindingData) {
-    if (!forOfBindingData.docRange) {
-        forOfBindingData.docRange = document.createRange();
+var removeElemnetsByCommentWrap = function removeElemnetsByCommentWrap(bindingData) {
+    if (!bindingData.docRange) {
+        bindingData.docRange = document.createRange();
     }
 
     // insert rendered fragment after the previousNonTemplateElement
-    if (forOfBindingData.previousNonTemplateElement) {
+    if (bindingData.previousNonTemplateElement) {
         // update docRange start and end match the wrapped comment node
-        forOfBindingData.docRange.setStartBefore(forOfBindingData.previousNonTemplateElement.nextSibling);
-        setDocRangeEndAfter(forOfBindingData.previousNonTemplateElement.nextSibling, forOfBindingData);
+        bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
+        setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
     } else {
         // insert before next non template element
         // update docRange start and end match the wrapped comment node
-        forOfBindingData.docRange.setStartBefore(forOfBindingData.parentElement.firstChild);
-        setDocRangeEndAfter(forOfBindingData.parentElement.firstChild, forOfBindingData);
+        bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
+        setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
     }
 
     // TODO - clean up before remove
-    // loop over forOfBindingData.iterationBindingCache and call jquery remove data
+    // loop over bindingData.iterationBindingCache and call jquery remove data
 
-    return forOfBindingData.docRange.deleteContents();
+    return bindingData.docRange.deleteContents();
 };
 
 /**
  * removeDomTemplateElement
- * @param {object} forOfBindingData
+ * @param {object} bindingData
  * @return {object} null
  */
-var removeDomTemplateElement = function removeDomTemplateElement(forOfBindingData) {
+var removeDomTemplateElement = function removeDomTemplateElement(bindingData) {
     // first render - forElement is live DOM element so has parentNode
-    if (forOfBindingData.el.parentNode) {
+    if (bindingData.el.parentNode) {
         // TODO - clean up before remove
-        // loop over forOfBindingData.iterationBindingCache and call jquery remove data
-        return forOfBindingData.el.parentNode.removeChild(forOfBindingData.el);
+        // loop over bindingData.iterationBindingCache and call jquery remove data
+        return bindingData.el.parentNode.removeChild(bindingData.el);
     }
-    removeElemnetsByCommentWrap(forOfBindingData);
+    removeElemnetsByCommentWrap(bindingData);
 };
 
 /**
  * setDocRangeEndAfter
  * @param {object} node
- * @param {object} forOfBindingData
+ * @param {object} bindingData
  * @description
  * recursive execution to find last wrapping comment node
- * and set as forOfBindingData.docRange.setEndAfter
+ * and set as bindingData.docRange.setEndAfter
  * if not found deleteContents will has no operation
  * @return {undefined}
  */
-var setDocRangeEndAfter = function setDocRangeEndAfter(node, forOfBindingData) {
-    var id = forOfBindingData.id;
+var setDocRangeEndAfter = function setDocRangeEndAfter(node, bindingData) {
+    var id = bindingData.id;
     var startTextContent = config.commentPrefix + id;
     var endTextContent = startTextContent + '-end';
 
@@ -1580,29 +1582,29 @@ var setDocRangeEndAfter = function setDocRangeEndAfter(node, forOfBindingData) {
     // check last wrap comment node
     if (node) {
         if (node.nodeType === 8 && node.textContent === endTextContent) {
-            return forOfBindingData.docRange.setEndAfter(node);
+            return bindingData.docRange.setEndAfter(node);
         }
-        setDocRangeEndAfter(node, forOfBindingData);
+        setDocRangeEndAfter(node, bindingData);
     }
 };
 
-var insertRenderedElements = function insertRenderedElements(forOfBindingData, fragment) {
+var insertRenderedElements = function insertRenderedElements(bindingData, fragment) {
     // wrap around with comment
-    fragment = wrapCommentAround(forOfBindingData.id, fragment);
+    fragment = wrapCommentAround(bindingData.id, fragment);
 
     // remove original dom template
-    removeDomTemplateElement(forOfBindingData);
+    removeDomTemplateElement(bindingData);
 
     // insert rendered fragment after the previousNonTemplateElement
-    if (forOfBindingData.previousNonTemplateElement) {
-        util.insertAfter(forOfBindingData.parentElement, fragment, forOfBindingData.previousNonTemplateElement);
+    if (bindingData.previousNonTemplateElement) {
+        util.insertAfter(bindingData.parentElement, fragment, bindingData.previousNonTemplateElement);
     } else {
         // insert before next non template element
-        if (forOfBindingData.nextNonTemplateElement) {
-            forOfBindingData.parentElement.insertBefore(fragment, forOfBindingData.nextNonTemplateElement);
-        } else if (forOfBindingData.parentElement) {
+        if (bindingData.nextNonTemplateElement) {
+            bindingData.parentElement.insertBefore(fragment, bindingData.nextNonTemplateElement);
+        } else if (bindingData.parentElement) {
             // insert from parent
-            forOfBindingData.parentElement.appendChild(fragment);
+            bindingData.parentElement.appendChild(fragment);
         }
     }
 };

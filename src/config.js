@@ -13,6 +13,8 @@ const bindingAttrs = {
     css: 'data-jq-css',
     attr: 'data-jq-attr',
     forOf: 'data-jq-for',
+    if: 'data-jq-if',
+    switch: 'data-jq-switch',
 };
 const serverRenderedAttr = 'data-server-rendered';
 const dataIndexAttr = 'data-index';

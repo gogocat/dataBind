@@ -6,13 +6,13 @@ import {Binder, createBindingOption, renderTemplatesBinding} from './binder';
 
 let forOfCount = 0;
 
-const renderForOfBinding = ({forOfBindingData, viewModel, bindingAttrs}) => {
-    if (!forOfBindingData || !viewModel || !bindingAttrs) {
+const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
+    if (!bindingData || !viewModel || !bindingAttrs) {
         return;
     }
     let keys;
     let iterationDataLength;
-    let iterationData = util.getViewModelValue(viewModel, forOfBindingData.iterator.dataKey);
+    let iterationData = util.getViewModelValue(viewModel, bindingData.iterator.dataKey);
     let isRegenerate = false;
 
     // check iterationData and set iterationDataLength
@@ -26,26 +26,26 @@ const renderForOfBinding = ({forOfBindingData, viewModel, bindingAttrs}) => {
         return util.throwErrorMessage(null, 'iterationData is not an plain object or array');
     }
 
-    // assign forOf internal id to forOfBindingData once
-    if (typeof forOfBindingData.id === 'undefined') {
-        forOfBindingData.id = forOfCount;
+    // assign forOf internal id to bindingData once
+    if (typeof bindingData.id === 'undefined') {
+        bindingData.id = forOfCount;
         forOfCount += 1;
         // store iterationDataLength
-        forOfBindingData.iterationSize = iterationDataLength;
+        bindingData.iterationSize = iterationDataLength;
         // remove orignal node for-of attributes
-        forOfBindingData.el.removeAttribute(bindingAttrs.forOf);
+        bindingData.el.removeAttribute(bindingAttrs.forOf);
         isRegenerate = true;
     } else {
         // only regenerate cache if iterationDataLength changed
-        isRegenerate = forOfBindingData.iterationSize !== iterationDataLength;
+        isRegenerate = bindingData.iterationSize !== iterationDataLength;
         // update iterationSize
-        forOfBindingData.iterationSize = iterationDataLength;
+        bindingData.iterationSize = iterationDataLength;
     }
 
     if (!isRegenerate) {
-        forOfBindingData.iterationBindingCache.forEach(function(elementCache, i) {
+        bindingData.iterationBindingCache.forEach(function(elementCache, i) {
             let iterationVm = createIterationViewModel({
-                forOfBindingData: forOfBindingData,
+                bindingData: bindingData,
                 viewModel: viewModel,
                 iterationData: iterationData,
                 keys: keys,
@@ -63,17 +63,17 @@ const renderForOfBinding = ({forOfBindingData, viewModel, bindingAttrs}) => {
     }
 
     // generate forOfBinding elements into fragment
-    let fragment = generateForOfElements(forOfBindingData, viewModel, bindingAttrs, iterationData, keys);
+    let fragment = generateForOfElements(bindingData, viewModel, bindingAttrs, iterationData, keys);
     // insert fragment content into DOM
-    return insertRenderedElements(forOfBindingData, fragment);
+    return insertRenderedElements(bindingData, fragment);
 };
 
-const createIterationViewModel = ({forOfBindingData, viewModel, iterationData, keys, index}) => {
+const createIterationViewModel = ({bindingData, viewModel, iterationData, keys, index}) => {
     let iterationVm = {};
-    iterationVm[forOfBindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
+    iterationVm[bindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
     // populate common binding data reference
     iterationVm[config.bindingDataReference.rootDataKey] = viewModel.$root || viewModel;
-    iterationVm[config.bindingDataReference.currentData] = iterationVm[forOfBindingData.iterator.alias];
+    iterationVm[config.bindingDataReference.currentData] = iterationVm[bindingData.iterator.alias];
     iterationVm[config.bindingDataReference.currentIndex] = index;
     return iterationVm;
 };
@@ -105,27 +105,27 @@ const applyBindings = ({elementCache, iterationVm, bindingAttrs, isRegenerate}) 
     });
 };
 
-const generateForOfElements = (forOfBindingData, viewModel, bindingAttrs, iterationData, keys) => {
+const generateForOfElements = (bindingData, viewModel, bindingAttrs, iterationData, keys) => {
     let fragment = document.createDocumentFragment();
-    let iterationDataLength = forOfBindingData.iterationSize;
+    let iterationDataLength = bindingData.iterationSize;
     let clonedItem;
     let iterationVm;
     let iterationBindingCache;
     let i = 0;
 
     // create or clear exisitng iterationBindingCache
-    if (util.isArray(forOfBindingData.iterationBindingCache)) {
-        forOfBindingData.iterationBindingCache.length = 0;
+    if (util.isArray(bindingData.iterationBindingCache)) {
+        bindingData.iterationBindingCache.length = 0;
     } else {
-        forOfBindingData.iterationBindingCache = [];
+        bindingData.iterationBindingCache = [];
     }
 
     // generate forOf and append to DOM
     for (i = 0; i < iterationDataLength; i += 1) {
-        clonedItem = util.cloneDomNode(forOfBindingData.el);
+        clonedItem = util.cloneDomNode(bindingData.el);
         // create an iterationVm match iterator alias
         iterationVm = createIterationViewModel({
-            forOfBindingData: forOfBindingData,
+            bindingData: bindingData,
             viewModel: viewModel,
             iterationData: iterationData,
             keys: keys,
@@ -137,10 +137,10 @@ const generateForOfElements = (forOfBindingData, viewModel, bindingAttrs, iterat
             bindingAttrs: bindingAttrs,
         });
 
-        forOfBindingData.iterationBindingCache.push(iterationBindingCache);
+        bindingData.iterationBindingCache.push(iterationBindingCache);
 
         applyBindings({
-            elementCache: forOfBindingData.iterationBindingCache[i],
+            elementCache: bindingData.iterationBindingCache[i],
             iterationVm: iterationVm,
             bindingAttrs: bindingAttrs,
             isRegenerate: true,
@@ -173,60 +173,60 @@ const wrapCommentAround = (id, fragment) => {
 
 /**
  * removeElemnetsByCommentWrap
- * @param {object} forOfBindingData
+ * @param {object} bindingData
  * @return {undefined}
  * @description remove elments by range
  */
-const removeElemnetsByCommentWrap = (forOfBindingData) => {
-    if (!forOfBindingData.docRange) {
-        forOfBindingData.docRange = document.createRange();
+const removeElemnetsByCommentWrap = (bindingData) => {
+    if (!bindingData.docRange) {
+        bindingData.docRange = document.createRange();
     }
 
     // insert rendered fragment after the previousNonTemplateElement
-    if (forOfBindingData.previousNonTemplateElement) {
+    if (bindingData.previousNonTemplateElement) {
         // update docRange start and end match the wrapped comment node
-        forOfBindingData.docRange.setStartBefore(forOfBindingData.previousNonTemplateElement.nextSibling);
-        setDocRangeEndAfter(forOfBindingData.previousNonTemplateElement.nextSibling, forOfBindingData);
+        bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
+        setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
     } else {
         // insert before next non template element
         // update docRange start and end match the wrapped comment node
-        forOfBindingData.docRange.setStartBefore(forOfBindingData.parentElement.firstChild);
-        setDocRangeEndAfter(forOfBindingData.parentElement.firstChild, forOfBindingData);
+        bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
+        setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
     }
 
     // TODO - clean up before remove
-    // loop over forOfBindingData.iterationBindingCache and call jquery remove data
+    // loop over bindingData.iterationBindingCache and call jquery remove data
 
-    return forOfBindingData.docRange.deleteContents();
+    return bindingData.docRange.deleteContents();
 };
 
 /**
  * removeDomTemplateElement
- * @param {object} forOfBindingData
+ * @param {object} bindingData
  * @return {object} null
  */
-const removeDomTemplateElement = (forOfBindingData) => {
+const removeDomTemplateElement = (bindingData) => {
     // first render - forElement is live DOM element so has parentNode
-    if (forOfBindingData.el.parentNode) {
+    if (bindingData.el.parentNode) {
         // TODO - clean up before remove
-        // loop over forOfBindingData.iterationBindingCache and call jquery remove data
-        return forOfBindingData.el.parentNode.removeChild(forOfBindingData.el);
+        // loop over bindingData.iterationBindingCache and call jquery remove data
+        return bindingData.el.parentNode.removeChild(bindingData.el);
     }
-    removeElemnetsByCommentWrap(forOfBindingData);
+    removeElemnetsByCommentWrap(bindingData);
 };
 
 /**
  * setDocRangeEndAfter
  * @param {object} node
- * @param {object} forOfBindingData
+ * @param {object} bindingData
  * @description
  * recursive execution to find last wrapping comment node
- * and set as forOfBindingData.docRange.setEndAfter
+ * and set as bindingData.docRange.setEndAfter
  * if not found deleteContents will has no operation
  * @return {undefined}
  */
-const setDocRangeEndAfter = (node, forOfBindingData) => {
-    let id = forOfBindingData.id;
+const setDocRangeEndAfter = (node, bindingData) => {
+    let id = bindingData.id;
     let startTextContent = config.commentPrefix + id;
     let endTextContent = startTextContent + '-end';
 
@@ -235,29 +235,29 @@ const setDocRangeEndAfter = (node, forOfBindingData) => {
     // check last wrap comment node
     if (node) {
         if (node.nodeType === 8 && node.textContent === endTextContent) {
-            return forOfBindingData.docRange.setEndAfter(node);
+            return bindingData.docRange.setEndAfter(node);
         }
-        setDocRangeEndAfter(node, forOfBindingData);
+        setDocRangeEndAfter(node, bindingData);
     }
 };
 
-const insertRenderedElements = (forOfBindingData, fragment) => {
+const insertRenderedElements = (bindingData, fragment) => {
     // wrap around with comment
-    fragment = wrapCommentAround(forOfBindingData.id, fragment);
+    fragment = wrapCommentAround(bindingData.id, fragment);
 
     // remove original dom template
-    removeDomTemplateElement(forOfBindingData);
+    removeDomTemplateElement(bindingData);
 
     // insert rendered fragment after the previousNonTemplateElement
-    if (forOfBindingData.previousNonTemplateElement) {
-        util.insertAfter(forOfBindingData.parentElement, fragment, forOfBindingData.previousNonTemplateElement);
+    if (bindingData.previousNonTemplateElement) {
+        util.insertAfter(bindingData.parentElement, fragment, bindingData.previousNonTemplateElement);
     } else {
         // insert before next non template element
-        if (forOfBindingData.nextNonTemplateElement) {
-            forOfBindingData.parentElement.insertBefore(fragment, forOfBindingData.nextNonTemplateElement);
-        } else if (forOfBindingData.parentElement) {
+        if (bindingData.nextNonTemplateElement) {
+            bindingData.parentElement.insertBefore(fragment, bindingData.nextNonTemplateElement);
+        } else if (bindingData.parentElement) {
             // insert from parent
-            forOfBindingData.parentElement.appendChild(fragment);
+            bindingData.parentElement.appendChild(fragment);
         }
     }
 };

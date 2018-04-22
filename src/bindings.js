@@ -651,7 +651,7 @@ const forOfBinding = (cache, viewModel, bindingAttrs) => {
     }
 
     renderForOfBinding({
-        forOfBindingData: cache,
+        bindingData: cache,
         viewModel: viewModel,
         bindingAttrs: bindingAttrs,
     });
