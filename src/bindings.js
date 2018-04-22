@@ -42,8 +42,7 @@ const compileTemplate = (id, templateData = null) => {
  */
 const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
     let settings = util.parseStringToJson(cache.dataKey);
-    let viewData =
-        settings.data === '$root' ? viewModel : util.getViewModelValue(viewModel, settings.data);
+    let viewData = settings.data === '$root' ? viewModel : util.getViewModelValue(viewModel, settings.data);
     let isAppend = settings.append;
     let isPrepend = settings.prepend;
     let html;
@@ -57,10 +56,7 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
     }
 
     $element = $(cache.el);
-    $index =
-        typeof viewModel.$index !== 'undefined'
-            ? viewModel.$index
-            : $element.attr(config.dataIndexAttr);
+    $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.attr(config.dataIndexAttr);
     if (typeof $index !== 'undefined') {
         viewData.$index = $index;
     }
@@ -631,6 +627,8 @@ const forOfBinding = (cache, viewModel, bindingAttrs) => {
     if (!dataKey || dataKey.length > config.maxDatakeyLength) {
         return;
     }
+    // replace mess spaces with single space
+    cache.dataKey = cache.dataKey.replace(util.REGEX.WHITESPACES, ' ');
 
     if (!cache.iterator) {
         let forExpMatch = dataKey.match(util.REGEX.FOROF);

@@ -1079,6 +1079,8 @@ var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
     if (!dataKey || dataKey.length > config.maxDatakeyLength) {
         return;
     }
+    // replace mess spaces with single space
+    cache.dataKey = cache.dataKey.replace(util.REGEX.WHITESPACES, ' ');
 
     if (!cache.iterator) {
         var forExpMatch = dataKey.match(util.REGEX.FOROF);
@@ -1501,16 +1503,17 @@ var generateForOfElements = function generateForOfElements(bindingData, viewMode
 
 /**
  * wrapCommentAround
- * @param {number} id
+ * @param {object} bindingData
  * @param {domFragment} fragment
  * @return {object} DOM fragment
  * @description
  * wrap frament with comment node
  */
-var wrapCommentAround = function wrapCommentAround(id, fragment) {
+var wrapCommentAround = function wrapCommentAround(bindingData, fragment) {
     var commentBegin = void 0;
     var commentEnd = void 0;
-    var prefix = config.commentPrefix + id;
+    var dataKeyMarker = bindingData.dataKey ? bindingData.dataKey.replace(util.REGEX.WHITESPACES, '_') : '';
+    var prefix = config.commentPrefix + dataKeyMarker;
     commentBegin = document.createComment(prefix);
     commentEnd = document.createComment(prefix + '-end');
     fragment.insertBefore(commentBegin, fragment.firstChild);
@@ -1573,8 +1576,8 @@ var removeDomTemplateElement = function removeDomTemplateElement(bindingData) {
  * @return {undefined}
  */
 var setDocRangeEndAfter = function setDocRangeEndAfter(node, bindingData) {
-    var id = bindingData.id;
-    var startTextContent = config.commentPrefix + id;
+    var dataKeyMarker = bindingData.dataKey ? bindingData.dataKey.replace(util.REGEX.WHITESPACES, '_') : '';
+    var startTextContent = config.commentPrefix + dataKeyMarker;
     var endTextContent = startTextContent + '-end';
 
     node = node.nextSibling;
@@ -1590,7 +1593,7 @@ var setDocRangeEndAfter = function setDocRangeEndAfter(node, bindingData) {
 
 var insertRenderedElements = function insertRenderedElements(bindingData, fragment) {
     // wrap around with comment
-    fragment = wrapCommentAround(bindingData.id, fragment);
+    fragment = wrapCommentAround(bindingData, fragment);
 
     // remove original dom template
     removeDomTemplateElement(bindingData);

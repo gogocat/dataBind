@@ -154,16 +154,17 @@ const generateForOfElements = (bindingData, viewModel, bindingAttrs, iterationDa
 
 /**
  * wrapCommentAround
- * @param {number} id
+ * @param {object} bindingData
  * @param {domFragment} fragment
  * @return {object} DOM fragment
  * @description
  * wrap frament with comment node
  */
-const wrapCommentAround = (id, fragment) => {
+const wrapCommentAround = (bindingData, fragment) => {
     let commentBegin;
     let commentEnd;
-    let prefix = config.commentPrefix + id;
+    const dataKeyMarker = bindingData.dataKey ? bindingData.dataKey.replace(util.REGEX.WHITESPACES, '_') : '';
+    const prefix = config.commentPrefix + dataKeyMarker;
     commentBegin = document.createComment(prefix);
     commentEnd = document.createComment(prefix + '-end');
     fragment.insertBefore(commentBegin, fragment.firstChild);
@@ -226,8 +227,8 @@ const removeDomTemplateElement = (bindingData) => {
  * @return {undefined}
  */
 const setDocRangeEndAfter = (node, bindingData) => {
-    let id = bindingData.id;
-    let startTextContent = config.commentPrefix + id;
+    const dataKeyMarker = bindingData.dataKey ? bindingData.dataKey.replace(util.REGEX.WHITESPACES, '_') : '';
+    let startTextContent = config.commentPrefix + dataKeyMarker;
     let endTextContent = startTextContent + '-end';
 
     node = node.nextSibling;
@@ -243,7 +244,7 @@ const setDocRangeEndAfter = (node, bindingData) => {
 
 const insertRenderedElements = (bindingData, fragment) => {
     // wrap around with comment
-    fragment = wrapCommentAround(bindingData.id, fragment);
+    fragment = wrapCommentAround(bindingData, fragment);
 
     // remove original dom template
     removeDomTemplateElement(bindingData);
