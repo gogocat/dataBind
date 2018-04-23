@@ -2,6 +2,7 @@
 import * as config from './config';
 import * as util from './util';
 import renderForOfBinding from './forOfBinding';
+import {renderIfBinding, removeIfBinding} from './ifBinding';
 
 let $domFragment = null;
 let $templateRoot = null;
@@ -655,6 +656,76 @@ const forOfBinding = (cache, viewModel, bindingAttrs) => {
     });
 };
 
+/**
+ * if-Binding
+ * @description
+ * DOM decleartive for binding.
+ * @param {object} cache
+ * @param {object} viewModel
+ * @param {object} bindingAttrs
+ */
+const ifBinding = (cache, viewModel, bindingAttrs) => {
+    let dataKey = cache.dataKey;
+    let paramList = cache.parameters;
+
+    if (!dataKey) {
+        return;
+    }
+
+    cache.elementData = cache.elementData || {};
+
+    let oldShowStatus = cache.elementData.renderStatus;
+    let isInvertBoolean = dataKey.charAt(0) === '!';
+    let shouldRender;
+    let viewModelContext;
+
+    dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
+    shouldRender = util.getViewModelValue(viewModel, dataKey);
+
+    // do nothing if data in viewModel is undefined
+    if (typeof shouldRender === 'undefined' || shouldRender === null) {
+        return;
+    }
+
+    if (typeof shouldRender === 'function') {
+        viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
+        paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
+        let args = [oldShowStatus, cache.el].concat(paramList);
+        shouldRender = shouldRender.apply(viewModelContext, args);
+    }
+
+    shouldRender = Boolean(shouldRender);
+
+    // reject if nothing changed
+    if (oldShowStatus === shouldRender) {
+        return;
+    }
+
+    // store new show status
+    cache.elementData.renderStatus = shouldRender;
+
+    // reverse if has '!' expression from DOM deceleration
+    if (isInvertBoolean) {
+        shouldRender = !shouldRender;
+    }
+
+    if (!shouldRender) {
+        // remove element
+        removeIfBinding({
+            bindingData: cache,
+            viewModel: viewModel,
+            bindingAttrs: bindingAttrs,
+        });
+    } else {
+        // render element
+        renderIfBinding({
+            bindingData: cache,
+            viewModel: viewModel,
+            bindingAttrs: bindingAttrs,
+        });
+    }
+};
+
 export {
     renderTemplate,
     clickBinding,
@@ -669,4 +740,5 @@ export {
     cssBinding,
     attrBinding,
     forOfBinding,
+    ifBinding,
 };
