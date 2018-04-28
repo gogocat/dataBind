@@ -109,10 +109,7 @@ class Binder {
             // only update eventsBinding if server rendered
             if (this.isServerRendered) {
                 this.$rootElement.removeAttr(config.serverRenderedAttr);
-                updateOption = createBindingOption(
-                    config.bindingUpdateConditions.serverRendered,
-                    opt
-                );
+                updateOption = createBindingOption(config.bindingUpdateConditions.serverRendered, opt);
             } else {
                 updateOption = createBindingOption(config.bindingUpdateConditions.init, opt);
             }
@@ -150,65 +147,46 @@ class Binder {
         // the follow binding should be in order for better efficiency
 
         // apply forOf Binding
-        if (
-            updateOption.forOfBinding &&
-            elementCache[bindingAttrs.forOf] &&
-            elementCache[bindingAttrs.forOf].length
-        ) {
+        if (updateOption.forOfBinding && elementCache[bindingAttrs.forOf] && elementCache[bindingAttrs.forOf].length) {
             elementCache[bindingAttrs.forOf].forEach((cache) => {
                 binds.forOfBinding(cache, viewModel, bindingAttrs);
             });
         }
 
         // apply attr Binding
-        if (
-            updateOption.attrBinding &&
-            elementCache[bindingAttrs.attr] &&
-            elementCache[bindingAttrs.attr].length
-        ) {
+        if (updateOption.attrBinding && elementCache[bindingAttrs.attr] && elementCache[bindingAttrs.attr].length) {
             elementCache[bindingAttrs.attr].forEach((cache) => {
                 binds.attrBinding(cache, viewModel, bindingAttrs);
             });
         }
-
+        // apply if Binding
+        if (updateOption.ifBinding && elementCache[bindingAttrs.if] && elementCache[bindingAttrs.if].length) {
+            elementCache[bindingAttrs.if].forEach((cache) => {
+                binds.ifBinding(cache, viewModel, bindingAttrs);
+            });
+        }
         // apply show Binding
-        if (
-            updateOption.showBinding &&
-            elementCache[bindingAttrs.show] &&
-            elementCache[bindingAttrs.show].length
-        ) {
+        if (updateOption.showBinding && elementCache[bindingAttrs.show] && elementCache[bindingAttrs.show].length) {
             elementCache[bindingAttrs.show].forEach((cache) => {
                 binds.showBinding(cache, viewModel, bindingAttrs);
             });
         }
         // apply text binding
-        if (
-            updateOption.textBinding &&
-            elementCache[bindingAttrs.text] &&
-            elementCache[bindingAttrs.text].length
-        ) {
+        if (updateOption.textBinding && elementCache[bindingAttrs.text] && elementCache[bindingAttrs.text].length) {
             elementCache[bindingAttrs.text].forEach((cache) => {
                 binds.textBinding(cache, viewModel, bindingAttrs);
             });
         }
 
         // apply cssBinding
-        if (
-            updateOption.cssBinding &&
-            elementCache[bindingAttrs.css] &&
-            elementCache[bindingAttrs.css].length
-        ) {
+        if (updateOption.cssBinding && elementCache[bindingAttrs.css] && elementCache[bindingAttrs.css].length) {
             elementCache[bindingAttrs.css].forEach((cache) => {
                 binds.cssBinding(cache, viewModel, bindingAttrs);
             });
         }
 
         // apply model binding
-        if (
-            updateOption.modelBinding &&
-            elementCache[bindingAttrs.model] &&
-            elementCache[bindingAttrs.model].length
-        ) {
+        if (updateOption.modelBinding && elementCache[bindingAttrs.model] && elementCache[bindingAttrs.model].length) {
             elementCache[bindingAttrs.model].forEach((cache) => {
                 binds.modelBinding(cache, viewModel, bindingAttrs);
             });
@@ -237,11 +215,7 @@ class Binder {
         }
 
         // apply click binding
-        if (
-            updateOption.clickBinding &&
-            elementCache[bindingAttrs.click] &&
-            elementCache[bindingAttrs.click].length
-        ) {
+        if (updateOption.clickBinding && elementCache[bindingAttrs.click] && elementCache[bindingAttrs.click].length) {
             elementCache[bindingAttrs.click].forEach((cache) => {
                 binds.clickBinding(cache, viewModel, bindingAttrs);
             });
@@ -259,22 +233,14 @@ class Binder {
         }
 
         // apply blur binding
-        if (
-            updateOption.blurBinding &&
-            elementCache[bindingAttrs.blur] &&
-            elementCache[bindingAttrs.blur].length
-        ) {
+        if (updateOption.blurBinding && elementCache[bindingAttrs.blur] && elementCache[bindingAttrs.blur].length) {
             elementCache[bindingAttrs.blur].forEach((cache) => {
                 binds.blurBinding(cache, viewModel, bindingAttrs);
             });
         }
 
         // apply focus binding
-        if (
-            updateOption.focus &&
-            elementCache[bindingAttrs.focus] &&
-            elementCache[bindingAttrs.focus].length
-        ) {
+        if (updateOption.focus && elementCache[bindingAttrs.focus] && elementCache[bindingAttrs.focus].length) {
             elementCache[bindingAttrs.focus].forEach((cache) => {
                 binds.focusBinding(cache, viewModel, bindingAttrs);
             });
@@ -354,6 +320,7 @@ const createBindingOption = (condition = '', opt = {}) => {
         templateBinding: false,
         textBinding: true,
         cssBinding: true,
+        ifBinding: true,
         showBinding: true,
         modelBinding: true,
         attrBinding: true,
@@ -373,6 +340,7 @@ const createBindingOption = (condition = '', opt = {}) => {
         templateBinding: false,
         textBinding: false,
         cssBinding: false,
+        ifBinding: false,
         showBinding: false,
         modelBinding: false,
         attrBinding: false,

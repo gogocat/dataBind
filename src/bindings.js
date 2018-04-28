@@ -674,10 +674,17 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
 
     cache.elementData = cache.elementData || {};
 
-    let oldShowStatus = cache.elementData.renderStatus;
+    let oldRenderStatus = cache.elementData.renderStatus;
     let isInvertBoolean = dataKey.charAt(0) === '!';
     let shouldRender;
     let viewModelContext;
+
+    cache.type = config.bindingAttrs.forOf;
+
+    // store element insertion reference
+    cache.parentElement = cache.el.parentElement;
+    cache.previousNonTemplateElement = cache.el.previousSibling;
+    cache.nextNonTemplateElement = cache.el.nextSibling;
 
     dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
     shouldRender = util.getViewModelValue(viewModel, dataKey);
@@ -690,14 +697,14 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     if (typeof shouldRender === 'function') {
         viewModelContext = util.resolveViewModelContext(viewModel, dataKey);
         paramList = paramList ? util.resolveParamList(viewModel, paramList) : [];
-        let args = [oldShowStatus, cache.el].concat(paramList);
+        let args = [oldRenderStatus, cache.el].concat(paramList);
         shouldRender = shouldRender.apply(viewModelContext, args);
     }
 
     shouldRender = Boolean(shouldRender);
 
     // reject if nothing changed
-    if (oldShowStatus === shouldRender) {
+    if (oldRenderStatus === shouldRender) {
         return;
     }
 

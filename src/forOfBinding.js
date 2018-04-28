@@ -16,6 +16,8 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     let iterationData = util.getViewModelValue(viewModel, bindingData.iterator.dataKey);
     let isRegenerate = false;
 
+    bindingData.type = config.bindingAttrs.forOf;
+
     // check iterationData and set iterationDataLength
     if (util.isArray(iterationData)) {
         iterationDataLength = iterationData.length;

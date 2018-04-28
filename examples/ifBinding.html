@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" data-framework="dataBind">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>dataBind Demo | multiple viewModel instance</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="bootstrap/css/open-iconic.css">
+</head>
+
+<body>
+    <section data-jq-comp="myComponent">
+        <div class="container" data-jq-if="renderIntro">
+            <h5>Test if binding</h5>
+            <p>Looking good</p>
+        </div>
+    </section>
+
+    <script src="../vendors/lodash.custom.min.js"></script>
+    <script src="../vendors/jquery-3.2.1.min.js"></script>
+    <script src="../dist/js/dataBind.js"></script>
+    <script src="js/ifBindingDemo.js"></script>
+</body>
+
+</html>

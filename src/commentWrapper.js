@@ -1,24 +1,54 @@
 /* eslint-disable no-invalid-this */
 import * as config from './config';
 import * as util from './util';
+
+const setCommentPrefix = (bindingData) => {
+    if (!bindingData || !bindingData.type) {
+        return;
+    }
+    let commentPrefix = '';
+    const dataKeyMarker = bindingData.dataKey ? bindingData.dataKey.replace(util.REGEX.WHITESPACES, '_') : '';
+
+    switch (bindingData.type) {
+    case config.bindingAttrs.forOf:
+        commentPrefix = config.commentPrefix.forOf;
+        break;
+    case config.bindingAttrs.if:
+        commentPrefix = config.commentPrefix.if;
+        break;
+    }
+    bindingData.commentPrefix = commentPrefix + dataKeyMarker;
+    return bindingData;
+};
+
 /**
  * wrapCommentAround
  * @param {object} bindingData
- * @param {domFragment} fragment
+ * @param {Node} node
  * @return {object} DOM fragment
  * @description
  * wrap frament with comment node
  */
-const wrapCommentAround = (bindingData, fragment) => {
+const wrapCommentAround = (bindingData, node) => {
     let commentBegin;
     let commentEnd;
-    const dataKeyMarker = bindingData.dataKey ? bindingData.dataKey.replace(util.REGEX.WHITESPACES, '_') : '';
-    const prefix = config.commentPrefix + dataKeyMarker;
+    let prefix = '';
+    if (!bindingData.commentPrefix) {
+        setCommentPrefix(bindingData);
+    }
+    prefix = bindingData.commentPrefix;
     commentBegin = document.createComment(prefix);
-    commentEnd = document.createComment(prefix + '-end');
-    fragment.insertBefore(commentBegin, fragment.firstChild);
-    fragment.appendChild(commentEnd);
-    return fragment;
+    commentEnd = document.createComment(prefix + config.commentSuffix);
+    // document fragment
+    if (node.nodeType === 11) {
+        node.insertBefore(commentBegin, node.firstChild);
+        node.appendChild(commentEnd);
+    } else {
+        node.parentNode.insertBefore(commentBegin, node);
+        util.insertAfter(node.parentNode, commentEnd, node);
+    }
+
+    return node;
 };
 
 /**
@@ -76,10 +106,11 @@ const removeDomTemplateElement = (bindingData) => {
  * @return {undefined}
  */
 const setDocRangeEndAfter = (node, bindingData) => {
-    const dataKeyMarker = bindingData.dataKey ? bindingData.dataKey.replace(util.REGEX.WHITESPACES, '_') : '';
-    let startTextContent = config.commentPrefix + dataKeyMarker;
-    let endTextContent = startTextContent + '-end';
-
+    if (!bindingData.commentPrefix) {
+        setCommentPrefix(bindingData);
+    }
+    let startTextContent = bindingData.commentPrefix;
+    let endTextContent = startTextContent + config.commentSuffix;
     node = node.nextSibling;
 
     // check last wrap comment node
@@ -113,6 +144,7 @@ const insertRenderedElements = (bindingData, fragment) => {
 };
 
 export {
+    setCommentPrefix,
     wrapCommentAround,
     removeElemnetsByCommentWrap,
     removeDomTemplateElement,
