@@ -1,4 +1,4 @@
-import * as util from './util';
+import {invertObj, getFunctionParameterList, REGEX} from './util';
 
 let bindingAttrsMap;
 
@@ -36,7 +36,7 @@ const createBindingCache = ({rootNode = null, bindingAttrs = {}, skipCheck}) => 
         throw new TypeError('walkDOM: Expected a DOM node');
     }
 
-    bindingAttrsMap = bindingAttrsMap || util.invertObj(bindingAttrs);
+    bindingAttrsMap = bindingAttrsMap || invertObj(bindingAttrs);
 
     const rootSkipCheck = (node) => {
         return node.tagName === 'SVG';
@@ -60,10 +60,10 @@ const createBindingCache = ({rootNode = null, bindingAttrs = {}, skipCheck}) => 
 
             // for store function call parameters eg. '$index', '$root'
             // useful with DOM for-loop template as reference to binding data
-            let paramList = util.getFunctionParameterList(attrValue);
+            let paramList = getFunctionParameterList(attrValue);
             if (paramList) {
                 cacheData.parameters = paramList;
-                cacheData.dataKey = cacheData.dataKey.replace(util.REGEX.FUNCTIONPARAM, '').trim();
+                cacheData.dataKey = cacheData.dataKey.replace(REGEX.FUNCTIONPARAM, '').trim();
             }
 
             bindingCache[key].push(cacheData);
