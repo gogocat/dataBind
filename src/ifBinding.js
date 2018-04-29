@@ -1,6 +1,7 @@
 import {bindingAttrs as configBindingAttrs} from './config';
 import {getViewModelValue, resolveViewModelContext, resolveParamList} from './util';
-import {renderIfBinding, removeIfBinding} from './renderIfBinding';
+import {wrapCommentAround} from './commentWrapper';
+import {createClonedElementCache, renderIfBinding, removeIfBinding} from './renderIfBinding';
 
 /**
  * if-Binding
@@ -60,6 +61,11 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     // reverse if has '!' expression from DOM deceleration
     if (isInvertBoolean) {
         shouldRender = !shouldRender;
+    }
+
+    if (!cache.fragment) {
+        createClonedElementCache(cache);
+        wrapCommentAround(cache, cache.el);
     }
 
     if (!shouldRender) {

@@ -816,8 +816,6 @@ var removeElemnetsByCommentWrap = function removeElemnetsByCommentWrap(bindingDa
 var removeDomTemplateElement = function removeDomTemplateElement(bindingData) {
     // first render - forElement is live DOM element so has parentNode
     if (bindingData.el.parentNode) {
-        // TODO - clean up before remove
-        // loop over bindingData.iterationBindingCache and call jquery remove data
         return bindingData.el.parentNode.removeChild(bindingData.el);
     }
     removeElemnetsByCommentWrap(bindingData);
@@ -1326,6 +1324,8 @@ var _config = require('./config');
 
 var _util = require('./util');
 
+var _commentWrapper = require('./commentWrapper');
+
 var _renderIfBinding = require('./renderIfBinding');
 
 /**
@@ -1388,6 +1388,11 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
         shouldRender = !shouldRender;
     }
 
+    if (!cache.fragment) {
+        (0, _renderIfBinding.createClonedElementCache)(cache);
+        (0, _commentWrapper.wrapCommentAround)(cache, cache.el);
+    }
+
     if (!shouldRender) {
         // remove element
         (0, _renderIfBinding.removeIfBinding)({
@@ -1407,7 +1412,7 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = ifBinding;
 
-},{"./config":7,"./renderIfBinding":18,"./util":23}],14:[function(require,module,exports){
+},{"./commentWrapper":6,"./config":7,"./renderIfBinding":18,"./util":23}],14:[function(require,module,exports){
 'use strict';
 
 var _config = require('./config');
@@ -1834,7 +1839,7 @@ exports['default'] = renderForOfBinding;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.removeIfBinding = exports.renderIfBinding = undefined;
+exports.removeIfBinding = exports.renderIfBinding = exports.createClonedElementCache = undefined;
 
 var _commentWrapper = require('./commentWrapper');
 
@@ -1848,17 +1853,13 @@ var createClonedElementCache = function createClonedElementCache(bindingData) {
 
 
 var renderIfBinding = function renderIfBinding(_ref) {
-    var bindingData = _ref.bindingData,
-        viewModel = _ref.viewModel,
-        bindingAttrs = _ref.bindingAttrs;
-
-    if (!bindingData.fragment) {
-        createClonedElementCache(bindingData);
-        (0, _commentWrapper.wrapCommentAround)(bindingData, bindingData.el);
-    }
     // TODO:
     // generate new element from cloned html in bindingData.fragment
     // update binding cache and render element
+
+    var bindingData = _ref.bindingData,
+        viewModel = _ref.viewModel,
+        bindingAttrs = _ref.bindingAttrs;
 };
 
 var removeIfBinding = function removeIfBinding(_ref2) {
@@ -1866,13 +1867,12 @@ var removeIfBinding = function removeIfBinding(_ref2) {
         viewModel = _ref2.viewModel,
         bindingAttrs = _ref2.bindingAttrs;
 
-    if (!bindingData.fragment) {
-        createClonedElementCache(bindingData);
-        (0, _commentWrapper.wrapCommentAround)(bindingData, bindingData.el);
-    }
-    bindingData.el.remove();
+    // TODO: remove by wrap comment
+    // bindingData.el.remove();
+    (0, _commentWrapper.removeElemnetsByCommentWrap)(bindingData);
 };
 
+exports.createClonedElementCache = createClonedElementCache;
 exports.renderIfBinding = renderIfBinding;
 exports.removeIfBinding = removeIfBinding;
 

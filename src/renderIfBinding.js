@@ -1,13 +1,11 @@
 // import * as config from './config';
 // import * as util from './util';
 import {
-    wrapCommentAround,
-    /*
+    // wrapCommentAround,
     removeElemnetsByCommentWrap,
-    removeDomTemplateElement,
-    setDocRangeEndAfter,
-    insertRenderedElements,
-    */
+    // removeDomTemplateElement,
+    // setDocRangeEndAfter,
+    // insertRenderedElements,
 } from './commentWrapper';
 
 const createClonedElementCache = (bindingData) => {
@@ -18,21 +16,12 @@ const createClonedElementCache = (bindingData) => {
 };
 
 const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
-    if (!bindingData.fragment) {
-        createClonedElementCache(bindingData);
-        wrapCommentAround(bindingData, bindingData.el);
-    }
-    // TODO:
-    // generate new element from cloned html in bindingData.fragment
-    // update binding cache and render element
+    // TODO: parse child and apply bindings
 };
 
 const removeIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
-    if (!bindingData.fragment) {
-        createClonedElementCache(bindingData);
-        wrapCommentAround(bindingData, bindingData.el);
-    }
-    bindingData.el.remove();
+    // TODO: should keep comment tag
+    removeElemnetsByCommentWrap(bindingData);
 };
 
-export {renderIfBinding, removeIfBinding};
+export {createClonedElementCache, renderIfBinding, removeIfBinding};

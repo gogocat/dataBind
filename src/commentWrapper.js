@@ -88,8 +88,6 @@ const removeElemnetsByCommentWrap = (bindingData) => {
 const removeDomTemplateElement = (bindingData) => {
     // first render - forElement is live DOM element so has parentNode
     if (bindingData.el.parentNode) {
-        // TODO - clean up before remove
-        // loop over bindingData.iterationBindingCache and call jquery remove data
         return bindingData.el.parentNode.removeChild(bindingData.el);
     }
     removeElemnetsByCommentWrap(bindingData);
