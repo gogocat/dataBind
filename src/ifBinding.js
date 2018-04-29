@@ -1,3 +1,4 @@
+import {bindingAttrs as configBindingAttrs} from './config';
 import {getViewModelValue, resolveViewModelContext, resolveParamList} from './util';
 import {renderIfBinding, removeIfBinding} from './renderIfBinding';
 
@@ -24,7 +25,7 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     let shouldRender;
     let viewModelContext;
 
-    cache.type = config.bindingAttrs.forOf;
+    cache.type = configBindingAttrs.forOf;
 
     // store element insertion reference
     cache.parentElement = cache.el.parentElement;

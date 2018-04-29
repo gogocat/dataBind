@@ -1322,6 +1322,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _config = require('./config');
+
 var _util = require('./util');
 
 var _renderIfBinding = require('./renderIfBinding');
@@ -1349,7 +1351,7 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     var shouldRender = void 0;
     var viewModelContext = void 0;
 
-    cache.type = config.bindingAttrs.forOf;
+    cache.type = _config.bindingAttrs.forOf;
 
     // store element insertion reference
     cache.parentElement = cache.el.parentElement;
@@ -1405,7 +1407,7 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = ifBinding;
 
-},{"./renderIfBinding":18,"./util":23}],14:[function(require,module,exports){
+},{"./config":7,"./renderIfBinding":18,"./util":23}],14:[function(require,module,exports){
 'use strict';
 
 var _config = require('./config');
@@ -1646,11 +1648,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _config = require('./config');
 
-var config = _interopRequireWildcard(_config);
-
 var _util = require('./util');
-
-var util = _interopRequireWildcard(_util);
 
 var _domWalker = require('./domWalker');
 
@@ -1661,8 +1659,6 @@ var _binder = require('./binder');
 var _commentWrapper = require('./commentWrapper');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
 var forOfCount = 0; /* eslint-disable no-invalid-this */
 
@@ -1677,20 +1673,20 @@ var renderForOfBinding = function renderForOfBinding(_ref) {
     }
     var keys = void 0;
     var iterationDataLength = void 0;
-    var iterationData = util.getViewModelValue(viewModel, bindingData.iterator.dataKey);
+    var iterationData = (0, _util.getViewModelValue)(viewModel, bindingData.iterator.dataKey);
     var isRegenerate = false;
 
-    bindingData.type = config.bindingAttrs.forOf;
+    bindingData.type = _config.bindingAttrs.forOf;
 
     // check iterationData and set iterationDataLength
-    if (util.isArray(iterationData)) {
+    if ((0, _util.isArray)(iterationData)) {
         iterationDataLength = iterationData.length;
-    } else if (util.isPlainObject(iterationData)) {
+    } else if ((0, _util.isPlainObject)(iterationData)) {
         keys = Object.keys(iterationData);
         iterationDataLength = keys.length;
     } else {
         // throw error but let script contince to run
-        return util.throwErrorMessage(null, 'iterationData is not an plain object or array');
+        return (0, _util.throwErrorMessage)(null, 'iterationData is not an plain object or array');
     }
 
     // assign forOf internal id to bindingData once
@@ -1745,9 +1741,9 @@ var createIterationViewModel = function createIterationViewModel(_ref2) {
     var iterationVm = {};
     iterationVm[bindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
     // populate common binding data reference
-    iterationVm[config.bindingDataReference.rootDataKey] = viewModel.$root || viewModel;
-    iterationVm[config.bindingDataReference.currentData] = iterationVm[bindingData.iterator.alias];
-    iterationVm[config.bindingDataReference.currentIndex] = index;
+    iterationVm[_config.bindingDataReference.rootDataKey] = viewModel.$root || viewModel;
+    iterationVm[_config.bindingDataReference.currentData] = iterationVm[bindingData.iterator.alias];
+    iterationVm[_config.bindingDataReference.currentIndex] = index;
     return iterationVm;
 };
 
@@ -1759,7 +1755,7 @@ var applyBindings = function applyBindings(_ref3) {
 
     var bindingUpdateOption = void 0;
     if (isRegenerate) {
-        bindingUpdateOption = (0, _binder.createBindingOption)(config.bindingUpdateConditions.init);
+        bindingUpdateOption = (0, _binder.createBindingOption)(_config.bindingUpdateConditions.init);
     } else {
         bindingUpdateOption = (0, _binder.createBindingOption)();
     }
@@ -1792,7 +1788,7 @@ var generateForOfElements = function generateForOfElements(bindingData, viewMode
     var i = 0;
 
     // create or clear exisitng iterationBindingCache
-    if (util.isArray(bindingData.iterationBindingCache)) {
+    if ((0, _util.isArray)(bindingData.iterationBindingCache)) {
         bindingData.iterationBindingCache.length = 0;
     } else {
         bindingData.iterationBindingCache = [];
@@ -1800,7 +1796,7 @@ var generateForOfElements = function generateForOfElements(bindingData, viewMode
 
     // generate forOf and append to DOM
     for (i = 0; i < iterationDataLength; i += 1) {
-        clonedItem = util.cloneDomNode(bindingData.el);
+        clonedItem = (0, _util.cloneDomNode)(bindingData.el);
         // create an iterationVm match iterator alias
         iterationVm = createIterationViewModel({
             bindingData: bindingData,
