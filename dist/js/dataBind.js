@@ -786,6 +786,7 @@ var wrapCommentAround = function wrapCommentAround(bindingData, node) {
  * @description remove elments by range
  */
 var removeElemnetsByCommentWrap = function removeElemnetsByCommentWrap(bindingData) {
+    var isFoOfBinding = bindingData.type === config.bindingAttrs.forOf;
     if (!bindingData.docRange) {
         bindingData.docRange = document.createRange();
     }
@@ -793,12 +794,20 @@ var removeElemnetsByCommentWrap = function removeElemnetsByCommentWrap(bindingDa
     // insert rendered fragment after the previousNonTemplateElement
     if (bindingData.previousNonTemplateElement) {
         // update docRange start and end match the wrapped comment node
-        bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
+        if (isFoOfBinding) {
+            bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
+        } else {
+            bindingData.docRange.setStartAfter(bindingData.previousNonTemplateElement.nextSibling);
+        }
         setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
     } else {
         // insert before next non template element
         // update docRange start and end match the wrapped comment node
-        bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
+        if (isFoOfBinding) {
+            bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
+        } else {
+            bindingData.docRange.setStartAfter(bindingData.parentElement.firstChild);
+        }
         setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
     }
 
@@ -832,6 +841,7 @@ var removeDomTemplateElement = function removeDomTemplateElement(bindingData) {
  * @return {undefined}
  */
 var setDocRangeEndAfter = function setDocRangeEndAfter(node, bindingData) {
+    var isFoOfBinding = bindingData.type === config.bindingAttrs.forOf;
     if (!bindingData.commentPrefix) {
         setCommentPrefix(bindingData);
     }
@@ -842,19 +852,16 @@ var setDocRangeEndAfter = function setDocRangeEndAfter(node, bindingData) {
     // check last wrap comment node
     if (node) {
         if (node.nodeType === 8 && node.textContent === endTextContent) {
-            return bindingData.docRange.setEndAfter(node);
+            if (isFoOfBinding) {
+                return bindingData.docRange.setEndAfter(node);
+            }
+            return bindingData.docRange.setEndBefore(node);
         }
         setDocRangeEndAfter(node, bindingData);
     }
 };
 
 var insertRenderedElements = function insertRenderedElements(bindingData, fragment) {
-    // wrap around with comment
-    fragment = wrapCommentAround(bindingData, fragment);
-
-    // remove original dom template
-    removeDomTemplateElement(bindingData);
-
     // insert rendered fragment after the previousNonTemplateElement
     if (bindingData.previousNonTemplateElement) {
         util.insertAfter(bindingData.parentElement, fragment, bindingData.previousNonTemplateElement);
@@ -1351,7 +1358,7 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     var shouldRender = void 0;
     var viewModelContext = void 0;
 
-    cache.type = _config.bindingAttrs.forOf;
+    cache.type = _config.bindingAttrs['if'];
 
     // store element insertion reference
     cache.parentElement = cache.el.parentElement;
@@ -1732,6 +1739,13 @@ var renderForOfBinding = function renderForOfBinding(_ref) {
 
     // generate forOfBinding elements into fragment
     var fragment = generateForOfElements(bindingData, viewModel, bindingAttrs, iterationData, keys);
+
+    // wrap around with comment
+    fragment = (0, _commentWrapper.wrapCommentAround)(bindingData, fragment);
+
+    // remove original dom template
+    (0, _commentWrapper.removeDomTemplateElement)(bindingData);
+
     // insert fragment content into DOM
     return (0, _commentWrapper.insertRenderedElements)(bindingData, fragment);
 };
@@ -1853,9 +1867,7 @@ var createClonedElementCache = function createClonedElementCache(bindingData) {
 
 
 var renderIfBinding = function renderIfBinding(_ref) {
-    // TODO:
-    // generate new element from cloned html in bindingData.fragment
-    // update binding cache and render element
+    // TODO: parse child and apply bindings
 
     var bindingData = _ref.bindingData,
         viewModel = _ref.viewModel,
@@ -1867,8 +1879,7 @@ var removeIfBinding = function removeIfBinding(_ref2) {
         viewModel = _ref2.viewModel,
         bindingAttrs = _ref2.bindingAttrs;
 
-    // TODO: remove by wrap comment
-    // bindingData.el.remove();
+    // TODO: should keep comment tag
     (0, _commentWrapper.removeElemnetsByCommentWrap)(bindingData);
 };
 

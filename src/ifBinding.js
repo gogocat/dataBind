@@ -26,7 +26,7 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     let shouldRender;
     let viewModelContext;
 
-    cache.type = configBindingAttrs.forOf;
+    cache.type = configBindingAttrs.if;
 
     // store element insertion reference
     cache.parentElement = cache.el.parentElement;

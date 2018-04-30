@@ -3,7 +3,7 @@ import {bindingAttrs as configBindingAttrs, bindingDataReference, bindingUpdateC
 import {getViewModelValue, isArray, isPlainObject, throwErrorMessage, cloneDomNode} from './util';
 import createBindingCache from './domWalker';
 import {Binder, createBindingOption, renderTemplatesBinding} from './binder';
-import {insertRenderedElements} from './commentWrapper';
+import {wrapCommentAround, removeDomTemplateElement, insertRenderedElements} from './commentWrapper';
 
 let forOfCount = 0;
 
@@ -67,6 +67,13 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
 
     // generate forOfBinding elements into fragment
     let fragment = generateForOfElements(bindingData, viewModel, bindingAttrs, iterationData, keys);
+
+    // wrap around with comment
+    fragment = wrapCommentAround(bindingData, fragment);
+
+    // remove original dom template
+    removeDomTemplateElement(bindingData);
+
     // insert fragment content into DOM
     return insertRenderedElements(bindingData, fragment);
 };

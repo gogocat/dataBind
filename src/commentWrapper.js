@@ -58,6 +58,7 @@ const wrapCommentAround = (bindingData, node) => {
  * @description remove elments by range
  */
 const removeElemnetsByCommentWrap = (bindingData) => {
+    const isFoOfBinding = bindingData.type === config.bindingAttrs.forOf;
     if (!bindingData.docRange) {
         bindingData.docRange = document.createRange();
     }
@@ -65,12 +66,20 @@ const removeElemnetsByCommentWrap = (bindingData) => {
     // insert rendered fragment after the previousNonTemplateElement
     if (bindingData.previousNonTemplateElement) {
         // update docRange start and end match the wrapped comment node
-        bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
+        if (isFoOfBinding) {
+            bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
+        } else {
+            bindingData.docRange.setStartAfter(bindingData.previousNonTemplateElement.nextSibling);
+        }
         setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
     } else {
         // insert before next non template element
         // update docRange start and end match the wrapped comment node
-        bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
+        if (isFoOfBinding) {
+            bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
+        } else {
+            bindingData.docRange.setStartAfter(bindingData.parentElement.firstChild);
+        }
         setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
     }
 
@@ -104,6 +113,7 @@ const removeDomTemplateElement = (bindingData) => {
  * @return {undefined}
  */
 const setDocRangeEndAfter = (node, bindingData) => {
+    const isFoOfBinding = bindingData.type === config.bindingAttrs.forOf;
     if (!bindingData.commentPrefix) {
         setCommentPrefix(bindingData);
     }
@@ -114,19 +124,16 @@ const setDocRangeEndAfter = (node, bindingData) => {
     // check last wrap comment node
     if (node) {
         if (node.nodeType === 8 && node.textContent === endTextContent) {
-            return bindingData.docRange.setEndAfter(node);
+            if (isFoOfBinding) {
+                return bindingData.docRange.setEndAfter(node);
+            }
+            return bindingData.docRange.setEndBefore(node);
         }
         setDocRangeEndAfter(node, bindingData);
     }
 };
 
 const insertRenderedElements = (bindingData, fragment) => {
-    // wrap around with comment
-    fragment = wrapCommentAround(bindingData, fragment);
-
-    // remove original dom template
-    removeDomTemplateElement(bindingData);
-
     // insert rendered fragment after the previousNonTemplateElement
     if (bindingData.previousNonTemplateElement) {
         util.insertAfter(bindingData.parentElement, fragment, bindingData.previousNonTemplateElement);
