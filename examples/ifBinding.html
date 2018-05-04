@@ -14,10 +14,10 @@
 
 <body>
     <section data-jq-comp="myComponent">
-        <div class="container" data-jq-if="renderIntro">
+        <div>before</div><div class="container" data-jq-if="renderIntro">
             <h5>Test if binding</h5>
             <p>Looking good</p>
-        </div>
+        </div><span>after</span>
     </section>
 
     <script src="../vendors/lodash.custom.min.js"></script>

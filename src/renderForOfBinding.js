@@ -1,11 +1,9 @@
 /* eslint-disable no-invalid-this */
-import {bindingAttrs as configBindingAttrs, bindingDataReference, bindingUpdateConditions} from './config';
+import {bindingAttrs as configBindingAttrs, bindingDataReference} from './config';
 import {getViewModelValue, isArray, isPlainObject, throwErrorMessage, cloneDomNode} from './util';
 import createBindingCache from './domWalker';
-import {Binder, createBindingOption, renderTemplatesBinding} from './binder';
+import {renderIteration} from './binder';
 import {wrapCommentAround, removeDomTemplateElement, insertRenderedElements} from './commentWrapper';
-
-let forOfCount = 0;
 
 const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     if (!bindingData || !viewModel || !bindingAttrs) {
@@ -30,9 +28,7 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     }
 
     // assign forOf internal id to bindingData once
-    if (typeof bindingData.id === 'undefined') {
-        bindingData.id = forOfCount;
-        forOfCount += 1;
+    if (typeof bindingData.iterationSize === 'undefined') {
         // store iterationDataLength
         bindingData.iterationSize = iterationDataLength;
         // remove orignal node for-of attributes
@@ -54,7 +50,7 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
                 keys: keys,
                 index: i,
             });
-            applyBindings({
+            renderIteration({
                 elementCache: elementCache,
                 iterationVm: iterationVm,
                 bindingAttrs: bindingAttrs,
@@ -86,33 +82,6 @@ const createIterationViewModel = ({bindingData, viewModel, iterationData, keys, 
     iterationVm[bindingDataReference.currentData] = iterationVm[bindingData.iterator.alias];
     iterationVm[bindingDataReference.currentIndex] = index;
     return iterationVm;
-};
-
-const applyBindings = ({elementCache, iterationVm, bindingAttrs, isRegenerate}) => {
-    let bindingUpdateOption;
-    if (isRegenerate) {
-        bindingUpdateOption = createBindingOption(bindingUpdateConditions.init);
-    } else {
-        bindingUpdateOption = createBindingOption();
-    }
-
-    // render and apply binding to template(s)
-    // this is an share function therefore passing current APP 'this' context
-    // viewModel is a dynamic generated iterationVm
-    renderTemplatesBinding({
-        ctx: iterationVm.$root.APP,
-        elementCache: elementCache,
-        updateOption: bindingUpdateOption,
-        bindingAttrs: bindingAttrs,
-        viewModel: iterationVm,
-    });
-
-    Binder.applyBinding({
-        elementCache: elementCache,
-        updateOption: bindingUpdateOption,
-        bindingAttrs: bindingAttrs,
-        viewModel: iterationVm,
-    });
 };
 
 const generateForOfElements = (bindingData, viewModel, bindingAttrs, iterationData, keys) => {
@@ -149,7 +118,7 @@ const generateForOfElements = (bindingData, viewModel, bindingAttrs, iterationDa
 
         bindingData.iterationBindingCache.push(iterationBindingCache);
 
-        applyBindings({
+        renderIteration({
             elementCache: bindingData.iterationBindingCache[i],
             iterationVm: iterationVm,
             bindingAttrs: bindingAttrs,

@@ -378,4 +378,38 @@ const createBindingOption = (condition = '', opt = {}) => {
     return updateOption;
 };
 
-export {Binder, createBindingOption, renderTemplatesBinding};
+/**
+ * renderIteration
+ * @param {object} opt
+ * @description
+ * render element's binding by supplied elementCache
+ * This function is desidned for FoOf, If, switch bindings
+ */
+const renderIteration = ({elementCache, iterationVm, bindingAttrs, isRegenerate}) => {
+    let bindingUpdateOption;
+    if (isRegenerate) {
+        bindingUpdateOption = createBindingOption(config.bindingUpdateConditions.init);
+    } else {
+        bindingUpdateOption = createBindingOption();
+    }
+
+    // render and apply binding to template(s)
+    // this is an share function therefore passing current APP 'this' context
+    // viewModel is a dynamic generated iterationVm
+    renderTemplatesBinding({
+        ctx: iterationVm.$root ? iterationVm.$root.APP : iterationVm.APP,
+        elementCache: elementCache,
+        updateOption: bindingUpdateOption,
+        bindingAttrs: bindingAttrs,
+        viewModel: iterationVm,
+    });
+
+    Binder.applyBinding({
+        elementCache: elementCache,
+        updateOption: bindingUpdateOption,
+        bindingAttrs: bindingAttrs,
+        viewModel: iterationVm,
+    });
+};
+
+export {Binder, createBindingOption, renderTemplatesBinding, renderIteration};

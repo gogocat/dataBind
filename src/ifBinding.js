@@ -27,12 +27,6 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     let viewModelContext;
 
     cache.type = configBindingAttrs.if;
-
-    // store element insertion reference
-    cache.parentElement = cache.el.parentElement;
-    cache.previousNonTemplateElement = cache.el.previousSibling;
-    cache.nextNonTemplateElement = cache.el.nextSibling;
-
     dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
     shouldRender = getViewModelValue(viewModel, dataKey);
 
@@ -64,7 +58,7 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     }
 
     if (!cache.fragment) {
-        createClonedElementCache(cache);
+        createClonedElementCache(cache, bindingAttrs);
         wrapCommentAround(cache, cache.el);
     }
 

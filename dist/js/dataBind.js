@@ -93,7 +93,7 @@ exports['default'] = attrBinding;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.renderTemplatesBinding = exports.createBindingOption = exports.Binder = undefined;
+exports.renderIteration = exports.renderTemplatesBinding = exports.createBindingOption = exports.Binder = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -572,9 +572,49 @@ var createBindingOption = function createBindingOption() {
     return updateOption;
 };
 
+/**
+ * renderIteration
+ * @param {object} opt
+ * @description
+ * render element's binding by supplied elementCache
+ * This function is desidned for FoOf, If, switch bindings
+ */
+var renderIteration = function renderIteration(_ref3) {
+    var elementCache = _ref3.elementCache,
+        iterationVm = _ref3.iterationVm,
+        bindingAttrs = _ref3.bindingAttrs,
+        isRegenerate = _ref3.isRegenerate;
+
+    var bindingUpdateOption = void 0;
+    if (isRegenerate) {
+        bindingUpdateOption = createBindingOption(config.bindingUpdateConditions.init);
+    } else {
+        bindingUpdateOption = createBindingOption();
+    }
+
+    // render and apply binding to template(s)
+    // this is an share function therefore passing current APP 'this' context
+    // viewModel is a dynamic generated iterationVm
+    renderTemplatesBinding({
+        ctx: iterationVm.$root ? iterationVm.$root.APP : iterationVm.APP,
+        elementCache: elementCache,
+        updateOption: bindingUpdateOption,
+        bindingAttrs: bindingAttrs,
+        viewModel: iterationVm
+    });
+
+    Binder.applyBinding({
+        elementCache: elementCache,
+        updateOption: bindingUpdateOption,
+        bindingAttrs: bindingAttrs,
+        viewModel: iterationVm
+    });
+};
+
 exports.Binder = Binder;
 exports.createBindingOption = createBindingOption;
 exports.renderTemplatesBinding = renderTemplatesBinding;
+exports.renderIteration = renderIteration;
 
 },{"./attrBinding":1,"./blurBinding":3,"./changeBinding":4,"./clickBinding":5,"./config":7,"./cssBinding":8,"./dbclickBinding":9,"./domWalker":10,"./focusBinding":11,"./forOfBinding":12,"./ifBinding":13,"./modelBinding":15,"./pubSub":16,"./renderTemplate":19,"./showBinding":20,"./submitBinding":21,"./textBinding":22,"./util":23}],3:[function(require,module,exports){
 'use strict';
@@ -750,87 +790,6 @@ var setCommentPrefix = function setCommentPrefix(bindingData) {
 };
 
 /**
- * wrapCommentAround
- * @param {object} bindingData
- * @param {Node} node
- * @return {object} DOM fragment
- * @description
- * wrap frament with comment node
- */
-var wrapCommentAround = function wrapCommentAround(bindingData, node) {
-    var commentBegin = void 0;
-    var commentEnd = void 0;
-    var prefix = '';
-    if (!bindingData.commentPrefix) {
-        setCommentPrefix(bindingData);
-    }
-    prefix = bindingData.commentPrefix;
-    commentBegin = document.createComment(prefix);
-    commentEnd = document.createComment(prefix + config.commentSuffix);
-    // document fragment
-    if (node.nodeType === 11) {
-        node.insertBefore(commentBegin, node.firstChild);
-        node.appendChild(commentEnd);
-    } else {
-        node.parentNode.insertBefore(commentBegin, node);
-        util.insertAfter(node.parentNode, commentEnd, node);
-    }
-
-    return node;
-};
-
-/**
- * removeElemnetsByCommentWrap
- * @param {object} bindingData
- * @return {undefined}
- * @description remove elments by range
- */
-var removeElemnetsByCommentWrap = function removeElemnetsByCommentWrap(bindingData) {
-    var isFoOfBinding = bindingData.type === config.bindingAttrs.forOf;
-    if (!bindingData.docRange) {
-        bindingData.docRange = document.createRange();
-    }
-
-    // insert rendered fragment after the previousNonTemplateElement
-    if (bindingData.previousNonTemplateElement) {
-        // update docRange start and end match the wrapped comment node
-        if (isFoOfBinding) {
-            bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
-        } else {
-            bindingData.docRange.setStartAfter(bindingData.previousNonTemplateElement.nextSibling);
-        }
-        setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
-    } else {
-        // insert before next non template element
-        // update docRange start and end match the wrapped comment node
-        if (isFoOfBinding) {
-            bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
-        } else {
-            bindingData.docRange.setStartAfter(bindingData.parentElement.firstChild);
-        }
-        setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
-    }
-
-    // TODO - clean up before remove
-    // loop over bindingData.iterationBindingCache and call jquery remove data
-
-    return bindingData.docRange.deleteContents();
-};
-
-/**
- * removeDomTemplateElement
- * @param {object} bindingData
- * @return {object} null
- */
-var removeDomTemplateElement = function removeDomTemplateElement(bindingData) {
-    // first render - forElement is live DOM element so has parentNode
-    if (bindingData.el.parentNode) {
-        return bindingData.el.parentNode.removeChild(bindingData.el);
-    }
-    removeElemnetsByCommentWrap(bindingData);
-};
-
-/**
  * setDocRangeEndAfter
  * @param {object} node
  * @param {object} bindingData
@@ -859,6 +818,77 @@ var setDocRangeEndAfter = function setDocRangeEndAfter(node, bindingData) {
         }
         setDocRangeEndAfter(node, bindingData);
     }
+};
+
+/**
+ * wrapCommentAround
+ * @param {object} bindingData
+ * @param {Node} node
+ * @return {object} DOM fragment
+ * @description
+ * wrap frament with comment node
+ */
+var wrapCommentAround = function wrapCommentAround(bindingData, node) {
+    var commentBegin = void 0;
+    var commentEnd = void 0;
+    var prefix = '';
+    if (!bindingData.commentPrefix) {
+        setCommentPrefix(bindingData);
+    }
+    prefix = bindingData.commentPrefix;
+    commentBegin = document.createComment(prefix);
+    commentEnd = document.createComment(prefix + config.commentSuffix);
+    // document fragment - logic for ForOf binding
+    if (node.nodeType === 11) {
+        node.insertBefore(commentBegin, node.firstChild);
+        node.appendChild(commentEnd);
+    } else {
+        node.parentNode.insertBefore(commentBegin, node);
+        util.insertAfter(node.parentNode, commentEnd, node);
+        // update bindingData details
+        bindingData.previousNonTemplateElement = node.previousSibling;
+        bindingData.nextNonTemplateElement = node.nextSibling;
+        bindingData.parentElement = node.previousSibling.parentElement;
+    }
+
+    return node;
+};
+
+/**
+ * removeElemnetsByCommentWrap
+ * @param {object} bindingData
+ * @return {undefined}
+ * @description remove elments by range
+ */
+var removeElemnetsByCommentWrap = function removeElemnetsByCommentWrap(bindingData) {
+    if (!bindingData.docRange) {
+        bindingData.docRange = document.createRange();
+    }
+
+    if (bindingData.previousNonTemplateElement) {
+        // update docRange start and end match the wrapped comment node
+        bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
+        setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
+    } else {
+        // insert before next non template element
+        bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
+        setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
+    }
+
+    return bindingData.docRange.deleteContents();
+};
+
+/**
+ * removeDomTemplateElement
+ * @param {object} bindingData
+ * @return {object} null
+ */
+var removeDomTemplateElement = function removeDomTemplateElement(bindingData) {
+    // first render - forElement is live DOM element so has parentNode
+    if (bindingData.el.parentNode) {
+        return bindingData.el.parentNode.removeChild(bindingData.el);
+    }
+    removeElemnetsByCommentWrap(bindingData);
 };
 
 var insertRenderedElements = function insertRenderedElements(bindingData, fragment) {
@@ -1359,12 +1389,6 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     var viewModelContext = void 0;
 
     cache.type = _config.bindingAttrs['if'];
-
-    // store element insertion reference
-    cache.parentElement = cache.el.parentElement;
-    cache.previousNonTemplateElement = cache.el.previousSibling;
-    cache.nextNonTemplateElement = cache.el.nextSibling;
-
     dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
     shouldRender = (0, _util.getViewModelValue)(viewModel, dataKey);
 
@@ -1396,7 +1420,7 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     }
 
     if (!cache.fragment) {
-        (0, _renderIfBinding.createClonedElementCache)(cache);
+        (0, _renderIfBinding.createClonedElementCache)(cache, bindingAttrs);
         (0, _commentWrapper.wrapCommentAround)(cache, cache.el);
     }
 
@@ -1672,9 +1696,6 @@ var _commentWrapper = require('./commentWrapper');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var forOfCount = 0; /* eslint-disable no-invalid-this */
-
-
 var renderForOfBinding = function renderForOfBinding(_ref) {
     var bindingData = _ref.bindingData,
         viewModel = _ref.viewModel,
@@ -1702,9 +1723,7 @@ var renderForOfBinding = function renderForOfBinding(_ref) {
     }
 
     // assign forOf internal id to bindingData once
-    if (typeof bindingData.id === 'undefined') {
-        bindingData.id = forOfCount;
-        forOfCount += 1;
+    if (typeof bindingData.iterationSize === 'undefined') {
         // store iterationDataLength
         bindingData.iterationSize = iterationDataLength;
         // remove orignal node for-of attributes
@@ -1726,7 +1745,7 @@ var renderForOfBinding = function renderForOfBinding(_ref) {
                 keys: keys,
                 index: i
             });
-            applyBindings({
+            (0, _binder.renderIteration)({
                 elementCache: elementCache,
                 iterationVm: iterationVm,
                 bindingAttrs: bindingAttrs,
@@ -1748,7 +1767,8 @@ var renderForOfBinding = function renderForOfBinding(_ref) {
 
     // insert fragment content into DOM
     return (0, _commentWrapper.insertRenderedElements)(bindingData, fragment);
-};
+}; /* eslint-disable no-invalid-this */
+
 
 var createIterationViewModel = function createIterationViewModel(_ref2) {
     var bindingData = _ref2.bindingData,
@@ -1764,38 +1784,6 @@ var createIterationViewModel = function createIterationViewModel(_ref2) {
     iterationVm[_config.bindingDataReference.currentData] = iterationVm[bindingData.iterator.alias];
     iterationVm[_config.bindingDataReference.currentIndex] = index;
     return iterationVm;
-};
-
-var applyBindings = function applyBindings(_ref3) {
-    var elementCache = _ref3.elementCache,
-        iterationVm = _ref3.iterationVm,
-        bindingAttrs = _ref3.bindingAttrs,
-        isRegenerate = _ref3.isRegenerate;
-
-    var bindingUpdateOption = void 0;
-    if (isRegenerate) {
-        bindingUpdateOption = (0, _binder.createBindingOption)(_config.bindingUpdateConditions.init);
-    } else {
-        bindingUpdateOption = (0, _binder.createBindingOption)();
-    }
-
-    // render and apply binding to template(s)
-    // this is an share function therefore passing current APP 'this' context
-    // viewModel is a dynamic generated iterationVm
-    (0, _binder.renderTemplatesBinding)({
-        ctx: iterationVm.$root.APP,
-        elementCache: elementCache,
-        updateOption: bindingUpdateOption,
-        bindingAttrs: bindingAttrs,
-        viewModel: iterationVm
-    });
-
-    _binder.Binder.applyBinding({
-        elementCache: elementCache,
-        updateOption: bindingUpdateOption,
-        bindingAttrs: bindingAttrs,
-        viewModel: iterationVm
-    });
 };
 
 var generateForOfElements = function generateForOfElements(bindingData, viewModel, bindingAttrs, iterationData, keys) {
@@ -1832,7 +1820,7 @@ var generateForOfElements = function generateForOfElements(bindingData, viewMode
 
         bindingData.iterationBindingCache.push(iterationBindingCache);
 
-        applyBindings({
+        (0, _binder.renderIteration)({
             elementCache: bindingData.iterationBindingCache[i],
             iterationVm: iterationVm,
             bindingAttrs: bindingAttrs,
@@ -1855,23 +1843,55 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.removeIfBinding = exports.renderIfBinding = exports.createClonedElementCache = undefined;
 
+var _util = require('./util');
+
+var _binder = require('./binder');
+
+var _domWalker = require('./domWalker');
+
+var _domWalker2 = _interopRequireDefault(_domWalker);
+
 var _commentWrapper = require('./commentWrapper');
 
-var createClonedElementCache = function createClonedElementCache(bindingData) {
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var createClonedElementCache = function createClonedElementCache(bindingData, bindingAttrs) {
+    bindingData.el.removeAttribute(bindingAttrs['if']);
     var clonedElement = bindingData.el.cloneNode(true);
     bindingData.fragment = document.createDocumentFragment();
     bindingData.fragment.appendChild(clonedElement);
     return bindingData;
-}; // import * as config from './config';
-// import * as util from './util';
-
+};
 
 var renderIfBinding = function renderIfBinding(_ref) {
-    // TODO: parse child and apply bindings
-
     var bindingData = _ref.bindingData,
         viewModel = _ref.viewModel,
         bindingAttrs = _ref.bindingAttrs;
+
+    if (!bindingData.fragment) {
+        return;
+    }
+
+    var clonedElement = bindingData.fragment.firstChild.cloneNode(true);
+
+    // TODO: Make parser stop parse chidren
+    // walk clonedElement to create iterationBindingCache
+    bindingData.iterationBindingCache = (0, _domWalker2['default'])({
+        rootNode: clonedElement,
+        bindingAttrs: bindingAttrs
+    });
+
+    // only render if has iterationBindingCache
+    if (!(0, _util.isEmptyObject)(bindingData.iterationBindingCache)) {
+        (0, _binder.renderIteration)({
+            elementCache: bindingData.iterationBindingCache,
+            iterationVm: viewModel,
+            bindingAttrs: bindingAttrs,
+            isRegenerate: true
+        });
+    }
+    // insert to DOM
+    (0, _commentWrapper.insertRenderedElements)(bindingData, clonedElement);
 };
 
 var removeIfBinding = function removeIfBinding(_ref2) {
@@ -1879,7 +1899,6 @@ var removeIfBinding = function removeIfBinding(_ref2) {
         viewModel = _ref2.viewModel,
         bindingAttrs = _ref2.bindingAttrs;
 
-    // TODO: should keep comment tag
     (0, _commentWrapper.removeElemnetsByCommentWrap)(bindingData);
 };
 
@@ -1887,7 +1906,7 @@ exports.createClonedElementCache = createClonedElementCache;
 exports.renderIfBinding = renderIfBinding;
 exports.removeIfBinding = removeIfBinding;
 
-},{"./commentWrapper":6}],19:[function(require,module,exports){
+},{"./binder":2,"./commentWrapper":6,"./domWalker":10,"./util":23}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {

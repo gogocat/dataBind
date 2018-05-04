@@ -1,14 +1,16 @@
-// import * as config from './config';
-// import * as util from './util';
+import {isEmptyObject} from './util';
+import {renderIteration} from './binder';
+import createBindingCache from './domWalker';
 import {
     // wrapCommentAround,
     removeElemnetsByCommentWrap,
     // removeDomTemplateElement,
     // setDocRangeEndAfter,
-    // insertRenderedElements,
+    insertRenderedElements,
 } from './commentWrapper';
 
-const createClonedElementCache = (bindingData) => {
+const createClonedElementCache = (bindingData, bindingAttrs) => {
+    bindingData.el.removeAttribute(bindingAttrs.if);
     const clonedElement = bindingData.el.cloneNode(true);
     bindingData.fragment = document.createDocumentFragment();
     bindingData.fragment.appendChild(clonedElement);
@@ -16,11 +18,33 @@ const createClonedElementCache = (bindingData) => {
 };
 
 const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
-    // TODO: parse child and apply bindings
+    if (!bindingData.fragment) {
+        return;
+    }
+
+    let clonedElement = bindingData.fragment.firstChild.cloneNode(true);
+
+    // TODO: Make parser stop parse chidren
+    // walk clonedElement to create iterationBindingCache
+    bindingData.iterationBindingCache = createBindingCache({
+        rootNode: clonedElement,
+        bindingAttrs: bindingAttrs,
+    });
+
+    // only render if has iterationBindingCache
+    if (!isEmptyObject(bindingData.iterationBindingCache)) {
+        renderIteration({
+            elementCache: bindingData.iterationBindingCache,
+            iterationVm: viewModel,
+            bindingAttrs: bindingAttrs,
+            isRegenerate: true,
+        });
+    }
+    // insert to DOM
+    insertRenderedElements(bindingData, clonedElement);
 };
 
 const removeIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
-    // TODO: should keep comment tag
     removeElemnetsByCommentWrap(bindingData);
 };
 

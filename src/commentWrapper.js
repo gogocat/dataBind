@@ -22,87 +22,6 @@ const setCommentPrefix = (bindingData) => {
 };
 
 /**
- * wrapCommentAround
- * @param {object} bindingData
- * @param {Node} node
- * @return {object} DOM fragment
- * @description
- * wrap frament with comment node
- */
-const wrapCommentAround = (bindingData, node) => {
-    let commentBegin;
-    let commentEnd;
-    let prefix = '';
-    if (!bindingData.commentPrefix) {
-        setCommentPrefix(bindingData);
-    }
-    prefix = bindingData.commentPrefix;
-    commentBegin = document.createComment(prefix);
-    commentEnd = document.createComment(prefix + config.commentSuffix);
-    // document fragment
-    if (node.nodeType === 11) {
-        node.insertBefore(commentBegin, node.firstChild);
-        node.appendChild(commentEnd);
-    } else {
-        node.parentNode.insertBefore(commentBegin, node);
-        util.insertAfter(node.parentNode, commentEnd, node);
-    }
-
-    return node;
-};
-
-/**
- * removeElemnetsByCommentWrap
- * @param {object} bindingData
- * @return {undefined}
- * @description remove elments by range
- */
-const removeElemnetsByCommentWrap = (bindingData) => {
-    const isFoOfBinding = bindingData.type === config.bindingAttrs.forOf;
-    if (!bindingData.docRange) {
-        bindingData.docRange = document.createRange();
-    }
-
-    // insert rendered fragment after the previousNonTemplateElement
-    if (bindingData.previousNonTemplateElement) {
-        // update docRange start and end match the wrapped comment node
-        if (isFoOfBinding) {
-            bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
-        } else {
-            bindingData.docRange.setStartAfter(bindingData.previousNonTemplateElement.nextSibling);
-        }
-        setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
-    } else {
-        // insert before next non template element
-        // update docRange start and end match the wrapped comment node
-        if (isFoOfBinding) {
-            bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
-        } else {
-            bindingData.docRange.setStartAfter(bindingData.parentElement.firstChild);
-        }
-        setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
-    }
-
-    // TODO - clean up before remove
-    // loop over bindingData.iterationBindingCache and call jquery remove data
-
-    return bindingData.docRange.deleteContents();
-};
-
-/**
- * removeDomTemplateElement
- * @param {object} bindingData
- * @return {object} null
- */
-const removeDomTemplateElement = (bindingData) => {
-    // first render - forElement is live DOM element so has parentNode
-    if (bindingData.el.parentNode) {
-        return bindingData.el.parentNode.removeChild(bindingData.el);
-    }
-    removeElemnetsByCommentWrap(bindingData);
-};
-
-/**
  * setDocRangeEndAfter
  * @param {object} node
  * @param {object} bindingData
@@ -131,6 +50,77 @@ const setDocRangeEndAfter = (node, bindingData) => {
         }
         setDocRangeEndAfter(node, bindingData);
     }
+};
+
+/**
+ * wrapCommentAround
+ * @param {object} bindingData
+ * @param {Node} node
+ * @return {object} DOM fragment
+ * @description
+ * wrap frament with comment node
+ */
+const wrapCommentAround = (bindingData, node) => {
+    let commentBegin;
+    let commentEnd;
+    let prefix = '';
+    if (!bindingData.commentPrefix) {
+        setCommentPrefix(bindingData);
+    }
+    prefix = bindingData.commentPrefix;
+    commentBegin = document.createComment(prefix);
+    commentEnd = document.createComment(prefix + config.commentSuffix);
+    // document fragment - logic for ForOf binding
+    if (node.nodeType === 11) {
+        node.insertBefore(commentBegin, node.firstChild);
+        node.appendChild(commentEnd);
+    } else {
+        node.parentNode.insertBefore(commentBegin, node);
+        util.insertAfter(node.parentNode, commentEnd, node);
+        // update bindingData details
+        bindingData.previousNonTemplateElement = node.previousSibling;
+        bindingData.nextNonTemplateElement = node.nextSibling;
+        bindingData.parentElement = node.previousSibling.parentElement;
+    }
+
+    return node;
+};
+
+/**
+ * removeElemnetsByCommentWrap
+ * @param {object} bindingData
+ * @return {undefined}
+ * @description remove elments by range
+ */
+const removeElemnetsByCommentWrap = (bindingData) => {
+    if (!bindingData.docRange) {
+        bindingData.docRange = document.createRange();
+    }
+
+    if (bindingData.previousNonTemplateElement) {
+        // update docRange start and end match the wrapped comment node
+        bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
+        setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
+    } else {
+        // insert before next non template element
+        bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
+        setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
+    }
+
+    return bindingData.docRange.deleteContents();
+};
+
+/**
+ * removeDomTemplateElement
+ * @param {object} bindingData
+ * @return {object} null
+ */
+const removeDomTemplateElement = (bindingData) => {
+    // first render - forElement is live DOM element so has parentNode
+    if (bindingData.el.parentNode) {
+        return bindingData.el.parentNode.removeChild(bindingData.el);
+    }
+    removeElemnetsByCommentWrap(bindingData);
 };
 
 const insertRenderedElements = (bindingData, fragment) => {
