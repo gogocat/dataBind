@@ -32,7 +32,6 @@ const setCommentPrefix = (bindingData) => {
  * @return {undefined}
  */
 const setDocRangeEndAfter = (node, bindingData) => {
-    const isFoOfBinding = bindingData.type === config.bindingAttrs.forOf;
     if (!bindingData.commentPrefix) {
         setCommentPrefix(bindingData);
     }
@@ -43,9 +42,6 @@ const setDocRangeEndAfter = (node, bindingData) => {
     // check last wrap comment node
     if (node) {
         if (node.nodeType === 8 && node.textContent === endTextContent) {
-            if (isFoOfBinding) {
-                return bindingData.docRange.setEndAfter(node);
-            }
             return bindingData.docRange.setEndBefore(node);
         }
         setDocRangeEndAfter(node, bindingData);

@@ -800,7 +800,6 @@ var setCommentPrefix = function setCommentPrefix(bindingData) {
  * @return {undefined}
  */
 var setDocRangeEndAfter = function setDocRangeEndAfter(node, bindingData) {
-    var isFoOfBinding = bindingData.type === config.bindingAttrs.forOf;
     if (!bindingData.commentPrefix) {
         setCommentPrefix(bindingData);
     }
@@ -811,9 +810,6 @@ var setDocRangeEndAfter = function setDocRangeEndAfter(node, bindingData) {
     // check last wrap comment node
     if (node) {
         if (node.nodeType === 8 && node.textContent === endTextContent) {
-            if (isFoOfBinding) {
-                return bindingData.docRange.setEndAfter(node);
-            }
             return bindingData.docRange.setEndBefore(node);
         }
         setDocRangeEndAfter(node, bindingData);
@@ -1709,8 +1705,6 @@ var renderForOfBinding = function renderForOfBinding(_ref) {
     var iterationData = (0, _util.getViewModelValue)(viewModel, bindingData.iterator.dataKey);
     var isRegenerate = false;
 
-    bindingData.type = _config.bindingAttrs.forOf;
-
     // check iterationData and set iterationDataLength
     if ((0, _util.isArray)(iterationData)) {
         iterationDataLength = iterationData.length;
@@ -1720,6 +1714,11 @@ var renderForOfBinding = function renderForOfBinding(_ref) {
     } else {
         // throw error but let script contince to run
         return (0, _util.throwErrorMessage)(null, 'iterationData is not an plain object or array');
+    }
+
+    if (!bindingData.type) {
+        bindingData.type = _config.bindingAttrs.forOf;
+        (0, _commentWrapper.wrapCommentAround)(bindingData, bindingData.el);
     }
 
     // assign forOf internal id to bindingData once
@@ -1759,11 +1758,7 @@ var renderForOfBinding = function renderForOfBinding(_ref) {
     // generate forOfBinding elements into fragment
     var fragment = generateForOfElements(bindingData, viewModel, bindingAttrs, iterationData, keys);
 
-    // wrap around with comment
-    fragment = (0, _commentWrapper.wrapCommentAround)(bindingData, fragment);
-
-    // remove original dom template
-    (0, _commentWrapper.removeDomTemplateElement)(bindingData);
+    (0, _commentWrapper.removeElemnetsByCommentWrap)(bindingData);
 
     // insert fragment content into DOM
     return (0, _commentWrapper.insertRenderedElements)(bindingData, fragment);

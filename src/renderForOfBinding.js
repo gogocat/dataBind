@@ -3,7 +3,7 @@ import {bindingAttrs as configBindingAttrs, bindingDataReference} from './config
 import {getViewModelValue, isArray, isPlainObject, throwErrorMessage, cloneDomNode} from './util';
 import createBindingCache from './domWalker';
 import {renderIteration} from './binder';
-import {wrapCommentAround, removeDomTemplateElement, insertRenderedElements} from './commentWrapper';
+import {wrapCommentAround, removeElemnetsByCommentWrap, insertRenderedElements} from './commentWrapper';
 
 const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     if (!bindingData || !viewModel || !bindingAttrs) {
@@ -14,8 +14,6 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     let iterationData = getViewModelValue(viewModel, bindingData.iterator.dataKey);
     let isRegenerate = false;
 
-    bindingData.type = configBindingAttrs.forOf;
-
     // check iterationData and set iterationDataLength
     if (isArray(iterationData)) {
         iterationDataLength = iterationData.length;
@@ -25,6 +23,11 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     } else {
         // throw error but let script contince to run
         return throwErrorMessage(null, 'iterationData is not an plain object or array');
+    }
+
+    if (!bindingData.type) {
+        bindingData.type = configBindingAttrs.forOf;
+        wrapCommentAround(bindingData, bindingData.el);
     }
 
     // assign forOf internal id to bindingData once
@@ -64,11 +67,7 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     // generate forOfBinding elements into fragment
     let fragment = generateForOfElements(bindingData, viewModel, bindingAttrs, iterationData, keys);
 
-    // wrap around with comment
-    fragment = wrapCommentAround(bindingData, fragment);
-
-    // remove original dom template
-    removeDomTemplateElement(bindingData);
+    removeElemnetsByCommentWrap(bindingData);
 
     // insert fragment content into DOM
     return insertRenderedElements(bindingData, fragment);
