@@ -1,6 +1,6 @@
 /* eslint-disable no-invalid-this */
 import {bindingAttrs as configBindingAttrs, bindingDataReference} from './config';
-import {getViewModelValue, isArray, isPlainObject, throwErrorMessage, cloneDomNode} from './util';
+import {getViewModelValue, isArray, isPlainObject, throwErrorMessage, cloneDomNode, isEmptyObject} from './util';
 import createBindingCache from './domWalker';
 import {renderIteration} from './binder';
 import {wrapCommentAround, removeElemnetsByCommentWrap, insertRenderedElements} from './commentWrapper';
@@ -46,19 +46,21 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
 
     if (!isRegenerate) {
         bindingData.iterationBindingCache.forEach(function(elementCache, i) {
-            let iterationVm = createIterationViewModel({
-                bindingData: bindingData,
-                viewModel: viewModel,
-                iterationData: iterationData,
-                keys: keys,
-                index: i,
-            });
-            renderIteration({
-                elementCache: elementCache,
-                iterationVm: iterationVm,
-                bindingAttrs: bindingAttrs,
-                isRegenerate: false,
-            });
+            if (!isEmptyObject(elementCache)) {
+                let iterationVm = createIterationViewModel({
+                    bindingData: bindingData,
+                    viewModel: viewModel,
+                    iterationData: iterationData,
+                    keys: keys,
+                    index: i,
+                });
+                renderIteration({
+                    elementCache: elementCache,
+                    iterationVm: iterationVm,
+                    bindingAttrs: bindingAttrs,
+                    isRegenerate: false,
+                });
+            }
         });
 
         return;
@@ -101,14 +103,7 @@ const generateForOfElements = (bindingData, viewModel, bindingAttrs, iterationDa
     // generate forOf and append to DOM
     for (i = 0; i < iterationDataLength; i += 1) {
         clonedItem = cloneDomNode(bindingData.el);
-        // create an iterationVm match iterator alias
-        iterationVm = createIterationViewModel({
-            bindingData: bindingData,
-            viewModel: viewModel,
-            iterationData: iterationData,
-            keys: keys,
-            index: i,
-        });
+
         // create bindingCache per iteration
         iterationBindingCache = createBindingCache({
             rootNode: clonedItem,
@@ -117,12 +112,23 @@ const generateForOfElements = (bindingData, viewModel, bindingAttrs, iterationDa
 
         bindingData.iterationBindingCache.push(iterationBindingCache);
 
-        renderIteration({
-            elementCache: bindingData.iterationBindingCache[i],
-            iterationVm: iterationVm,
-            bindingAttrs: bindingAttrs,
-            isRegenerate: true,
-        });
+        if (!isEmptyObject(iterationBindingCache)) {
+            // create an iterationVm match iterator alias
+            iterationVm = createIterationViewModel({
+                bindingData: bindingData,
+                viewModel: viewModel,
+                iterationData: iterationData,
+                keys: keys,
+                index: i,
+            });
+
+            renderIteration({
+                elementCache: bindingData.iterationBindingCache[i],
+                iterationVm: iterationVm,
+                bindingAttrs: bindingAttrs,
+                isRegenerate: true,
+            });
+        }
 
         fragment.appendChild(clonedItem);
     }

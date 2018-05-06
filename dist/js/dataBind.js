@@ -1737,19 +1737,21 @@ var renderForOfBinding = function renderForOfBinding(_ref) {
 
     if (!isRegenerate) {
         bindingData.iterationBindingCache.forEach(function (elementCache, i) {
-            var iterationVm = createIterationViewModel({
-                bindingData: bindingData,
-                viewModel: viewModel,
-                iterationData: iterationData,
-                keys: keys,
-                index: i
-            });
-            (0, _binder.renderIteration)({
-                elementCache: elementCache,
-                iterationVm: iterationVm,
-                bindingAttrs: bindingAttrs,
-                isRegenerate: false
-            });
+            if (!(0, _util.isEmptyObject)(elementCache)) {
+                var iterationVm = createIterationViewModel({
+                    bindingData: bindingData,
+                    viewModel: viewModel,
+                    iterationData: iterationData,
+                    keys: keys,
+                    index: i
+                });
+                (0, _binder.renderIteration)({
+                    elementCache: elementCache,
+                    iterationVm: iterationVm,
+                    bindingAttrs: bindingAttrs,
+                    isRegenerate: false
+                });
+            }
         });
 
         return;
@@ -1799,14 +1801,7 @@ var generateForOfElements = function generateForOfElements(bindingData, viewMode
     // generate forOf and append to DOM
     for (i = 0; i < iterationDataLength; i += 1) {
         clonedItem = (0, _util.cloneDomNode)(bindingData.el);
-        // create an iterationVm match iterator alias
-        iterationVm = createIterationViewModel({
-            bindingData: bindingData,
-            viewModel: viewModel,
-            iterationData: iterationData,
-            keys: keys,
-            index: i
-        });
+
         // create bindingCache per iteration
         iterationBindingCache = (0, _domWalker2['default'])({
             rootNode: clonedItem,
@@ -1815,12 +1810,23 @@ var generateForOfElements = function generateForOfElements(bindingData, viewMode
 
         bindingData.iterationBindingCache.push(iterationBindingCache);
 
-        (0, _binder.renderIteration)({
-            elementCache: bindingData.iterationBindingCache[i],
-            iterationVm: iterationVm,
-            bindingAttrs: bindingAttrs,
-            isRegenerate: true
-        });
+        if (!(0, _util.isEmptyObject)(iterationBindingCache)) {
+            // create an iterationVm match iterator alias
+            iterationVm = createIterationViewModel({
+                bindingData: bindingData,
+                viewModel: viewModel,
+                iterationData: iterationData,
+                keys: keys,
+                index: i
+            });
+
+            (0, _binder.renderIteration)({
+                elementCache: bindingData.iterationBindingCache[i],
+                iterationVm: iterationVm,
+                bindingAttrs: bindingAttrs,
+                isRegenerate: true
+            });
+        }
 
         fragment.appendChild(clonedItem);
     }
