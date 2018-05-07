@@ -1154,12 +1154,59 @@ var getAttributesObject = function getAttributesObject(node) {
     return ret;
 };
 
-var createBindingCache = function createBindingCache(_ref) {
-    var _ref$rootNode = _ref.rootNode,
-        rootNode = _ref$rootNode === undefined ? null : _ref$rootNode,
-        _ref$bindingAttrs = _ref.bindingAttrs,
-        bindingAttrs = _ref$bindingAttrs === undefined ? {} : _ref$bindingAttrs,
-        skipCheck = _ref.skipCheck;
+var checkSkipChildParseBindings = function checkSkipChildParseBindings() {
+    var attrObj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var bindingAttrs = arguments[1];
+
+    return [bindingAttrs.forOf, bindingAttrs['if']].filter(function (type) {
+        return typeof attrObj[type] !== 'undefined';
+    });
+};
+
+var rootSkipCheck = function rootSkipCheck(node) {
+    return node.tagName === 'SVG';
+};
+
+var defaultSkipCheck = function defaultSkipCheck(node, bindingAttrs) {
+    return node.tagName === 'SVG' || node.hasAttribute(bindingAttrs.comp);
+};
+
+var populateBindingCache = function populateBindingCache(_ref) {
+    var node = _ref.node,
+        attrObj = _ref.attrObj,
+        bindingCache = _ref.bindingCache,
+        type = _ref.type;
+
+    var attrValue = void 0;
+    var cacheData = void 0;
+
+    if (bindingAttrsMap && bindingAttrsMap[type] && attrObj[type]) {
+        bindingCache[type] = bindingCache[type] || [];
+        attrValue = attrObj[type].trim();
+        cacheData = {
+            el: node,
+            dataKey: attrValue
+        };
+
+        // for store function call parameters eg. '$index', '$root'
+        // useful with DOM for-loop template as reference to binding data
+        var paramList = (0, _util.getFunctionParameterList)(attrValue);
+        if (paramList) {
+            cacheData.parameters = paramList;
+            cacheData.dataKey = cacheData.dataKey.replace(_util.REGEX.FUNCTIONPARAM, '').trim();
+        }
+
+        bindingCache[type].push(cacheData);
+    }
+    return bindingCache;
+};
+
+var createBindingCache = function createBindingCache(_ref2) {
+    var _ref2$rootNode = _ref2.rootNode,
+        rootNode = _ref2$rootNode === undefined ? null : _ref2$rootNode,
+        _ref2$bindingAttrs = _ref2.bindingAttrs,
+        bindingAttrs = _ref2$bindingAttrs === undefined ? {} : _ref2$bindingAttrs,
+        skipCheck = _ref2.skipCheck;
 
     var bindingCache = {};
 
@@ -1169,71 +1216,44 @@ var createBindingCache = function createBindingCache(_ref) {
 
     bindingAttrsMap = bindingAttrsMap || (0, _util.invertObj)(bindingAttrs);
 
-    var rootSkipCheck = function rootSkipCheck(node) {
-        return node.tagName === 'SVG';
-    };
-
-    var defaultSkipCheck = function defaultSkipCheck(node) {
-        return node.tagName === 'SVG' || node.hasAttribute(bindingAttrs.comp);
-    };
-
-    var populateBindingCache = function populateBindingCache(node, attrObj, key) {
-        var attrValue = void 0;
-        var cacheData = void 0;
-
-        if (bindingAttrsMap[key] && attrObj[key]) {
-            bindingCache[key] = bindingCache[key] || [];
-            attrValue = attrObj[key].trim();
-            cacheData = {
-                el: node,
-                dataKey: attrValue
-            };
-
-            // for store function call parameters eg. '$index', '$root'
-            // useful with DOM for-loop template as reference to binding data
-            var paramList = (0, _util.getFunctionParameterList)(attrValue);
-            if (paramList) {
-                cacheData.parameters = paramList;
-                cacheData.dataKey = cacheData.dataKey.replace(_util.REGEX.FUNCTIONPARAM, '').trim();
-            }
-
-            bindingCache[key].push(cacheData);
-        }
-    };
-
     var parseNode = function parseNode(node) {
-        var skipCheckFn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultSkipCheck;
+        var skipNodeCheckFn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultSkipCheck;
 
         var attrObj = void 0;
         var isSkipForOfChild = false;
 
-        if (node.nodeType === 1 && node.hasAttributes()) {
-            if (skipCheckFn(node)) {
-                return false;
-            }
-
-            if (typeof skipCheck === 'function' && skipCheck(node)) {
-                return false;
-            }
-
-            // when creating sub bindingCache if is for tmp binding
-            // skip same element that has forOf binding the  forOf is alredy parsed
-            attrObj = getAttributesObject(node);
-
-            if (attrObj[bindingAttrs.forOf]) {
-                isSkipForOfChild = true;
-                populateBindingCache(node, attrObj, bindingAttrs.forOf);
-            } else {
-                Object.keys(attrObj).forEach(function (key) {
-                    populateBindingCache(node, attrObj, key);
-                });
-            }
-
-            // after cache forOf skip parse child nodes
-            if (isSkipForOfChild) {
-                return false;
-            }
+        if (node.nodeType !== 1 || !node.hasAttributes()) {
+            return true;
         }
+        if (skipNodeCheckFn(node, bindingAttrs) || typeof skipCheck === 'function' && skipCheck(node)) {
+            return false;
+        }
+
+        // when creating sub bindingCache if is for tmp binding
+        // skip same element that has forOf binding the  forOf is alredy parsed
+        attrObj = getAttributesObject(node);
+        var hasSkipChildParseBindings = checkSkipChildParseBindings(attrObj, bindingAttrs);
+        var iterateList = Object.keys(attrObj);
+
+        if (hasSkipChildParseBindings.length) {
+            isSkipForOfChild = true;
+            iterateList = hasSkipChildParseBindings;
+        }
+
+        iterateList.forEach(function (key) {
+            bindingCache = populateBindingCache({
+                node: node,
+                attrObj: attrObj,
+                bindingCache: bindingCache,
+                type: key
+            });
+        });
+
+        // after cache forOf skip parse child nodes
+        if (isSkipForOfChild) {
+            return false;
+        }
+
         return true;
     };
 
