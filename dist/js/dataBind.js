@@ -203,6 +203,8 @@ var Binder = function () {
         // inject instance into viewModel
         this.viewModel.APP = this;
 
+        this.viewModel.$root = this.viewModel;
+
         this.parseView();
 
         return this;
@@ -585,12 +587,7 @@ var renderIteration = function renderIteration(_ref3) {
         bindingAttrs = _ref3.bindingAttrs,
         isRegenerate = _ref3.isRegenerate;
 
-    var bindingUpdateOption = void 0;
-    if (isRegenerate) {
-        bindingUpdateOption = createBindingOption(config.bindingUpdateConditions.init);
-    } else {
-        bindingUpdateOption = createBindingOption();
-    }
+    var bindingUpdateOption = isRegenerate ? createBindingOption(config.bindingUpdateConditions.init) : createBindingOption();
 
     // render and apply binding to template(s)
     // this is an share function therefore passing current APP 'this' context

@@ -21,8 +21,18 @@
             <h5 data-jq-text="heading"></h5>
             <p data-jq-text="description"></p>
         </div>
+        <div class="container" data-jq-if="!renderIntro" data-jq-tmp="{id: 'displayItem', data: 'content'}"></div>
         <span>after</span>
     </section>
+
+    <template id="displayItem">
+        <h3>{{data.title}}</h3>
+        <p>{{data.story}}</p>
+        <select class="form-control">
+            <option>---- Please select ----</option>
+            <option data-jq-for="story of $root.stories[0].options" data-jq-text="story.text" data-jq-attr="$root.setStoryOptionAttr($data)"></option>
+        </select>
+    </template>
 
     <script src="../vendors/lodash.custom.min.js"></script>
     <script src="../vendors/jquery-3.2.1.min.js"></script>

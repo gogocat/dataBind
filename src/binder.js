@@ -48,6 +48,8 @@ class Binder {
         // inject instance into viewModel
         this.viewModel.APP = this;
 
+        this.viewModel.$root = this.viewModel;
+
         this.parseView();
 
         return this;
@@ -386,12 +388,9 @@ const createBindingOption = (condition = '', opt = {}) => {
  * This function is desidned for FoOf, If, switch bindings
  */
 const renderIteration = ({elementCache, iterationVm, bindingAttrs, isRegenerate}) => {
-    let bindingUpdateOption;
-    if (isRegenerate) {
-        bindingUpdateOption = createBindingOption(config.bindingUpdateConditions.init);
-    } else {
-        bindingUpdateOption = createBindingOption();
-    }
+    let bindingUpdateOption = isRegenerate
+        ? createBindingOption(config.bindingUpdateConditions.init)
+        : createBindingOption();
 
     // render and apply binding to template(s)
     // this is an share function therefore passing current APP 'this' context
