@@ -44,10 +44,13 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
 
     shouldRender = Boolean(shouldRender);
 
+    // TODO: even nothing change child element data may changed, so need to render again
     // reject if nothing changed
+    /*
     if (oldRenderStatus === shouldRender) {
         return;
     }
+    */
 
     // store new show status
     cache.elementData.renderStatus = shouldRender;
@@ -57,6 +60,7 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
         shouldRender = !shouldRender;
     }
 
+    // only create fragment once
     if (!cache.fragment) {
         createClonedElementCache(cache, bindingAttrs);
         wrapCommentAround(cache, cache.el);

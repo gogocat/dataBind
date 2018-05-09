@@ -21,7 +21,7 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     if (!bindingData.fragment) {
         return;
     }
-    // check dom has been removed
+    // check dom next to start comment has been removed
     const isDomRemoved = bindingData.nextNonTemplateElement.nextElementSibling === null;
     const rootElement = isDomRemoved ? bindingData.fragment.firstChild.cloneNode(true) : bindingData.el;
 
