@@ -1,0 +1,18 @@
+<section data-jq-comp="myComponent">
+    <div id="beforeBlock">before</div>
+    <div class="container" data-jq-if="renderIntro">
+        <h1 data-jq-text="heading"></h1>
+        <p data-jq-text="description"></p>
+    </div>
+    <div class="container" data-jq-if="!renderIntro" data-jq-tmp="{id: 'displayItem', data: 'content'}"></div>
+    <span id="beforeBlock">after</span>
+</section>
+
+<template id="displayItem">
+    <h3>{{data.title}}</h3>
+    <p>{{data.story}}</p>
+    <select class="form-control">
+        <option>---- Please select ----</option>
+        <option data-jq-for="story of $root.stories[0].options" data-jq-text="story.text" data-jq-attr="$root.setStoryOptionAttr($data)"></option>
+    </select>
+</template>

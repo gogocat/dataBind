@@ -1439,11 +1439,7 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
 
     if (!shouldRender) {
         // remove element
-        (0, _renderIfBinding.removeIfBinding)({
-            bindingData: cache,
-            viewModel: viewModel,
-            bindingAttrs: bindingAttrs
-        });
+        (0, _renderIfBinding.removeIfBinding)(cache);
     } else {
         // render element
         (0, _renderIfBinding.renderIfBinding)({
@@ -1908,15 +1904,13 @@ var renderIfBinding = function renderIfBinding(_ref) {
             isRegenerate: true
         });
     }
+    // remove orginal DOM
+    removeIfBinding(bindingData);
     // insert to DOM
     (0, _commentWrapper.insertRenderedElements)(bindingData, clonedElement);
 };
 
-var removeIfBinding = function removeIfBinding(_ref2) {
-    var bindingData = _ref2.bindingData,
-        viewModel = _ref2.viewModel,
-        bindingAttrs = _ref2.bindingAttrs;
-
+var removeIfBinding = function removeIfBinding(bindingData) {
     (0, _commentWrapper.removeElemnetsByCommentWrap)(bindingData);
 };
 

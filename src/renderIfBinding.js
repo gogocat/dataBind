@@ -40,11 +40,13 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
             isRegenerate: true,
         });
     }
+    // remove orginal DOM
+    removeIfBinding(bindingData);
     // insert to DOM
     insertRenderedElements(bindingData, clonedElement);
 };
 
-const removeIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
+const removeIfBinding = (bindingData) => {
     removeElemnetsByCommentWrap(bindingData);
 };
 

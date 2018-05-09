@@ -64,11 +64,7 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
 
     if (!shouldRender) {
         // remove element
-        removeIfBinding({
-            bindingData: cache,
-            viewModel: viewModel,
-            bindingAttrs: bindingAttrs,
-        });
+        removeIfBinding(cache);
     } else {
         // render element
         renderIfBinding({

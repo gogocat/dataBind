@@ -13,25 +13,38 @@
 </head>
 
 <body>
-    <section data-jq-comp="myComponent">
-        <button data-jq-click="renderItem">render</button>
-        <button data-jq-click="removeItem">remove</button>
-        <div>before</div>
-        <div class="container" data-jq-if="renderIntro">
-            <h5 data-jq-text="heading"></h5>
-            <p data-jq-text="description"></p>
-        </div>
-        <div class="container" data-jq-if="!renderIntro" data-jq-tmp="{id: 'displayItem', data: 'content'}"></div>
-        <span>after</span>
-    </section>
+    <div class="container">
+        <section data-jq-comp="myComponent">
+            <hr id="beforeBlock">
+            <div class="" data-jq-if="renderIntro">
+                <h5 data-jq-text="heading"></h5>
+                <p data-jq-text="description"></p>
+            </div>
+            <div class="" data-jq-if="!renderIntro" data-jq-tmp="{id: 'storySelectionSection', data: 'content'}"></div>
+            <hr id="afterBlock">
+            <button class="btn btn-outline-primary" data-jq-click="renderItem">Render intro</button>
+            <button class="btn btn-primary" data-jq-click="removeItem">remove intro</button>
+        </section>
+    </div>
 
-    <template id="displayItem">
-        <h3>{{data.title}}</h3>
-        <p>{{data.story}}</p>
-        <select class="form-control">
-            <option>---- Please select ----</option>
-            <option data-jq-for="story of $root.stories[0].options" data-jq-text="story.text" data-jq-attr="$root.setStoryOptionAttr($data)"></option>
-        </select>
+    <template id="storySelectionSection">
+        <div class="text-center">
+            <h1 class="display-4">{{data.title}}</h1>
+            <p>{{data.intro}}</p>
+            <select class="form-control">
+                <option>---- Please select a story ----</option>
+                <option data-jq-for="story of $root.storyOptions" data-jq-text="story.title" data-jq-attr="$root.setStoryOptionAttr($data)"></option>
+            </select>
+        </div>
+        <section data-jq-if="$root.selectedStory">
+            <div data-jq-comp="compStoryDetail" data-jq-tmp="{id: 'compStoryDetailTemplate', data: '$root', append: true}">
+                <h3 data-jq-text="title"></h3>
+            </div>
+        </section>
+    </template>
+
+    <template id="compStoryDetailTemplate">
+        <p data-jq-text="storyDetail"></p>
     </template>
 
     <script src="../vendors/lodash.custom.min.js"></script>
