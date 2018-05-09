@@ -1885,13 +1885,13 @@ var renderIfBinding = function renderIfBinding(_ref) {
     if (!bindingData.fragment) {
         return;
     }
+    // check dom has been removed
+    var isDomRemoved = bindingData.nextNonTemplateElement.nextElementSibling === null;
+    var rootElement = isDomRemoved ? bindingData.fragment.firstChild.cloneNode(true) : bindingData.el;
 
-    var clonedElement = bindingData.fragment.firstChild.cloneNode(true);
-
-    // TODO: Make parser stop parse chidren
     // walk clonedElement to create iterationBindingCache
     bindingData.iterationBindingCache = (0, _domWalker2['default'])({
-        rootNode: clonedElement,
+        rootNode: rootElement,
         bindingAttrs: bindingAttrs
     });
 
@@ -1904,10 +1904,13 @@ var renderIfBinding = function renderIfBinding(_ref) {
             isRegenerate: true
         });
     }
-    // remove orginal DOM
-    removeIfBinding(bindingData);
-    // insert to DOM
-    (0, _commentWrapper.insertRenderedElements)(bindingData, clonedElement);
+
+    if (!isDomRemoved) {
+        // remove orginal DOM
+        removeIfBinding(bindingData);
+        // insert to DOM
+        (0, _commentWrapper.insertRenderedElements)(bindingData, rootElement);
+    }
 };
 
 var removeIfBinding = function removeIfBinding(bindingData) {

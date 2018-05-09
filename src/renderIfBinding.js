@@ -21,13 +21,13 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     if (!bindingData.fragment) {
         return;
     }
+    // check dom has been removed
+    const isDomRemoved = bindingData.nextNonTemplateElement.nextElementSibling === null;
+    const rootElement = isDomRemoved ? bindingData.fragment.firstChild.cloneNode(true) : bindingData.el;
 
-    let clonedElement = bindingData.fragment.firstChild.cloneNode(true);
-
-    // TODO: Make parser stop parse chidren
     // walk clonedElement to create iterationBindingCache
     bindingData.iterationBindingCache = createBindingCache({
-        rootNode: clonedElement,
+        rootNode: rootElement,
         bindingAttrs: bindingAttrs,
     });
 
@@ -40,10 +40,13 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
             isRegenerate: true,
         });
     }
-    // remove orginal DOM
-    removeIfBinding(bindingData);
-    // insert to DOM
-    insertRenderedElements(bindingData, clonedElement);
+
+    if (!isDomRemoved) {
+        // remove orginal DOM
+        removeIfBinding(bindingData);
+        // insert to DOM
+        insertRenderedElements(bindingData, rootElement);
+    }
 };
 
 const removeIfBinding = (bindingData) => {
