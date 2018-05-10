@@ -44,6 +44,10 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
 
     shouldRender = Boolean(shouldRender);
 
+    if (oldRenderStatus === shouldRender && !cache.hasIterationBindingCache) {
+        return;
+    }
+
     // store new show status
     cache.elementData.renderStatus = shouldRender;
 

@@ -1419,6 +1419,10 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
 
     shouldRender = Boolean(shouldRender);
 
+    if (oldRenderStatus === shouldRender && !cache.hasIterationBindingCache) {
+        return;
+    }
+
     // store new show status
     cache.elementData.renderStatus = shouldRender;
 
@@ -1893,6 +1897,7 @@ var renderIfBinding = function renderIfBinding(_ref) {
 
     // only render if has iterationBindingCache
     if (!(0, _util.isEmptyObject)(bindingData.iterationBindingCache)) {
+        bindingData.hasIterationBindingCache = true;
         (0, _binder.renderIteration)({
             elementCache: bindingData.iterationBindingCache,
             iterationVm: viewModel,

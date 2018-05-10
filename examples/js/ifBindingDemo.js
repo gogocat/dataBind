@@ -1,4 +1,4 @@
-(function($, window) {
+(($, window) => {
     let myComponent;
     let compStoryDetail;
 
@@ -79,7 +79,7 @@
     };
 
     // start binding on DOM ready
-    $(document).ready(function() {
+    $(document).ready(()=> {
         // main
         myComponent = dataBind.init($('[data-jq-comp="myComponent"]'), myComponentViewModel);
         myComponent.render().then(function() {

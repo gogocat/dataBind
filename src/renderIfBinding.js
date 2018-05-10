@@ -33,6 +33,7 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
 
     // only render if has iterationBindingCache
     if (!isEmptyObject(bindingData.iterationBindingCache)) {
+        bindingData.hasIterationBindingCache = true;
         renderIteration({
             elementCache: bindingData.iterationBindingCache,
             iterationVm: viewModel,
