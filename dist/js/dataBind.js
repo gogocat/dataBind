@@ -1419,11 +1419,6 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
 
     shouldRender = Boolean(shouldRender);
 
-    // reject if nothing changed
-    if (oldRenderStatus === shouldRender) {
-        return;
-    }
-
     // store new show status
     cache.elementData.renderStatus = shouldRender;
 
@@ -1432,6 +1427,7 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
         shouldRender = !shouldRender;
     }
 
+    // only create fragment once
     if (!cache.fragment) {
         (0, _renderIfBinding.createClonedElementCache)(cache, bindingAttrs);
         (0, _commentWrapper.wrapCommentAround)(cache, cache.el);
@@ -1885,7 +1881,7 @@ var renderIfBinding = function renderIfBinding(_ref) {
     if (!bindingData.fragment) {
         return;
     }
-    // check dom has been removed
+    // check dom next to start comment has been removed
     var isDomRemoved = bindingData.nextNonTemplateElement.nextElementSibling === null;
     var rootElement = isDomRemoved ? bindingData.fragment.firstChild.cloneNode(true) : bindingData.el;
 

@@ -1,6 +1,8 @@
 (function($, window) {
     let myComponent;
-    const viewModel = {
+    let compStoryDetail;
+
+    const myComponentViewModel = {
         renderIntro: false,
         heading: 'Test if binding',
         description: 'This is intro and it is looking good!',
@@ -8,7 +10,6 @@
             title: 'Testing if binding example',
             intro: 'A story is about to being...',
         },
-        selectedStory: 's1',
         storyOptions: [
             {title: 'Hansel and Gretel', value: 's1'},
             {title: 'The Ugly Duckling', value: 's2'},
@@ -22,6 +23,10 @@
                 };
             }
         },
+        onSelectedStory: function(e, $el, newValue, oldValue) {
+            e.preventDefault();
+            this.APP.publish('SELECTED_STORY', newValue);
+        },
         renderItem: function(e, $el) {
             e.preventDefault();
             this.renderIntro = true;
@@ -31,6 +36,24 @@
             e.preventDefault();
             this.renderIntro = false;
             this.updateView();
+        },
+        updateView(opt) {
+            this.APP.render(opt);
+        },
+    };
+
+    const compStoryDetailViewModel = {
+        selectedStory: '',
+        story: {
+            title: '',
+            description: '',
+        },
+        onStoryChange: function(id) {
+            if (storiesData[id] && id !== this.selectedStory) {
+                this.story = storiesData[id];
+                this.selectedStory = id;
+                this.updateView();
+            }
         },
         updateView(opt) {
             this.APP.render(opt);
@@ -57,12 +80,21 @@
 
     // start binding on DOM ready
     $(document).ready(function() {
-        // main formApp
-        myComponent = dataBind.init($('[data-jq-comp="myComponent"]'), viewModel);
+        // main
+        myComponent = dataBind.init($('[data-jq-comp="myComponent"]'), myComponentViewModel);
         myComponent.render().then(function() {
             // for debug
             console.log(myComponent);
             window.myComponent = myComponent;
+        });
+
+        // story detail componenet
+        compStoryDetail = dataBind.init($('[data-jq-comp="compStoryDetail"]'), compStoryDetailViewModel);
+        compStoryDetail.render().then(function() {
+            this.subscribe('SELECTED_STORY', this.viewModel.onStoryChange);
+            // for debug
+            console.log(compStoryDetail);
+            window.compStoryDetail = compStoryDetail;
         });
     });
 })(jQuery, window);

@@ -21,6 +21,8 @@
                 <p data-jq-text="description"></p>
             </div>
             <div class="" data-jq-if="!renderIntro" data-jq-tmp="{id: 'storySelectionSection', data: 'content'}"></div>
+            <section class="mt-3 card box-shadow" data-jq-comp="compStoryDetail" data-jq-if="selectedStory" data-jq-tmp="{id: 'compStoryDetailTemplate', data: '$root'}">
+            </section>
             <hr id="afterBlock">
             <button class="btn btn-outline-primary" data-jq-click="renderItem">Render intro</button>
             <button class="btn btn-primary" data-jq-click="removeItem">remove intro</button>
@@ -31,20 +33,20 @@
         <div class="text-center">
             <h1 class="display-4">{{data.title}}</h1>
             <p>{{data.intro}}</p>
-            <select class="form-control">
+            <select class="form-control" data-jq-change="onSelectedStory">
                 <option>---- Please select a story ----</option>
                 <option data-jq-for="story of $root.storyOptions" data-jq-text="story.title" data-jq-attr="$root.setStoryOptionAttr($data)"></option>
             </select>
         </div>
-        <section data-jq-if="$root.selectedStory">
-            <div data-jq-comp="compStoryDetail" data-jq-tmp="{id: 'compStoryDetailTemplate', data: '$root', append: true}">
-                <h3 data-jq-text="title"></h3>
-            </div>
-        </section>
     </template>
 
     <template id="compStoryDetailTemplate">
-        <p data-jq-text="storyDetail"></p>
+        <div class="card-header">
+            <h4 class="font-weight-normal" data-jq-text="story.title"></h4>
+        </div>
+        <div class="card-body">
+            <p data-jq-text="story.description"></p>
+        </div>
     </template>
 
     <script src="../vendors/lodash.custom.min.js"></script>
