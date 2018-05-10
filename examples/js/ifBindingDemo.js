@@ -17,7 +17,6 @@
         ],
         setStoryOptionAttr: function(oldAttrObj, $el, $data) {
             if ($data && $data.value) {
-                // todo: the index here is the outter loop index
                 return {
                     value: $data.value,
                 };
@@ -62,14 +61,18 @@
             if (storiesData[id] && id !== this.selectedStory) {
                 this.story = storiesData[id];
                 this.selectedStory = id;
-                this.updateView();
+            } else {
+                this.story = '';
+                this.selectedStory = '';
             }
+            this.updateView();
         },
         updateView(opt) {
             this.APP.render(opt);
         },
     };
 
+    // stories data
     const storiesData = {
         s1: {
             title: 'Hansel and Gretel',

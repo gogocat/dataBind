@@ -34,7 +34,7 @@
             <h1 class="display-4">{{data.title}}</h1>
             <p>{{data.intro}}</p>
             <select class="form-control" data-jq-change="onSelectedStory">
-                <option>---- Please select a story ----</option>
+                <option value="0">---- Please select a story ----</option>
                 <option data-jq-for="story of $root.storyOptions" data-jq-text="story.title" data-jq-attr="$root.setStoryOptionAttr($data)"></option>
             </select>
         </div>
