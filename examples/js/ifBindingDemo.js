@@ -44,9 +44,19 @@
 
     const compStoryDetailViewModel = {
         selectedStory: '',
-        story: {
-            title: '',
-            description: '',
+        story: {},
+        setStoryImgAttr: function() {
+            const picPath = this.story.pic || '';
+            const ret = {
+                alt: this.story.title,
+                width: 100,
+                height: 'auto',
+            };
+
+            if (picPath) {
+                ret.src = picPath;
+            }
+            return ret;
         },
         onStoryChange: function(id) {
             if (storiesData[id] && id !== this.selectedStory) {
@@ -63,6 +73,8 @@
     const storiesData = {
         s1: {
             title: 'Hansel and Gretel',
+            pic:
+                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLxVHKpB93yhxRUb8Wbc1NkUA4Nf8QBMPieKeeL1ugcZivy82INw',
             description:
                 '"Hansel and Gretel" (also known as Hansel and Grettel, Hansel and Grethel, or Little Brother and Little Sister) is a well-known fairy tale of German origin, recorded by the Brothers Grimm and published in 1812. Hansel and Gretel are a young brother and sister kidnapped by a cannibalistic witch living deep in the forest in a house constructed of cake and confectionery. The two children escape with their lives by outwitting her. The tale has been adapted to various media, most notably the opera Hänsel und Gretel (1893) by Engelbert Humperdinck. Under the Aarne–Thompson classification system, "Hansel and Gretel" is classified under Class 327.',
         },
@@ -73,13 +85,14 @@
         },
         s3: {
             title: 'The Giving Tree',
+            pic: 'https://images-na.ssl-images-amazon.com/images/I/51EDtk%2B1rNL._SX384_BO1,204,203,200_.jpg',
             description:
                 'Published by Harper and Row in 1964, The Giving Tree is a children\'s book written and demonstrated by an American author of children\'s books Shel Silverstein. It was one of Silverstein\'s best children books that has been translated into over 30 languages.',
         },
     };
 
     // start binding on DOM ready
-    $(document).ready(()=> {
+    $(document).ready(() => {
         // main
         myComponent = dataBind.init($('[data-jq-comp="myComponent"]'), myComponentViewModel);
         myComponent.render().then(function() {

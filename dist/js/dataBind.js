@@ -1405,11 +1405,6 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
     shouldRender = (0, _util.getViewModelValue)(viewModel, dataKey);
 
-    // do nothing if data in viewModel is undefined
-    if (typeof shouldRender === 'undefined' || shouldRender === null) {
-        return;
-    }
-
     if (typeof shouldRender === 'function') {
         viewModelContext = (0, _util.resolveViewModelContext)(viewModel, dataKey);
         paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];

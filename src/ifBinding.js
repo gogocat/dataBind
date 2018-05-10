@@ -30,11 +30,6 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
     shouldRender = getViewModelValue(viewModel, dataKey);
 
-    // do nothing if data in viewModel is undefined
-    if (typeof shouldRender === 'undefined' || shouldRender === null) {
-        return;
-    }
-
     if (typeof shouldRender === 'function') {
         viewModelContext = resolveViewModelContext(viewModel, dataKey);
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
