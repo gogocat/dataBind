@@ -1435,6 +1435,11 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     if (!shouldRender) {
         // remove element
         (0, _renderIfBinding.removeIfBinding)(cache);
+        // remove cache.IterationBindingCache
+        if (cache.hasIterationBindingCache) {
+            cache.iterationBindingCache = {};
+            cache.hasIterationBindingCache = false;
+        }
     } else {
         // render element
         (0, _renderIfBinding.renderIfBinding)({

@@ -60,6 +60,11 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     if (!shouldRender) {
         // remove element
         removeIfBinding(cache);
+        // remove cache.IterationBindingCache
+        if (cache.hasIterationBindingCache) {
+            cache.iterationBindingCache = {};
+            cache.hasIterationBindingCache = false;
+        }
     } else {
         // render element
         renderIfBinding({
