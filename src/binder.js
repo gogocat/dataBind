@@ -1,6 +1,19 @@
 import * as config from './config';
-import * as util from './util';
-import * as binds from './bindings';
+import {debounceRaf, extend} from './util';
+import renderTemplate from './renderTemplate';
+import clickBinding from './clickBinding';
+import dblclickBinding from './dbclickBinding';
+import blurBinding from './blurBinding';
+import focusBinding from './focusBinding';
+import changeBinding from './changeBinding';
+import modelBinding from './modelBinding';
+import submitBinding from './submitBinding';
+import textBinding from './textBinding';
+import showBinding from './showBinding';
+import cssBinding from './cssBinding';
+import attrBinding from './attrBinding';
+import forOfBinding from './forOfBinding';
+import ifBinding from './ifBinding';
 import createBindingCache from './domWalker';
 import * as pubSub from './pubSub';
 
@@ -28,12 +41,14 @@ class Binder {
 
         this.bindingAttrs = bindingAttrs;
 
-        this.render = util.debounceRaf(this.render, this);
+        this.render = debounceRaf(this.render, this);
 
         this.isServerRendered = typeof this.$rootElement.attr(config.serverRenderedAttr) !== 'undefined';
 
         // inject instance into viewModel
         this.viewModel.APP = this;
+
+        this.viewModel.$root = this.viewModel;
 
         this.parseView();
 
@@ -109,10 +124,7 @@ class Binder {
             // only update eventsBinding if server rendered
             if (this.isServerRendered) {
                 this.$rootElement.removeAttr(config.serverRenderedAttr);
-                updateOption = createBindingOption(
-                    config.bindingUpdateConditions.serverRendered,
-                    opt
-                );
+                updateOption = createBindingOption(config.bindingUpdateConditions.serverRendered, opt);
             } else {
                 updateOption = createBindingOption(config.bindingUpdateConditions.init, opt);
             }
@@ -150,67 +162,48 @@ class Binder {
         // the follow binding should be in order for better efficiency
 
         // apply forOf Binding
-        if (
-            updateOption.forOfBinding &&
-            elementCache[bindingAttrs.forOf] &&
-            elementCache[bindingAttrs.forOf].length
-        ) {
+        if (updateOption.forOfBinding && elementCache[bindingAttrs.forOf] && elementCache[bindingAttrs.forOf].length) {
             elementCache[bindingAttrs.forOf].forEach((cache) => {
-                binds.forOfBinding(cache, viewModel, bindingAttrs);
+                forOfBinding(cache, viewModel, bindingAttrs);
             });
         }
 
         // apply attr Binding
-        if (
-            updateOption.attrBinding &&
-            elementCache[bindingAttrs.attr] &&
-            elementCache[bindingAttrs.attr].length
-        ) {
+        if (updateOption.attrBinding && elementCache[bindingAttrs.attr] && elementCache[bindingAttrs.attr].length) {
             elementCache[bindingAttrs.attr].forEach((cache) => {
-                binds.attrBinding(cache, viewModel, bindingAttrs);
+                attrBinding(cache, viewModel, bindingAttrs);
             });
         }
-
+        // apply if Binding
+        if (updateOption.ifBinding && elementCache[bindingAttrs.if] && elementCache[bindingAttrs.if].length) {
+            elementCache[bindingAttrs.if].forEach((cache) => {
+                ifBinding(cache, viewModel, bindingAttrs);
+            });
+        }
         // apply show Binding
-        if (
-            updateOption.showBinding &&
-            elementCache[bindingAttrs.show] &&
-            elementCache[bindingAttrs.show].length
-        ) {
+        if (updateOption.showBinding && elementCache[bindingAttrs.show] && elementCache[bindingAttrs.show].length) {
             elementCache[bindingAttrs.show].forEach((cache) => {
-                binds.showBinding(cache, viewModel, bindingAttrs);
+                showBinding(cache, viewModel, bindingAttrs);
             });
         }
         // apply text binding
-        if (
-            updateOption.textBinding &&
-            elementCache[bindingAttrs.text] &&
-            elementCache[bindingAttrs.text].length
-        ) {
+        if (updateOption.textBinding && elementCache[bindingAttrs.text] && elementCache[bindingAttrs.text].length) {
             elementCache[bindingAttrs.text].forEach((cache) => {
-                binds.textBinding(cache, viewModel, bindingAttrs);
+                textBinding(cache, viewModel, bindingAttrs);
             });
         }
 
         // apply cssBinding
-        if (
-            updateOption.cssBinding &&
-            elementCache[bindingAttrs.css] &&
-            elementCache[bindingAttrs.css].length
-        ) {
+        if (updateOption.cssBinding && elementCache[bindingAttrs.css] && elementCache[bindingAttrs.css].length) {
             elementCache[bindingAttrs.css].forEach((cache) => {
-                binds.cssBinding(cache, viewModel, bindingAttrs);
+                cssBinding(cache, viewModel, bindingAttrs);
             });
         }
 
         // apply model binding
-        if (
-            updateOption.modelBinding &&
-            elementCache[bindingAttrs.model] &&
-            elementCache[bindingAttrs.model].length
-        ) {
+        if (updateOption.modelBinding && elementCache[bindingAttrs.model] && elementCache[bindingAttrs.model].length) {
             elementCache[bindingAttrs.model].forEach((cache) => {
-                binds.modelBinding(cache, viewModel, bindingAttrs);
+                modelBinding(cache, viewModel, bindingAttrs);
             });
         }
 
@@ -221,7 +214,7 @@ class Binder {
             elementCache[bindingAttrs.change].length
         ) {
             elementCache[bindingAttrs.change].forEach((cache) => {
-                binds.changeBinding(cache, viewModel, bindingAttrs);
+                changeBinding(cache, viewModel, bindingAttrs);
             });
         }
 
@@ -232,18 +225,14 @@ class Binder {
             elementCache[bindingAttrs.submit].length
         ) {
             elementCache[bindingAttrs.submit].forEach((cache) => {
-                binds.submitBinding(cache, viewModel, bindingAttrs);
+                submitBinding(cache, viewModel, bindingAttrs);
             });
         }
 
         // apply click binding
-        if (
-            updateOption.clickBinding &&
-            elementCache[bindingAttrs.click] &&
-            elementCache[bindingAttrs.click].length
-        ) {
+        if (updateOption.clickBinding && elementCache[bindingAttrs.click] && elementCache[bindingAttrs.click].length) {
             elementCache[bindingAttrs.click].forEach((cache) => {
-                binds.clickBinding(cache, viewModel, bindingAttrs);
+                clickBinding(cache, viewModel, bindingAttrs);
             });
         }
 
@@ -254,29 +243,21 @@ class Binder {
             elementCache[bindingAttrs.dblclick].length
         ) {
             elementCache[bindingAttrs.dblclick].forEach((cache) => {
-                binds.dblclickBinding(cache, viewModel, bindingAttrs);
+                dblclickBinding(cache, viewModel, bindingAttrs);
             });
         }
 
         // apply blur binding
-        if (
-            updateOption.blurBinding &&
-            elementCache[bindingAttrs.blur] &&
-            elementCache[bindingAttrs.blur].length
-        ) {
+        if (updateOption.blurBinding && elementCache[bindingAttrs.blur] && elementCache[bindingAttrs.blur].length) {
             elementCache[bindingAttrs.blur].forEach((cache) => {
-                binds.blurBinding(cache, viewModel, bindingAttrs);
+                blurBinding(cache, viewModel, bindingAttrs);
             });
         }
 
         // apply focus binding
-        if (
-            updateOption.focus &&
-            elementCache[bindingAttrs.focus] &&
-            elementCache[bindingAttrs.focus].length
-        ) {
+        if (updateOption.focus && elementCache[bindingAttrs.focus] && elementCache[bindingAttrs.focus].length) {
             elementCache[bindingAttrs.focus].forEach((cache) => {
-                binds.focusBinding(cache, viewModel, bindingAttrs);
+                focusBinding(cache, viewModel, bindingAttrs);
             });
         }
     }
@@ -320,7 +301,7 @@ const renderTemplatesBinding = ({ctx, elementCache, updateOption, bindingAttrs, 
             updateOption = createBindingOption(config.bindingUpdateConditions.init);
 
             elementCache[bindingAttrs.tmp].forEach(($element) => {
-                binds.renderTemplate($element, viewModel, bindingAttrs, elementCache);
+                renderTemplate($element, viewModel, bindingAttrs, elementCache);
             });
             // update cache after all template(s) rendered
             ctx.updateElementCache({
@@ -354,6 +335,7 @@ const createBindingOption = (condition = '', opt = {}) => {
         templateBinding: false,
         textBinding: true,
         cssBinding: true,
+        ifBinding: true,
         showBinding: true,
         modelBinding: true,
         attrBinding: true,
@@ -373,6 +355,7 @@ const createBindingOption = (condition = '', opt = {}) => {
         templateBinding: false,
         textBinding: false,
         cssBinding: false,
+        ifBinding: false,
         showBinding: false,
         modelBinding: false,
         attrBinding: false,
@@ -382,19 +365,50 @@ const createBindingOption = (condition = '', opt = {}) => {
 
     switch (condition) {
     case config.bindingUpdateConditions.serverRendered:
-        updateOption = util.extend({}, eventsBindingOptions, serverRenderedOptions, opt);
+        updateOption = extend({}, eventsBindingOptions, serverRenderedOptions, opt);
         break;
     case config.bindingUpdateConditions.init:
         // flag templateBinding to true to render tempalte(s)
         opt.templateBinding = true;
-        updateOption = util.extend({}, visualBindingOptions, eventsBindingOptions, opt);
+        updateOption = extend({}, visualBindingOptions, eventsBindingOptions, opt);
         break;
     default:
         // when called again only update visualBinding options
-        updateOption = util.extend({}, visualBindingOptions, opt);
+        updateOption = extend({}, visualBindingOptions, opt);
     }
 
     return updateOption;
 };
 
-export {Binder, createBindingOption, renderTemplatesBinding};
+/**
+ * renderIteration
+ * @param {object} opt
+ * @description
+ * render element's binding by supplied elementCache
+ * This function is desidned for FoOf, If, switch bindings
+ */
+const renderIteration = ({elementCache, iterationVm, bindingAttrs, isRegenerate}) => {
+    let bindingUpdateOption = isRegenerate
+        ? createBindingOption(config.bindingUpdateConditions.init)
+        : createBindingOption();
+
+    // render and apply binding to template(s)
+    // this is an share function therefore passing current APP 'this' context
+    // viewModel is a dynamic generated iterationVm
+    renderTemplatesBinding({
+        ctx: iterationVm.$root ? iterationVm.$root.APP : iterationVm.APP,
+        elementCache: elementCache,
+        updateOption: bindingUpdateOption,
+        bindingAttrs: bindingAttrs,
+        viewModel: iterationVm,
+    });
+
+    Binder.applyBinding({
+        elementCache: elementCache,
+        updateOption: bindingUpdateOption,
+        bindingAttrs: bindingAttrs,
+        viewModel: iterationVm,
+    });
+};
+
+export {Binder, createBindingOption, renderTemplatesBinding, renderIteration};

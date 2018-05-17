@@ -13,10 +13,16 @@ const bindingAttrs = {
     css: 'data-jq-css',
     attr: 'data-jq-attr',
     forOf: 'data-jq-for',
+    if: 'data-jq-if',
+    switch: 'data-jq-switch',
 };
 const serverRenderedAttr = 'data-server-rendered';
 const dataIndexAttr = 'data-index';
-const commentPrefix = 'data-forOf-';
+const commentPrefix = {
+    forOf: 'data-forOf_',
+    if: 'data-if_',
+};
+const commentSuffix = '_end';
 
 // global setting of underscore template inteprolate default token
 const templateSettings = {
@@ -45,6 +51,7 @@ export {
     templateSettings,
     serverRenderedAttr,
     commentPrefix,
+    commentSuffix,
     bindingUpdateConditions,
     bindingDataReference,
     maxDatakeyLength,

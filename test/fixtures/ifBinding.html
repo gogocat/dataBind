@@ -1,0 +1,15 @@
+<section data-jq-comp="myIfComponent">
+    <div id="beforeBlock">before</div>
+    <div id="intro" class="container" data-jq-if="renderIntro">
+        <h1 id="intro-heading" data-jq-text="heading"></h1>
+        <p id="intro-description" data-jq-text="description"></p>
+    </div>
+    <div id="story" class="container" data-jq-if="!renderIntro" data-jq-tmp="{id: 'storyIntro', data: 'story'}"></div>
+    <span id="afterBlock">after</span>
+</section>
+
+<template id="storyIntro">
+    <h1 id="storyIntroHeading" data-jq-text="story.title"></h1>
+    <p id="storyDescription" data-jq-text="story.description"></p>
+    <a id="storyLink" data-jq-attr="setStroylinkAttr" data-jq-click="onStoryClick">click here</a>
+</template>
