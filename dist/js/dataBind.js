@@ -393,18 +393,21 @@ var Binder = function () {
                     (0, _attrBinding2['default'])(cache, viewModel, bindingAttrs);
                 });
             }
+
             // apply if Binding
             if (updateOption.ifBinding && elementCache[bindingAttrs['if']] && elementCache[bindingAttrs['if']].length) {
                 elementCache[bindingAttrs['if']].forEach(function (cache) {
                     (0, _ifBinding2['default'])(cache, viewModel, bindingAttrs);
                 });
             }
+
             // apply show Binding
             if (updateOption.showBinding && elementCache[bindingAttrs.show] && elementCache[bindingAttrs.show].length) {
                 elementCache[bindingAttrs.show].forEach(function (cache) {
                     (0, _showBinding2['default'])(cache, viewModel, bindingAttrs);
                 });
             }
+
             // apply text binding
             if (updateOption.textBinding && elementCache[bindingAttrs.text] && elementCache[bindingAttrs.text].length) {
                 elementCache[bindingAttrs.text].forEach(function (cache) {

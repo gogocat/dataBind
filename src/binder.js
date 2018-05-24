@@ -174,18 +174,21 @@ class Binder {
                 attrBinding(cache, viewModel, bindingAttrs);
             });
         }
+
         // apply if Binding
         if (updateOption.ifBinding && elementCache[bindingAttrs.if] && elementCache[bindingAttrs.if].length) {
             elementCache[bindingAttrs.if].forEach((cache) => {
                 ifBinding(cache, viewModel, bindingAttrs);
             });
         }
+
         // apply show Binding
         if (updateOption.showBinding && elementCache[bindingAttrs.show] && elementCache[bindingAttrs.show].length) {
             elementCache[bindingAttrs.show].forEach((cache) => {
                 showBinding(cache, viewModel, bindingAttrs);
             });
         }
+
         // apply text binding
         if (updateOption.textBinding && elementCache[bindingAttrs.text] && elementCache[bindingAttrs.text].length) {
             elementCache[bindingAttrs.text].forEach((cache) => {
