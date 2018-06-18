@@ -659,7 +659,7 @@ const forOfBinding = (cache, viewModel, bindingAttrs) => {
 /**
  * if-Binding
  * @description
- * DOM decleartive for binding.
+ * DOM decleartive if binding.
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
@@ -731,6 +731,28 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
             bindingAttrs: bindingAttrs,
         });
     }
+};
+
+
+/**
+ * switch-Binding
+ * @description
+ * DOM decleartive switch binding.
+ * switch parent element wrap direct child with case bindings
+ * @param {object} cache
+ * @param {object} viewModel
+ * @param {object} bindingAttrs
+ */
+const switchBinding = (cache, viewModel, bindingAttrs) => {
+    let dataKey = cache.dataKey;
+    let paramList = cache.parameters;
+
+    if (!dataKey) {
+        return;
+    }
+
+    cache.elementData = cache.elementData || {};
+
 };
 
 export {
