@@ -252,7 +252,6 @@ var Binder = function () {
 
             var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-            var skipForOfParseFn = void 0;
             var elementCache = opt.elementCache || this.elementCache;
 
             if (opt.allCache) {
@@ -269,6 +268,7 @@ var Binder = function () {
                         // set skipCheck as skipForOfParseFn whenever an node has
                         // both template and forOf bindings
                         // then the template bindingCache should be an empty object
+                        var skipForOfParseFn = null;
                         if (cache.el.hasAttribute(_this.bindingAttrs.forOf)) {
                             skipForOfParseFn = function skipForOfParseFn(node) {
                                 return true;
