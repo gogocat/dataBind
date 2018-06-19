@@ -86,7 +86,6 @@ class Binder {
      * @description call createBindingCache to parse view and generate bindingCache
      */
     updateElementCache(opt = {}) {
-        let skipForOfParseFn;
         let elementCache = opt.elementCache || this.elementCache;
 
         if (opt.allCache) {
@@ -103,8 +102,9 @@ class Binder {
                     // set skipCheck as skipForOfParseFn whenever an node has
                     // both template and forOf bindings
                     // then the template bindingCache should be an empty object
+                    let skipForOfParseFn = null;
                     if (cache.el.hasAttribute(this.bindingAttrs.forOf)) {
-                        skipForOfParseFn = (node) => {
+                        skipForOfParseFn = () => {
                             return true;
                         };
                     }

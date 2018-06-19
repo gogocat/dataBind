@@ -15,6 +15,8 @@ const bindingAttrs = {
     forOf: 'data-jq-for',
     if: 'data-jq-if',
     switch: 'data-jq-switch',
+    case: 'data-jq-case',
+    default: 'data-jq-default',
 };
 const serverRenderedAttr = 'data-server-rendered';
 const dataIndexAttr = 'data-index';

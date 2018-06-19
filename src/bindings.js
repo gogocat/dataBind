@@ -733,7 +733,6 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     }
 };
 
-
 /**
  * switch-Binding
  * @description
@@ -745,7 +744,9 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
  */
 const switchBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
-    let paramList = cache.parameters;
+    // let paramList = cache.parameters;
+    // let childrenElements;
+    // let cases = [];
 
     if (!dataKey) {
         return;
@@ -753,6 +754,37 @@ const switchBinding = (cache, viewModel, bindingAttrs) => {
 
     cache.elementData = cache.elementData || {};
 
+    // TODO: the follow should be done in domWalker
+    /*
+    if (!cache.bindingCache) {
+        childrenElements = cache.el.children;
+        if (!childrenElements.length) {
+            return;
+        }
+        for (let i = 0, elementLength = childrenElements.length; i < elementLength; i += 1) {
+            if (childrenElements[i].hasAttribute(bindingAttrs.case)) {
+                cases.push({
+                    el: childrenElements[i],
+                    dataKey: childrenElements[i].getAttribute(bindingAttrs.case),
+                });
+            } else if (childrenElements[i].hasAttribute(bindingAttrs.default)) {
+                cases.push({
+                    el: childrenElements[i],
+                    dataKey: childrenElements[i].getAttribute(bindingAttrs.default),
+                    isDefault: true,
+                });
+            }
+        }
+
+
+        cache.bindingCache = createBindingCache({
+            rootNode: cache.el,
+            bindingAttrs: this.bindingAttrs,
+            skipCheck: skipForOfParseFn,
+        });
+
+    }
+    */
 };
 
 export {
@@ -770,4 +802,5 @@ export {
     attrBinding,
     forOfBinding,
     ifBinding,
+    switchBinding,
 };

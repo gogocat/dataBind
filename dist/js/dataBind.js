@@ -252,7 +252,6 @@ var Binder = function () {
 
             var opt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-            var skipForOfParseFn = void 0;
             var elementCache = opt.elementCache || this.elementCache;
 
             if (opt.allCache) {
@@ -269,8 +268,9 @@ var Binder = function () {
                         // set skipCheck as skipForOfParseFn whenever an node has
                         // both template and forOf bindings
                         // then the template bindingCache should be an empty object
+                        var skipForOfParseFn = null;
                         if (cache.el.hasAttribute(_this.bindingAttrs.forOf)) {
-                            skipForOfParseFn = function skipForOfParseFn(node) {
+                            skipForOfParseFn = function skipForOfParseFn() {
                                 return true;
                             };
                         }
@@ -931,7 +931,9 @@ var bindingAttrs = {
     attr: 'data-jq-attr',
     forOf: 'data-jq-for',
     'if': 'data-jq-if',
-    'switch': 'data-jq-switch'
+    'switch': 'data-jq-switch',
+    'case': 'data-jq-case',
+    'default': 'data-jq-default'
 };
 var serverRenderedAttr = 'data-server-rendered';
 var dataIndexAttr = 'data-index';
@@ -1158,7 +1160,7 @@ var checkSkipChildParseBindings = function checkSkipChildParseBindings() {
     var attrObj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     var bindingAttrs = arguments[1];
 
-    return [bindingAttrs.forOf, bindingAttrs['if']].filter(function (type) {
+    return [bindingAttrs.forOf, bindingAttrs['if'], bindingAttrs['case'], bindingAttrs['default']].filter(function (type) {
         return typeof attrObj[type] !== 'undefined';
     });
 };
@@ -1180,7 +1182,7 @@ var populateBindingCache = function populateBindingCache(_ref) {
     var attrValue = void 0;
     var cacheData = void 0;
 
-    if (bindingAttrsMap && bindingAttrsMap[type] && attrObj[type]) {
+    if (bindingAttrsMap && bindingAttrsMap[type] && typeof attrObj[type] !== 'undefined') {
         bindingCache[type] = bindingCache[type] || [];
         attrValue = attrObj[type].trim();
         cacheData = {
