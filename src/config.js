@@ -23,6 +23,8 @@ const dataIndexAttr = 'data-index';
 const commentPrefix = {
     forOf: 'data-forOf_',
     if: 'data-if_',
+    case: 'data-case_',
+    default: 'data-default_',
 };
 const commentSuffix = '_end';
 

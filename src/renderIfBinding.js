@@ -9,14 +9,6 @@ import {
     insertRenderedElements,
 } from './commentWrapper';
 
-const createClonedElementCache = (bindingData, bindingAttrs) => {
-    bindingData.el.removeAttribute(bindingAttrs.if);
-    const clonedElement = bindingData.el.cloneNode(true);
-    bindingData.fragment = document.createDocumentFragment();
-    bindingData.fragment.appendChild(clonedElement);
-    return bindingData;
-};
-
 const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     if (!bindingData.fragment) {
         return;

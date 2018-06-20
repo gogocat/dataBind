@@ -1,7 +1,7 @@
 import {bindingAttrs as configBindingAttrs} from './config';
 import {getViewModelValue, resolveViewModelContext, resolveParamList} from './util';
-import {wrapCommentAround} from './commentWrapper';
-import {createClonedElementCache, renderIfBinding, removeIfBinding} from './renderIfBinding';
+import {createClonedElementCache, wrapCommentAround} from './commentWrapper';
+import {renderIfBinding, removeIfBinding} from './renderIfBinding';
 
 /**
  * if-Binding
@@ -53,8 +53,9 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
 
     // only create fragment once
     if (!cache.fragment) {
-        createClonedElementCache(cache, bindingAttrs);
+        createClonedElementCache(cache);
         wrapCommentAround(cache, cache.el);
+        cache.el.removeAttribute(bindingAttrs.if);
     }
 
     if (!shouldRender) {

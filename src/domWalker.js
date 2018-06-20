@@ -100,12 +100,15 @@ const createBindingCache = ({rootNode = null, bindingAttrs = {}, skipCheck}) => 
         }
 
         iterateList.forEach((key) => {
-            bindingCache = populateBindingCache({
-                node: node,
-                attrObj: attrObj,
-                bindingCache: bindingCache,
-                type: key,
-            });
+            // skip for switch case and default bining
+            if (key !== bindingAttrs.case && key !== bindingAttrs.default) {
+                bindingCache = populateBindingCache({
+                    node: node,
+                    attrObj: attrObj,
+                    bindingCache: bindingCache,
+                    type: key,
+                });
+            }
         });
 
         // after cache forOf skip parse child nodes

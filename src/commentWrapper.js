@@ -2,6 +2,13 @@
 import * as config from './config';
 import * as util from './util';
 
+const createClonedElementCache = (bindingData) => {
+    const clonedElement = bindingData.el.cloneNode(true);
+    bindingData.fragment = document.createDocumentFragment();
+    bindingData.fragment.appendChild(clonedElement);
+    return bindingData;
+};
+
 const setCommentPrefix = (bindingData) => {
     if (!bindingData || !bindingData.type) {
         return;
@@ -15,6 +22,12 @@ const setCommentPrefix = (bindingData) => {
         break;
     case config.bindingAttrs.if:
         commentPrefix = config.commentPrefix.if;
+        break;
+    case config.bindingAttrs.case:
+        commentPrefix = config.commentPrefix.case;
+        break;
+    case config.bindingAttrs.default:
+        commentPrefix = config.commentPrefix.default;
         break;
     }
     bindingData.commentPrefix = commentPrefix + dataKeyMarker;
@@ -135,6 +148,7 @@ const insertRenderedElements = (bindingData, fragment) => {
 };
 
 export {
+    createClonedElementCache,
     setCommentPrefix,
     wrapCommentAround,
     removeElemnetsByCommentWrap,

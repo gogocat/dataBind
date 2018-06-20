@@ -2,9 +2,10 @@
     let myComponent;
 
     const myComponentViewModel = {
+        heading: 'This heading is inside switch binding',
         title: 'Test switch binding',
         description: 'Switch binding will add / remove its direct child element with data-jq-case expression.',
-        selectedStory: '',
+        selectedStory: 's2',
         story: {},
         storyOptions: [
             {title: 'Hansel and Gretel', value: 's1'},

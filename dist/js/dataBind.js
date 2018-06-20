@@ -87,7 +87,7 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = attrBinding;
 
-},{"./util":23}],2:[function(require,module,exports){
+},{"./util":24}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -160,6 +160,10 @@ var _forOfBinding2 = _interopRequireDefault(_forOfBinding);
 var _ifBinding = require('./ifBinding');
 
 var _ifBinding2 = _interopRequireDefault(_ifBinding);
+
+var _switchBinding = require('./switchBinding');
+
+var _switchBinding2 = _interopRequireDefault(_switchBinding);
 
 var _domWalker = require('./domWalker');
 
@@ -408,6 +412,13 @@ var Binder = function () {
                 });
             }
 
+            // apply switch Binding
+            if (updateOption.switchBinding && elementCache[bindingAttrs['switch']] && elementCache[bindingAttrs['switch']].length) {
+                elementCache[bindingAttrs['switch']].forEach(function (cache) {
+                    (0, _switchBinding2['default'])(cache, viewModel, bindingAttrs);
+                });
+            }
+
             // apply text binding
             if (updateOption.textBinding && elementCache[bindingAttrs.text] && elementCache[bindingAttrs.text].length) {
                 elementCache[bindingAttrs.text].forEach(function (cache) {
@@ -536,7 +547,8 @@ var createBindingOption = function createBindingOption() {
         showBinding: true,
         modelBinding: true,
         attrBinding: true,
-        forOfBinding: true
+        forOfBinding: true,
+        switchBinding: true
     };
     var eventsBindingOptions = {
         changeBinding: true,
@@ -546,8 +558,8 @@ var createBindingOption = function createBindingOption() {
         focusBinding: true,
         submitBinding: true
     };
-    // this is visualBindingOptions but everything fals
-    // keep it static instead dynamic for performance purpose
+    // this is visualBindingOptions but everything false
+    // concrete declear for performance purpose
     var serverRenderedOptions = {
         templateBinding: false,
         textBinding: false,
@@ -556,7 +568,8 @@ var createBindingOption = function createBindingOption() {
         showBinding: false,
         modelBinding: false,
         attrBinding: false,
-        forOfBinding: false
+        forOfBinding: false,
+        switchBinding: false
     };
     var updateOption = {};
 
@@ -616,7 +629,7 @@ exports.createBindingOption = createBindingOption;
 exports.renderTemplatesBinding = renderTemplatesBinding;
 exports.renderIteration = renderIteration;
 
-},{"./attrBinding":1,"./blurBinding":3,"./changeBinding":4,"./clickBinding":5,"./config":7,"./cssBinding":8,"./dbclickBinding":9,"./domWalker":10,"./focusBinding":11,"./forOfBinding":12,"./ifBinding":13,"./modelBinding":15,"./pubSub":16,"./renderTemplate":19,"./showBinding":20,"./submitBinding":21,"./textBinding":22,"./util":23}],3:[function(require,module,exports){
+},{"./attrBinding":1,"./blurBinding":3,"./changeBinding":4,"./clickBinding":5,"./config":7,"./cssBinding":8,"./dbclickBinding":9,"./domWalker":10,"./focusBinding":11,"./forOfBinding":12,"./ifBinding":13,"./modelBinding":15,"./pubSub":16,"./renderTemplate":19,"./showBinding":20,"./submitBinding":21,"./switchBinding":22,"./textBinding":23,"./util":24}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -657,7 +670,7 @@ var blurBinding = function blurBinding(cache, viewModel, bindingAttrs) {
 }; /* eslint-disable no-invalid-this */
 exports['default'] = blurBinding;
 
-},{"./util":23}],4:[function(require,module,exports){
+},{"./util":24}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -710,7 +723,7 @@ var changeBinding = function changeBinding(cache, viewModel, bindingAttrs) {
 }; /* eslint-disable no-invalid-this */
 exports['default'] = changeBinding;
 
-},{"./util":23}],5:[function(require,module,exports){
+},{"./util":24}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -751,13 +764,13 @@ var clickBinding = function clickBinding(cache, viewModel, bindingAttrs) {
 }; /* eslint-disable no-invalid-this */
 exports['default'] = clickBinding;
 
-},{"./util":23}],6:[function(require,module,exports){
+},{"./util":24}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.insertRenderedElements = exports.setDocRangeEndAfter = exports.removeDomTemplateElement = exports.removeElemnetsByCommentWrap = exports.wrapCommentAround = exports.setCommentPrefix = undefined;
+exports.insertRenderedElements = exports.setDocRangeEndAfter = exports.removeDomTemplateElement = exports.removeElemnetsByCommentWrap = exports.wrapCommentAround = exports.setCommentPrefix = exports.createClonedElementCache = undefined;
 
 var _config = require('./config');
 
@@ -770,6 +783,13 @@ var util = _interopRequireWildcard(_util);
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
 /* eslint-disable no-invalid-this */
+var createClonedElementCache = function createClonedElementCache(bindingData) {
+    var clonedElement = bindingData.el.cloneNode(true);
+    bindingData.fragment = document.createDocumentFragment();
+    bindingData.fragment.appendChild(clonedElement);
+    return bindingData;
+};
+
 var setCommentPrefix = function setCommentPrefix(bindingData) {
     if (!bindingData || !bindingData.type) {
         return;
@@ -783,6 +803,12 @@ var setCommentPrefix = function setCommentPrefix(bindingData) {
             break;
         case config.bindingAttrs['if']:
             commentPrefix = config.commentPrefix['if'];
+            break;
+        case config.bindingAttrs['case']:
+            commentPrefix = config.commentPrefix['case'];
+            break;
+        case config.bindingAttrs['default']:
+            commentPrefix = config.commentPrefix['default'];
             break;
     }
     bindingData.commentPrefix = commentPrefix + dataKeyMarker;
@@ -902,6 +928,7 @@ var insertRenderedElements = function insertRenderedElements(bindingData, fragme
     }
 };
 
+exports.createClonedElementCache = createClonedElementCache;
 exports.setCommentPrefix = setCommentPrefix;
 exports.wrapCommentAround = wrapCommentAround;
 exports.removeElemnetsByCommentWrap = removeElemnetsByCommentWrap;
@@ -909,7 +936,7 @@ exports.removeDomTemplateElement = removeDomTemplateElement;
 exports.setDocRangeEndAfter = setDocRangeEndAfter;
 exports.insertRenderedElements = insertRenderedElements;
 
-},{"./config":7,"./util":23}],7:[function(require,module,exports){
+},{"./config":7,"./util":24}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -939,7 +966,9 @@ var serverRenderedAttr = 'data-server-rendered';
 var dataIndexAttr = 'data-index';
 var commentPrefix = {
     forOf: 'data-forOf_',
-    'if': 'data-if_'
+    'if': 'data-if_',
+    'case': 'data-case_',
+    'default': 'data-default_'
 };
 var commentSuffix = '_end';
 
@@ -1078,7 +1107,7 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = cssBinding;
 
-},{"./util":23}],9:[function(require,module,exports){
+},{"./util":24}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1118,7 +1147,7 @@ var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs) {
 }; /* eslint-disable no-invalid-this */
 exports['default'] = dblclickBinding;
 
-},{"./util":23}],10:[function(require,module,exports){
+},{"./util":24}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1243,12 +1272,15 @@ var createBindingCache = function createBindingCache(_ref2) {
         }
 
         iterateList.forEach(function (key) {
-            bindingCache = populateBindingCache({
-                node: node,
-                attrObj: attrObj,
-                bindingCache: bindingCache,
-                type: key
-            });
+            // skip for switch case and default bining
+            if (key !== bindingAttrs['case'] && key !== bindingAttrs['default']) {
+                bindingCache = populateBindingCache({
+                    node: node,
+                    attrObj: attrObj,
+                    bindingCache: bindingCache,
+                    type: key
+                });
+            }
         });
 
         // after cache forOf skip parse child nodes
@@ -1267,7 +1299,7 @@ var createBindingCache = function createBindingCache(_ref2) {
 
 exports['default'] = createBindingCache;
 
-},{"./util":23}],11:[function(require,module,exports){
+},{"./util":24}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1307,7 +1339,7 @@ var focusBinding = function focusBinding(cache, viewModel, bindingAttrs) {
 }; /* eslint-disable no-invalid-this */
 exports['default'] = focusBinding;
 
-},{"./util":23}],12:[function(require,module,exports){
+},{"./util":24}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1368,7 +1400,7 @@ var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = forOfBinding;
 
-},{"./config":7,"./renderForOfBinding":17,"./util":23}],13:[function(require,module,exports){
+},{"./config":7,"./renderForOfBinding":17,"./util":24}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1433,8 +1465,9 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
 
     // only create fragment once
     if (!cache.fragment) {
-        (0, _renderIfBinding.createClonedElementCache)(cache, bindingAttrs);
+        (0, _commentWrapper.createClonedElementCache)(cache);
         (0, _commentWrapper.wrapCommentAround)(cache, cache.el);
+        cache.el.removeAttribute(bindingAttrs['if']);
     }
 
     if (!shouldRender) {
@@ -1457,7 +1490,7 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = ifBinding;
 
-},{"./commentWrapper":6,"./config":7,"./renderIfBinding":18,"./util":23}],14:[function(require,module,exports){
+},{"./commentWrapper":6,"./config":7,"./renderIfBinding":18,"./util":24}],14:[function(require,module,exports){
 'use strict';
 
 var _config = require('./config');
@@ -1545,7 +1578,7 @@ var modelBinding = function modelBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = modelBinding;
 
-},{"./util":23}],16:[function(require,module,exports){
+},{"./util":24}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1689,7 +1722,7 @@ exports.unsubscribeEvent = unsubscribeEvent;
 exports.unsubscribeAllEvent = unsubscribeAllEvent;
 exports.publishEvent = publishEvent;
 
-},{"./util":23}],17:[function(require,module,exports){
+},{"./util":24}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1854,7 +1887,7 @@ var generateForOfElements = function generateForOfElements(bindingData, viewMode
 
 exports['default'] = renderForOfBinding;
 
-},{"./binder":2,"./commentWrapper":6,"./config":7,"./domWalker":10,"./util":23}],18:[function(require,module,exports){
+},{"./binder":2,"./commentWrapper":6,"./config":7,"./domWalker":10,"./util":24}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1875,7 +1908,6 @@ var _commentWrapper = require('./commentWrapper');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var createClonedElementCache = function createClonedElementCache(bindingData, bindingAttrs) {
-    bindingData.el.removeAttribute(bindingAttrs['if']);
     var clonedElement = bindingData.el.cloneNode(true);
     bindingData.fragment = document.createDocumentFragment();
     bindingData.fragment.appendChild(clonedElement);
@@ -1927,7 +1959,7 @@ exports.createClonedElementCache = createClonedElementCache;
 exports.renderIfBinding = renderIfBinding;
 exports.removeIfBinding = removeIfBinding;
 
-},{"./binder":2,"./commentWrapper":6,"./domWalker":10,"./util":23}],19:[function(require,module,exports){
+},{"./binder":2,"./commentWrapper":6,"./domWalker":10,"./util":24}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2050,7 +2082,7 @@ var renderTemplate = function renderTemplate(cache, viewModel, bindingAttrs, ele
 
 exports['default'] = renderTemplate;
 
-},{"./config":7,"./util":23}],20:[function(require,module,exports){
+},{"./config":7,"./util":24}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2120,7 +2152,7 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = showBinding;
 
-},{"./util":23}],21:[function(require,module,exports){
+},{"./util":24}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2163,7 +2195,87 @@ var submitBinding = function submitBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = submitBinding;
 
-},{"./util":23}],22:[function(require,module,exports){
+},{"./util":24}],22:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _util = require('./util');
+
+var _commentWrapper = require('./commentWrapper');
+
+/**
+ * switch-Binding
+ * @description
+ * DOM decleartive switch binding.
+ * switch parent element wrap direct child with case bindings
+ * @param {object} cache
+ * @param {object} viewModel
+ * @param {object} bindingAttrs
+ */
+var switchBinding = function switchBinding(cache, viewModel, bindingAttrs) {
+    var dataKey = cache.dataKey;
+    var paramList = cache.parameters;
+    var childrenElements = void 0;
+
+    if (!dataKey) {
+        return;
+    }
+
+    cache.elementData = cache.elementData || {};
+
+    var newValue = (0, _util.getViewModelValue)(viewModel, dataKey);
+    if (typeof newValue === 'function') {
+        viewModelContext = (0, _util.resolveViewModelContext)(viewModel, newValue);
+        paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];
+        var args = paramList.slice(0);
+        newValue = newValue.apply(viewModelContext, args);
+    }
+
+    if (newValue === cache.elementData.expression) {
+        return;
+    }
+
+    cache.elementData.expression = newValue;
+
+    // build switch cases if not yet defined
+    if (!cache.cases) {
+        childrenElements = cache.el.children;
+        if (!childrenElements.length) {
+            return;
+        }
+        cache.cases = [];
+        for (var i = 0, elementLength = childrenElements.length; i < elementLength; i += 1) {
+            var caseData = null;
+            if (childrenElements[i].hasAttribute(bindingAttrs['case'])) {
+                caseData = createCaseData(childrenElements[i], bindingAttrs['case']);
+            } else if (childrenElements[i].hasAttribute(bindingAttrs['default'])) {
+                caseData = createCaseData(childrenElements[i], bindingAttrs['default']);
+                caseData.isDefault = true;
+            }
+            if (caseData) {
+                (0, _commentWrapper.createClonedElementCache)(caseData);
+                (0, _commentWrapper.wrapCommentAround)(caseData, caseData.el);
+                cache.cases.push(caseData);
+            }
+        }
+    }
+};
+
+function createCaseData(node, attrName) {
+    var caseData = {
+        el: node,
+        dataKey: node.getAttribute(attrName),
+        type: attrName
+    };
+    return caseData;
+}
+
+exports['default'] = switchBinding;
+
+},{"./commentWrapper":6,"./util":24}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2209,7 +2321,7 @@ var textBinding = function textBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = textBinding;
 
-},{"./util":23}],23:[function(require,module,exports){
+},{"./util":24}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
