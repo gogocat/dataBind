@@ -27,11 +27,16 @@
             <div data-jq-switch="selectedStory">
                 <h3 data-jq-text="heading"></h3>
                 <div data-jq-case="s1">
-                    <h2 data-jq-text="title"></h2>
+                    <h2>Case 1</h2>
+                    <h3 data-jq-text="title"></h3>
                     <p data-jq-text="description"></p>
                 </div>
-                <div data-jq-case="s2" data-jq-tmp="{id: 'compStoryDetailTemplate', data: '$root'}"></div>
-                <div data-jq-case="s3" data-jq-tmp="{id: 'compStoryDetailTemplate', data: '$root'}"></div>
+                <div data-jq-case="s2" data-jq-tmp="{id: 'compStoryDetailTemplate', data: '$root'}">
+                    <h2>Case 2</h2>
+                </div>
+                <div data-jq-case="s3" data-jq-tmp="{id: 'compStoryDetailTemplate', data: '$root'}">
+                    <h2>Case 3</h2>
+                </div>
                 <div data-jq-default="">
                     <p>No story found...</p>
                 </div>

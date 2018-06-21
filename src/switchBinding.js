@@ -1,5 +1,6 @@
 import {getViewModelValue, resolveViewModelContext, resolveParamList} from './util';
 import {createClonedElementCache, wrapCommentAround} from './commentWrapper';
+import {renderIfBinding, removeIfBinding} from './renderIfBinding';
 /**
  * switch-Binding
  * @description
@@ -18,23 +19,23 @@ const switchBinding = (cache, viewModel, bindingAttrs) => {
 
     cache.elementData = cache.elementData || {};
 
-    let newValue = getViewModelValue(viewModel, dataKey);
-    if (typeof newValue === 'function') {
-        let viewModelContext = resolveViewModelContext(viewModel, newValue);
+    let newExpression = getViewModelValue(viewModel, dataKey);
+    if (typeof newExpression === 'function') {
+        let viewModelContext = resolveViewModelContext(viewModel, newExpression);
         let paramList = paramList ? resolveParamList(viewModel, paramList) : [];
         let args = paramList.slice(0);
-        newValue = newValue.apply(viewModelContext, args);
+        newExpression = newExpression.apply(viewModelContext, args);
     }
 
-    if (newValue === cache.elementData.expression) {
+    if (newExpression === cache.elementData.expression) {
         return;
     }
 
-    cache.elementData.expression = newValue;
+    cache.elementData.expression = newExpression;
 
     // build switch cases if not yet defined
     if (!cache.cases) {
-        childrenElements = cache.el.children;
+        let childrenElements = cache.el.children;
         if (!childrenElements.length) {
             return;
         }
@@ -53,18 +54,48 @@ const switchBinding = (cache, viewModel, bindingAttrs) => {
                 cache.cases.push(caseData);
             }
         }
-    } else if (cache.cases.length) {
+    }
+
+    if (cache.cases.length) {
         // do switch operation - reuse if binding logic
-        // TODO: use for loop so can break
-        cache.cases.array.forEach((caseData) => {
-            let newValue = getViewModelValue(viewModel, caseData.dataKey);
-            if (typeof newValue === 'function') {
-                let viewModelContext = resolveViewModelContext(viewModel, newValue);
-                let paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-                let args = paramList.slice(0);
-                newValue = newValue.apply(viewModelContext, args);
+        for (let j = 0, casesLength = cache.cases.length; j < casesLength; j += 1) {
+            let newCaseValue;
+            if (cache.cases[j].dataKey) {
+                newCaseValue = getViewModelValue(viewModel, cache.cases[j].dataKey);
+                if (typeof newCaseValue === 'function') {
+                    let viewModelContext = resolveViewModelContext(viewModel, newCaseValue);
+                    let paramList = paramList ? resolveParamList(viewModel, paramList) : [];
+                    let args = paramList.slice(0);
+                    newCaseValue = newCaseValue.apply(viewModelContext, args);
+                }
+                // set back to dataKey if nothing found in viewModel
+                newCaseValue = newCaseValue || cache.cases[j].dataKey;
             }
-        });
+
+            if (newCaseValue === cache.elementData.expression || cache.cases[j].isDefault) {
+                // render cache.cases[j].fragment
+                // render element
+                renderIfBinding({
+                    bindingData: cache.cases[j],
+                    viewModel: viewModel,
+                    bindingAttrs: bindingAttrs,
+                });
+
+                // remove other elements
+                cache.cases.forEach((caseData, index) => {
+                    if (index !== j) {
+                        removeIfBinding(caseData);
+                        // remove cache.IterationBindingCache
+                        if (caseData.hasIterationBindingCache) {
+                            caseData.iterationBindingCache = {};
+                            caseData.hasIterationBindingCache = false;
+                        }
+                    }
+                });
+
+                break;
+            }
+        }
     }
 };
 

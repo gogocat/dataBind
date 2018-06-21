@@ -18,12 +18,15 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     const rootElement = isDomRemoved ? bindingData.fragment.firstChild.cloneNode(true) : bindingData.el;
 
     // walk clonedElement to create iterationBindingCache
-    bindingData.iterationBindingCache = createBindingCache({
-        rootNode: rootElement,
-        bindingAttrs: bindingAttrs,
-    });
+    if (!bindingData.hasIterationBindingCache) {
+        bindingData.iterationBindingCache = createBindingCache({
+            rootNode: rootElement,
+            bindingAttrs: bindingAttrs,
+        });
+    }
 
     // only render if has iterationBindingCache
+    // means has other dataBindings to be render
     if (!isEmptyObject(bindingData.iterationBindingCache)) {
         bindingData.hasIterationBindingCache = true;
         renderIteration({
@@ -34,16 +37,16 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
         });
     }
 
-    if (!isDomRemoved) {
-        // remove orginal DOM
+    // remove orginal DOM. Always remove dom that has other databindings
+    if (!isDomRemoved || bindingData.hasIterationBindingCache) {
         removeIfBinding(bindingData);
-        // insert to DOM
-        insertRenderedElements(bindingData, rootElement);
     }
+    // insert to DOM
+    insertRenderedElements(bindingData, rootElement);
 };
 
 const removeIfBinding = (bindingData) => {
     removeElemnetsByCommentWrap(bindingData);
 };
 
-export {createClonedElementCache, renderIfBinding, removeIfBinding};
+export {renderIfBinding, removeIfBinding};

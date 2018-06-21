@@ -1893,7 +1893,7 @@ exports['default'] = renderForOfBinding;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.removeIfBinding = exports.renderIfBinding = exports.createClonedElementCache = undefined;
+exports.removeIfBinding = exports.renderIfBinding = undefined;
 
 var _util = require('./util');
 
@@ -1906,13 +1906,6 @@ var _domWalker2 = _interopRequireDefault(_domWalker);
 var _commentWrapper = require('./commentWrapper');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var createClonedElementCache = function createClonedElementCache(bindingData, bindingAttrs) {
-    var clonedElement = bindingData.el.cloneNode(true);
-    bindingData.fragment = document.createDocumentFragment();
-    bindingData.fragment.appendChild(clonedElement);
-    return bindingData;
-};
 
 var renderIfBinding = function renderIfBinding(_ref) {
     var bindingData = _ref.bindingData,
@@ -1927,12 +1920,15 @@ var renderIfBinding = function renderIfBinding(_ref) {
     var rootElement = isDomRemoved ? bindingData.fragment.firstChild.cloneNode(true) : bindingData.el;
 
     // walk clonedElement to create iterationBindingCache
-    bindingData.iterationBindingCache = (0, _domWalker2['default'])({
-        rootNode: rootElement,
-        bindingAttrs: bindingAttrs
-    });
+    if (!bindingData.hasIterationBindingCache) {
+        bindingData.iterationBindingCache = (0, _domWalker2['default'])({
+            rootNode: rootElement,
+            bindingAttrs: bindingAttrs
+        });
+    }
 
     // only render if has iterationBindingCache
+    // means has other dataBindings to be render
     if (!(0, _util.isEmptyObject)(bindingData.iterationBindingCache)) {
         bindingData.hasIterationBindingCache = true;
         (0, _binder.renderIteration)({
@@ -1943,19 +1939,18 @@ var renderIfBinding = function renderIfBinding(_ref) {
         });
     }
 
-    if (!isDomRemoved) {
-        // remove orginal DOM
+    // remove orginal DOM. Always remove dom that has other databindings
+    if (!isDomRemoved || bindingData.hasIterationBindingCache) {
         removeIfBinding(bindingData);
-        // insert to DOM
-        (0, _commentWrapper.insertRenderedElements)(bindingData, rootElement);
     }
+    // insert to DOM
+    (0, _commentWrapper.insertRenderedElements)(bindingData, rootElement);
 };
 
 var removeIfBinding = function removeIfBinding(bindingData) {
     (0, _commentWrapper.removeElemnetsByCommentWrap)(bindingData);
 };
 
-exports.createClonedElementCache = createClonedElementCache;
 exports.renderIfBinding = renderIfBinding;
 exports.removeIfBinding = removeIfBinding;
 
@@ -2206,6 +2201,8 @@ var _util = require('./util');
 
 var _commentWrapper = require('./commentWrapper');
 
+var _renderIfBinding = require('./renderIfBinding');
+
 /**
  * switch-Binding
  * @description
@@ -2217,8 +2214,6 @@ var _commentWrapper = require('./commentWrapper');
  */
 var switchBinding = function switchBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
-    var paramList = cache.parameters;
-    var childrenElements = void 0;
 
     if (!dataKey) {
         return;
@@ -2226,23 +2221,23 @@ var switchBinding = function switchBinding(cache, viewModel, bindingAttrs) {
 
     cache.elementData = cache.elementData || {};
 
-    var newValue = (0, _util.getViewModelValue)(viewModel, dataKey);
-    if (typeof newValue === 'function') {
-        viewModelContext = (0, _util.resolveViewModelContext)(viewModel, newValue);
-        paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];
+    var newExpression = (0, _util.getViewModelValue)(viewModel, dataKey);
+    if (typeof newExpression === 'function') {
+        var viewModelContext = (0, _util.resolveViewModelContext)(viewModel, newExpression);
+        var paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];
         var args = paramList.slice(0);
-        newValue = newValue.apply(viewModelContext, args);
+        newExpression = newExpression.apply(viewModelContext, args);
     }
 
-    if (newValue === cache.elementData.expression) {
+    if (newExpression === cache.elementData.expression) {
         return;
     }
 
-    cache.elementData.expression = newValue;
+    cache.elementData.expression = newExpression;
 
     // build switch cases if not yet defined
     if (!cache.cases) {
-        childrenElements = cache.el.children;
+        var childrenElements = cache.el.children;
         if (!childrenElements.length) {
             return;
         }
@@ -2262,6 +2257,54 @@ var switchBinding = function switchBinding(cache, viewModel, bindingAttrs) {
             }
         }
     }
+
+    if (cache.cases.length) {
+        var _loop = function _loop(j, casesLength) {
+            var newCaseValue = void 0;
+            if (cache.cases[j].dataKey) {
+                newCaseValue = (0, _util.getViewModelValue)(viewModel, cache.cases[j].dataKey);
+                if (typeof newCaseValue === 'function') {
+                    var _viewModelContext = (0, _util.resolveViewModelContext)(viewModel, newCaseValue);
+                    var _paramList = _paramList ? (0, _util.resolveParamList)(viewModel, _paramList) : [];
+                    var _args = _paramList.slice(0);
+                    newCaseValue = newCaseValue.apply(_viewModelContext, _args);
+                }
+                // set back to dataKey if nothing found in viewModel
+                newCaseValue = newCaseValue || cache.cases[j].dataKey;
+            }
+
+            if (newCaseValue === cache.elementData.expression || cache.cases[j].isDefault) {
+                // render cache.cases[j].fragment
+                // render element
+                (0, _renderIfBinding.renderIfBinding)({
+                    bindingData: cache.cases[j],
+                    viewModel: viewModel,
+                    bindingAttrs: bindingAttrs
+                });
+
+                // remove other elements
+                cache.cases.forEach(function (caseData, index) {
+                    if (index !== j) {
+                        (0, _renderIfBinding.removeIfBinding)(caseData);
+                        // remove cache.IterationBindingCache
+                        if (caseData.hasIterationBindingCache) {
+                            caseData.iterationBindingCache = {};
+                            caseData.hasIterationBindingCache = false;
+                        }
+                    }
+                });
+
+                return 'break';
+            }
+        };
+
+        // do switch operation - reuse if binding logic
+        for (var j = 0, casesLength = cache.cases.length; j < casesLength; j += 1) {
+            var _ret = _loop(j, casesLength);
+
+            if (_ret === 'break') break;
+        }
+    }
 };
 
 function createCaseData(node, attrName) {
@@ -2275,7 +2318,7 @@ function createCaseData(node, attrName) {
 
 exports['default'] = switchBinding;
 
-},{"./commentWrapper":6,"./util":24}],23:[function(require,module,exports){
+},{"./commentWrapper":6,"./renderIfBinding":18,"./util":24}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
