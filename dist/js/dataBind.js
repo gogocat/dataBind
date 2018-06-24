@@ -1916,11 +1916,11 @@ var renderIfBinding = function renderIfBinding(_ref) {
         return;
     }
     // check dom next to start comment has been removed
-    var isDomRemoved = bindingData.nextNonTemplateElement.nextElementSibling === null;
+    var isDomRemoved = bindingData.previousNonTemplateElement.nextElementSibling === null;
     var rootElement = isDomRemoved ? bindingData.fragment.firstChild.cloneNode(true) : bindingData.el;
 
     // walk clonedElement to create iterationBindingCache
-    if (!bindingData.hasIterationBindingCache) {
+    if (!bindingData.iterationBindingCache) {
         bindingData.iterationBindingCache = (0, _domWalker2['default'])({
             rootNode: rootElement,
             bindingAttrs: bindingAttrs
@@ -1939,8 +1939,8 @@ var renderIfBinding = function renderIfBinding(_ref) {
         });
     }
 
-    // remove orginal DOM. Always remove dom that has other databindings
-    if (!isDomRemoved || bindingData.hasIterationBindingCache) {
+    // remove orginal DOM.
+    if (!isDomRemoved) {
         removeIfBinding(bindingData);
     }
     // insert to DOM

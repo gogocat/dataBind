@@ -14,11 +14,11 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
         return;
     }
     // check dom next to start comment has been removed
-    const isDomRemoved = bindingData.nextNonTemplateElement.nextElementSibling === null;
+    const isDomRemoved = bindingData.previousNonTemplateElement.nextElementSibling === null;
     const rootElement = isDomRemoved ? bindingData.fragment.firstChild.cloneNode(true) : bindingData.el;
 
     // walk clonedElement to create iterationBindingCache
-    if (!bindingData.hasIterationBindingCache) {
+    if (!bindingData.iterationBindingCache) {
         bindingData.iterationBindingCache = createBindingCache({
             rootNode: rootElement,
             bindingAttrs: bindingAttrs,
@@ -37,8 +37,8 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
         });
     }
 
-    // remove orginal DOM. Always remove dom that has other databindings
-    if (!isDomRemoved || bindingData.hasIterationBindingCache) {
+    // remove orginal DOM.
+    if (!isDomRemoved) {
         removeIfBinding(bindingData);
     }
     // insert to DOM
