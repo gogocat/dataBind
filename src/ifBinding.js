@@ -52,16 +52,18 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     }
 
     // only create fragment once
+    // wrap comment tag around
+    // remove if attribute from original element to allow later dataBind parsing
     if (!cache.fragment) {
-        createClonedElementCache(cache);
         wrapCommentAround(cache, cache.el);
         cache.el.removeAttribute(bindingAttrs.if);
+        createClonedElementCache(cache);
     }
 
     if (!shouldRender) {
         // remove element
         removeIfBinding(cache);
-        // remove cache.IterationBindingCache
+        // remove cache.IterationBindingCache to prevent memory leak
         if (cache.hasIterationBindingCache) {
             cache.iterationBindingCache = {};
             cache.hasIterationBindingCache = false;

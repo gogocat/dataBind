@@ -48,15 +48,24 @@ const switchBinding = (cache, viewModel, bindingAttrs) => {
                 caseData = createCaseData(childrenElements[i], bindingAttrs.default);
                 caseData.isDefault = true;
             }
+            // create fragment by clone node
+            // wrap with comment tag
             if (caseData) {
-                createClonedElementCache(caseData);
                 wrapCommentAround(caseData, caseData.el);
+                // remove binding attribute for later dataBind parse
+                if (caseData.isDefault) {
+                    caseData.el.removeAttribute(bindingAttrs.default);
+                } else {
+                    caseData.el.removeAttribute(bindingAttrs.case);
+                }
+                createClonedElementCache(caseData);
                 cache.cases.push(caseData);
             }
         }
     }
 
     if (cache.cases.length) {
+        let hasMatch = false;
         // do switch operation - reuse if binding logic
         for (let j = 0, casesLength = cache.cases.length; j < casesLength; j += 1) {
             let newCaseValue;
@@ -73,7 +82,7 @@ const switchBinding = (cache, viewModel, bindingAttrs) => {
             }
 
             if (newCaseValue === cache.elementData.expression || cache.cases[j].isDefault) {
-                // render cache.cases[j].fragment
+                hasMatch = true;
                 // render element
                 renderIfBinding({
                     bindingData: cache.cases[j],
@@ -82,22 +91,29 @@ const switchBinding = (cache, viewModel, bindingAttrs) => {
                 });
 
                 // remove other elements
-                cache.cases.forEach((caseData, index) => {
-                    if (index !== j) {
-                        removeIfBinding(caseData);
-                        // remove cache.IterationBindingCache
-                        if (caseData.hasIterationBindingCache) {
-                            caseData.iterationBindingCache = {};
-                            caseData.hasIterationBindingCache = false;
-                        }
-                    }
-                });
-
+                removeUnmatchCases(cache.cases, j);
                 break;
             }
         }
+        // no match remove all cases
+        if (!hasMatch) {
+            removeUnmatchCases(cache.cases);
+        }
     }
 };
+
+function removeUnmatchCases(cases, matchedIndex) {
+    cases.forEach((caseData, index) => {
+        if (index !== matchedIndex || typeof matchedIndex === 'undefined') {
+            removeIfBinding(caseData);
+            // remove cache.IterationBindingCache to prevent memory leak
+            if (caseData.hasIterationBindingCache) {
+                caseData.iterationBindingCache = null;
+                caseData.hasIterationBindingCache = false;
+            }
+        }
+    });
+}
 
 function createCaseData(node, attrName) {
     let caseData = {

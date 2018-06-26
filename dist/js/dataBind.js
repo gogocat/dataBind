@@ -4,7 +4,7 @@
  * @link https://github.com/gogocat/dataBind#readme
  * @license MIT
  */
-(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1464,16 +1464,18 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     }
 
     // only create fragment once
+    // wrap comment tag around
+    // remove if attribute from original element to allow later dataBind parsing
     if (!cache.fragment) {
-        (0, _commentWrapper.createClonedElementCache)(cache);
         (0, _commentWrapper.wrapCommentAround)(cache, cache.el);
         cache.el.removeAttribute(bindingAttrs['if']);
+        (0, _commentWrapper.createClonedElementCache)(cache);
     }
 
     if (!shouldRender) {
         // remove element
         (0, _renderIfBinding.removeIfBinding)(cache);
-        // remove cache.IterationBindingCache
+        // remove cache.IterationBindingCache to prevent memory leak
         if (cache.hasIterationBindingCache) {
             cache.iterationBindingCache = {};
             cache.hasIterationBindingCache = false;
@@ -2250,16 +2252,26 @@ var switchBinding = function switchBinding(cache, viewModel, bindingAttrs) {
                 caseData = createCaseData(childrenElements[i], bindingAttrs['default']);
                 caseData.isDefault = true;
             }
+            // create fragment by clone node
+            // wrap with comment tag
             if (caseData) {
-                (0, _commentWrapper.createClonedElementCache)(caseData);
                 (0, _commentWrapper.wrapCommentAround)(caseData, caseData.el);
+                // remove binding attribute for later dataBind parse
+                if (caseData.isDefault) {
+                    caseData.el.removeAttribute(bindingAttrs['default']);
+                } else {
+                    caseData.el.removeAttribute(bindingAttrs['case']);
+                }
+                (0, _commentWrapper.createClonedElementCache)(caseData);
                 cache.cases.push(caseData);
             }
         }
     }
 
     if (cache.cases.length) {
-        var _loop = function _loop(j, casesLength) {
+        var hasMatch = false;
+        // do switch operation - reuse if binding logic
+        for (var j = 0, casesLength = cache.cases.length; j < casesLength; j += 1) {
             var newCaseValue = void 0;
             if (cache.cases[j].dataKey) {
                 newCaseValue = (0, _util.getViewModelValue)(viewModel, cache.cases[j].dataKey);
@@ -2274,7 +2286,7 @@ var switchBinding = function switchBinding(cache, viewModel, bindingAttrs) {
             }
 
             if (newCaseValue === cache.elementData.expression || cache.cases[j].isDefault) {
-                // render cache.cases[j].fragment
+                hasMatch = true;
                 // render element
                 (0, _renderIfBinding.renderIfBinding)({
                     bindingData: cache.cases[j],
@@ -2283,29 +2295,29 @@ var switchBinding = function switchBinding(cache, viewModel, bindingAttrs) {
                 });
 
                 // remove other elements
-                cache.cases.forEach(function (caseData, index) {
-                    if (index !== j) {
-                        (0, _renderIfBinding.removeIfBinding)(caseData);
-                        // remove cache.IterationBindingCache
-                        if (caseData.hasIterationBindingCache) {
-                            caseData.iterationBindingCache = {};
-                            caseData.hasIterationBindingCache = false;
-                        }
-                    }
-                });
-
-                return 'break';
+                removeUnmatchCases(cache.cases, j);
+                break;
             }
-        };
-
-        // do switch operation - reuse if binding logic
-        for (var j = 0, casesLength = cache.cases.length; j < casesLength; j += 1) {
-            var _ret = _loop(j, casesLength);
-
-            if (_ret === 'break') break;
+        }
+        // no match remove all cases
+        if (!hasMatch) {
+            removeUnmatchCases(cache.cases);
         }
     }
 };
+
+function removeUnmatchCases(cases, matchedIndex) {
+    cases.forEach(function (caseData, index) {
+        if (index !== matchedIndex || typeof matchedIndex === 'undefined') {
+            (0, _renderIfBinding.removeIfBinding)(caseData);
+            // remove cache.IterationBindingCache to prevent memory leak
+            if (caseData.hasIterationBindingCache) {
+                caseData.iterationBindingCache = null;
+                caseData.hasIterationBindingCache = false;
+            }
+        }
+    });
+}
 
 function createCaseData(node, attrName) {
     var caseData = {

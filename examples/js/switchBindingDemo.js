@@ -5,7 +5,7 @@
         heading: 'This heading is inside switch binding',
         title: 'Test switch binding',
         description: 'Switch binding will add / remove its direct child element with data-jq-case expression.',
-        selectedStory: 's2',
+        selectedStory: '',
         story: {},
         storyOptions: [
             {title: 'Hansel and Gretel', value: 's1'},
