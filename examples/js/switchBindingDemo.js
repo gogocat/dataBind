@@ -4,7 +4,7 @@
     const myComponentViewModel = {
         heading: 'This heading is inside switch binding',
         title: 'Test switch binding',
-        description: 'Switch binding will add / remove its direct child element with data-jq-case expression.',
+        description: 'Switch binding will add / remove its direct child elements that has data-jq-case expression.',
         selectedStory: '',
         story: {},
         storyOptions: [
