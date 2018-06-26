@@ -12,6 +12,7 @@ import {renderIfBinding, removeIfBinding} from './renderIfBinding';
  */
 const switchBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
+    let paramList = cache.parameters;
 
     if (!dataKey) {
         return;
@@ -22,7 +23,7 @@ const switchBinding = (cache, viewModel, bindingAttrs) => {
     let newExpression = getViewModelValue(viewModel, dataKey);
     if (typeof newExpression === 'function') {
         let viewModelContext = resolveViewModelContext(viewModel, newExpression);
-        let paramList = paramList ? resolveParamList(viewModel, paramList) : [];
+        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
         let args = paramList.slice(0);
         newExpression = newExpression.apply(viewModelContext, args);
     }
