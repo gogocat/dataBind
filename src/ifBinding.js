@@ -1,5 +1,5 @@
 import {bindingAttrs as configBindingAttrs} from './config';
-import {getViewModelValue, resolveViewModelContext, resolveParamList} from './util';
+import {getViewModelPropValue} from './util';
 import {createClonedElementCache, wrapCommentAround} from './commentWrapper';
 import {renderIfBinding, removeIfBinding} from './renderIfBinding';
 
@@ -13,7 +13,6 @@ import {renderIfBinding, removeIfBinding} from './renderIfBinding';
  */
 const ifBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
-    let paramList = cache.parameters;
 
     if (!dataKey) {
         return;
@@ -22,20 +21,11 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     cache.elementData = cache.elementData || {};
 
     let oldRenderStatus = cache.elementData.renderStatus;
-    let isInvertBoolean = dataKey.charAt(0) === '!';
     let shouldRender;
-    let viewModelContext;
 
     cache.type = configBindingAttrs.if;
-    dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
-    shouldRender = getViewModelValue(viewModel, dataKey);
 
-    if (typeof shouldRender === 'function') {
-        viewModelContext = resolveViewModelContext(viewModel, dataKey);
-        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-        let args = [oldRenderStatus, cache.el].concat(paramList);
-        shouldRender = shouldRender.apply(viewModelContext, args);
-    }
+    shouldRender = getViewModelPropValue(viewModel, cache);
 
     shouldRender = Boolean(shouldRender);
 
@@ -45,11 +35,6 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
 
     // store new show status
     cache.elementData.renderStatus = shouldRender;
-
-    // reverse if has '!' expression from DOM deceleration
-    if (isInvertBoolean) {
-        shouldRender = !shouldRender;
-    }
 
     // only create fragment once
     // wrap comment tag around
