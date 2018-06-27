@@ -1425,7 +1425,6 @@ var _renderIfBinding = require('./renderIfBinding');
  */
 var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
-    var paramList = cache.parameters;
 
     if (!dataKey) {
         return;
@@ -1434,20 +1433,11 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     cache.elementData = cache.elementData || {};
 
     var oldRenderStatus = cache.elementData.renderStatus;
-    var isInvertBoolean = dataKey.charAt(0) === '!';
     var shouldRender = void 0;
-    var viewModelContext = void 0;
 
     cache.type = _config.bindingAttrs['if'];
-    dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
-    shouldRender = (0, _util.getViewModelValue)(viewModel, dataKey);
 
-    if (typeof shouldRender === 'function') {
-        viewModelContext = (0, _util.resolveViewModelContext)(viewModel, dataKey);
-        paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];
-        var args = [oldRenderStatus, cache.el].concat(paramList);
-        shouldRender = shouldRender.apply(viewModelContext, args);
-    }
+    shouldRender = (0, _util.getViewModelPropValue)(viewModel, cache);
 
     shouldRender = Boolean(shouldRender);
 
@@ -1457,11 +1447,6 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
 
     // store new show status
     cache.elementData.renderStatus = shouldRender;
-
-    // reverse if has '!' expression from DOM deceleration
-    if (isInvertBoolean) {
-        shouldRender = !shouldRender;
-    }
 
     // only create fragment once
     // wrap comment tag around
@@ -2216,6 +2201,7 @@ var _renderIfBinding = require('./renderIfBinding');
  */
 var switchBinding = function switchBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
+    var paramList = cache.parameters;
 
     if (!dataKey) {
         return;
@@ -2226,7 +2212,7 @@ var switchBinding = function switchBinding(cache, viewModel, bindingAttrs) {
     var newExpression = (0, _util.getViewModelValue)(viewModel, dataKey);
     if (typeof newExpression === 'function') {
         var viewModelContext = (0, _util.resolveViewModelContext)(viewModel, newExpression);
-        var paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];
+        paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];
         var args = paramList.slice(0);
         newExpression = newExpression.apply(viewModelContext, args);
     }
@@ -2382,7 +2368,7 @@ exports['default'] = textBinding;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.throwErrorMessage = exports.resolveParamList = exports.resolveViewModelContext = exports.insertAfter = exports.cloneDomNode = exports.getNodeAttrObj = exports.invertObj = exports.getFunctionParameterList = exports.getFormData = exports.arrayRemoveMatch = exports.debounceRaf = exports.parseStringToJson = exports.setViewModelValue = exports.getViewModelValue = exports.generateElementCache = exports.extend = exports.isEmptyObject = exports.isPlainObject = exports.isArray = exports.REGEX = undefined;
+exports.throwErrorMessage = exports.resolveParamList = exports.resolveViewModelContext = exports.insertAfter = exports.cloneDomNode = exports.getNodeAttrObj = exports.invertObj = exports.getFunctionParameterList = exports.getFormData = exports.arrayRemoveMatch = exports.debounceRaf = exports.parseStringToJson = exports.getViewModelPropValue = exports.setViewModelValue = exports.getViewModelValue = exports.generateElementCache = exports.extend = exports.isEmptyObject = exports.isPlainObject = exports.isArray = exports.REGEX = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -2472,6 +2458,26 @@ var getViewModelValue = function getViewModelValue(obj, prop) {
  */
 var setViewModelValue = function setViewModelValue(obj, prop, value) {
     return _.set(obj, prop, value);
+};
+
+var getViewModelPropValue = function getViewModelPropValue(viewModel, bindingCache) {
+    var dataKey = bindingCache.dataKey;
+    var paramList = bindingCache.parameters;
+    var isInvertBoolean = dataKey.charAt(0) === '!';
+
+    if (isInvertBoolean) {
+        dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
+    }
+
+    var ret = getViewModelValue(viewModel, dataKey);
+    if (typeof ret === 'function') {
+        var viewModelContext = resolveViewModelContext(viewModel, dataKey);
+        var oldStatus = cache.elementData ? cache.elementData.renderStatus : null;
+        paramList ? resolveParamList(viewModel, paramList) : [];
+        var args = [oldStatus, cache.el].concat(paramList);
+        ret = ret.apply(viewModelContext, args);
+    }
+    return isInvertBoolean ? !Boolean(ret) : ret;
 };
 
 var parseStringToJson = function parseStringToJson(str) {
@@ -2736,6 +2742,7 @@ exports.extend = extend;
 exports.generateElementCache = generateElementCache;
 exports.getViewModelValue = getViewModelValue;
 exports.setViewModelValue = setViewModelValue;
+exports.getViewModelPropValue = getViewModelPropValue;
 exports.parseStringToJson = parseStringToJson;
 exports.debounceRaf = debounceRaf;
 exports.arrayRemoveMatch = arrayRemoveMatch;

@@ -20,17 +20,11 @@ const generateElementCache = (bindingAttrs) => {
 };
 
 const isArray = (obj) => {
-    return hasIsArray
-        ? Array.isArray(obj)
-        : Object.prototype.toString.call(obj) === '[object Array]';
+    return hasIsArray ? Array.isArray(obj) : Object.prototype.toString.call(obj) === '[object Array]';
 };
 
 const isJsObject = (obj) => {
-    return (
-        obj !== null &&
-        typeof obj === 'object' &&
-        Object.prototype.toString.call(obj) === '[object Object]'
-    );
+    return obj !== null && typeof obj === 'object' && Object.prototype.toString.call(obj) === '[object Object]';
 };
 
 const isPlainObject = (obj) => {
@@ -88,11 +82,29 @@ const setViewModelValue = (obj, prop, value) => {
     return _.set(obj, prop, value);
 };
 
+const getViewModelPropValue = (viewModel, bindingCache) => {
+    let dataKey = bindingCache.dataKey;
+    let paramList = bindingCache.parameters;
+    let isInvertBoolean = dataKey.charAt(0) === '!';
+
+    if (isInvertBoolean) {
+        dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
+    }
+
+    let ret = getViewModelValue(viewModel, dataKey);
+    if (typeof ret === 'function') {
+        let viewModelContext = resolveViewModelContext(viewModel, dataKey);
+        let oldStatus = cache.elementData ? cache.elementData.renderStatus : null;
+        paramList ? resolveParamList(viewModel, paramList) : [];
+        let args = [oldStatus, cache.el].concat(paramList);
+        ret = ret.apply(viewModelContext, args);
+    }
+    return isInvertBoolean ? !Boolean(ret) : ret;
+};
+
 const parseStringToJson = (str) => {
     // fix unquote or single quote keys and replace single quote to double quote
-    let ret = str
-        .replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":')
-        .replace(/'/g, '"');
+    let ret = str.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":').replace(/'/g, '"');
     return JSON.parse(ret);
 };
 
@@ -284,8 +296,7 @@ const cloneDomNode = (element) => {
  * @description helper function to insert new node before the reference node
  */
 const insertAfter = (parentNode, newNode, referenceNode) => {
-    let refNextElement =
-        referenceNode && referenceNode.nextSibling ? referenceNode.nextSibling : null;
+    let refNextElement = referenceNode && referenceNode.nextSibling ? referenceNode.nextSibling : null;
     return parentNode.insertBefore(newNode, refNextElement);
 };
 
@@ -344,6 +355,7 @@ export {
     generateElementCache,
     getViewModelValue,
     setViewModelValue,
+    getViewModelPropValue,
     parseStringToJson,
     debounceRaf,
     arrayRemoveMatch,
