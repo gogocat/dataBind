@@ -4,7 +4,7 @@
  * @link https://github.com/gogocat/dataBind#readme
  * @license MIT
  */
-(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1431,22 +1431,18 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     }
 
     cache.elementData = cache.elementData || {};
+    cache.type = cache.type || _config.bindingAttrs['if'];
 
-    var oldRenderStatus = cache.elementData.renderStatus;
-    var shouldRender = void 0;
+    var oldViewModelProValue = cache.elementData.viewModelProValue;
+    var viewModelProValue = (0, _util.getViewModelPropValue)(viewModel, cache);
+    var shouldRender = Boolean(viewModelProValue);
 
-    cache.type = _config.bindingAttrs['if'];
-
-    shouldRender = (0, _util.getViewModelPropValue)(viewModel, cache);
-
-    shouldRender = Boolean(shouldRender);
-
-    if (oldRenderStatus === shouldRender && !cache.hasIterationBindingCache) {
+    if (oldViewModelProValue === viewModelProValue && !cache.hasIterationBindingCache) {
         return;
     }
 
     // store new show status
-    cache.elementData.renderStatus = shouldRender;
+    cache.elementData.viewModelProValue = viewModelProValue;
 
     // only create fragment once
     // wrap comment tag around
@@ -1890,9 +1886,32 @@ var _domWalker = require('./domWalker');
 
 var _domWalker2 = _interopRequireDefault(_domWalker);
 
+var _config = require('./config');
+
 var _commentWrapper = require('./commentWrapper');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+/**
+ * isTargetDomRemoved
+ * @description check if DOM between 'start' and 'end' comment tag has been removed
+ * @param {object} bindingData
+ * @return {boolean}
+ */
+var isTargetDomRemoved = function isTargetDomRemoved(bindingData) {
+    var ret = false;
+    if (bindingData && bindingData.previousNonTemplateElement) {
+        var commentStartTextContent = bindingData.previousNonTemplateElement.textContent;
+        var endCommentTag = bindingData.previousNonTemplateElement.nextSibling;
+
+        if (endCommentTag.nodeType === 8) {
+            if (endCommentTag.textContent === commentStartTextContent + _config.commentSuffix) {
+                ret = true;
+            }
+        }
+    }
+    return ret;
+};
 
 var renderIfBinding = function renderIfBinding(_ref) {
     var bindingData = _ref.bindingData,
@@ -1902,12 +1921,13 @@ var renderIfBinding = function renderIfBinding(_ref) {
     if (!bindingData.fragment) {
         return;
     }
-    // check dom next to start comment has been removed
-    var isDomRemoved = bindingData.previousNonTemplateElement.nextElementSibling === null;
+
+    var isDomRemoved = isTargetDomRemoved(bindingData);
+    // use fragment for binding, otherwise apply binding on existing element
     var rootElement = isDomRemoved ? bindingData.fragment.firstChild.cloneNode(true) : bindingData.el;
 
     // walk clonedElement to create iterationBindingCache
-    if (!bindingData.iterationBindingCache) {
+    if (!bindingData.iterationBindingCache || !bindingData.hasIterationBindingCache) {
         bindingData.iterationBindingCache = (0, _domWalker2['default'])({
             rootNode: rootElement,
             bindingAttrs: bindingAttrs
@@ -1926,11 +1946,11 @@ var renderIfBinding = function renderIfBinding(_ref) {
         });
     }
 
-    // remove orginal DOM.
+    // remove current old DOM.
     if (!isDomRemoved) {
         removeIfBinding(bindingData);
     }
-    // insert to DOM
+    // insert to new rendered DOM
     (0, _commentWrapper.insertRenderedElements)(bindingData, rootElement);
 };
 
@@ -1941,7 +1961,7 @@ var removeIfBinding = function removeIfBinding(bindingData) {
 exports.renderIfBinding = renderIfBinding;
 exports.removeIfBinding = removeIfBinding;
 
-},{"./binder":2,"./commentWrapper":6,"./domWalker":10,"./util":24}],19:[function(require,module,exports){
+},{"./binder":2,"./commentWrapper":6,"./config":7,"./domWalker":10,"./util":24}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2477,7 +2497,7 @@ var getViewModelPropValue = function getViewModelPropValue(viewModel, bindingCac
         var args = [oldStatus, cache.el].concat(paramList);
         ret = ret.apply(viewModelContext, args);
     }
-    return isInvertBoolean ? !Boolean(ret) : ret;
+    return isInvertBoolean ? !JSON.parse(ret) : ret;
 };
 
 var parseStringToJson = function parseStringToJson(str) {

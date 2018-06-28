@@ -99,7 +99,7 @@ const getViewModelPropValue = (viewModel, bindingCache) => {
         let args = [oldStatus, cache.el].concat(paramList);
         ret = ret.apply(viewModelContext, args);
     }
-    return isInvertBoolean ? !Boolean(ret) : ret;
+    return isInvertBoolean ? !JSON.parse(ret) : ret;
 };
 
 const parseStringToJson = (str) => {
