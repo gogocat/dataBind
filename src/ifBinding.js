@@ -44,11 +44,6 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     if (!shouldRender) {
         // remove element
         removeIfBinding(cache);
-        // remove cache.IterationBindingCache to prevent memory leak
-        if (cache.hasIterationBindingCache) {
-            cache.iterationBindingCache = {};
-            cache.hasIterationBindingCache = false;
-        }
     } else {
         // render element
         renderIfBinding({

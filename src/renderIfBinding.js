@@ -31,8 +31,13 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     }
 
     const isDomRemoved = isTargetDomRemoved(bindingData);
-    // use fragment for binding, otherwise apply binding on existing element
-    const rootElement = isDomRemoved ? bindingData.fragment.firstChild.cloneNode(true) : bindingData.el;
+    // use fragment for create iterationBindingCache
+    const rootElement = bindingData.fragment.firstChild.cloneNode(true);
+
+    // remove current old DOM.
+    if (!isDomRemoved) {
+        removeIfBinding(bindingData);
+    }
 
     // walk clonedElement to create iterationBindingCache
     if (!bindingData.iterationBindingCache || !bindingData.hasIterationBindingCache) {
@@ -54,17 +59,17 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
         });
     }
 
-    // TODO: check logic here, it seems removed rendered DOM
-    // remove current old DOM.
-    if (!isDomRemoved) {
-        removeIfBinding(bindingData);
-    }
     // insert to new rendered DOM
     insertRenderedElements(bindingData, rootElement);
 };
 
 const removeIfBinding = (bindingData) => {
     removeElemnetsByCommentWrap(bindingData);
+    // remove cache.IterationBindingCache to prevent memory leak
+    if (bindingData.hasIterationBindingCache) {
+        bindingData.iterationBindingCache = {};
+        bindingData.hasIterationBindingCache = false;
+    }
 };
 
 export {renderIfBinding, removeIfBinding};

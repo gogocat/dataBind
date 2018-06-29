@@ -1456,11 +1456,6 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     if (!shouldRender) {
         // remove element
         (0, _renderIfBinding.removeIfBinding)(cache);
-        // remove cache.IterationBindingCache to prevent memory leak
-        if (cache.hasIterationBindingCache) {
-            cache.iterationBindingCache = {};
-            cache.hasIterationBindingCache = false;
-        }
     } else {
         // render element
         (0, _renderIfBinding.renderIfBinding)({
@@ -1924,7 +1919,13 @@ var renderIfBinding = function renderIfBinding(_ref) {
 
     var isDomRemoved = isTargetDomRemoved(bindingData);
     // use fragment for binding, otherwise apply binding on existing element
-    var rootElement = isDomRemoved ? bindingData.fragment.firstChild.cloneNode(true) : bindingData.el;
+    // const rootElement = isDomRemoved ? bindingData.fragment.firstChild.cloneNode(true) : bindingData.el;
+    var rootElement = bindingData.fragment.firstChild.cloneNode(true);
+
+    // remove current old DOM.
+    if (!isDomRemoved) {
+        removeIfBinding(bindingData);
+    }
 
     // walk clonedElement to create iterationBindingCache
     if (!bindingData.iterationBindingCache || !bindingData.hasIterationBindingCache) {
@@ -1946,16 +1947,17 @@ var renderIfBinding = function renderIfBinding(_ref) {
         });
     }
 
-    // remove current old DOM.
-    if (!isDomRemoved) {
-        removeIfBinding(bindingData);
-    }
     // insert to new rendered DOM
     (0, _commentWrapper.insertRenderedElements)(bindingData, rootElement);
 };
 
 var removeIfBinding = function removeIfBinding(bindingData) {
     (0, _commentWrapper.removeElemnetsByCommentWrap)(bindingData);
+    // remove cache.IterationBindingCache to prevent memory leak
+    if (bindingData.hasIterationBindingCache) {
+        bindingData.iterationBindingCache = {};
+        bindingData.hasIterationBindingCache = false;
+    }
 };
 
 exports.renderIfBinding = renderIfBinding;
