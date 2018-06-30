@@ -1,4 +1,4 @@
-import {getViewModelValue, resolveViewModelContext, resolveParamList, isPlainObject, arrayRemoveMatch} from './util';
+import {getViewModelPropValue, isPlainObject, arrayRemoveMatch, each} from './util';
 
 /**
  * cssBinding
@@ -12,32 +12,23 @@ import {getViewModelValue, resolveViewModelContext, resolveParamList, isPlainObj
  */
 const cssBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
-    let paramList = cache.parameters;
 
     if (!dataKey) {
         return;
     }
 
     cache.elementData = cache.elementData || {};
-    cache.elementData.cssList = cache.elementData.cssList || '';
+    cache.elementData.viewModelPropValue = cache.elementData.viewModelPropValue || '';
 
-    let $element = $(cache.el);
-    let oldCssList = cache.elementData.cssList;
+    // let $element = $(cache.el);
+    let oldCssList = cache.elementData.viewModelPropValue;
     let newCssList = '';
-    let vmCssListObj = getViewModelValue(viewModel, dataKey);
+    let vmCssListObj = getViewModelPropValue(viewModel, cache);
     let vmCssListArray;
     let isViewDataObject = false;
     let isViewDataString = false;
     let domCssList;
     let cssList = [];
-    let viewModelContext;
-
-    if (typeof vmCssListObj === 'function') {
-        viewModelContext = resolveViewModelContext(viewModel, dataKey);
-        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-        let args = [oldCssList, $element].concat(paramList);
-        vmCssListObj = vmCssListObj.apply(viewModelContext, args);
-    }
 
     if (typeof vmCssListObj === 'string') {
         isViewDataString = true;
@@ -68,8 +59,7 @@ const cssBinding = (cache, viewModel, bindingAttrs) => {
     }
 
     if (isViewDataObject) {
-        // TODO: optimise this use pure js loop
-        $.each(vmCssListObj, function(k, v) {
+        each(vmCssListObj, function(k, v) {
             let i = cssList.indexOf(k);
             if (v === true) {
                 cssList.push(k);
@@ -90,7 +80,7 @@ const cssBinding = (cache, viewModel, bindingAttrs) => {
     // rather than replace the whole class attribute
     cache.el.setAttribute('class', cssList);
     // update element data
-    cache.elementData.cssList = newCssList;
+    cache.elementData.viewModelPropValue = newCssList;
 };
 
 export default cssBinding;

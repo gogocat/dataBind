@@ -21,16 +21,16 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     cache.elementData = cache.elementData || {};
     cache.type = cache.type || configBindingAttrs.if;
 
-    let oldViewModelProValue = cache.elementData.viewModelProValue;
-    let viewModelProValue = getViewModelPropValue(viewModel, cache);
-    let shouldRender = Boolean(viewModelProValue);
+    let oldViewModelProValue = cache.elementData.viewModelPropValue;
+    let viewModelPropValue = getViewModelPropValue(viewModel, cache);
+    let shouldRender = Boolean(viewModelPropValue);
 
-    if (oldViewModelProValue === viewModelProValue && !cache.hasIterationBindingCache) {
+    if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
         return;
     }
 
     // store new show status
-    cache.elementData.viewModelProValue = viewModelProValue;
+    cache.elementData.viewModelPropValue = viewModelPropValue;
 
     // only create fragment once
     // wrap comment tag around

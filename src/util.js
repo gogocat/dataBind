@@ -94,9 +94,9 @@ const getViewModelPropValue = (viewModel, bindingCache) => {
     let ret = getViewModelValue(viewModel, dataKey);
     if (typeof ret === 'function') {
         let viewModelContext = resolveViewModelContext(viewModel, dataKey);
-        let oldStatus = cache.elementData ? cache.elementData.renderStatus : null;
+        let oldViewModelProValue = cache.elementData ? cache.elementData.viewModelProValue : null;
         paramList ? resolveParamList(viewModel, paramList) : [];
-        let args = [oldStatus, cache.el].concat(paramList);
+        let args = [oldViewModelProValue, cache.el].concat(paramList);
         ret = ret.apply(viewModelContext, args);
     }
     return isInvertBoolean ? !JSON.parse(ret) : ret;
@@ -269,12 +269,40 @@ const extend = (isDeepMerge = false, target, ...sources) => {
     return extend(true, target, ...sources);
 };
 
-const isObject = (item) => {
-    return item !== null && typeof item === 'object';
+const each = (obj, fn) => {
+    if (typeof obj !== 'object' || typeof fn !== 'function') {
+        return;
+    }
+    let keys = [];
+    let keysLength = 0;
+    let isArrayObj = isArray(obj);
+    let key;
+    let value;
+    let i;
+
+    if (isArrayObj) {
+        keysLength = obj.length;
+    } else if (isJsObject(obj)) {
+        keys = Object.keys(obj);
+        keysLength = keys.length;
+    } else {
+        throw new TypeError('Object is not an array or object');
+    }
+
+    for (i = 0; i < keysLength; i += 1) {
+        if (isArrayObj) {
+            key = i;
+            value = obj[i];
+        } else {
+            key = keys[i];
+            value = obj[key];
+        }
+        fn(key, value);
+    }
 };
 
 const isMergebleObject = (item) => {
-    return isObject(item) && !isArray(item);
+    return isJsObject(item) && !isArray(item);
 };
 
 /**
@@ -350,7 +378,9 @@ export {
     REGEX,
     isArray,
     isPlainObject,
+    isJsObject,
     isEmptyObject,
+    each,
     extend,
     generateElementCache,
     getViewModelValue,

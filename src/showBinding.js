@@ -1,4 +1,4 @@
-import {getViewModelValue, resolveViewModelContext, resolveParamList} from './util';
+import {getViewModelPropValue} from './util';
 
 /**
  * showBinding
@@ -11,7 +11,6 @@ import {getViewModelValue, resolveViewModelContext, resolveParamList} from './ut
  */
 const showBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
-    let paramList = cache.parameters;
 
     if (!dataKey) {
         return;
@@ -19,24 +18,14 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
 
     cache.elementData = cache.elementData || {};
 
-    let $element = $(cache.el);
-    let oldShowStatus = cache.elementData.showStatus;
+    let oldShowStatus = cache.elementData.viewModelPropValue;
     let isInvertBoolean = dataKey.charAt(0) === '!';
     let shouldShow;
-    let viewModelContext;
 
-    dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
-    shouldShow = getViewModelValue(viewModel, dataKey);
+    shouldShow = getViewModelPropValue(viewModel, cache);
 
     // do nothing if data in viewModel is undefined
     if (typeof shouldShow !== 'undefined' && shouldShow !== null) {
-        if (typeof shouldShow === 'function') {
-            viewModelContext = resolveViewModelContext(viewModel, dataKey);
-            paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-            let args = [oldShowStatus, $element].concat(paramList);
-            shouldShow = shouldShow.apply(viewModelContext, args);
-        }
-
         shouldShow = Boolean(shouldShow);
 
         // reject if nothing changed
@@ -45,16 +34,19 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
         }
 
         // store new show status
-        cache.elementData.showStatus = shouldShow;
+        cache.elementData.viewModelPropValue = shouldShow;
 
         // reverse if has '!' expression from DOM deceleration
         if (isInvertBoolean) {
             shouldShow = !shouldShow;
         }
         if (!shouldShow) {
-            $element.hide();
+            cache.el.style.setProperty('display', 'none');
         } else {
-            $element.show();
+            cache.el.style.removeProperty('display');
+            if (cache.el.style.cssText === '') {
+                cache.el.removeAttribute('style');
+            }
         }
     }
 };

@@ -1024,32 +1024,23 @@ var _util = require('./util');
  */
 var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
-    var paramList = cache.parameters;
 
     if (!dataKey) {
         return;
     }
 
     cache.elementData = cache.elementData || {};
-    cache.elementData.cssList = cache.elementData.cssList || '';
+    cache.elementData.viewModelPropValue = cache.elementData.viewModelPropValue || '';
 
-    var $element = $(cache.el);
-    var oldCssList = cache.elementData.cssList;
+    // let $element = $(cache.el);
+    var oldCssList = cache.elementData.viewModelPropValue;
     var newCssList = '';
-    var vmCssListObj = (0, _util.getViewModelValue)(viewModel, dataKey);
+    var vmCssListObj = (0, _util.getViewModelPropValue)(viewModel, cache);
     var vmCssListArray = void 0;
     var isViewDataObject = false;
     var isViewDataString = false;
     var domCssList = void 0;
     var cssList = [];
-    var viewModelContext = void 0;
-
-    if (typeof vmCssListObj === 'function') {
-        viewModelContext = (0, _util.resolveViewModelContext)(viewModel, dataKey);
-        paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];
-        var args = [oldCssList, $element].concat(paramList);
-        vmCssListObj = vmCssListObj.apply(viewModelContext, args);
-    }
 
     if (typeof vmCssListObj === 'string') {
         isViewDataString = true;
@@ -1080,8 +1071,7 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     }
 
     if (isViewDataObject) {
-        // TODO: optimise this use pure js loop
-        $.each(vmCssListObj, function (k, v) {
+        (0, _util.each)(vmCssListObj, function (k, v) {
             var i = cssList.indexOf(k);
             if (v === true) {
                 cssList.push(k);
@@ -1102,7 +1092,7 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     // rather than replace the whole class attribute
     cache.el.setAttribute('class', cssList);
     // update element data
-    cache.elementData.cssList = newCssList;
+    cache.elementData.viewModelPropValue = newCssList;
 };
 
 exports['default'] = cssBinding;
@@ -1433,16 +1423,16 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     cache.elementData = cache.elementData || {};
     cache.type = cache.type || _config.bindingAttrs['if'];
 
-    var oldViewModelProValue = cache.elementData.viewModelProValue;
-    var viewModelProValue = (0, _util.getViewModelPropValue)(viewModel, cache);
-    var shouldRender = Boolean(viewModelProValue);
+    var oldViewModelProValue = cache.elementData.viewModelPropValue;
+    var viewModelPropValue = (0, _util.getViewModelPropValue)(viewModel, cache);
+    var shouldRender = Boolean(viewModelPropValue);
 
-    if (oldViewModelProValue === viewModelProValue && !cache.hasIterationBindingCache) {
+    if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
         return;
     }
 
     // store new show status
-    cache.elementData.viewModelProValue = viewModelProValue;
+    cache.elementData.viewModelPropValue = viewModelPropValue;
 
     // only create fragment once
     // wrap comment tag around
@@ -1918,8 +1908,7 @@ var renderIfBinding = function renderIfBinding(_ref) {
     }
 
     var isDomRemoved = isTargetDomRemoved(bindingData);
-    // use fragment for binding, otherwise apply binding on existing element
-    // const rootElement = isDomRemoved ? bindingData.fragment.firstChild.cloneNode(true) : bindingData.el;
+    // use fragment for create iterationBindingCache
     var rootElement = bindingData.fragment.firstChild.cloneNode(true);
 
     // remove current old DOM.
@@ -2106,7 +2095,6 @@ var _util = require('./util');
  */
 var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
-    var paramList = cache.parameters;
 
     if (!dataKey) {
         return;
@@ -2114,24 +2102,14 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
 
     cache.elementData = cache.elementData || {};
 
-    var $element = $(cache.el);
-    var oldShowStatus = cache.elementData.showStatus;
+    var oldShowStatus = cache.elementData.viewModelPropValue;
     var isInvertBoolean = dataKey.charAt(0) === '!';
     var shouldShow = void 0;
-    var viewModelContext = void 0;
 
-    dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
-    shouldShow = (0, _util.getViewModelValue)(viewModel, dataKey);
+    shouldShow = (0, _util.getViewModelPropValue)(viewModel, cache);
 
     // do nothing if data in viewModel is undefined
     if (typeof shouldShow !== 'undefined' && shouldShow !== null) {
-        if (typeof shouldShow === 'function') {
-            viewModelContext = (0, _util.resolveViewModelContext)(viewModel, dataKey);
-            paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];
-            var args = [oldShowStatus, $element].concat(paramList);
-            shouldShow = shouldShow.apply(viewModelContext, args);
-        }
-
         shouldShow = Boolean(shouldShow);
 
         // reject if nothing changed
@@ -2140,16 +2118,19 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
         }
 
         // store new show status
-        cache.elementData.showStatus = shouldShow;
+        cache.elementData.viewModelPropValue = shouldShow;
 
         // reverse if has '!' expression from DOM deceleration
         if (isInvertBoolean) {
             shouldShow = !shouldShow;
         }
         if (!shouldShow) {
-            $element.hide();
+            cache.el.style.setProperty('display', 'none');
         } else {
-            $element.show();
+            cache.el.style.removeProperty('display');
+            if (cache.el.style.cssText === '') {
+                cache.el.removeAttribute('style');
+            }
         }
     }
 };
@@ -2390,7 +2371,7 @@ exports['default'] = textBinding;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.throwErrorMessage = exports.resolveParamList = exports.resolveViewModelContext = exports.insertAfter = exports.cloneDomNode = exports.getNodeAttrObj = exports.invertObj = exports.getFunctionParameterList = exports.getFormData = exports.arrayRemoveMatch = exports.debounceRaf = exports.parseStringToJson = exports.getViewModelPropValue = exports.setViewModelValue = exports.getViewModelValue = exports.generateElementCache = exports.extend = exports.isEmptyObject = exports.isPlainObject = exports.isArray = exports.REGEX = undefined;
+exports.throwErrorMessage = exports.resolveParamList = exports.resolveViewModelContext = exports.insertAfter = exports.cloneDomNode = exports.getNodeAttrObj = exports.invertObj = exports.getFunctionParameterList = exports.getFormData = exports.arrayRemoveMatch = exports.debounceRaf = exports.parseStringToJson = exports.getViewModelPropValue = exports.setViewModelValue = exports.getViewModelValue = exports.generateElementCache = exports.extend = exports.each = exports.isEmptyObject = exports.isJsObject = exports.isPlainObject = exports.isArray = exports.REGEX = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -2494,9 +2475,9 @@ var getViewModelPropValue = function getViewModelPropValue(viewModel, bindingCac
     var ret = getViewModelValue(viewModel, dataKey);
     if (typeof ret === 'function') {
         var viewModelContext = resolveViewModelContext(viewModel, dataKey);
-        var oldStatus = cache.elementData ? cache.elementData.renderStatus : null;
+        var oldViewModelProValue = cache.elementData ? cache.elementData.viewModelProValue : null;
         paramList ? resolveParamList(viewModel, paramList) : [];
-        var args = [oldStatus, cache.el].concat(paramList);
+        var args = [oldViewModelProValue, cache.el].concat(paramList);
         ret = ret.apply(viewModelContext, args);
     }
     return isInvertBoolean ? !JSON.parse(ret) : ret;
@@ -2676,12 +2657,40 @@ var extend = function extend() {
     return extend.apply(undefined, [true, target].concat(sources));
 };
 
-var isObject = function isObject(item) {
-    return item !== null && (typeof item === 'undefined' ? 'undefined' : _typeof(item)) === 'object';
+var each = function each(obj, fn) {
+    if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) !== 'object' || typeof fn !== 'function') {
+        return;
+    }
+    var keys = [];
+    var keysLength = 0;
+    var isArrayObj = isArray(obj);
+    var key = void 0;
+    var value = void 0;
+    var i = void 0;
+
+    if (isArrayObj) {
+        keysLength = obj.length;
+    } else if (isJsObject(obj)) {
+        keys = Object.keys(obj);
+        keysLength = keys.length;
+    } else {
+        throw new TypeError('Object is not an array or object');
+    }
+
+    for (i = 0; i < keysLength; i += 1) {
+        if (isArrayObj) {
+            key = i;
+            value = obj[i];
+        } else {
+            key = keys[i];
+            value = obj[key];
+        }
+        fn(key, value);
+    }
 };
 
 var isMergebleObject = function isMergebleObject(item) {
-    return isObject(item) && !isArray(item);
+    return isJsObject(item) && !isArray(item);
 };
 
 /**
@@ -2759,7 +2768,9 @@ var throwErrorMessage = function throwErrorMessage() {
 exports.REGEX = REGEX;
 exports.isArray = isArray;
 exports.isPlainObject = isPlainObject;
+exports.isJsObject = isJsObject;
 exports.isEmptyObject = isEmptyObject;
+exports.each = each;
 exports.extend = extend;
 exports.generateElementCache = generateElementCache;
 exports.getViewModelValue = getViewModelValue;
