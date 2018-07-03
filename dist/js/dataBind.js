@@ -886,15 +886,18 @@ var removeElemnetsByCommentWrap = function removeElemnetsByCommentWrap(bindingDa
     if (!bindingData.docRange) {
         bindingData.docRange = document.createRange();
     }
-
-    if (bindingData.previousNonTemplateElement) {
-        // update docRange start and end match the wrapped comment node
-        bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
-        setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
-    } else {
-        // insert before next non template element
-        bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
-        setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
+    try {
+        if (bindingData.previousNonTemplateElement) {
+            // update docRange start and end match the wrapped comment node
+            bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
+            setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
+        } else {
+            // insert before next non template element
+            bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
+            setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
+        }
+    } catch (err) {
+        console.log('error removeElemnetsByCommentWrap: ', err.message);
     }
 
     return bindingData.docRange.deleteContents();
@@ -2475,9 +2478,10 @@ var getViewModelPropValue = function getViewModelPropValue(viewModel, bindingCac
     var ret = getViewModelValue(viewModel, dataKey);
     if (typeof ret === 'function') {
         var viewModelContext = resolveViewModelContext(viewModel, dataKey);
-        var oldViewModelProValue = cache.elementData ? cache.elementData.viewModelProValue : null;
-        paramList ? resolveParamList(viewModel, paramList) : [];
-        var args = [oldViewModelProValue, cache.el].concat(paramList);
+        var oldViewModelProValue = bindingCache.elementData ? bindingCache.elementData.viewModelProValue : null;
+        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
+        // let args = [oldViewModelProValue, bindingCache.el].concat(paramList);
+        var args = paramList.concat([oldViewModelProValue, bindingCache.el]);
         ret = ret.apply(viewModelContext, args);
     }
     return isInvertBoolean ? !JSON.parse(ret) : ret;
@@ -2744,8 +2748,8 @@ var resolveParamList = function resolveParamList(viewModel, paramList) {
             // convert '$index' to value
             param = viewModel[config.bindingDataReference.currentIndex];
         } else if (param === config.bindingDataReference.currentData) {
-            // convert '$data' to value
-            param = viewModel[config.bindingDataReference.currentData];
+            // convert '$data' to value or current viewModel
+            param = viewModel[config.bindingDataReference.currentData] || viewModel;
         } else if (param === config.bindingDataReference.rootDataKey) {
             // convert '$root' to root viewModel
             param = viewModel[config.bindingDataReference.rootDataKey] || viewModel;

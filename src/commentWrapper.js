@@ -105,15 +105,18 @@ const removeElemnetsByCommentWrap = (bindingData) => {
     if (!bindingData.docRange) {
         bindingData.docRange = document.createRange();
     }
-
-    if (bindingData.previousNonTemplateElement) {
-        // update docRange start and end match the wrapped comment node
-        bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
-        setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
-    } else {
-        // insert before next non template element
-        bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
-        setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
+    try {
+        if (bindingData.previousNonTemplateElement) {
+            // update docRange start and end match the wrapped comment node
+            bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
+            setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
+        } else {
+            // insert before next non template element
+            bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
+            setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
+        }
+    } catch (err) {
+        console.log('error removeElemnetsByCommentWrap: ', err.message);
     }
 
     return bindingData.docRange.deleteContents();

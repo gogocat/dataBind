@@ -94,9 +94,10 @@ const getViewModelPropValue = (viewModel, bindingCache) => {
     let ret = getViewModelValue(viewModel, dataKey);
     if (typeof ret === 'function') {
         let viewModelContext = resolveViewModelContext(viewModel, dataKey);
-        let oldViewModelProValue = cache.elementData ? cache.elementData.viewModelProValue : null;
-        paramList ? resolveParamList(viewModel, paramList) : [];
-        let args = [oldViewModelProValue, cache.el].concat(paramList);
+        let oldViewModelProValue = bindingCache.elementData ? bindingCache.elementData.viewModelProValue : null;
+        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
+        // let args = [oldViewModelProValue, bindingCache.el].concat(paramList);
+        let args = paramList.concat([oldViewModelProValue, bindingCache.el]);
         ret = ret.apply(viewModelContext, args);
     }
     return isInvertBoolean ? !JSON.parse(ret) : ret;
@@ -356,8 +357,8 @@ const resolveParamList = (viewModel, paramList) => {
             // convert '$index' to value
             param = viewModel[config.bindingDataReference.currentIndex];
         } else if (param === config.bindingDataReference.currentData) {
-            // convert '$data' to value
-            param = viewModel[config.bindingDataReference.currentData];
+            // convert '$data' to value or current viewModel
+            param = viewModel[config.bindingDataReference.currentData] || viewModel;
         } else if (param === config.bindingDataReference.rootDataKey) {
             // convert '$root' to root viewModel
             param = viewModel[config.bindingDataReference.rootDataKey] || viewModel;
