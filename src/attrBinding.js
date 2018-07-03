@@ -1,4 +1,4 @@
-import {getViewModelValue, resolveViewModelContext, resolveParamList, isPlainObject, isEmptyObject} from './util';
+import {getViewModelPropValue, isPlainObject, isEmptyObject} from './util';
 
 /**
  * attrBinding
@@ -10,26 +10,16 @@ import {getViewModelValue, resolveViewModelContext, resolveParamList, isPlainObj
  */
 const attrBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
-    let paramList = cache.parameters;
 
     if (!dataKey) {
         return;
     }
 
     cache.elementData = cache.elementData || {};
-    cache.elementData.attrObj = cache.elementData.attrObj || {};
+    cache.elementData.viewModelProValue = cache.elementData.viewModelProValue || {};
 
-    let $element = $(cache.el);
-    let oldAttrObj = cache.elementData.attrObj;
-    let vmAttrObj = getViewModelValue(viewModel, dataKey);
-    let viewModelContext;
-
-    if (typeof vmAttrObj === 'function') {
-        viewModelContext = resolveViewModelContext(viewModel, dataKey);
-        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-        let args = [oldAttrObj, $element].concat(paramList);
-        vmAttrObj = vmAttrObj.apply(viewModelContext, args);
-    }
+    const oldAttrObj = cache.elementData.viewModelProValue;
+    const vmAttrObj = getViewModelPropValue(viewModel, cache);
 
     if (!isPlainObject(vmAttrObj) || isEmptyObject(vmAttrObj)) {
         // reject if vmAttrListObj is not an object or empty
@@ -69,7 +59,7 @@ const attrBinding = (cache, viewModel, bindingAttrs) => {
         }
     }
     // update element data
-    cache.elementData.attrObj = vmAttrObj;
+    cache.elementData.viewModelProValue = vmAttrObj;
 };
 
 export default attrBinding;

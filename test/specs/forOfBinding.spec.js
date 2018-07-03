@@ -68,7 +68,7 @@ describe('When search-results-component with forOf binding inited', function() {
                     options: [{text: '7', value: '7'}, {text: '8', value: '8'}, {text: '9', value: '9'}],
                 },
             ],
-            getResultItemAttr: function(oldAttrObj, $el, index) {
+            getResultItemAttr: function(index, oldAttrObj, $el) {
                 var self = this;
                 if (self.searchResults[index].image) {
                     return {
@@ -77,7 +77,7 @@ describe('When search-results-component with forOf binding inited', function() {
                     };
                 }
             },
-            setResultOptionAttr: function(oldAttrObj, $el, $data) {
+            setResultOptionAttr: function($data, oldAttrObj, $el) {
                 if ($data && $data.value) {
                     // todo: the index here is the outter loop index
                     return {

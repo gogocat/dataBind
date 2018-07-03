@@ -23,26 +23,16 @@ var _util = require('./util');
  */
 var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
-    var paramList = cache.parameters;
 
     if (!dataKey) {
         return;
     }
 
     cache.elementData = cache.elementData || {};
-    cache.elementData.attrObj = cache.elementData.attrObj || {};
+    cache.elementData.viewModelProValue = cache.elementData.viewModelProValue || {};
 
-    var $element = $(cache.el);
-    var oldAttrObj = cache.elementData.attrObj;
-    var vmAttrObj = (0, _util.getViewModelValue)(viewModel, dataKey);
-    var viewModelContext = void 0;
-
-    if (typeof vmAttrObj === 'function') {
-        viewModelContext = (0, _util.resolveViewModelContext)(viewModel, dataKey);
-        paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];
-        var args = [oldAttrObj, $element].concat(paramList);
-        vmAttrObj = vmAttrObj.apply(viewModelContext, args);
-    }
+    var oldAttrObj = cache.elementData.viewModelProValue;
+    var vmAttrObj = (0, _util.getViewModelPropValue)(viewModel, cache);
 
     if (!(0, _util.isPlainObject)(vmAttrObj) || (0, _util.isEmptyObject)(vmAttrObj)) {
         // reject if vmAttrListObj is not an object or empty
@@ -82,7 +72,7 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
         }
     }
     // update element data
-    cache.elementData.attrObj = vmAttrObj;
+    cache.elementData.viewModelProValue = vmAttrObj;
 };
 
 exports['default'] = attrBinding;
@@ -1430,7 +1420,7 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     var viewModelPropValue = (0, _util.getViewModelPropValue)(viewModel, cache);
     var shouldRender = Boolean(viewModelPropValue);
 
-    if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
+    if (typeof viewModelPropValue !== 'undefined' && oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
         return;
     }
 
