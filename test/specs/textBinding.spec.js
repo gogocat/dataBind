@@ -1,5 +1,8 @@
 describe('When myTextComponent with data-jq-text binding inited', function() {
-    var namespace = {};
+    var namespace = {
+        textBindingContent: 'text-binding content',
+        textBindingContent2: 'text-binding content2',
+    };
 
     jasmine.getFixtures().fixturesPath = 'test';
 
@@ -10,7 +13,10 @@ describe('When myTextComponent with data-jq-text binding inited', function() {
         namespace.viewModel = {
 			heading: 'my text-binding Component',
 			getTextContent: function() {
-				return 'text-binding content',
+                if (arguments.length) {
+                    return namespace.textBindingContent2;
+                }
+                return namespace.textBindingContent;
 			},
 			updateView: function(opt) {
 				this.APP.render(opt);
@@ -36,8 +42,9 @@ describe('When myTextComponent with data-jq-text binding inited', function() {
 
     it('Then [data-jq-comp="myTextComponent"] should have render', function(done) {
         setTimeout(function() {
-            expect($('#intro-heading').text()).toBe(namespace.viewModel.heading);
-            expect($('#intro-description').text()).toBe(namespace.viewModel.description);
+            expect(document.getElementById('text-binding-heading').textContent).toBe(namespace.viewModel.heading);
+            expect(document.getElementById('text-binding-content').textContent).toBe(namespace.textBindingContent);
+            expect(document.getElementById('text-binding-content2').textContent).toBe(namespace.textBindingContent2);
             done();
         }, 200);
     });
