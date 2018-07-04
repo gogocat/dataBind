@@ -2094,6 +2094,8 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
     }
 
     cache.elementData = cache.elementData || {};
+    // store current element display style
+    cache.elementData.displayStyle = cache.elementData.displayStyle || cache.el.style.display !== '' ? cache.el.style.display : window.getComputedStyle(cache.el, null).getPropertyValue('display');
 
     var oldShowStatus = cache.elementData.viewModelPropValue;
     var shouldShow = void 0;
@@ -2111,8 +2113,8 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
 
         if (!shouldShow) {
             cache.el.style.setProperty('display', 'none');
-        } else {
-            cache.el.style.setProperty('display', 'block');
+        } else if (cache.el.style.display === 'none') {
+            cache.el.style.setProperty('display', cache.elementData.displayStyle);
         }
 
         // store new show status

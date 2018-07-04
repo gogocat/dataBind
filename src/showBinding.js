@@ -17,6 +17,11 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
     }
 
     cache.elementData = cache.elementData || {};
+    // store current element display style
+    cache.elementData.displayStyle =
+        cache.elementData.displayStyle || cache.el.style.display !== ''
+            ? cache.el.style.display
+            : window.getComputedStyle(cache.el, null).getPropertyValue('display');
 
     let oldShowStatus = cache.elementData.viewModelPropValue;
     let shouldShow;
@@ -34,8 +39,8 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
 
         if (!shouldShow) {
             cache.el.style.setProperty('display', 'none');
-        } else {
-            cache.el.style.setProperty('display', 'block');
+        } else if (cache.el.style.display === 'none') {
+            cache.el.style.setProperty('display', cache.elementData.displayStyle);
         }
 
         // store new show status
