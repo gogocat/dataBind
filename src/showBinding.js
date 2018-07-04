@@ -19,7 +19,6 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
     cache.elementData = cache.elementData || {};
 
     let oldShowStatus = cache.elementData.viewModelPropValue;
-    let isInvertBoolean = dataKey.charAt(0) === '!';
     let shouldShow;
 
     shouldShow = getViewModelPropValue(viewModel, cache);
@@ -33,21 +32,14 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
             return;
         }
 
-        // store new show status
-        cache.elementData.viewModelPropValue = shouldShow;
-
-        // reverse if has '!' expression from DOM deceleration
-        if (isInvertBoolean) {
-            shouldShow = !shouldShow;
-        }
         if (!shouldShow) {
             cache.el.style.setProperty('display', 'none');
         } else {
-            cache.el.style.removeProperty('display');
-            if (cache.el.style.cssText === '') {
-                cache.el.removeAttribute('style');
-            }
+            cache.el.style.setProperty('display', 'block');
         }
+
+        // store new show status
+        cache.elementData.viewModelPropValue = shouldShow;
     }
 };
 
