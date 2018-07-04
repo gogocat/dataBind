@@ -30,7 +30,7 @@ const getAttributesObject = (node) => {
 };
 
 const checkSkipChildParseBindings = (attrObj = {}, bindingAttrs) => {
-    return [bindingAttrs.forOf, bindingAttrs.if].filter((type) => {
+    return [bindingAttrs.forOf, bindingAttrs.if, bindingAttrs.case, bindingAttrs.default].filter((type) => {
         return typeof attrObj[type] !== 'undefined';
     });
 };
@@ -47,7 +47,7 @@ const populateBindingCache = ({node, attrObj, bindingCache, type}) => {
     let attrValue;
     let cacheData;
 
-    if (bindingAttrsMap && bindingAttrsMap[type] && attrObj[type]) {
+    if (bindingAttrsMap && bindingAttrsMap[type] && typeof attrObj[type] !== 'undefined') {
         bindingCache[type] = bindingCache[type] || [];
         attrValue = attrObj[type].trim();
         cacheData = {
@@ -100,12 +100,15 @@ const createBindingCache = ({rootNode = null, bindingAttrs = {}, skipCheck}) => 
         }
 
         iterateList.forEach((key) => {
-            bindingCache = populateBindingCache({
-                node: node,
-                attrObj: attrObj,
-                bindingCache: bindingCache,
-                type: key,
-            });
+            // skip for switch case and default bining
+            if (key !== bindingAttrs.case && key !== bindingAttrs.default) {
+                bindingCache = populateBindingCache({
+                    node: node,
+                    attrObj: attrObj,
+                    bindingCache: bindingCache,
+                    type: key,
+                });
+            }
         });
 
         // after cache forOf skip parse child nodes

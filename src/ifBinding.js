@@ -1,7 +1,7 @@
 import {bindingAttrs as configBindingAttrs} from './config';
-import {getViewModelValue, resolveViewModelContext, resolveParamList} from './util';
-import {wrapCommentAround} from './commentWrapper';
-import {createClonedElementCache, renderIfBinding, removeIfBinding} from './renderIfBinding';
+import {getViewModelPropValue} from './util';
+import {createClonedElementCache, wrapCommentAround} from './commentWrapper';
+import {renderIfBinding, removeIfBinding} from './renderIfBinding';
 
 /**
  * if-Binding
@@ -13,58 +13,41 @@ import {createClonedElementCache, renderIfBinding, removeIfBinding} from './rend
  */
 const ifBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
-    let paramList = cache.parameters;
 
     if (!dataKey) {
         return;
     }
 
     cache.elementData = cache.elementData || {};
+    cache.type = cache.type || configBindingAttrs.if;
 
-    let oldRenderStatus = cache.elementData.renderStatus;
-    let isInvertBoolean = dataKey.charAt(0) === '!';
-    let shouldRender;
-    let viewModelContext;
+    let oldViewModelProValue = cache.elementData.viewModelPropValue;
+    let viewModelPropValue = getViewModelPropValue(viewModel, cache);
+    let shouldRender = Boolean(viewModelPropValue);
 
-    cache.type = configBindingAttrs.if;
-    dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
-    shouldRender = getViewModelValue(viewModel, dataKey);
-
-    if (typeof shouldRender === 'function') {
-        viewModelContext = resolveViewModelContext(viewModel, dataKey);
-        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-        let args = [oldRenderStatus, cache.el].concat(paramList);
-        shouldRender = shouldRender.apply(viewModelContext, args);
-    }
-
-    shouldRender = Boolean(shouldRender);
-
-    if (oldRenderStatus === shouldRender && !cache.hasIterationBindingCache) {
+    if (
+        typeof viewModelPropValue !== 'undefined' &&
+        oldViewModelProValue === viewModelPropValue &&
+        !cache.hasIterationBindingCache
+    ) {
         return;
     }
 
     // store new show status
-    cache.elementData.renderStatus = shouldRender;
-
-    // reverse if has '!' expression from DOM deceleration
-    if (isInvertBoolean) {
-        shouldRender = !shouldRender;
-    }
+    cache.elementData.viewModelPropValue = viewModelPropValue;
 
     // only create fragment once
+    // wrap comment tag around
+    // remove if attribute from original element to allow later dataBind parsing
     if (!cache.fragment) {
-        createClonedElementCache(cache, bindingAttrs);
         wrapCommentAround(cache, cache.el);
+        cache.el.removeAttribute(bindingAttrs.if);
+        createClonedElementCache(cache);
     }
 
     if (!shouldRender) {
         // remove element
         removeIfBinding(cache);
-        // remove cache.IterationBindingCache
-        if (cache.hasIterationBindingCache) {
-            cache.iterationBindingCache = {};
-            cache.hasIterationBindingCache = false;
-        }
     } else {
         // render element
         renderIfBinding({

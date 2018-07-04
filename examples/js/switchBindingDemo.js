@@ -1,15 +1,12 @@
 (($, window) => {
     let myComponent;
-    let compStoryDetail;
 
     const myComponentViewModel = {
-        renderIntro: false,
-        heading: 'Test if binding',
-        description: 'This is intro and it is looking good!',
-        content: {
-            title: 'Testing if binding example',
-            intro: 'A story is about to being...',
-        },
+        heading: 'This heading is inside switch binding',
+        title: 'Test switch binding',
+        description: 'Switch binding will add / remove its direct child elements that has data-jq-case expression.',
+        selectedStory: '',
+        story: {},
         storyOptions: [
             {title: 'Hansel and Gretel', value: 's1'},
             {title: 'The Ugly Duckling', value: 's2'},
@@ -23,27 +20,19 @@
             }
         },
         onSelectedStory: function(e, $el, newValue, oldValue) {
-            e.preventDefault();
-            this.APP.publish('SELECTED_STORY', newValue);
-        },
-        renderItem: function(e, $el) {
-            e.preventDefault();
-            this.renderIntro = true;
-            this.updateView();
-        },
-        removeItem: function(e, $el) {
-            e.preventDefault();
-            this.renderIntro = false;
-            this.updateView();
-        },
-        updateView(opt) {
-            this.APP.render(opt);
-        },
-    };
+            let id = newValue;
 
-    const compStoryDetailViewModel = {
-        selectedStory: '',
-        story: {},
+            e.preventDefault();
+
+            if (storiesData[id] && id !== this.selectedStory) {
+                this.story = storiesData[id];
+                this.selectedStory = id;
+            } else {
+                this.story = {};
+                this.selectedStory = '';
+            }
+            this.updateView();
+        },
         setStoryImgAttr: function() {
             const picPath = this.story.pic || '';
             const ret = {
@@ -56,16 +45,6 @@
                 ret.src = picPath;
             }
             return ret;
-        },
-        onStoryChange: function(id) {
-            if (storiesData[id] && id !== this.selectedStory) {
-                this.story = storiesData[id];
-                this.selectedStory = id;
-            } else {
-                this.story = '';
-                this.selectedStory = '';
-            }
-            this.updateView();
         },
         updateView(opt) {
             this.APP.render(opt);
@@ -102,15 +81,6 @@
             // for debug
             console.log(myComponent);
             window.myComponent = myComponent;
-        });
-
-        // story detail componenet
-        compStoryDetail = dataBind.init($('[data-jq-comp="compStoryDetail"]'), compStoryDetailViewModel);
-        compStoryDetail.render().then(function() {
-            this.subscribe('SELECTED_STORY', this.viewModel.onStoryChange);
-            // for debug
-            console.log(compStoryDetail);
-            window.compStoryDetail = compStoryDetail;
         });
     });
 })(jQuery, window);

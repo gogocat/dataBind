@@ -15,12 +15,16 @@ const bindingAttrs = {
     forOf: 'data-jq-for',
     if: 'data-jq-if',
     switch: 'data-jq-switch',
+    case: 'data-jq-case',
+    default: 'data-jq-default',
 };
 const serverRenderedAttr = 'data-server-rendered';
 const dataIndexAttr = 'data-index';
 const commentPrefix = {
     forOf: 'data-forOf_',
     if: 'data-if_',
+    case: 'data-case_',
+    default: 'data-default_',
 };
 const commentSuffix = '_end';
 

@@ -14,6 +14,7 @@ import cssBinding from './cssBinding';
 import attrBinding from './attrBinding';
 import forOfBinding from './forOfBinding';
 import ifBinding from './ifBinding';
+import switchBinding from './switchBinding';
 import createBindingCache from './domWalker';
 import * as pubSub from './pubSub';
 
@@ -104,7 +105,7 @@ class Binder {
                     // then the template bindingCache should be an empty object
                     let skipForOfParseFn = null;
                     if (cache.el.hasAttribute(this.bindingAttrs.forOf)) {
-                        skipForOfParseFn = (node) => {
+                        skipForOfParseFn = () => {
                             return true;
                         };
                     }
@@ -174,18 +175,32 @@ class Binder {
                 attrBinding(cache, viewModel, bindingAttrs);
             });
         }
+
         // apply if Binding
         if (updateOption.ifBinding && elementCache[bindingAttrs.if] && elementCache[bindingAttrs.if].length) {
             elementCache[bindingAttrs.if].forEach((cache) => {
                 ifBinding(cache, viewModel, bindingAttrs);
             });
         }
+
         // apply show Binding
         if (updateOption.showBinding && elementCache[bindingAttrs.show] && elementCache[bindingAttrs.show].length) {
             elementCache[bindingAttrs.show].forEach((cache) => {
                 showBinding(cache, viewModel, bindingAttrs);
             });
         }
+
+        // apply switch Binding
+        if (
+            updateOption.switchBinding &&
+            elementCache[bindingAttrs.switch] &&
+            elementCache[bindingAttrs.switch].length
+        ) {
+            elementCache[bindingAttrs.switch].forEach((cache) => {
+                switchBinding(cache, viewModel, bindingAttrs);
+            });
+        }
+
         // apply text binding
         if (updateOption.textBinding && elementCache[bindingAttrs.text] && elementCache[bindingAttrs.text].length) {
             elementCache[bindingAttrs.text].forEach((cache) => {
@@ -340,6 +355,7 @@ const createBindingOption = (condition = '', opt = {}) => {
         modelBinding: true,
         attrBinding: true,
         forOfBinding: true,
+        switchBinding: true,
     };
     let eventsBindingOptions = {
         changeBinding: true,
@@ -349,8 +365,8 @@ const createBindingOption = (condition = '', opt = {}) => {
         focusBinding: true,
         submitBinding: true,
     };
-    // this is visualBindingOptions but everything fals
-    // keep it static instead dynamic for performance purpose
+    // this is visualBindingOptions but everything false
+    // concrete declear for performance purpose
     let serverRenderedOptions = {
         templateBinding: false,
         textBinding: false,
@@ -360,6 +376,7 @@ const createBindingOption = (condition = '', opt = {}) => {
         modelBinding: false,
         attrBinding: false,
         forOfBinding: false,
+        switchBinding: false,
     };
     let updateOption = {};
 
