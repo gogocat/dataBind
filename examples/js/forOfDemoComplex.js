@@ -15,26 +15,17 @@
                 image: 'bootstrap/images/pic-home.jpg',
                 bookmarked: false,
                 numLikes: 110,
-                options: [
-                    {text: '1', value: '1'},
-                    {text: '2', value: '2'},
-                    {text: '3', value: '3'},
-                ],
+                options: [{text: '1', value: '1'}, {text: '2', value: '2'}, {text: '3', value: '3'}],
             },
             {
                 id: '456',
                 title: 'Card title',
-                description:
-                    'This card has supporting text below as a natural lead-in to additional content.',
+                description: 'This card has supporting text below as a natural lead-in to additional content.',
                 image: '',
                 bookmarked: false,
                 numLikes: 8,
                 selected: true,
-                options: [
-                    {text: '1', value: '1'},
-                    {text: '2', value: '2'},
-                    {text: '3', value: '3'},
-                ],
+                options: [{text: '1', value: '1'}, {text: '2', value: '2'}, {text: '3', value: '3'}],
             },
             {
                 id: '789',
@@ -46,11 +37,7 @@
                 numLikes: 8,
                 highlight: true,
                 highlightCss: 'result-item--highlight',
-                options: [
-                    {text: '1', value: '1'},
-                    {text: '2', value: '2'},
-                    {text: '3', value: '3'},
-                ],
+                options: [{text: '1', value: '1'}, {text: '2', value: '2'}, {text: '3', value: '3'}],
             },
             {
                 id: '888',
@@ -61,11 +48,7 @@
                 bookmarked: false,
                 numLikes: 8,
                 selected: true,
-                options: [
-                    {text: '1', value: '1'},
-                    {text: '2', value: '2'},
-                    {text: '3', value: '3'},
-                ],
+                options: [{text: '1', value: '1'}, {text: '2', value: '2'}, {text: '3', value: '3'}],
             },
             {
                 id: '222',
@@ -75,11 +58,7 @@
                 image: '',
                 bookmarked: false,
                 numLikes: 8,
-                options: [
-                    {text: '1', value: '1'},
-                    {text: '2', value: '2'},
-                    {text: '3', value: '3'},
-                ],
+                options: [{text: '1', value: '1'}, {text: '2', value: '2'}, {text: '3', value: '3'}],
             },
             {
                 id: '333',
@@ -90,11 +69,7 @@
                 bookmarked: true,
                 bookmarkedCss: 'active',
                 numLikes: 8,
-                options: [
-                    {text: '1', value: '1'},
-                    {text: '2', value: '2'},
-                    {text: '3', value: '3'},
-                ],
+                options: [{text: '1', value: '1'}, {text: '2', value: '2'}, {text: '3', value: '3'}],
             },
             {
                 id: '444',
@@ -104,14 +79,10 @@
                 image: 'bootstrap/images/pic-backyard.jpg',
                 bookmarked: false,
                 numLikes: 8,
-                options: [
-                    {text: '1', value: '1'},
-                    {text: '2', value: '2'},
-                    {text: '3', value: '3'},
-                ],
+                options: [{text: '1', value: '1'}, {text: '2', value: '2'}, {text: '3', value: '3'}],
             },
         ],
-        getResultItemAttr: function(oldAttrObj, $el, index) {
+        getResultItemAttr: function(index, oldAttrObj, $el) {
             let self = this;
             if (self.searchResults[index].image) {
                 return {
@@ -120,7 +91,7 @@
                 };
             }
         },
-        setResultOptionAttr: function(oldAttrObj, $el, $data) {
+        setResultOptionAttr: function($data, oldAttrObj, $el) {
             if ($data && $data.value) {
                 // todo: the index here is the outter loop index
                 return {
@@ -167,11 +138,7 @@
                 image: images[getRandomNumber(0, images.length - 1)],
                 bookmarked: false,
                 numLikes: i * randomSeed,
-                options: [
-                    {text: i, value: i},
-                    {text: i + 1, value: i + 1},
-                    {text: i + 2, value: i + 2},
-                ],
+                options: [{text: i, value: i}, {text: i + 1, value: i + 1}, {text: i + 2, value: i + 2}],
             });
         }
 
@@ -188,10 +155,7 @@
     // start binding on DOM ready
     $(document).ready(function() {
         // debug
-        searchResultsComponent = dataBind.init(
-            $('[data-jq-comp="search-results-component"]'),
-            viewModel
-        );
+        searchResultsComponent = dataBind.init($('[data-jq-comp="search-results-component"]'), viewModel);
 
         searchResultsComponent.render().then(function() {
             // for debug

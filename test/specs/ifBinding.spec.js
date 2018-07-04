@@ -16,7 +16,7 @@ describe('When myIfComponent with data-jq-if binding inited', function() {
 				description: '"Hansel and Gretel" (also known as Hansel and Grettel, Hansel and Grethel, or Little Brother and Little Sister) is a well-known fairy tale of German origin.',
 				link: 'https://www.google.com.au/search?q=Hansel+and+Gretel'
 			},
-			setStroylinkAttr: function() {
+			setStroylinkAttr: function($data) {
 				return {
 					href: this.story.link,
 					title: this.story.title,

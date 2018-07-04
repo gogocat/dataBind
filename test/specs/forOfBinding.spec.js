@@ -1,6 +1,30 @@
+// It seems PhantomJS has issue with createComment and createRange
+var isEnvSupportDocRange = (function(document){
+	var docRange,
+		commentNode,
+		commentText = 'x',
+		ret = true;
+		
+	if (typeof document.createRange !== 'function') {
+		return ret = false;
+	}
+	try {
+		docRange = document.createRange();
+		docRange.deleteContents();
+		commentNode = document.createComment(commentText);
+		if (commentNode.nodeType !== 8 || commentNode.textContent !== commentText) {
+			return ret = false;
+		}
+	} catch(err) {
+		return ret = false;
+	}
+	return ret;
+})(document);
+
+
 describe('When search-results-component with forOf binding inited', function() {
     var namespace = {};
-
+	
     jasmine.getFixtures().fixturesPath = 'test';
 
     beforeEach(function() {
@@ -44,7 +68,7 @@ describe('When search-results-component with forOf binding inited', function() {
                     options: [{text: '7', value: '7'}, {text: '8', value: '8'}, {text: '9', value: '9'}],
                 },
             ],
-            getResultItemAttr: function(oldAttrObj, $el, index) {
+            getResultItemAttr: function(index, oldAttrObj, $el) {
                 var self = this;
                 if (self.searchResults[index].image) {
                     return {
@@ -53,7 +77,7 @@ describe('When search-results-component with forOf binding inited', function() {
                     };
                 }
             },
-            setResultOptionAttr: function(oldAttrObj, $el, $data) {
+            setResultOptionAttr: function($data, oldAttrObj, $el) {
                 if ($data && $data.value) {
                     // todo: the index here is the outter loop index
                     return {
@@ -89,7 +113,8 @@ describe('When search-results-component with forOf binding inited', function() {
 
     it('Then [data-jq-comp="search-results-component"] should have render', function(done) {
         // skip if test environment doesn't support document.createRange
-		if (typeof document.createRange === 'function') {
+		if (!isEnvSupportDocRange) {
+			expect(isEnvSupportDocRange).toBe(false);
 			done();
 			return;
 		}
@@ -124,7 +149,8 @@ describe('When search-results-component with forOf binding inited', function() {
 
     describe('When each search item rendered', function() {
         it('should render bindings according to searchResults data', function(done) {
-            if (typeof document.createRange !== 'function') {
+            if (!isEnvSupportDocRange) {
+				expect(isEnvSupportDocRange).toBe(false);
 				done();
 				return;
 			}

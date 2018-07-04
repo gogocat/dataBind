@@ -12,7 +12,7 @@
             {title: 'The Ugly Duckling', value: 's2'},
             {title: 'The Giving Tree', value: 's3'},
         ],
-        setStoryOptionAttr: function(oldAttrObj, $el, $data) {
+        setStoryOptionAttr: function($data, oldAttrObj, $el) {
             if ($data && $data.value) {
                 return {
                     value: $data.value,

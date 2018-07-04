@@ -25,7 +25,11 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     let viewModelPropValue = getViewModelPropValue(viewModel, cache);
     let shouldRender = Boolean(viewModelPropValue);
 
-    if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
+    if (
+        typeof viewModelPropValue !== 'undefined' &&
+        oldViewModelProValue === viewModelPropValue &&
+        !cache.hasIterationBindingCache
+    ) {
         return;
     }
 
