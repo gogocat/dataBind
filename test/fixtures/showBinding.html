@@ -1,0 +1,26 @@
+<section data-jq-comp="myComponent">
+    <style>
+        #heading4 {
+            display: flex;
+        }
+
+        #heading7 {
+            display: none;
+        }
+    </style>
+    <h1 id="heading" data-jq-text="heading"></h1>
+
+    <h2 id="heading2" data-jq-show="displayHeading2">heading2</h2>
+    <h2 id="heading2-invert" data-jq-show="!displayHeading2">heading2-invert should display as opposit heading2 status</h2>
+
+    <h2 id="heading3" data-jq-show="displayHeadingFn($data)">heading3</h2>
+    <h2 id="heading3-invert" data-jq-show="!displayHeadingFn($data)">heading3-invert should display as opposit heading3 status</h2>
+
+    <h2 id="heading4" data-jq-show="displayHeading4">heading4 should respect css rule</h2>
+
+    <h2 id="heading5" data-jq-show="displayHeading5" style="display:inline">heading5 should respect inline style</h2>
+
+    <span id="heading6" data-jq-show="displayHeading6" style="display:none">heading6 should display tag default style</span>
+
+    <h3 id="heading7" data-jq-show="displayHeading7">heading7 should display as block</h3>
+</section>

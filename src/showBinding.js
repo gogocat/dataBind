@@ -55,9 +55,11 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
         }
 
         if (!shouldShow) {
-            cache.el.style.setProperty('display', 'none');
+            if (cache.el.style.display !== 'none') {
+                cache.el.style.setProperty('display', 'none');
+            }
         } else {
-            if (cache.elementData.computedStyle) {
+            if (cache.elementData.computedStyle || cache.el.style.display === 'none') {
                 cache.el.style.display = '';
             } else {
                 cache.el.style.setProperty('display', cache.elementData.displayStyle);
