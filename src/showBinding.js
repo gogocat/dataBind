@@ -17,11 +17,28 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
     }
 
     cache.elementData = cache.elementData || {};
-    // store current element display style
-    cache.elementData.displayStyle =
-        cache.elementData.displayStyle || cache.el.style.display !== ''
-            ? cache.el.style.display
-            : window.getComputedStyle(cache.el, null).getPropertyValue('display');
+
+    // store current element display default style
+    if (
+        typeof cache.elementData.displayStyle === 'undefined' ||
+        typeof cache.elementData.computedStyle === 'undefined'
+    ) {
+        // use current inline style if defined
+        if (cache.el.style.display) {
+            // set to 'block' if is 'none'
+            cache.elementData.displayStyle = cache.el.style.display === 'none' ? 'block' : cache.el.style.display;
+            cache.elementData.computedStyle = null;
+        } else {
+            let computeStyle = window.getComputedStyle(cache.el, null).getPropertyValue('display');
+            if (!computeStyle || computeStyle === 'none') {
+                cache.elementData.displayStyle = 'block';
+                cache.elementData.computedStyle = null;
+            } else {
+                cache.elementData.displayStyle = null;
+                cache.elementData.computedStyle = computeStyle;
+            }
+        }
+    }
 
     let oldShowStatus = cache.elementData.viewModelPropValue;
     let shouldShow;
@@ -39,8 +56,12 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
 
         if (!shouldShow) {
             cache.el.style.setProperty('display', 'none');
-        } else if (cache.el.style.display === 'none') {
-            cache.el.style.setProperty('display', cache.elementData.displayStyle);
+        } else {
+            if (cache.elementData.computedStyle) {
+                cache.el.style.display = '';
+            } else {
+                cache.el.style.setProperty('display', cache.elementData.displayStyle);
+            }
         }
 
         // store new show status
