@@ -6,6 +6,8 @@
     </div>
     <div id="story" class="container" data-jq-if="!renderIntro" data-jq-tmp="{id: 'storyIntro', data: 'story'}"></div>
     <span id="afterBlock">after</span>
+    <div id="testPropFn" data-jq-if="viewModelPropFn($data)">Should render this</div>
+    <div id="testUnDefiniedProp" data-jq-if="undefinedViewModelPropFn($data)">Should not render this</div>
 </section>
 
 <template id="storyIntro">

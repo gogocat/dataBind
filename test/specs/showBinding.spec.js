@@ -139,5 +139,15 @@ describe('When myComponent with data-jq-show binding inited', function() {
 				done();
 			}, 300);
         }, 200);
+	});
+	
+	it('Should not show heading8 as property is not defined in viewModel', function(done) {
+        setTimeout(function() {
+			var $heading8 = document.getElementById('heading8');
+			
+            expect($heading8.style.display).toBe('none');
+			expect(isVisible($heading8)).toBe(false);
+			done();
+        }, 200);
     });
 });
