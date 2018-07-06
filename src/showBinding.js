@@ -10,7 +10,10 @@ import {getViewModelPropValue} from './util';
  * @param {object} bindingAttrs
  */
 const showBinding = (cache, viewModel, bindingAttrs) => {
-    let dataKey = cache.dataKey;
+    const dataKey = cache.dataKey;
+    let currentInlineSytle = {};
+    let currentInlineDisplaySytle = '';
+    let shouldShow = true;
 
     if (!dataKey) {
         return;
@@ -18,15 +21,19 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
 
     cache.elementData = cache.elementData || {};
 
-    // store current element display default style
+    let oldShowStatus = cache.elementData.viewModelPropValue;
+
+    // store current element display default style once only
     if (
         typeof cache.elementData.displayStyle === 'undefined' ||
         typeof cache.elementData.computedStyle === 'undefined'
     ) {
+        currentInlineSytle = cache.el.style;
+        currentInlineDisplaySytle = currentInlineSytle.display;
         // use current inline style if defined
-        if (cache.el.style.display) {
+        if (currentInlineDisplaySytle) {
             // set to 'block' if is 'none'
-            cache.elementData.displayStyle = cache.el.style.display === 'none' ? 'block' : cache.el.style.display;
+            cache.elementData.displayStyle = currentInlineDisplaySytle === 'none' ? 'block' : currentInlineDisplaySytle;
             cache.elementData.computedStyle = null;
         } else {
             let computeStyle = window.getComputedStyle(cache.el, null).getPropertyValue('display');
@@ -40,35 +47,35 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
         }
     }
 
-    let oldShowStatus = cache.elementData.viewModelPropValue;
-    let shouldShow;
-
     shouldShow = getViewModelPropValue(viewModel, cache);
 
-    // do nothing if data in viewModel is undefined
-    if (typeof shouldShow !== 'undefined' && shouldShow !== null) {
-        shouldShow = Boolean(shouldShow);
+    // treat undefined || null as false.
+    // eg if property doesn't exsits in viewModel, it will treat as false to hide element
+    shouldShow = Boolean(shouldShow);
 
-        // reject if nothing changed
-        if (oldShowStatus === shouldShow) {
-            return;
+    // reject if nothing changed
+    if (oldShowStatus === shouldShow) {
+        return;
+    }
+
+    if (!shouldShow) {
+        if (cache.el.style.display !== 'none') {
+            cache.el.style.setProperty('display', 'none');
         }
-
-        if (!shouldShow) {
-            if (cache.el.style.display !== 'none') {
-                cache.el.style.setProperty('display', 'none');
+    } else {
+        if (cache.elementData.computedStyle || cache.el.style.display === 'none') {
+            if (currentInlineSytle.length > 1) {
+                cache.el.style.removeProperty('display');
+            } else {
+                cache.el.removeAttribute('style');
             }
         } else {
-            if (cache.elementData.computedStyle || cache.el.style.display === 'none') {
-                cache.el.style.display = '';
-            } else {
-                cache.el.style.setProperty('display', cache.elementData.displayStyle);
-            }
+            cache.el.style.setProperty('display', cache.elementData.displayStyle);
         }
-
-        // store new show status
-        cache.elementData.viewModelPropValue = shouldShow;
     }
+
+    // store new show status
+    cache.elementData.viewModelPropValue = shouldShow;
 };
 
 export default showBinding;

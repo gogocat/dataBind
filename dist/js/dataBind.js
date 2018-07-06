@@ -4,7 +4,7 @@
  * @link https://github.com/gogocat/dataBind#readme
  * @license MIT
  */
-(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2088,6 +2088,9 @@ var _util = require('./util');
  */
 var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
+    var currentInlineSytle = {};
+    var currentInlineDisplaySytle = '';
+    var shouldShow = true;
 
     if (!dataKey) {
         return;
@@ -2095,12 +2098,16 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
 
     cache.elementData = cache.elementData || {};
 
-    // store current element display default style
+    var oldShowStatus = cache.elementData.viewModelPropValue;
+
+    // store current element display default style once only
     if (typeof cache.elementData.displayStyle === 'undefined' || typeof cache.elementData.computedStyle === 'undefined') {
+        currentInlineSytle = cache.el.style;
+        currentInlineDisplaySytle = currentInlineSytle.display;
         // use current inline style if defined
-        if (cache.el.style.display) {
+        if (currentInlineDisplaySytle) {
             // set to 'block' if is 'none'
-            cache.elementData.displayStyle = cache.el.style.display === 'none' ? 'block' : cache.el.style.display;
+            cache.elementData.displayStyle = currentInlineDisplaySytle === 'none' ? 'block' : currentInlineDisplaySytle;
             cache.elementData.computedStyle = null;
         } else {
             var computeStyle = window.getComputedStyle(cache.el, null).getPropertyValue('display');
@@ -2114,35 +2121,35 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
         }
     }
 
-    var oldShowStatus = cache.elementData.viewModelPropValue;
-    var shouldShow = void 0;
-
     shouldShow = (0, _util.getViewModelPropValue)(viewModel, cache);
 
-    // do nothing if data in viewModel is undefined
-    if (typeof shouldShow !== 'undefined' && shouldShow !== null) {
-        shouldShow = Boolean(shouldShow);
+    // treat undefined || null as false.
+    // eg if property doesn't exsits in viewModel, it will treat as false to hide element
+    shouldShow = Boolean(shouldShow);
 
-        // reject if nothing changed
-        if (oldShowStatus === shouldShow) {
-            return;
+    // reject if nothing changed
+    if (oldShowStatus === shouldShow) {
+        return;
+    }
+
+    if (!shouldShow) {
+        if (cache.el.style.display !== 'none') {
+            cache.el.style.setProperty('display', 'none');
         }
-
-        if (!shouldShow) {
-            if (cache.el.style.display !== 'none') {
-                cache.el.style.setProperty('display', 'none');
+    } else {
+        if (cache.elementData.computedStyle || cache.el.style.display === 'none') {
+            if (currentInlineSytle.length > 1) {
+                cache.el.style.removeProperty('display');
+            } else {
+                cache.el.removeAttribute('style');
             }
         } else {
-            if (cache.elementData.computedStyle || cache.el.style.display === 'none') {
-                cache.el.style.display = '';
-            } else {
-                cache.el.style.setProperty('display', cache.elementData.displayStyle);
-            }
+            cache.el.style.setProperty('display', cache.elementData.displayStyle);
         }
-
-        // store new show status
-        cache.elementData.viewModelPropValue = shouldShow;
     }
+
+    // store new show status
+    cache.elementData.viewModelPropValue = shouldShow;
 };
 
 exports['default'] = showBinding;
@@ -2483,6 +2490,7 @@ var getViewModelPropValue = function getViewModelPropValue(viewModel, bindingCac
     }
 
     var ret = getViewModelValue(viewModel, dataKey);
+
     if (typeof ret === 'function') {
         var viewModelContext = resolveViewModelContext(viewModel, dataKey);
         var oldViewModelProValue = bindingCache.elementData ? bindingCache.elementData.viewModelProValue : null;
@@ -2491,7 +2499,16 @@ var getViewModelPropValue = function getViewModelPropValue(viewModel, bindingCac
         var args = paramList.concat([oldViewModelProValue, bindingCache.el]);
         ret = ret.apply(viewModelContext, args);
     }
-    return isInvertBoolean ? !JSON.parse(ret) : ret;
+
+    if (typeof ret === 'undefined' || ret === null) {
+        return ret;
+    }
+
+    if (isInvertBoolean && typeof ret === 'string' && ret === 'true' || ret === 'false') {
+        ret = JSON.parse(ret);
+    }
+
+    return isInvertBoolean && typeof ret === 'boolean' ? !ret : ret;
 };
 
 var parseStringToJson = function parseStringToJson(str) {
