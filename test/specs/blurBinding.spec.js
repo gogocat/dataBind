@@ -5,7 +5,7 @@ describe('Given [data-jq-comp="blur-component"] initised', function() {
     jasmine.getFixtures().fixturesPath = 'test';
 
     beforeEach(function() {
-        loadFixtures('./fixtures/blurBindings.html');
+        loadFixtures('./fixtures/blurBinding.html');
 		
 		namespace.viewModel= {
 			heading: 'blur component test',
