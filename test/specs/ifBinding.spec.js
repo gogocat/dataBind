@@ -17,7 +17,7 @@ describe('When myIfComponent with data-jq-if binding inited', function() {
 				link: 'https://www.google.com.au/search?q=Hansel+and+Gretel'
 			},
 			viewModelPropFn: function($data) {
-				return (typeof of $data.viewModelPropFn === 'function');
+				return (typeof $data.viewModelPropFn === 'function');
 			},
 			undefinedViewModelPropFn: function($data) {
 				return;
