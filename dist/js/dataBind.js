@@ -1,6 +1,6 @@
 /**
  * dataBind - Simple MV* framework work with jQuery and underscore template
- * @version v1.7.0
+ * @version v1.7.1
  * @link https://github.com/gogocat/dataBind#readme
  * @license MIT
  */
@@ -1489,7 +1489,7 @@ var init = function init($rootElement) {
 window.dataBind = {
     use: use,
     init: init,
-    version: '1.7.0'
+    version: '1.7.1'
 };
 
 },{"./binder":2,"./config":7}],15:[function(require,module,exports){
@@ -2113,13 +2113,8 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
             cache.elementData.computedStyle = null;
         } else {
             var computeStyle = window.getComputedStyle(cache.el, null).getPropertyValue('display');
-            if (!computeStyle || computeStyle === 'none') {
-                cache.elementData.displayStyle = 'block';
-                cache.elementData.computedStyle = null;
-            } else {
-                cache.elementData.displayStyle = null;
-                cache.elementData.computedStyle = computeStyle;
-            }
+            cache.elementData.displayStyle = null;
+            cache.elementData.computedStyle = computeStyle;
         }
     }
 
@@ -2140,12 +2135,19 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
         }
     } else {
         if (cache.elementData.computedStyle || cache.el.style.display === 'none') {
-            if (currentInlineSytle.length > 1) {
-                cache.el.style.removeProperty('display');
+            if (cache.elementData.computedStyle === 'none') {
+                // default display is none in css rule, so use display 'block'
+                cache.el.style.setProperty('display', 'block');
             } else {
-                cache.el.removeAttribute('style');
+                // has default displayable type so just remove inline display 'none'
+                if (currentInlineSytle.length > 1) {
+                    cache.el.style.removeProperty('display');
+                } else {
+                    cache.el.removeAttribute('style');
+                }
             }
         } else {
+            // element default display was inline style, so restore it
             cache.el.style.setProperty('display', cache.elementData.displayStyle);
         }
     }
