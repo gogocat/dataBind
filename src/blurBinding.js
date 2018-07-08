@@ -18,7 +18,7 @@ const blurBinding = (cache, viewModel, bindingAttrs) => {
     if (!handlerName) {
         return;
     }
-
+	
     handlerFn = getViewModelValue(viewModel, handlerName);
 
     if (typeof handlerFn === 'function') {
