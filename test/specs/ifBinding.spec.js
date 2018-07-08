@@ -16,6 +16,12 @@ describe('When myIfComponent with data-jq-if binding inited', function() {
 				description: '"Hansel and Gretel" (also known as Hansel and Grettel, Hansel and Grethel, or Little Brother and Little Sister) is a well-known fairy tale of German origin.',
 				link: 'https://www.google.com.au/search?q=Hansel+and+Gretel'
 			},
+			viewModelPropFn: function($data) {
+				return (typeof of $data.viewModelPropFn === 'function');
+			},
+			undefinedViewModelPropFn: function($data) {
+				return;
+			},
 			setStroylinkAttr: function($data) {
 				return {
 					href: this.story.link,
@@ -73,9 +79,23 @@ describe('When myIfComponent with data-jq-if binding inited', function() {
         }, 200);
     });
 	
-	it('Then #story should not render', function(done) {
+	it('should not render #story ', function(done) {
         setTimeout(function() {
             expect($('#story').length).toBe(0);
+            done();
+        }, 200);
+	});
+
+	it('should not render #testPropFn ', function(done) {
+        setTimeout(function() {
+            expect(document.getElementById('testPropFn')).not.toBe(null);
+            done();
+        }, 200);
+    });
+	
+	it('should not render #testUnDefiniedProp ', function(done) {
+        setTimeout(function() {
+            expect(document.getElementById('testUnDefiniedProp')).toBe(null);
             done();
         }, 200);
     });

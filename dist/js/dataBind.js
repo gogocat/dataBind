@@ -1,6 +1,6 @@
 /**
  * dataBind - Simple MV* framework work with jQuery and underscore template
- * @version v1.7.0
+ * @version v1.7.1
  * @link https://github.com/gogocat/dataBind#readme
  * @license MIT
  */
@@ -1417,10 +1417,12 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     cache.type = cache.type || _config.bindingAttrs['if'];
 
     var oldViewModelProValue = cache.elementData.viewModelPropValue;
-    var viewModelPropValue = (0, _util.getViewModelPropValue)(viewModel, cache);
+
+    // getViewModelPropValue could be return undefined or null
+    var viewModelPropValue = (0, _util.getViewModelPropValue)(viewModel, cache) || false;
     var shouldRender = Boolean(viewModelPropValue);
 
-    if (typeof viewModelPropValue !== 'undefined' && oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
+    if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
         return;
     }
 
@@ -1487,7 +1489,7 @@ var init = function init($rootElement) {
 window.dataBind = {
     use: use,
     init: init,
-    version: '1.7.0'
+    version: '1.7.1'
 };
 
 },{"./binder":2,"./config":7}],15:[function(require,module,exports){
@@ -2088,6 +2090,9 @@ var _util = require('./util');
  */
 var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
+    var currentInlineSytle = {};
+    var currentInlineDisplaySytle = '';
+    var shouldShow = true;
 
     if (!dataKey) {
         return;
@@ -2096,28 +2101,59 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
     cache.elementData = cache.elementData || {};
 
     var oldShowStatus = cache.elementData.viewModelPropValue;
-    var shouldShow = void 0;
+
+    // store current element display default style once only
+    if (typeof cache.elementData.displayStyle === 'undefined' || typeof cache.elementData.computedStyle === 'undefined') {
+        currentInlineSytle = cache.el.style;
+        currentInlineDisplaySytle = currentInlineSytle.display;
+        // use current inline style if defined
+        if (currentInlineDisplaySytle) {
+            // set to 'block' if is 'none'
+            cache.elementData.displayStyle = currentInlineDisplaySytle === 'none' ? 'block' : currentInlineDisplaySytle;
+            cache.elementData.computedStyle = null;
+        } else {
+            var computeStyle = window.getComputedStyle(cache.el, null).getPropertyValue('display');
+            cache.elementData.displayStyle = null;
+            cache.elementData.computedStyle = computeStyle;
+        }
+    }
 
     shouldShow = (0, _util.getViewModelPropValue)(viewModel, cache);
 
-    // do nothing if data in viewModel is undefined
-    if (typeof shouldShow !== 'undefined' && shouldShow !== null) {
-        shouldShow = Boolean(shouldShow);
+    // treat undefined || null as false.
+    // eg if property doesn't exsits in viewModel, it will treat as false to hide element
+    shouldShow = Boolean(shouldShow);
 
-        // reject if nothing changed
-        if (oldShowStatus === shouldShow) {
-            return;
-        }
-
-        if (!shouldShow) {
-            cache.el.style.setProperty('display', 'none');
-        } else {
-            cache.el.style.setProperty('display', 'block');
-        }
-
-        // store new show status
-        cache.elementData.viewModelPropValue = shouldShow;
+    // reject if nothing changed
+    if (oldShowStatus === shouldShow) {
+        return;
     }
+
+    if (!shouldShow) {
+        if (cache.el.style.display !== 'none') {
+            cache.el.style.setProperty('display', 'none');
+        }
+    } else {
+        if (cache.elementData.computedStyle || cache.el.style.display === 'none') {
+            if (cache.elementData.computedStyle === 'none') {
+                // default display is none in css rule, so use display 'block'
+                cache.el.style.setProperty('display', 'block');
+            } else {
+                // has default displayable type so just remove inline display 'none'
+                if (currentInlineSytle.length > 1) {
+                    cache.el.style.removeProperty('display');
+                } else {
+                    cache.el.removeAttribute('style');
+                }
+            }
+        } else {
+            // element default display was inline style, so restore it
+            cache.el.style.setProperty('display', cache.elementData.displayStyle);
+        }
+    }
+
+    // store new show status
+    cache.elementData.viewModelPropValue = shouldShow;
 };
 
 exports['default'] = showBinding;
@@ -2458,6 +2494,7 @@ var getViewModelPropValue = function getViewModelPropValue(viewModel, bindingCac
     }
 
     var ret = getViewModelValue(viewModel, dataKey);
+
     if (typeof ret === 'function') {
         var viewModelContext = resolveViewModelContext(viewModel, dataKey);
         var oldViewModelProValue = bindingCache.elementData ? bindingCache.elementData.viewModelProValue : null;
@@ -2466,7 +2503,16 @@ var getViewModelPropValue = function getViewModelPropValue(viewModel, bindingCac
         var args = paramList.concat([oldViewModelProValue, bindingCache.el]);
         ret = ret.apply(viewModelContext, args);
     }
-    return isInvertBoolean ? !JSON.parse(ret) : ret;
+
+    if (typeof ret === 'undefined' || ret === null) {
+        return ret;
+    }
+
+    if (isInvertBoolean && typeof ret === 'string' && ret === 'true' || ret === 'false') {
+        ret = JSON.parse(ret);
+    }
+
+    return isInvertBoolean && typeof ret === 'boolean' ? !ret : ret;
 };
 
 var parseStringToJson = function parseStringToJson(str) {

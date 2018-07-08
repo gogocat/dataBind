@@ -43,7 +43,7 @@
             ];
         }
 
-        getInputIdName(oldAttrObj, $el, index) {
+        getInputIdName(index, oldAttrObj, $el) {
             let inputSetting = this.personalDetails[index];
             return {
                 id: inputSetting.inputName,
@@ -95,10 +95,7 @@
     // start binding on DOM ready
     $(document).ready(function() {
         // formComponentC - test for-of binding
-        forOfComponent = dataBind.init(
-            $('[data-jq-comp="forOfComponent"]'),
-            forOfComponentViewModel
-        );
+        forOfComponent = dataBind.init($('[data-jq-comp="forOfComponent"]'), forOfComponentViewModel);
         forOfComponent.render().then(function() {
             // for debug
             console.log(forOfComponent);

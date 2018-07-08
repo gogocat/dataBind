@@ -10,7 +10,10 @@ import {getViewModelPropValue} from './util';
  * @param {object} bindingAttrs
  */
 const showBinding = (cache, viewModel, bindingAttrs) => {
-    let dataKey = cache.dataKey;
+    const dataKey = cache.dataKey;
+    let currentInlineSytle = {};
+    let currentInlineDisplaySytle = '';
+    let shouldShow = true;
 
     if (!dataKey) {
         return;
@@ -19,28 +22,62 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
     cache.elementData = cache.elementData || {};
 
     let oldShowStatus = cache.elementData.viewModelPropValue;
-    let shouldShow;
+
+    // store current element display default style once only
+    if (
+        typeof cache.elementData.displayStyle === 'undefined' ||
+        typeof cache.elementData.computedStyle === 'undefined'
+    ) {
+        currentInlineSytle = cache.el.style;
+        currentInlineDisplaySytle = currentInlineSytle.display;
+        // use current inline style if defined
+        if (currentInlineDisplaySytle) {
+            // set to 'block' if is 'none'
+            cache.elementData.displayStyle = currentInlineDisplaySytle === 'none' ? 'block' : currentInlineDisplaySytle;
+            cache.elementData.computedStyle = null;
+        } else {
+            let computeStyle = window.getComputedStyle(cache.el, null).getPropertyValue('display');
+            cache.elementData.displayStyle = null;
+            cache.elementData.computedStyle = computeStyle;
+        }
+    }
 
     shouldShow = getViewModelPropValue(viewModel, cache);
 
-    // do nothing if data in viewModel is undefined
-    if (typeof shouldShow !== 'undefined' && shouldShow !== null) {
-        shouldShow = Boolean(shouldShow);
+    // treat undefined || null as false.
+    // eg if property doesn't exsits in viewModel, it will treat as false to hide element
+    shouldShow = Boolean(shouldShow);
 
-        // reject if nothing changed
-        if (oldShowStatus === shouldShow) {
-            return;
-        }
-
-        if (!shouldShow) {
-            cache.el.style.setProperty('display', 'none');
-        } else {
-            cache.el.style.setProperty('display', 'block');
-        }
-
-        // store new show status
-        cache.elementData.viewModelPropValue = shouldShow;
+    // reject if nothing changed
+    if (oldShowStatus === shouldShow) {
+        return;
     }
+
+    if (!shouldShow) {
+        if (cache.el.style.display !== 'none') {
+            cache.el.style.setProperty('display', 'none');
+        }
+    } else {
+        if (cache.elementData.computedStyle || cache.el.style.display === 'none') {
+            if (cache.elementData.computedStyle === 'none') {
+                // default display is none in css rule, so use display 'block'
+                cache.el.style.setProperty('display', 'block');
+            } else {
+                // has default displayable type so just remove inline display 'none'
+                if (currentInlineSytle.length > 1) {
+                    cache.el.style.removeProperty('display');
+                } else {
+                    cache.el.removeAttribute('style');
+                }
+            }
+        } else {
+            // element default display was inline style, so restore it
+            cache.el.style.setProperty('display', cache.elementData.displayStyle);
+        }
+    }
+
+    // store new show status
+    cache.elementData.viewModelPropValue = shouldShow;
 };
 
 export default showBinding;

@@ -92,6 +92,7 @@ const getViewModelPropValue = (viewModel, bindingCache) => {
     }
 
     let ret = getViewModelValue(viewModel, dataKey);
+
     if (typeof ret === 'function') {
         let viewModelContext = resolveViewModelContext(viewModel, dataKey);
         let oldViewModelProValue = bindingCache.elementData ? bindingCache.elementData.viewModelProValue : null;
@@ -100,7 +101,16 @@ const getViewModelPropValue = (viewModel, bindingCache) => {
         let args = paramList.concat([oldViewModelProValue, bindingCache.el]);
         ret = ret.apply(viewModelContext, args);
     }
-    return isInvertBoolean ? !JSON.parse(ret) : ret;
+
+    if (typeof ret === 'undefined' || ret === null) {
+        return ret;
+    }
+
+    if ((isInvertBoolean && typeof ret === 'string' && ret === 'true') || ret === 'false') {
+        ret = JSON.parse(ret);
+    }
+
+    return isInvertBoolean && typeof ret === 'boolean' ? !ret : ret;
 };
 
 const parseStringToJson = (str) => {
