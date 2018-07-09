@@ -6,12 +6,14 @@ import {getViewModelValue} from './util';
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-const modelBinding = (cache, viewModel, bindingAttrs) => {
+const modelBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     let dataKey = cache.dataKey;
-    let newValue;
+    let newValue = '';
+    let APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!dataKey) {
+    if (!dataKey || (!forceRender && !APP.$rootElement.contains(cache.el))) {
         return;
     }
 

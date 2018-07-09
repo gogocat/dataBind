@@ -649,14 +649,16 @@ var _util = require('./util');
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-var blurBinding = function blurBinding(cache, viewModel, bindingAttrs) {
+var blurBinding = function blurBinding(cache, viewModel, bindingAttrs, forceRender) {
     var handlerName = cache.dataKey;
     var paramList = cache.parameters;
     var handlerFn = void 0;
     var viewModelContext = void 0;
+    var APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!handlerName) {
+    if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
         return;
     }
 
@@ -689,17 +691,19 @@ var _util = require('./util');
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-var changeBinding = function changeBinding(cache, viewModel, bindingAttrs) {
+var changeBinding = function changeBinding(cache, viewModel, bindingAttrs, forceRender) {
     var handlerName = cache.dataKey;
     var paramList = cache.parameters;
     var modelDataKey = cache.el.getAttribute(bindingAttrs.model);
     var handlerFn = void 0;
-    var newValue = void 0;
-    var oldValue = void 0;
+    var newValue = '';
+    var oldValue = '';
     var viewModelContext = void 0;
+    var APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!handlerName) {
+    if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
         return;
     }
 
@@ -744,14 +748,16 @@ var _util = require('./util');
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-var clickBinding = function clickBinding(cache, viewModel, bindingAttrs) {
+var clickBinding = function clickBinding(cache, viewModel, bindingAttrs, forceRender) {
     var handlerName = cache.dataKey;
     var paramList = cache.parameters;
     var handlerFn = void 0;
     var viewModelContext = void 0;
+    var APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!handlerName) {
+    if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
         return;
     }
 
@@ -1122,14 +1128,16 @@ var _util = require('./util');
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs) {
+var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs, forceRender) {
     var handlerName = cache.dataKey;
     var paramList = cache.parameters;
     var handlerFn = void 0;
     var viewModelContext = void 0;
+    var APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!handlerName) {
+    if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
         return;
     }
 
@@ -1314,14 +1322,16 @@ var _util = require('./util');
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-var focusBinding = function focusBinding(cache, viewModel, bindingAttrs) {
+var focusBinding = function focusBinding(cache, viewModel, bindingAttrs, forceRender) {
     var handlerName = cache.dataKey;
     var paramList = cache.parameters;
     var handlerFn = void 0;
     var viewModelContext = void 0;
+    var APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!handlerName) {
+    if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
         return;
     }
 
@@ -1526,12 +1536,14 @@ var _util = require('./util');
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-var modelBinding = function modelBinding(cache, viewModel, bindingAttrs) {
+var modelBinding = function modelBinding(cache, viewModel, bindingAttrs, forceRender) {
     var dataKey = cache.dataKey;
-    var newValue = void 0;
+    var newValue = '';
+    var APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!dataKey) {
+    if (!dataKey || !forceRender && !APP.$rootElement.contains(cache.el)) {
         return;
     }
 
@@ -2193,15 +2205,17 @@ var _util = require('./util');
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-var submitBinding = function submitBinding(cache, viewModel, bindingAttrs) {
+var submitBinding = function submitBinding(cache, viewModel, bindingAttrs, forceRender) {
     var handlerName = cache.dataKey;
     var paramList = cache.parameters;
     var handlerFn = void 0;
     var $element = void 0;
     var viewModelContext = void 0;
+    var APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!handlerName) {
+    if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
         return;
     }
 
