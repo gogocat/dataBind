@@ -19,16 +19,14 @@ import createBindingCache from './domWalker';
 import * as pubSub from './pubSub';
 
 let compIdIndex = 0;
-const rootDataKey = config.bindingDataReference.rootDataKey;
 
 class Binder {
     constructor($rootElement, viewModel, bindingAttrs) {
-        if (
-            !$rootElement instanceof jQuery ||
-            !$rootElement.length ||
-            viewModel === null ||
-            typeof viewModel !== 'object'
-        ) {
+        if ($rootElement instanceof window.jQuery && $rootElement.length) {
+            $rootElement = $rootElement.eq(0)[0];
+        }
+
+        if (!$rootElement || $rootElement.nodeType !== 1 || viewModel === null || typeof viewModel !== 'object') {
             throw new TypeError('$rootElement or viewModel is invalid');
         }
 
@@ -36,7 +34,7 @@ class Binder {
 
         this.compId = compIdIndex += 1;
 
-        this.$rootElement = $rootElement.eq(0);
+        this.$rootElement = $rootElement;
 
         this.viewModel = viewModel;
 
@@ -44,7 +42,7 @@ class Binder {
 
         this.render = debounceRaf(this.render, this);
 
-        this.isServerRendered = typeof this.$rootElement.attr(config.serverRenderedAttr) !== 'undefined';
+        this.isServerRendered = !!this.$rootElement.getAttribute(config.serverRenderedAttr);
 
         // inject instance into viewModel
         this.viewModel.APP = this;
@@ -64,11 +62,8 @@ class Binder {
      * then apply data binding
      */
     parseView() {
-        // store viewModel data as $root for easy access
-        this.$rootElement.data(rootDataKey, this.viewModel);
-
         this.elementCache = createBindingCache({
-            rootNode: this.$rootElement[0],
+            rootNode: this.$rootElement,
             bindingAttrs: this.bindingAttrs,
         });
 
@@ -92,7 +87,7 @@ class Binder {
         if (opt.allCache) {
             // walk dom from root element to regenerate elementCache
             this.elementCache = createBindingCache({
-                rootNode: this.$rootElement[0],
+                rootNode: this.$rootElement,
                 bindingAttrs: this.bindingAttrs,
             });
         }
@@ -124,7 +119,7 @@ class Binder {
         if (!this.initRendered) {
             // only update eventsBinding if server rendered
             if (this.isServerRendered) {
-                this.$rootElement.removeAttr(config.serverRenderedAttr);
+                this.$rootElement.removeAttribute(config.serverRenderedAttr);
                 updateOption = createBindingOption(config.bindingUpdateConditions.serverRendered, opt);
             } else {
                 updateOption = createBindingOption(config.bindingUpdateConditions.init, opt);

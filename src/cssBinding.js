@@ -12,8 +12,9 @@ import {getViewModelPropValue, isPlainObject, arrayRemoveMatch, each} from './ut
  */
 const cssBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
+    let APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!dataKey) {
+    if (!dataKey || !APP.$rootElement.contains(cache.el)) {
         return;
     }
 

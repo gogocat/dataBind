@@ -170,13 +170,16 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var compIdIndex = 0;
-var rootDataKey = config.bindingDataReference.rootDataKey;
 
 var Binder = function () {
     function Binder($rootElement, viewModel, bindingAttrs) {
         _classCallCheck(this, Binder);
 
-        if (!$rootElement instanceof jQuery || !$rootElement.length || viewModel === null || (typeof viewModel === 'undefined' ? 'undefined' : _typeof(viewModel)) !== 'object') {
+        if ($rootElement instanceof window.jQuery && $rootElement.length) {
+            $rootElement = $rootElement.eq(0)[0];
+        }
+
+        if (!$rootElement || $rootElement.nodeType !== 1 || viewModel === null || (typeof viewModel === 'undefined' ? 'undefined' : _typeof(viewModel)) !== 'object') {
             throw new TypeError('$rootElement or viewModel is invalid');
         }
 
@@ -184,7 +187,7 @@ var Binder = function () {
 
         this.compId = compIdIndex += 1;
 
-        this.$rootElement = $rootElement.eq(0);
+        this.$rootElement = $rootElement;
 
         this.viewModel = viewModel;
 
@@ -192,7 +195,7 @@ var Binder = function () {
 
         this.render = (0, _util.debounceRaf)(this.render, this);
 
-        this.isServerRendered = typeof this.$rootElement.attr(config.serverRenderedAttr) !== 'undefined';
+        this.isServerRendered = !!this.$rootElement.getAttribute(config.serverRenderedAttr);
 
         // inject instance into viewModel
         this.viewModel.APP = this;
@@ -216,11 +219,8 @@ var Binder = function () {
     _createClass(Binder, [{
         key: 'parseView',
         value: function parseView() {
-            // store viewModel data as $root for easy access
-            this.$rootElement.data(rootDataKey, this.viewModel);
-
             this.elementCache = (0, _domWalker2['default'])({
-                rootNode: this.$rootElement[0],
+                rootNode: this.$rootElement,
                 bindingAttrs: this.bindingAttrs
             });
 
@@ -251,7 +251,7 @@ var Binder = function () {
             if (opt.allCache) {
                 // walk dom from root element to regenerate elementCache
                 this.elementCache = (0, _domWalker2['default'])({
-                    rootNode: this.$rootElement[0],
+                    rootNode: this.$rootElement,
                     bindingAttrs: this.bindingAttrs
                 });
             }
@@ -286,7 +286,7 @@ var Binder = function () {
             if (!this.initRendered) {
                 // only update eventsBinding if server rendered
                 if (this.isServerRendered) {
-                    this.$rootElement.removeAttr(config.serverRenderedAttr);
+                    this.$rootElement.removeAttribute(config.serverRenderedAttr);
                     updateOption = createBindingOption(config.bindingUpdateConditions.serverRendered, opt);
                 } else {
                     updateOption = createBindingOption(config.bindingUpdateConditions.init, opt);
@@ -1017,8 +1017,9 @@ var _util = require('./util');
  */
 var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
+    var APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!dataKey) {
+    if (!dataKey || !APP.$rootElement.contains(cache.el)) {
         return;
     }
 
@@ -2363,8 +2364,9 @@ var textBinding = function textBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
     var paramList = cache.parameters;
     var viewModelContext = void 0;
+    var APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!dataKey) {
+    if (!dataKey || !APP.$rootElement.contains(cache.el)) {
         return;
     }
 

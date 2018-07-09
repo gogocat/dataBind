@@ -12,8 +12,10 @@ const textBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
     let paramList = cache.parameters;
     let viewModelContext;
+    let APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!dataKey) {
+    // NOTE: this doesn't work for for-of, if and switch bindings because element was not in DOM
+    if (!dataKey || !APP.$rootElement.contains(cache.el)) {
         return;
     }
 
