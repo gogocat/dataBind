@@ -16,10 +16,13 @@ const forOfBinding = (cache, viewModel, bindingAttrs) => {
     if (!dataKey || dataKey.length > maxDatakeyLength) {
         return;
     }
-    // replace mess spaces with single space
-    cache.dataKey = cache.dataKey.replace(REGEX.WHITESPACES, ' ');
 
     if (!cache.iterator) {
+        if (dataKey.length > maxDatakeyLength) {
+            return;
+        }
+        // replace mess spaces with single space
+        cache.dataKey = cache.dataKey.replace(REGEX.WHITESPACES, ' ');
         let forExpMatch = dataKey.match(REGEX.FOROF);
 
         if (!forExpMatch) {

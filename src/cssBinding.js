@@ -9,12 +9,13 @@ import {getViewModelPropValue, isPlainObject, arrayRemoveMatch, each} from './ut
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-const cssBinding = (cache, viewModel, bindingAttrs) => {
+const cssBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     let dataKey = cache.dataKey;
     let APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!dataKey || !APP.$rootElement.contains(cache.el)) {
+    if (!dataKey || (!forceRender && !APP.$rootElement.contains(cache.el))) {
         return;
     }
 

@@ -195,7 +195,7 @@ var Binder = function () {
 
         this.render = (0, _util.debounceRaf)(this.render, this);
 
-        this.isServerRendered = !!this.$rootElement.getAttribute(config.serverRenderedAttr);
+        this.isServerRendered = this.$rootElement.getAttribute(config.serverRenderedAttr) !== null;
 
         // inject instance into viewModel
         this.viewModel.APP = this;
@@ -203,6 +203,14 @@ var Binder = function () {
         this.viewModel.$root = this.viewModel;
 
         this.parseView();
+
+        // for jquery user set viewModel referece to $rootElement for easy debug
+        // otherwise use Expando to attach viewModel to $rootElement
+        if (window.jQuery) {
+            window.jQuery(this.$rootElement).data(config.bindingDataReference.rootDataKey, this.viewModel);
+        } else {
+            this.$rootElement[config.bindingDataReference.rootDataKey] = this.viewModel;
+        }
 
         return this;
     }
@@ -377,98 +385,98 @@ var Binder = function () {
             // apply forOf Binding
             if (updateOption.forOfBinding && elementCache[bindingAttrs.forOf] && elementCache[bindingAttrs.forOf].length) {
                 elementCache[bindingAttrs.forOf].forEach(function (cache) {
-                    (0, _forOfBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _forOfBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
 
             // apply attr Binding
             if (updateOption.attrBinding && elementCache[bindingAttrs.attr] && elementCache[bindingAttrs.attr].length) {
                 elementCache[bindingAttrs.attr].forEach(function (cache) {
-                    (0, _attrBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _attrBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
 
             // apply if Binding
             if (updateOption.ifBinding && elementCache[bindingAttrs['if']] && elementCache[bindingAttrs['if']].length) {
                 elementCache[bindingAttrs['if']].forEach(function (cache) {
-                    (0, _ifBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _ifBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
 
             // apply show Binding
             if (updateOption.showBinding && elementCache[bindingAttrs.show] && elementCache[bindingAttrs.show].length) {
                 elementCache[bindingAttrs.show].forEach(function (cache) {
-                    (0, _showBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _showBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
 
             // apply switch Binding
             if (updateOption.switchBinding && elementCache[bindingAttrs['switch']] && elementCache[bindingAttrs['switch']].length) {
                 elementCache[bindingAttrs['switch']].forEach(function (cache) {
-                    (0, _switchBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _switchBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
 
             // apply text binding
             if (updateOption.textBinding && elementCache[bindingAttrs.text] && elementCache[bindingAttrs.text].length) {
                 elementCache[bindingAttrs.text].forEach(function (cache) {
-                    (0, _textBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _textBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
 
             // apply cssBinding
             if (updateOption.cssBinding && elementCache[bindingAttrs.css] && elementCache[bindingAttrs.css].length) {
                 elementCache[bindingAttrs.css].forEach(function (cache) {
-                    (0, _cssBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _cssBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
 
             // apply model binding
             if (updateOption.modelBinding && elementCache[bindingAttrs.model] && elementCache[bindingAttrs.model].length) {
                 elementCache[bindingAttrs.model].forEach(function (cache) {
-                    (0, _modelBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _modelBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
 
             // apply change binding
             if (updateOption.changeBinding && elementCache[bindingAttrs.change] && elementCache[bindingAttrs.change].length) {
                 elementCache[bindingAttrs.change].forEach(function (cache) {
-                    (0, _changeBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _changeBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
 
             // apply submit binding
             if (updateOption.submitBinding && elementCache[bindingAttrs.submit] && elementCache[bindingAttrs.submit].length) {
                 elementCache[bindingAttrs.submit].forEach(function (cache) {
-                    (0, _submitBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _submitBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
 
             // apply click binding
             if (updateOption.clickBinding && elementCache[bindingAttrs.click] && elementCache[bindingAttrs.click].length) {
                 elementCache[bindingAttrs.click].forEach(function (cache) {
-                    (0, _clickBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _clickBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
 
             // apply double click binding
             if (updateOption.dblclickBinding && elementCache[bindingAttrs.dblclick] && elementCache[bindingAttrs.dblclick].length) {
                 elementCache[bindingAttrs.dblclick].forEach(function (cache) {
-                    (0, _dbclickBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _dbclickBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
 
             // apply blur binding
             if (updateOption.blurBinding && elementCache[bindingAttrs.blur] && elementCache[bindingAttrs.blur].length) {
                 elementCache[bindingAttrs.blur].forEach(function (cache) {
-                    (0, _blurBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _blurBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
 
             // apply focus binding
             if (updateOption.focus && elementCache[bindingAttrs.focus] && elementCache[bindingAttrs.focus].length) {
                 elementCache[bindingAttrs.focus].forEach(function (cache) {
-                    (0, _focusBinding2['default'])(cache, viewModel, bindingAttrs);
+                    (0, _focusBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
         }
@@ -504,6 +512,9 @@ var renderTemplatesBinding = function renderTemplatesBinding(_ref2) {
                 elementCache: elementCache
             });
         }
+        // enforce render even element is not in DOM tree
+        updateOption.forceRender = true;
+
         // apply bindings to rendered templates element
         elementCache[bindingAttrs.tmp].forEach(function (cache) {
             Binder.applyBinding({
@@ -594,6 +605,9 @@ var renderIteration = function renderIteration(_ref3) {
         isRegenerate = _ref3.isRegenerate;
 
     var bindingUpdateOption = isRegenerate ? createBindingOption(config.bindingUpdateConditions.init) : createBindingOption();
+
+    // enforce render even element is not in DOM tree
+    bindingUpdateOption.forceRender = true;
 
     // render and apply binding to template(s)
     // this is an share function therefore passing current APP 'this' context
@@ -1014,12 +1028,13 @@ var _util = require('./util');
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-var cssBinding = function cssBinding(cache, viewModel, bindingAttrs) {
+var cssBinding = function cssBinding(cache, viewModel, bindingAttrs, forceRender) {
     var dataKey = cache.dataKey;
     var APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!dataKey || !APP.$rootElement.contains(cache.el)) {
+    if (!dataKey || !forceRender && !APP.$rootElement.contains(cache.el)) {
         return;
     }
 
@@ -1354,10 +1369,13 @@ var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
     if (!dataKey || dataKey.length > _config.maxDatakeyLength) {
         return;
     }
-    // replace mess spaces with single space
-    cache.dataKey = cache.dataKey.replace(_util.REGEX.WHITESPACES, ' ');
 
     if (!cache.iterator) {
+        if (dataKey.length > _config.maxDatakeyLength) {
+            return;
+        }
+        // replace mess spaces with single space
+        cache.dataKey = cache.dataKey.replace(_util.REGEX.WHITESPACES, ' ');
         var forExpMatch = dataKey.match(_util.REGEX.FOROF);
 
         if (!forExpMatch) {
@@ -1731,6 +1749,7 @@ var renderForOfBinding = function renderForOfBinding(_ref) {
         return (0, _util.throwErrorMessage)(null, 'iterationData is not an plain object or array');
     }
 
+    // flag as pared for-of logic with bindingData.type
     if (!bindingData.type) {
         bindingData.type = _config.bindingAttrs.forOf;
         (0, _commentWrapper.wrapCommentAround)(bindingData, bindingData.el);
@@ -2359,14 +2378,16 @@ var _util = require('./util');
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-var textBinding = function textBinding(cache, viewModel, bindingAttrs) {
+var textBinding = function textBinding(cache, viewModel, bindingAttrs, forceRender) {
     var dataKey = cache.dataKey;
     var paramList = cache.parameters;
     var viewModelContext = void 0;
     var APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!dataKey || !APP.$rootElement.contains(cache.el)) {
+    // NOTE: this doesn't work for for-of, if and switch bindings because element was not in DOM
+    if (!dataKey || !forceRender && !APP.$rootElement.contains(cache.el)) {
         return;
     }
 
