@@ -26,10 +26,9 @@ const cssBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     let oldCssList = cache.elementData.viewModelPropValue;
     let newCssList = '';
     let vmCssListObj = getViewModelPropValue(viewModel, cache);
-    let vmCssListArray;
+    let vmCssListArray = [];
     let isViewDataObject = false;
     let isViewDataString = false;
-    let domCssList;
     let cssList = [];
 
     if (typeof vmCssListObj === 'string') {
@@ -53,7 +52,7 @@ const cssBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     }
 
     // get current css classes from element
-    domCssList = cache.el.classList;
+    let domCssList = cache.el.classList;
     // clone domCssList as new array
     let domCssListLength = domCssList.length;
     for (let i = 0; i < domCssListLength; i += 1) {
@@ -77,6 +76,7 @@ const cssBinding = (cache, viewModel, bindingAttrs, forceRender) => {
 
     // unique cssList array
     cssList = _.uniq(cssList).join(' ');
+
     // replace all css classes
     // TODO: this is the slowness part. Try only update changed css in the classList
     // rather than replace the whole class attribute

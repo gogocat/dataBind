@@ -289,7 +289,7 @@ const each = (obj, fn) => {
     let isArrayObj = isArray(obj);
     let key;
     let value;
-    let i;
+    let i = 0;
 
     if (isArrayObj) {
         keysLength = obj.length;
@@ -377,6 +377,14 @@ const resolveParamList = (viewModel, paramList) => {
     });
 };
 
+const sortArray = (array) => {
+    return array.sort((a, b) => {
+        if (a < b) return -1;
+        else if (a > b) return 1;
+        return 0;
+    });
+};
+
 const throwErrorMessage = (err = null, errorMessage = '') => {
     let message = err && err.message ? err.message : errorMessage;
     if (typeof console.error === 'function') {
@@ -385,28 +393,38 @@ const throwErrorMessage = (err = null, errorMessage = '') => {
     return console.log(message);
 };
 
+const union = (array1, array2) => {
+    return array1.concat(
+        array2.filter(function(i) {
+            return array1.indexOf(i) == -1;
+        })
+    );
+};
+
 export {
     REGEX,
-    isArray,
-    isPlainObject,
-    isJsObject,
-    isEmptyObject,
+    arrayRemoveMatch,
+    cloneDomNode,
+    debounceRaf,
     each,
     extend,
     generateElementCache,
-    getViewModelValue,
-    setViewModelValue,
-    getViewModelPropValue,
-    parseStringToJson,
-    debounceRaf,
-    arrayRemoveMatch,
     getFormData,
     getFunctionParameterList,
-    invertObj,
     getNodeAttrObj,
-    cloneDomNode,
+    getViewModelPropValue,
+    getViewModelValue,
     insertAfter,
-    resolveViewModelContext,
+    invertObj,
+    isArray,
+    isEmptyObject,
+    isJsObject,
+    isPlainObject,
+    parseStringToJson,
     resolveParamList,
+    resolveViewModelContext,
+    setViewModelValue,
+    sortArray,
     throwErrorMessage,
+    union,
 };

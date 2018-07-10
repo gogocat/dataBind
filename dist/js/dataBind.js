@@ -1051,10 +1051,9 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs, forceRender
     var oldCssList = cache.elementData.viewModelPropValue;
     var newCssList = '';
     var vmCssListObj = (0, _util.getViewModelPropValue)(viewModel, cache);
-    var vmCssListArray = void 0;
+    var vmCssListArray = [];
     var isViewDataObject = false;
     var isViewDataString = false;
-    var domCssList = void 0;
     var cssList = [];
 
     if (typeof vmCssListObj === 'string') {
@@ -1078,7 +1077,7 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs, forceRender
     }
 
     // get current css classes from element
-    domCssList = cache.el.classList;
+    var domCssList = cache.el.classList;
     // clone domCssList as new array
     var domCssListLength = domCssList.length;
     for (var i = 0; i < domCssListLength; i += 1) {
@@ -1102,6 +1101,7 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs, forceRender
 
     // unique cssList array
     cssList = _.uniq(cssList).join(' ');
+
     // replace all css classes
     // TODO: this is the slowness part. Try only update changed css in the classList
     // rather than replace the whole class attribute
@@ -2429,7 +2429,7 @@ exports['default'] = textBinding;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.throwErrorMessage = exports.resolveParamList = exports.resolveViewModelContext = exports.insertAfter = exports.cloneDomNode = exports.getNodeAttrObj = exports.invertObj = exports.getFunctionParameterList = exports.getFormData = exports.arrayRemoveMatch = exports.debounceRaf = exports.parseStringToJson = exports.getViewModelPropValue = exports.setViewModelValue = exports.getViewModelValue = exports.generateElementCache = exports.extend = exports.each = exports.isEmptyObject = exports.isJsObject = exports.isPlainObject = exports.isArray = exports.REGEX = undefined;
+exports.union = exports.throwErrorMessage = exports.sortArray = exports.setViewModelValue = exports.resolveViewModelContext = exports.resolveParamList = exports.parseStringToJson = exports.isPlainObject = exports.isJsObject = exports.isEmptyObject = exports.isArray = exports.invertObj = exports.insertAfter = exports.getViewModelValue = exports.getViewModelPropValue = exports.getNodeAttrObj = exports.getFunctionParameterList = exports.getFormData = exports.generateElementCache = exports.extend = exports.each = exports.debounceRaf = exports.cloneDomNode = exports.arrayRemoveMatch = exports.REGEX = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -2735,7 +2735,7 @@ var each = function each(obj, fn) {
     var isArrayObj = isArray(obj);
     var key = void 0;
     var value = void 0;
-    var i = void 0;
+    var i = 0;
 
     if (isArrayObj) {
         keysLength = obj.length;
@@ -2823,6 +2823,13 @@ var resolveParamList = function resolveParamList(viewModel, paramList) {
     });
 };
 
+var sortArray = function sortArray(array) {
+    return array.sort(function (a, b) {
+        if (a < b) return -1;else if (a > b) return 1;
+        return 0;
+    });
+};
+
 var throwErrorMessage = function throwErrorMessage() {
     var err = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     var errorMessage = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
@@ -2834,29 +2841,37 @@ var throwErrorMessage = function throwErrorMessage() {
     return console.log(message);
 };
 
+var union = function union(array1, array2) {
+    return array1.concat(array2.filter(function (i) {
+        return array1.indexOf(i) == -1;
+    }));
+};
+
 exports.REGEX = REGEX;
-exports.isArray = isArray;
-exports.isPlainObject = isPlainObject;
-exports.isJsObject = isJsObject;
-exports.isEmptyObject = isEmptyObject;
+exports.arrayRemoveMatch = arrayRemoveMatch;
+exports.cloneDomNode = cloneDomNode;
+exports.debounceRaf = debounceRaf;
 exports.each = each;
 exports.extend = extend;
 exports.generateElementCache = generateElementCache;
-exports.getViewModelValue = getViewModelValue;
-exports.setViewModelValue = setViewModelValue;
-exports.getViewModelPropValue = getViewModelPropValue;
-exports.parseStringToJson = parseStringToJson;
-exports.debounceRaf = debounceRaf;
-exports.arrayRemoveMatch = arrayRemoveMatch;
 exports.getFormData = getFormData;
 exports.getFunctionParameterList = getFunctionParameterList;
-exports.invertObj = invertObj;
 exports.getNodeAttrObj = getNodeAttrObj;
-exports.cloneDomNode = cloneDomNode;
+exports.getViewModelPropValue = getViewModelPropValue;
+exports.getViewModelValue = getViewModelValue;
 exports.insertAfter = insertAfter;
-exports.resolveViewModelContext = resolveViewModelContext;
+exports.invertObj = invertObj;
+exports.isArray = isArray;
+exports.isEmptyObject = isEmptyObject;
+exports.isJsObject = isJsObject;
+exports.isPlainObject = isPlainObject;
+exports.parseStringToJson = parseStringToJson;
 exports.resolveParamList = resolveParamList;
+exports.resolveViewModelContext = resolveViewModelContext;
+exports.setViewModelValue = setViewModelValue;
+exports.sortArray = sortArray;
 exports.throwErrorMessage = throwErrorMessage;
+exports.union = union;
 
 },{"./config":7}]},{},[14])
 
