@@ -75,14 +75,15 @@ const cssBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     }
 
     // unique cssList array
-    cssList = _.uniq(cssList).join(' ');
+    cssList = cssList.filter((v, i, a) => {
+        return a.indexOf(v) === i;
+    });
 
-    // replace all css classes
-    // TODO: this is the slowness part. Try only update changed css in the classList
-    // rather than replace the whole class attribute
-    cache.el.setAttribute('class', cssList);
+    cssList = cssList.join(' ');
     // update element data
     cache.elementData.viewModelPropValue = newCssList;
+    // replace all css classes
+    cache.el.setAttribute('class', cssList);
 };
 
 export default cssBinding;

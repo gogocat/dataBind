@@ -1100,14 +1100,15 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs, forceRender
     }
 
     // unique cssList array
-    cssList = _.uniq(cssList).join(' ');
+    cssList = cssList.filter(function (v, i, a) {
+        return a.indexOf(v) === i;
+    });
 
-    // replace all css classes
-    // TODO: this is the slowness part. Try only update changed css in the classList
-    // rather than replace the whole class attribute
-    cache.el.setAttribute('class', cssList);
+    cssList = cssList.join(' ');
     // update element data
     cache.elementData.viewModelPropValue = newCssList;
+    // replace all css classes
+    cache.el.setAttribute('class', cssList);
 };
 
 exports['default'] = cssBinding;
@@ -2429,7 +2430,7 @@ exports['default'] = textBinding;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.union = exports.throwErrorMessage = exports.sortArray = exports.setViewModelValue = exports.resolveViewModelContext = exports.resolveParamList = exports.parseStringToJson = exports.isPlainObject = exports.isJsObject = exports.isEmptyObject = exports.isArray = exports.invertObj = exports.insertAfter = exports.getViewModelValue = exports.getViewModelPropValue = exports.getNodeAttrObj = exports.getFunctionParameterList = exports.getFormData = exports.generateElementCache = exports.extend = exports.each = exports.debounceRaf = exports.cloneDomNode = exports.arrayRemoveMatch = exports.REGEX = undefined;
+exports.throwErrorMessage = exports.setViewModelValue = exports.resolveViewModelContext = exports.resolveParamList = exports.parseStringToJson = exports.isPlainObject = exports.isJsObject = exports.isEmptyObject = exports.isArray = exports.invertObj = exports.insertAfter = exports.getViewModelValue = exports.getViewModelPropValue = exports.getNodeAttrObj = exports.getFunctionParameterList = exports.getFormData = exports.generateElementCache = exports.extend = exports.each = exports.debounceRaf = exports.cloneDomNode = exports.arrayRemoveMatch = exports.REGEX = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -2823,13 +2824,6 @@ var resolveParamList = function resolveParamList(viewModel, paramList) {
     });
 };
 
-var sortArray = function sortArray(array) {
-    return array.sort(function (a, b) {
-        if (a < b) return -1;else if (a > b) return 1;
-        return 0;
-    });
-};
-
 var throwErrorMessage = function throwErrorMessage() {
     var err = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     var errorMessage = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
@@ -2839,12 +2833,6 @@ var throwErrorMessage = function throwErrorMessage() {
         return console.error(message);
     }
     return console.log(message);
-};
-
-var union = function union(array1, array2) {
-    return array1.concat(array2.filter(function (i) {
-        return array1.indexOf(i) == -1;
-    }));
 };
 
 exports.REGEX = REGEX;
@@ -2869,9 +2857,7 @@ exports.parseStringToJson = parseStringToJson;
 exports.resolveParamList = resolveParamList;
 exports.resolveViewModelContext = resolveViewModelContext;
 exports.setViewModelValue = setViewModelValue;
-exports.sortArray = sortArray;
 exports.throwErrorMessage = throwErrorMessage;
-exports.union = union;
 
 },{"./config":7}]},{},[14])
 
