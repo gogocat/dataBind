@@ -1,4 +1,4 @@
-import {getViewModelPropValue, isPlainObject, isEmptyObject} from './util';
+import {getViewModelPropValue, isPlainObject, isEmptyObject, extend} from './util';
 
 /**
  * attrBinding
@@ -21,8 +21,7 @@ const attrBinding = (cache, viewModel, bindingAttrs) => {
     const oldAttrObj = cache.elementData.viewModelProValue;
     const vmAttrObj = getViewModelPropValue(viewModel, cache);
 
-    if (!isPlainObject(vmAttrObj) || isEmptyObject(vmAttrObj)) {
-        // reject if vmAttrListObj is not an object or empty
+    if (!isPlainObject(vmAttrObj)) {
         return;
     }
 
@@ -59,7 +58,7 @@ const attrBinding = (cache, viewModel, bindingAttrs) => {
         }
     }
     // update element data
-    cache.elementData.viewModelProValue = vmAttrObj;
+    cache.elementData.viewModelProValue = extend(true, {}, vmAttrObj);
 };
 
 export default attrBinding;
