@@ -40,7 +40,7 @@ const compileTemplate = (id, templateData = null) => {
  */
 const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
     let settings = parseStringToJson(cache.dataKey);
-    let viewData = settings.data === '$root' ? viewModel : getViewModelValue(viewModel, settings.data);
+    let viewData = settings.data;
     let isAppend = settings.append;
     let isPrepend = settings.prepend;
     let html;
@@ -48,6 +48,12 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
     let $index;
     let $currentElement;
     let $nestedTemplates;
+
+    if (typeof viewData === 'undefined' || viewData === '$root') {
+        viewData = viewModel;
+    } else {
+        viewData = getViewModelValue(viewModel, settings.data);
+    }
 
     if (!viewData) {
         return;

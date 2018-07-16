@@ -1,0 +1,58 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiber Demo with dataBind</title>
+    <style>
+        html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            background: rgb(238, 238, 238);
+            transform-origin: 0px 0px 0px;
+            transform: scaleX(0.679952) scaleY(0.7) translateZ(0.1px);
+        }
+
+        .dot {
+            position: absolute;
+            left: 971.875px;
+            top: 479.688px;
+            width: 32.5px;
+            height: 32.5px;
+            border-radius: 50%;
+            background: rgb(97, 218, 251);
+            font: 15px/32.5px sans-serif;
+            text-align: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Fiber Demo with dataBind</h1>
+    <div id="container" data-jq-comp="fiberDemoComponent" data-jq-attr="containerAttr" data-jq-css="containerCss" data-jq-tmp="{id: 'fiberDemoContent'}">
+
+    </div>
+
+    <template id="fiberDemoContent">
+        <div>
+            <div data-jq-for="dot of dots" data-jq-text="dot.text" data-jq-css="$root.dotCss" data-jq-attr="dot.attr"></div>
+        </div>
+    </template>
+
+    <script src="../vendors/lodash.custom.min.js"></script>
+    <script src="../vendors/jquery-3.2.1.min.js"></script>
+    <script src="../dist/js/dataBind.js"></script>
+    <script src="js/fiberDemo.js"></script>
+</body>
+
+</html>
