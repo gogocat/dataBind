@@ -52,6 +52,7 @@ const attrBinding = (cache, viewModel, bindingAttrs) => {
                 // update attribute if value changed
                 cache.el.setAttribute(key, vmAttrObj[key]);
             }
+            // populate with vmAttrObj data
             cache.elementData.viewModelProValue[key] = value;
         });
     }

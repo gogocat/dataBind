@@ -32,38 +32,27 @@ function createDot(x, y) {
         width: ${dotSize}px;
         height: ${dotSize}px;
         line-height: ${dotSize}px;
-    `;
+    `.replace(/\n\s+/g, '');
 
     return dot;
 }
 
-function recursiveUpdateDotsData(viewModel, oldText, oldHoveredDot) {
+function recursiveUpdateDotsData(viewModel) {
     const remainder = getElapsedSecond() % 10;
     const text = Math.floor(remainder);
     let scaleXFactor = (1 + (5 - Math.abs(5 - remainder)) / 10) / 2.1;
-    const hoveredDot = null; //viewModel.APP.$rootElement.querySelector(':hover');
 
+    // update viewModel data
     fiberViewModel.dots.forEach((dot) => {
         dot.text = text;
     });
-    /*
-    if (hoveredDot) {
-        hoveredDot.style.background = '#ff0';
-        hoveredDot.textContent = `*${text}*`;
-    }
-    if (oldHoveredDot && hoveredDot !== oldHoveredDot) {
-        oldHoveredDot.style.background = '#61dafb';
-        oldHoveredDot.textContent = text;
-    }
-    */
-
-    // console.log(hoveredDot);
 
     fiberViewModel.containerAttr.style = `transform: scaleX(${scaleXFactor}) scaleY(0.7) translateZ(0.1px)`;
+
     // update view
     fiberComponent.render();
     // recursive call this function
-    requestAnimationFrame(() => recursiveUpdateDotsData(fiberViewModel, text, hoveredDot));
+    requestAnimationFrame(() => recursiveUpdateDotsData(fiberViewModel));
 }
 
 function getElapsedSecond() {
@@ -75,12 +64,14 @@ fiberViewModel.dots = createDotList();
 
 // start binding on DOM ready
 $(document).ready(function() {
+    const $fiberComponent = $('[data-jq-comp="fiberDemoComponent"]');
     // formComponentC - test for-of binding
-    fiberComponent = dataBind.init($('[data-jq-comp="fiberDemoComponent"]'), fiberViewModel);
+    fiberComponent = dataBind.init($fiberComponent, fiberViewModel);
     fiberComponent.render().then(function() {
         // for debug
         console.log(fiberComponent);
         window.fiberComponent = fiberComponent;
+
         // recursive
         recursiveUpdateDotsData(fiberViewModel);
     });
