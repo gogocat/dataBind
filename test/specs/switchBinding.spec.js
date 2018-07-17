@@ -1,4 +1,4 @@
-describe('When mySwitchComponent with data-jq-switch binding inited', function() {
+describe('Given [data-jq-comp="switch-component"] inited', function() {
 	var namespace = {};
 	
 	// stories data
@@ -69,7 +69,7 @@ describe('When mySwitchComponent with data-jq-switch binding inited', function()
 		};
 
         namespace.mySwitchComponent = dataBind.init(
-            $('[data-jq-comp="mySwitchComponent"]'),
+            $('[data-jq-comp="switch-component"]'),
             namespace.viewModel
         );
 

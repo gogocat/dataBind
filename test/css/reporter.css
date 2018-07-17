@@ -1,0 +1,10 @@
+.jasmine-summary > .jasmine-suite {
+	display: block;
+    border-bottom: 1px solid #999;
+    padding-bottom: 1em;
+    margin-bottom: 1em;
+}
+
+.jasmine-suite-detail {
+	font-size: 1.2em;
+}

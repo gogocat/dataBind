@@ -1,4 +1,4 @@
-describe('When myIfComponent with data-jq-if binding inited', function() {
+describe('Given [data-jq-comp="if-component"] inited', function() {
     var namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
@@ -39,7 +39,7 @@ describe('When myIfComponent with data-jq-if binding inited', function() {
         };
 
         namespace.myIfComponent = dataBind.init(
-            $('[data-jq-comp="myIfComponent"]'),
+            $('[data-jq-comp="if-component"]'),
             namespace.viewModel
         );
 		

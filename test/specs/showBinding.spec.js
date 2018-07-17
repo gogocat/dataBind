@@ -1,4 +1,4 @@
-describe('When myComponent with data-jq-show binding inited', function() {
+describe('Given [data-jq-comp="show-component"] inited', function() {
     var namespace = {};
 	var isVisible = function(el) {
 		return el.offsetHeight > 0;
@@ -28,7 +28,7 @@ describe('When myComponent with data-jq-show binding inited', function() {
         };
 
         namespace.myComponent = dataBind.init(
-            $('[data-jq-comp="myComponent"]'),
+            $('[data-jq-comp="show-component"]'),
             namespace.viewModel
         );
 		

@@ -1,4 +1,4 @@
-describe('When myTextComponent with data-jq-text binding inited', function() {
+describe('Given [data-jq-comp="text-component"] inited', function() {
     var namespace = {};
 	var testContent2 = 'text-binding content';
 
@@ -20,7 +20,7 @@ describe('When myTextComponent with data-jq-text binding inited', function() {
         };
 
         namespace.myTextComponent = dataBind.init(
-            $('[data-jq-comp="myTextComponent"]'),
+            $('[data-jq-comp="text-component"]'),
             namespace.viewModel
         );
 		

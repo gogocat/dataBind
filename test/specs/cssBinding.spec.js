@@ -1,4 +1,4 @@
-describe('When myComponent with data-jq-css binding inited', function() {
+describe('Given [data-jq-comp="css-component"] inited', function() {
     var namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
@@ -26,7 +26,7 @@ describe('When myComponent with data-jq-css binding inited', function() {
         };
 
         namespace.myCssComponent = dataBind.init(
-            $('[data-jq-comp="myCssComponent"]'),
+            $('[data-jq-comp="css-component"]'),
             namespace.viewModel
         );
 		

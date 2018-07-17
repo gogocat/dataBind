@@ -1,4 +1,4 @@
-describe('When myAttrComponent with data-jq-if binding inited', function() {
+describe('Given [data-jq-comp="attr-component"] inited', function() {
     var namespace = {};
 	var testAttr2Obj = {
 			id: 'newId',
@@ -26,7 +26,7 @@ describe('When myAttrComponent with data-jq-if binding inited', function() {
         };
 
         namespace.myAttrComponent = dataBind.init(
-            $('[data-jq-comp="myAttrComponent"]'),
+            $('[data-jq-comp="attr-component"]'),
             namespace.viewModel
         );
 		
@@ -67,6 +67,43 @@ describe('When myAttrComponent with data-jq-if binding inited', function() {
 			var $testAttr2 = document.getElementById(testAttr2Obj.id);
             expect($testAttr2.getAttribute('ref')).toBe(testAttr2Obj.ref);
 			expect($testAttr2.getAttribute('id')).toBe(testAttr2Obj.id);
+            done();
+        }, 200);
+    });
+	
+	it('Should update attribute when viewModel updated', function(done) {
+		var updatedRef = 'updatedRef';
+		var disabled = 'disabled';
+		
+		namespace.viewModel.attr1.ref = updatedRef;
+		namespace.viewModel.attr1.disabled = disabled;
+		namespace.myAttrComponent.render();
+		
+        setTimeout(function() {
+			var $testAttr1 = document.getElementById('testAttr1');
+            expect($testAttr1.getAttribute('ref')).toBe(updatedRef);
+			expect($testAttr1.getAttribute('disabled')).toBe(disabled);
+			expect($testAttr1.getAttribute('style')).toBe(namespace.viewModel.attr1.style);
+			// check existing attribute untouch
+			expect($testAttr1.getAttribute('id')).toBe('testAttr1');
+			expect($testAttr1.getAttribute('class')).toBe('test');
+            done();
+        }, 200);
+    });
+	
+	it('Should remove attribute when viewModel updated', function(done) {
+		var updatedRef2 = 'updatedRef2'; 
+		namespace.viewModel.attr1 = {
+			ref: updatedRef2,
+		};
+		
+        setTimeout(function() {
+			var $testAttr1 = document.getElementById('testAttr1');
+            expect($testAttr1.getAttribute('ref')).toBe(updatedRef2);
+			expect($testAttr1.getAttribute('style')).toBe(null);
+			// check existing attribute untouch
+			expect($testAttr1.getAttribute('id')).toBe('testAttr1');
+			expect($testAttr1.getAttribute('class')).toBe('test');
             done();
         }, 200);
     });
