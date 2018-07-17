@@ -4,7 +4,7 @@
  * @link https://github.com/gogocat/dataBind#readme
  * @license MIT
  */
-(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -43,35 +43,31 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
         return;
     }
 
-    // get current DOM element attributes object
-    // let domAttrObj = util.getNodeAttrObj(cache.el, [bindingAttrs.attr]);
+    // reset old data and update it
+    cache.elementData.viewModelProValue = {};
 
     if ((0, _util.isEmptyObject)(oldAttrObj)) {
-        for (var key in vmAttrObj) {
-            if (vmAttrObj.hasOwnProperty(key)) {
+        (0, _util.each)(vmAttrObj, function (key, value) {
+            cache.el.setAttribute(key, value);
+            // populate with vmAttrObj data
+            cache.elementData.viewModelProValue[key] = value;
+        });
+    } else {
+        (0, _util.each)(oldAttrObj, function (key, value) {
+            if (typeof vmAttrObj[key] === 'undefined') {
+                // remove attribute if not present in current vm
+                cache.el.removeAttribute(key);
+            }
+        });
+
+        (0, _util.each)(vmAttrObj, function (key, value) {
+            if (oldAttrObj[key] !== vmAttrObj[key]) {
+                // update attribute if value changed
                 cache.el.setAttribute(key, vmAttrObj[key]);
             }
-        }
-    } else {
-        for (var _key in oldAttrObj) {
-            if (oldAttrObj.hasOwnProperty(_key)) {
-                if (vmAttrObj[_key] === undefined) {
-                    // remove attribute if not present in current vm
-                    cache.el.removeAttribute(_key);
-                }
-            }
-        }
-        for (var _key2 in vmAttrObj) {
-            if (vmAttrObj.hasOwnProperty(_key2)) {
-                if (oldAttrObj[_key2] !== vmAttrObj[_key2]) {
-                    // update attribute if value changed
-                    cache.el.setAttribute(_key2, vmAttrObj[_key2]);
-                }
-            }
-        }
+            cache.elementData.viewModelProValue[key] = value;
+        });
     }
-    // update element data
-    cache.elementData.viewModelProValue = (0, _util.extend)(true, {}, vmAttrObj);
 };
 
 exports['default'] = attrBinding;

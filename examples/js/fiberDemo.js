@@ -37,14 +37,11 @@ function createDot(x, y) {
     return dot;
 }
 
-// populate dot data in viewModel
-fiberViewModel.dots = createDotList();
-
 function recursiveUpdateDotsData(viewModel, oldText, oldHoveredDot) {
     const remainder = getElapsedSecond() % 10;
     const text = Math.floor(remainder);
     let scaleXFactor = (1 + (5 - Math.abs(5 - remainder)) / 10) / 2.1;
-    const hoveredDot = null; // viewModel.APP.$rootElement.querySelector(':hover');
+    const hoveredDot = null; //viewModel.APP.$rootElement.querySelector(':hover');
 
     fiberViewModel.dots.forEach((dot) => {
         dot.text = text;
@@ -60,6 +57,8 @@ function recursiveUpdateDotsData(viewModel, oldText, oldHoveredDot) {
     }
     */
 
+    // console.log(hoveredDot);
+
     fiberViewModel.containerAttr.style = `transform: scaleX(${scaleXFactor}) scaleY(0.7) translateZ(0.1px)`;
     // update view
     fiberComponent.render();
@@ -70,6 +69,9 @@ function recursiveUpdateDotsData(viewModel, oldText, oldHoveredDot) {
 function getElapsedSecond() {
     return (new Date().getTime() - startTime.getTime()) / 1000;
 }
+
+// populate dot data in viewModel
+fiberViewModel.dots = createDotList();
 
 // start binding on DOM ready
 $(document).ready(function() {
