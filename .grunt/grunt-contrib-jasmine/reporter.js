@@ -2,75 +2,52 @@
 
 'use strict';
 
-var phantom = {};
-
-if (window._phantom) {
-  console.log = function() {
-    phantom.sendMessage('console', Array.prototype.slice.apply(arguments).join(', '));
-  };
-}
-
 
 (function() {
-  phantom.sendMessage = function() {
-    var args = [].slice.call(arguments);
-    var payload = stringify(args);
-    if (window._phantom) {
-      // alerts are the communication bridge to grunt
-      alert(payload);
-    }
+  const sendMessage = (type, param) => {
+    window[type] && window[type](param);
   };
 
-  function PhantomReporter() {
-    this.started = false;
-    this.finished = false;
-    this.suites_ = [];
-    this.results_ = {};
-    this.buffer = '';
-  }
+  const reporter = {
+    jasmineStarted: function() {
+      sendMessage('jasmine.jasmineStarted');
+    },
 
-  PhantomReporter.prototype.jasmineStarted = function() {
-    this.started = true;
-    phantom.sendMessage('jasmine.jasmineStarted');
-  };
+    suiteStarted: function(suiteMetadata) {
+      suiteMetadata.startTime = (new Date()).getTime();
+      sendMessage('jasmine.suiteStarted', suiteMetadata);
+    },
 
-  PhantomReporter.prototype.specStarted = function(specMetadata) {
-    specMetadata.startTime = (new Date()).getTime();
-    phantom.sendMessage('jasmine.specStarted', specMetadata);
-  };
+    specStarted: function(specMetadata) {
+      sendMessage('jasmine.specStarted', specMetadata);
+      specMetadata.startTime = (new Date()).getTime();
+    },
 
-  PhantomReporter.prototype.suiteStarted = function(suiteMetadata) {
-    suiteMetadata.startTime = (new Date()).getTime();
-    phantom.sendMessage('jasmine.suiteStarted', suiteMetadata);
-  };
+    specDone: function(specMetadata) {
+      specMetadata.duration = (new Date()).getTime() - specMetadata.startTime;
 
-  PhantomReporter.prototype.jasmineDone = function() {
-    this.finished = true;
-    phantom.sendMessage('jasmine.jasmineDone');
-    phantom.sendMessage('jasmine.done.PhantomReporter');
-  };
-
-  PhantomReporter.prototype.suiteDone = function(suiteMetadata) {
-    suiteMetadata.duration = (new Date()).getTime() - suiteMetadata.startTime;
-    phantom.sendMessage('jasmine.suiteDone', suiteMetadata);
-  };
-
-  PhantomReporter.prototype.specDone = function(specMetadata) {
-    specMetadata.duration = (new Date()).getTime() - specMetadata.startTime;
-    this.results_[specMetadata.id] = specMetadata;
-
-    // Quick hack to alleviate cyclical object breaking JSONification.
-    for (var ii = 0; ii < specMetadata.failedExpectations.length; ii++) {
-      var item = specMetadata.failedExpectations[ii];
-      if (item.expected) {
-        item.expected = stringify(item.expected);
+      // Quick hack to alleviate cyclical object breaking JSONification.
+      for (var ii = 0; ii < specMetadata.failedExpectations.length; ii++) {
+        var item = specMetadata.failedExpectations[ii];
+        if (item.expected) {
+          item.expected = stringify(item.expected);
+        }
+        if (item.actual) {
+          item.actual = stringify(item.actual);
+        }
       }
-      if (item.actual) {
-        item.actual = stringify(item.actual);
-      }
-    }
 
-    phantom.sendMessage('jasmine.specDone', specMetadata);
+      sendMessage('jasmine.specDone', specMetadata);
+    },
+
+    suiteDone: function(suiteMetadata) {
+      suiteMetadata.duration = (new Date()).getTime() - suiteMetadata.startTime;
+      sendMessage('jasmine.suiteDone', suiteMetadata);
+    },
+
+    jasmineDone: function() {
+      sendMessage('jasmine.jasmineDone');
+    }
   };
 
   function stringify(obj) {
@@ -128,5 +105,5 @@ if (window._phantom) {
     return string;
   }
 
-  jasmine.getEnv().addReporter(new PhantomReporter());
+  jasmine.getEnv().addReporter(reporter);
 }());
