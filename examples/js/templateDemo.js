@@ -4,6 +4,7 @@
     const viewModel = {
         heading: 'Test template binding',
         description: 'This is intro and it is looking good!',
+        isDisplay: true,
         updateView(opt) {
             this.APP.render(opt);
         },

@@ -68,7 +68,7 @@ const populateBindingCache = ({node, attrObj, bindingCache, type}) => {
     return bindingCache;
 };
 
-const createBindingCache = ({rootNode = null, bindingAttrs = {}, skipCheck}) => {
+const createBindingCache = ({rootNode = null, bindingAttrs = {}, skipCheck, isRenderedTemplate = false}) => {
     let bindingCache = {};
 
     if (!rootNode instanceof window.Node) {
@@ -92,11 +92,16 @@ const createBindingCache = ({rootNode = null, bindingAttrs = {}, skipCheck}) => 
         // skip same element that has forOf binding the  forOf is alredy parsed
         attrObj = getAttributesObject(node);
         const hasSkipChildParseBindings = checkSkipChildParseBindings(attrObj, bindingAttrs);
-        let iterateList = Object.keys(attrObj);
+        let iterateList = [];
 
         if (hasSkipChildParseBindings.length) {
             isSkipForOfChild = true;
             iterateList = hasSkipChildParseBindings;
+        } else if (isRenderedTemplate && attrObj[bindingAttrs.tmp]) {
+            // skip current node parse if was called by node has template binding and already rendered
+            return true;
+        } else {
+            iterateList = Object.keys(attrObj);
         }
 
         iterateList.forEach((key) => {

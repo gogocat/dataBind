@@ -275,7 +275,8 @@ var Binder = function () {
                         cache.bindingCache = (0, _domWalker2['default'])({
                             rootNode: cache.el,
                             bindingAttrs: _this.bindingAttrs,
-                            skipCheck: skipForOfParseFn
+                            skipCheck: skipForOfParseFn,
+                            isRenderedTemplate: opt.isRenderedTemplates
                         });
                     });
                 }
@@ -505,7 +506,8 @@ var renderTemplatesBinding = function renderTemplatesBinding(_ref2) {
             // update cache after all template(s) rendered
             ctx.updateElementCache({
                 templateCache: true,
-                elementCache: elementCache
+                elementCache: elementCache,
+                isRenderedTemplates: true
             });
         }
         // enforce render even element is not in DOM tree
@@ -1241,7 +1243,9 @@ var createBindingCache = function createBindingCache(_ref2) {
         rootNode = _ref2$rootNode === undefined ? null : _ref2$rootNode,
         _ref2$bindingAttrs = _ref2.bindingAttrs,
         bindingAttrs = _ref2$bindingAttrs === undefined ? {} : _ref2$bindingAttrs,
-        skipCheck = _ref2.skipCheck;
+        skipCheck = _ref2.skipCheck,
+        _ref2$isRenderedTempl = _ref2.isRenderedTemplate,
+        isRenderedTemplate = _ref2$isRenderedTempl === undefined ? false : _ref2$isRenderedTempl;
 
     var bindingCache = {};
 
@@ -1268,11 +1272,16 @@ var createBindingCache = function createBindingCache(_ref2) {
         // skip same element that has forOf binding the  forOf is alredy parsed
         attrObj = getAttributesObject(node);
         var hasSkipChildParseBindings = checkSkipChildParseBindings(attrObj, bindingAttrs);
-        var iterateList = Object.keys(attrObj);
+        var iterateList = [];
 
         if (hasSkipChildParseBindings.length) {
             isSkipForOfChild = true;
             iterateList = hasSkipChildParseBindings;
+        } else if (isRenderedTemplate && attrObj[bindingAttrs.tmp]) {
+            // skip current node parse if was called by node has template binding and already rendered
+            return true;
+        } else {
+            iterateList = Object.keys(attrObj);
         }
 
         iterateList.forEach(function (key) {

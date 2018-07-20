@@ -116,6 +116,7 @@ class Binder {
                         rootNode: cache.el,
                         bindingAttrs: this.bindingAttrs,
                         skipCheck: skipForOfParseFn,
+                        isRenderedTemplate: opt.isRenderedTemplates,
                     });
                 });
             }
@@ -325,6 +326,7 @@ const renderTemplatesBinding = ({ctx, elementCache, updateOption, bindingAttrs, 
             ctx.updateElementCache({
                 templateCache: true,
                 elementCache: elementCache,
+                isRenderedTemplates: true,
             });
         }
         // enforce render even element is not in DOM tree
