@@ -595,7 +595,7 @@ var createBindingOption = function createBindingOption() {
             break;
         default:
             // when called again only update visualBinding options
-            updateOption = (0, _util.extend)({}, visualBindingOptions, eventsBindingOptions, opt);
+            updateOption = (0, _util.extend)({}, visualBindingOptions, opt);
     }
 
     return updateOption;
@@ -1476,10 +1476,10 @@ var hoverBinding = function hoverBinding(cache, viewModel, bindingAttrs, forceRe
         paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];
 
         $(cache.el).off('mouseenter.databind mouseleave.databind').hover(function enter(e) {
-            var args = [e, $(this)].concat(paramList);
+            var args = [e, cache.el].concat(paramList);
             handlers[inHandlerName].apply(viewModelContext, args);
         }, function leave(e) {
-            var args = [e, $(this)].concat(paramList);
+            var args = [e, cache.el].concat(paramList);
             handlers[outHandlerName].apply(viewModelContext, args);
         });
     }
@@ -2582,12 +2582,12 @@ var isEmptyObject = function isEmptyObject(obj) {
 /**
  * getViewModelValue
  * @description walk a object by provided string path. eg 'a.b.c'
- * @param {object} obj
+ * @param {object} viewModel
  * @param {string} prop
  * @return {object}
  */
-var getViewModelValue = function getViewModelValue(obj, prop) {
-    return _.get(obj, prop);
+var getViewModelValue = function getViewModelValue(viewModel, prop) {
+    return _.get(viewModel, prop);
 };
 
 /**

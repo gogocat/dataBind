@@ -408,7 +408,7 @@ const createBindingOption = (condition = '', opt = {}) => {
         break;
     default:
         // when called again only update visualBinding options
-        updateOption = extend({}, visualBindingOptions, eventsBindingOptions, opt);
+        updateOption = extend({}, visualBindingOptions, opt);
     }
 
     return updateOption;

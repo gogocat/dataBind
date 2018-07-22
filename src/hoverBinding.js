@@ -36,11 +36,11 @@ const hoverBinding = (cache, viewModel, bindingAttrs, forceRender) => {
             .off('mouseenter.databind mouseleave.databind')
             .hover(
                 function enter(e) {
-                    let args = [e, $(this)].concat(paramList);
+                    let args = [e, cache.el].concat(paramList);
                     handlers[inHandlerName].apply(viewModelContext, args);
                 },
                 function leave(e) {
-                    let args = [e, $(this)].concat(paramList);
+                    let args = [e, cache.el].concat(paramList);
                     handlers[outHandlerName].apply(viewModelContext, args);
                 }
             );

@@ -4,6 +4,19 @@ let fiberViewModel = {
     containerCss: 'container',
     dots: [],
     dotCss: 'dot',
+    onHoverDot: {
+        in: function(e, $el, index) {
+            $el.style.background = '#ff0';
+            this.dots[index].isMouseOver = true;
+        },
+        out: function(e, $el, index) {
+            $el.style.background = '#61dafb';
+            this.dots[index].isMouseOver = false;
+        },
+    },
+    updateView(opt) {
+        this.APP.render(opt);
+    },
 };
 
 const startTime = new Date();
@@ -32,6 +45,7 @@ function createDot(x, y) {
         width: ${dotSize}px;
         height: ${dotSize}px;
         line-height: ${dotSize}px;
+        background: #61dafb;
     `.replace(/\n\s+/g, '');
 
     return dot;
@@ -39,20 +53,20 @@ function createDot(x, y) {
 
 function recursiveUpdateDotsData(viewModel) {
     const remainder = getElapsedSecond() % 10;
-    const text = Math.floor(remainder);
+    const text = Math.floor(remainder) + '';
     let scaleXFactor = (1 + (5 - Math.abs(5 - remainder)) / 10) / 2.1;
 
     // update viewModel data
-    fiberViewModel.dots.forEach((dot) => {
-        dot.text = text;
+    viewModel.dots.forEach((dot) => {
+        dot.text = dot.isMouseOver ? `*${text}*` : text;
     });
 
-    fiberViewModel.containerAttr.style = `transform: scaleX(${scaleXFactor}) scaleY(0.7) translateZ(0.1px)`;
+    viewModel.containerAttr.style = `transform: scaleX(${scaleXFactor}) scaleY(0.7) translateZ(0.1px)`;
 
     // update view
     fiberComponent.render();
     // recursive call this function
-    requestAnimationFrame(() => recursiveUpdateDotsData(fiberViewModel));
+    requestAnimationFrame(() => recursiveUpdateDotsData(viewModel));
 }
 
 function getElapsedSecond() {

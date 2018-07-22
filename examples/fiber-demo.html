@@ -45,7 +45,6 @@
             width: 32.5px;
             height: 32.5px;
             border-radius: 50%;
-            background: rgb(97, 218, 251);
             font: 15px/32.5px sans-serif;
             text-align: center;
             cursor: pointer;
@@ -61,7 +60,7 @@
     </div>
 
     <template id="fiberDemoContent">
-        <div data-jq-for="dot of dots" data-jq-text="dot.text" data-jq-css="$root.dotCss" data-jq-attr="dot.attr"></div>
+        <div data-jq-for="dot of dots" data-jq-text="dot.text" data-jq-css="$root.dotCss" data-jq-attr="dot.attr" data-jq-hover="$root.onHoverDot($index)"></div>
     </template>
 
     <script src="../vendors/lodash.custom.min.js"></script>

@@ -62,12 +62,12 @@ const isEmptyObject = (obj) => {
 /**
  * getViewModelValue
  * @description walk a object by provided string path. eg 'a.b.c'
- * @param {object} obj
+ * @param {object} viewModel
  * @param {string} prop
  * @return {object}
  */
-const getViewModelValue = (obj, prop) => {
-    return _.get(obj, prop);
+const getViewModelValue = (viewModel, prop) => {
+    return _.get(viewModel, prop);
 };
 
 /**
