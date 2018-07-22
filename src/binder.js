@@ -5,6 +5,7 @@ import clickBinding from './clickBinding';
 import dblclickBinding from './dbclickBinding';
 import blurBinding from './blurBinding';
 import focusBinding from './focusBinding';
+import hoverBinding from './hoverBinding';
 import changeBinding from './changeBinding';
 import modelBinding from './modelBinding';
 import submitBinding from './submitBinding';
@@ -274,9 +275,16 @@ class Binder {
         }
 
         // apply focus binding
-        if (updateOption.focus && elementCache[bindingAttrs.focus] && elementCache[bindingAttrs.focus].length) {
+        if (updateOption.focusBinding && elementCache[bindingAttrs.focus] && elementCache[bindingAttrs.focus].length) {
             elementCache[bindingAttrs.focus].forEach((cache) => {
                 focusBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+            });
+        }
+
+        // apply hover binding
+        if (updateOption.hoverBinding && elementCache[bindingAttrs.hover] && elementCache[bindingAttrs.hover].length) {
+            elementCache[bindingAttrs.hover].forEach((cache) => {
+                hoverBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
             });
         }
     }
@@ -371,6 +379,7 @@ const createBindingOption = (condition = '', opt = {}) => {
         dblclickBinding: true,
         blurBinding: true,
         focusBinding: true,
+        hoverBinding: true,
         submitBinding: true,
     };
     // this is visualBindingOptions but everything false
@@ -399,7 +408,7 @@ const createBindingOption = (condition = '', opt = {}) => {
         break;
     default:
         // when called again only update visualBinding options
-        updateOption = extend({}, visualBindingOptions, opt);
+        updateOption = extend({}, visualBindingOptions, eventsBindingOptions, opt);
     }
 
     return updateOption;

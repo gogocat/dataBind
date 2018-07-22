@@ -73,7 +73,7 @@ var attrBinding = function attrBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = attrBinding;
 
-},{"./util":24}],2:[function(require,module,exports){
+},{"./util":25}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -110,6 +110,10 @@ var _blurBinding2 = _interopRequireDefault(_blurBinding);
 var _focusBinding = require('./focusBinding');
 
 var _focusBinding2 = _interopRequireDefault(_focusBinding);
+
+var _hoverBinding = require('./hoverBinding');
+
+var _hoverBinding2 = _interopRequireDefault(_hoverBinding);
 
 var _changeBinding = require('./changeBinding');
 
@@ -471,9 +475,16 @@ var Binder = function () {
             }
 
             // apply focus binding
-            if (updateOption.focus && elementCache[bindingAttrs.focus] && elementCache[bindingAttrs.focus].length) {
+            if (updateOption.focusBinding && elementCache[bindingAttrs.focus] && elementCache[bindingAttrs.focus].length) {
                 elementCache[bindingAttrs.focus].forEach(function (cache) {
                     (0, _focusBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
+                });
+            }
+
+            // apply hover binding
+            if (updateOption.hoverBinding && elementCache[bindingAttrs.hover] && elementCache[bindingAttrs.hover].length) {
+                elementCache[bindingAttrs.hover].forEach(function (cache) {
+                    (0, _hoverBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
         }
@@ -555,6 +566,7 @@ var createBindingOption = function createBindingOption() {
         dblclickBinding: true,
         blurBinding: true,
         focusBinding: true,
+        hoverBinding: true,
         submitBinding: true
     };
     // this is visualBindingOptions but everything false
@@ -583,7 +595,7 @@ var createBindingOption = function createBindingOption() {
             break;
         default:
             // when called again only update visualBinding options
-            updateOption = (0, _util.extend)({}, visualBindingOptions, opt);
+            updateOption = (0, _util.extend)({}, visualBindingOptions, eventsBindingOptions, opt);
     }
 
     return updateOption;
@@ -631,7 +643,7 @@ exports.createBindingOption = createBindingOption;
 exports.renderTemplatesBinding = renderTemplatesBinding;
 exports.renderIteration = renderIteration;
 
-},{"./attrBinding":1,"./blurBinding":3,"./changeBinding":4,"./clickBinding":5,"./config":7,"./cssBinding":8,"./dbclickBinding":9,"./domWalker":10,"./focusBinding":11,"./forOfBinding":12,"./ifBinding":13,"./modelBinding":15,"./pubSub":16,"./renderTemplate":19,"./showBinding":20,"./submitBinding":21,"./switchBinding":22,"./textBinding":23,"./util":24}],3:[function(require,module,exports){
+},{"./attrBinding":1,"./blurBinding":3,"./changeBinding":4,"./clickBinding":5,"./config":7,"./cssBinding":8,"./dbclickBinding":9,"./domWalker":10,"./focusBinding":11,"./forOfBinding":12,"./hoverBinding":13,"./ifBinding":14,"./modelBinding":16,"./pubSub":17,"./renderTemplate":20,"./showBinding":21,"./submitBinding":22,"./switchBinding":23,"./textBinding":24,"./util":25}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -674,7 +686,7 @@ var blurBinding = function blurBinding(cache, viewModel, bindingAttrs, forceRend
 }; /* eslint-disable no-invalid-this */
 exports['default'] = blurBinding;
 
-},{"./util":24}],4:[function(require,module,exports){
+},{"./util":25}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -729,7 +741,7 @@ var changeBinding = function changeBinding(cache, viewModel, bindingAttrs, force
 }; /* eslint-disable no-invalid-this */
 exports['default'] = changeBinding;
 
-},{"./util":24}],5:[function(require,module,exports){
+},{"./util":25}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -772,7 +784,7 @@ var clickBinding = function clickBinding(cache, viewModel, bindingAttrs, forceRe
 }; /* eslint-disable no-invalid-this */
 exports['default'] = clickBinding;
 
-},{"./util":24}],6:[function(require,module,exports){
+},{"./util":25}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -947,7 +959,7 @@ exports.removeDomTemplateElement = removeDomTemplateElement;
 exports.setDocRangeEndAfter = setDocRangeEndAfter;
 exports.insertRenderedElements = insertRenderedElements;
 
-},{"./config":7,"./util":24}],7:[function(require,module,exports){
+},{"./config":7,"./util":25}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -961,6 +973,7 @@ var bindingAttrs = {
     dblclick: 'data-jq-dblclick',
     blur: 'data-jq-blur',
     focus: 'data-jq-focus',
+    hover: 'data-jq-hover',
     change: 'data-jq-change',
     submit: 'data-jq-submit',
     model: 'data-jq-model',
@@ -993,7 +1006,9 @@ var templateSettings = {
 var bindingDataReference = {
     rootDataKey: '$root',
     currentData: '$data',
-    currentIndex: '$index'
+    currentIndex: '$index',
+    mouseEnterHandlerName: 'in',
+    mouseLeaveHandlerName: 'out'
 };
 
 var bindingUpdateConditions = {
@@ -1111,7 +1126,7 @@ var cssBinding = function cssBinding(cache, viewModel, bindingAttrs, forceRender
 
 exports['default'] = cssBinding;
 
-},{"./util":24}],9:[function(require,module,exports){
+},{"./util":25}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1153,7 +1168,7 @@ var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs, f
 }; /* eslint-disable no-invalid-this */
 exports['default'] = dblclickBinding;
 
-},{"./util":24}],10:[function(require,module,exports){
+},{"./util":25}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1312,7 +1327,7 @@ var createBindingCache = function createBindingCache(_ref2) {
 
 exports['default'] = createBindingCache;
 
-},{"./util":24}],11:[function(require,module,exports){
+},{"./util":25}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1354,7 +1369,7 @@ var focusBinding = function focusBinding(cache, viewModel, bindingAttrs, forceRe
 }; /* eslint-disable no-invalid-this */
 exports['default'] = focusBinding;
 
-},{"./util":24}],12:[function(require,module,exports){
+},{"./util":25}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1418,7 +1433,61 @@ var forOfBinding = function forOfBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = forOfBinding;
 
-},{"./config":7,"./renderForOfBinding":17,"./util":24}],13:[function(require,module,exports){
+},{"./config":7,"./renderForOfBinding":18,"./util":25}],13:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _config = require('./config');
+
+var _util = require('./util');
+
+/**
+ * blurBinding
+ * DOM decleartive on blur event binding
+ * event handler bind to viewModel method according to the DOM attribute
+ * @param {object} cache
+ * @param {object} viewModel
+ * @param {object} bindingAttrs
+ * @param {boolean} forceRender
+ */
+/* eslint-disable no-invalid-this */
+var hoverBinding = function hoverBinding(cache, viewModel, bindingAttrs, forceRender) {
+    var handlerName = cache.dataKey;
+    var paramList = cache.parameters;
+    var inHandlerName = _config.bindingDataReference.mouseEnterHandlerName;
+    var outHandlerName = _config.bindingDataReference.mouseLeaveHandlerName;
+    var handlers = void 0;
+    var viewModelContext = void 0;
+    var APP = viewModel.APP || viewModel.$root.APP;
+
+    cache.elementData = cache.elementData || {};
+
+    if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
+        return;
+    }
+
+    handlers = (0, _util.getViewModelValue)(viewModel, handlerName);
+
+    if (handlers && typeof handlers[inHandlerName] === 'function' && typeof handlers[outHandlerName] === 'function') {
+        viewModelContext = (0, _util.resolveViewModelContext)(viewModel, handlerName);
+        paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];
+
+        $(cache.el).off('mouseenter.databind mouseleave.databind').hover(function enter(e) {
+            var args = [e, $(this)].concat(paramList);
+            handlers[inHandlerName].apply(viewModelContext, args);
+        }, function leave(e) {
+            var args = [e, $(this)].concat(paramList);
+            handlers[outHandlerName].apply(viewModelContext, args);
+        });
+    }
+};
+
+exports['default'] = hoverBinding;
+
+},{"./config":7,"./util":25}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1488,7 +1557,7 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = ifBinding;
 
-},{"./commentWrapper":6,"./config":7,"./renderIfBinding":18,"./util":24}],14:[function(require,module,exports){
+},{"./commentWrapper":6,"./config":7,"./renderIfBinding":19,"./util":25}],15:[function(require,module,exports){
 'use strict';
 
 var _config = require('./config');
@@ -1527,7 +1596,7 @@ window.dataBind = {
     version: '1.7.1'
 };
 
-},{"./binder":2,"./config":7}],15:[function(require,module,exports){
+},{"./binder":2,"./config":7}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1578,7 +1647,7 @@ var modelBinding = function modelBinding(cache, viewModel, bindingAttrs, forceRe
 
 exports['default'] = modelBinding;
 
-},{"./util":24}],16:[function(require,module,exports){
+},{"./util":25}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1722,7 +1791,7 @@ exports.unsubscribeEvent = unsubscribeEvent;
 exports.unsubscribeAllEvent = unsubscribeAllEvent;
 exports.publishEvent = publishEvent;
 
-},{"./util":24}],17:[function(require,module,exports){
+},{"./util":25}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1888,7 +1957,7 @@ var generateForOfElements = function generateForOfElements(bindingData, viewMode
 
 exports['default'] = renderForOfBinding;
 
-},{"./binder":2,"./commentWrapper":6,"./config":7,"./domWalker":10,"./util":24}],18:[function(require,module,exports){
+},{"./binder":2,"./commentWrapper":6,"./config":7,"./domWalker":10,"./util":25}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1985,7 +2054,7 @@ var removeIfBinding = function removeIfBinding(bindingData) {
 exports.renderIfBinding = renderIfBinding;
 exports.removeIfBinding = removeIfBinding;
 
-},{"./binder":2,"./commentWrapper":6,"./config":7,"./domWalker":10,"./util":24}],19:[function(require,module,exports){
+},{"./binder":2,"./commentWrapper":6,"./config":7,"./domWalker":10,"./util":25}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2114,7 +2183,7 @@ var renderTemplate = function renderTemplate(cache, viewModel, bindingAttrs, ele
 
 exports['default'] = renderTemplate;
 
-},{"./config":7,"./util":24}],20:[function(require,module,exports){
+},{"./config":7,"./util":25}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2202,7 +2271,7 @@ var showBinding = function showBinding(cache, viewModel, bindingAttrs) {
 
 exports['default'] = showBinding;
 
-},{"./util":24}],21:[function(require,module,exports){
+},{"./util":25}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2247,7 +2316,7 @@ var submitBinding = function submitBinding(cache, viewModel, bindingAttrs, force
 
 exports['default'] = submitBinding;
 
-},{"./util":24}],22:[function(require,module,exports){
+},{"./util":25}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2386,7 +2455,7 @@ function createCaseData(node, attrName) {
 
 exports['default'] = switchBinding;
 
-},{"./commentWrapper":6,"./renderIfBinding":18,"./util":24}],23:[function(require,module,exports){
+},{"./commentWrapper":6,"./renderIfBinding":19,"./util":25}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2435,7 +2504,7 @@ var textBinding = function textBinding(cache, viewModel, bindingAttrs, forceRend
 
 exports['default'] = textBinding;
 
-},{"./util":24}],24:[function(require,module,exports){
+},{"./util":25}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2870,7 +2939,7 @@ exports.resolveViewModelContext = resolveViewModelContext;
 exports.setViewModelValue = setViewModelValue;
 exports.throwErrorMessage = throwErrorMessage;
 
-},{"./config":7}]},{},[14])
+},{"./config":7}]},{},[15])
 
 
 //# sourceMappingURL=dataBind.js.map
