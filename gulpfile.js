@@ -40,10 +40,7 @@ gulp.task('bundle', () => {
         babelify.configure({
             // configure babel: https://babeljs.io/docs/usage/options/
             presets: ['es2015'],
-            plugins: [
-                'transform-es3-member-expression-literals',
-                'transform-es3-property-literals',
-            ],
+            plugins: ['transform-es3-member-expression-literals', 'transform-es3-property-literals'],
         })
     );
 
@@ -69,15 +66,7 @@ gulp.task('bundle', () => {
 
 // uglify
 gulp.task('compress', function(cb) {
-    pump(
-        [
-            gulp.src(distJsPath + bundledFile),
-            uglify(),
-            rename({extname: '.min.js'}),
-            gulp.dest(distJsPath),
-        ],
-        cb
-    );
+    pump([gulp.src(distJsPath + bundledFile), uglify(), rename({extname: '.min.js'}), gulp.dest(distJsPath)], cb);
 });
 
 // eslint
@@ -108,9 +97,9 @@ gulp.task('eslint', () => {
 
 // watch > eslint + bundle
 gulp.task('watch', () => {
-    gulp.watch('./src/**/*.js', ['eslint', 'bundle']);
+    gulp.watch('./src/**/*.js', gulp.parallel('eslint', 'bundle'));
 });
 
-gulp.task('default', ['eslint', 'bundle'], () => {
+gulp.task('default', gulp.series(gulp.parallel('eslint', 'bundle')), () => {
     gulp.start('compress');
 });
