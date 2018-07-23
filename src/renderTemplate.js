@@ -39,7 +39,7 @@ const compileTemplate = (id, templateData = null) => {
  * @param {object} elementCache
  */
 const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
-    let settings = parseStringToJson(cache.dataKey);
+    let settings = typeof cache.dataKey === 'string' ? parseStringToJson(cache.dataKey) : cache.dataKey;
     let viewData = settings.data;
     let isAppend = settings.append;
     let isPrepend = settings.prepend;
@@ -49,10 +49,16 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
     let $currentElement;
     let $nestedTemplates;
 
+    cache.dataKey = settings;
+
     if (typeof viewData === 'undefined' || viewData === '$root') {
         viewData = viewModel;
     } else {
         viewData = getViewModelValue(viewModel, settings.data);
+    }
+
+    if (typeof viewData === 'function') {
+        viewData = viewData();
     }
 
     if (!viewData) {

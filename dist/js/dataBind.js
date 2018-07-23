@@ -2105,7 +2105,7 @@ var compileTemplate = function compileTemplate(id) {
  * @param {object} elementCache
  */
 var renderTemplate = function renderTemplate(cache, viewModel, bindingAttrs, elementCache) {
-    var settings = (0, _util.parseStringToJson)(cache.dataKey);
+    var settings = typeof cache.dataKey === 'string' ? (0, _util.parseStringToJson)(cache.dataKey) : cache.dataKey;
     var viewData = settings.data;
     var isAppend = settings.append;
     var isPrepend = settings.prepend;
@@ -2115,10 +2115,16 @@ var renderTemplate = function renderTemplate(cache, viewModel, bindingAttrs, ele
     var $currentElement = void 0;
     var $nestedTemplates = void 0;
 
+    cache.dataKey = settings;
+
     if (typeof viewData === 'undefined' || viewData === '$root') {
         viewData = viewModel;
     } else {
         viewData = (0, _util.getViewModelValue)(viewModel, settings.data);
+    }
+
+    if (typeof viewData === 'function') {
+        viewData = viewData();
     }
 
     if (!viewData) {
