@@ -54,16 +54,4 @@ describe('Given [data-jq-comp="blur-component"] initised', () => {
             }, 200);
         }, 200);
     });
-
-    xit('should not call onBlurFn when element removed', (done) => {
-        document.getElementById('blurInput').remove();
-        namespace.viewModel.updateView();
-        // TODO: test when element removed and re-render should not execute binding since cache.el should be null
-        setTimeout(() => {
-            setTimeout(() => {
-                expect(false).toBe(false);
-                done();
-            }, 200);
-        }, 200);
-    });
 });

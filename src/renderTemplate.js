@@ -81,7 +81,14 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
         $domFragment.append(html);
     } else {
         $currentElement = $element;
-        $currentElement.append(html);
+        if (!isAppend && !isPrepend) {
+            $currentElement.empty();
+        }
+        if (isPrepend) {
+            $currentElement.prepend(html);
+        } else {
+            $currentElement.append(html);
+        }
     }
 
     // check if there are nested template then recurisive render them
