@@ -1,6 +1,6 @@
 {
     "name": "dataBind",
-    "version": "1.7.1",
+    "version": "1.8.0",
     "description": "Simple MV* framework work with jQuery and underscore template",
     "main": "index.js",
     "scripts": {
