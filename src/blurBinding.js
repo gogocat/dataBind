@@ -8,14 +8,16 @@ import {getViewModelValue, resolveViewModelContext, resolveParamList} from './ut
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-const blurBinding = (cache, viewModel, bindingAttrs) => {
+const blurBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     let handlerName = cache.dataKey;
     let paramList = cache.parameters;
     let handlerFn;
     let viewModelContext;
+    let APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!handlerName) {
+    if (!handlerName || (!forceRender && !APP.$rootElement.contains(cache.el))) {
         return;
     }
 

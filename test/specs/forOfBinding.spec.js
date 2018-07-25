@@ -1,33 +1,32 @@
 // It seems PhantomJS has issue with createComment and createRange
-var isEnvSupportDocRange = (function(document){
-	var docRange,
-		commentNode,
-		commentText = 'x',
-		ret = true;
-		
-	if (typeof document.createRange !== 'function') {
-		return ret = false;
-	}
-	try {
-		docRange = document.createRange();
-		docRange.deleteContents();
-		commentNode = document.createComment(commentText);
-		if (commentNode.nodeType !== 8 || commentNode.textContent !== commentText) {
-			return ret = false;
-		}
-	} catch(err) {
-		return ret = false;
-	}
-	return ret;
+let isEnvSupportDocRange = ((document) => {
+    let docRange;
+    let commentNode;
+    let commentText = 'x';
+    let ret = true;
+
+    if (typeof document.createRange !== 'function') {
+        return (ret = false);
+    }
+    try {
+        docRange = document.createRange();
+        docRange.deleteContents();
+        commentNode = document.createComment(commentText);
+        if (commentNode.nodeType !== 8 || commentNode.textContent !== commentText) {
+            return (ret = false);
+        }
+    } catch (err) {
+        return (ret = false);
+    }
+    return ret;
 })(document);
 
+describe('When search-results-component with forOf binding inited', () => {
+    let namespace = {};
 
-describe('When search-results-component with forOf binding inited', function() {
-    var namespace = {};
-	
     jasmine.getFixtures().fixturesPath = 'test';
 
-    beforeEach(function() {
+    beforeEach(() => {
         loadFixtures('./fixtures/forOfBinding.html');
 
         namespace.viewModel = {
@@ -69,7 +68,7 @@ describe('When search-results-component with forOf binding inited', function() {
                 },
             ],
             getResultItemAttr: function(index, oldAttrObj, $el) {
-                var self = this;
+                let self = this;
                 if (self.searchResults[index].image) {
                     return {
                         src: self.searchResults[index].image,
@@ -102,41 +101,41 @@ describe('When search-results-component with forOf binding inited', function() {
         namespace.searchResultsComponent.render();
     });
 
-    afterEach(function() {
+    afterEach(() => {
         // clean up all app/components
-        for (var prop in namespace) {
+        for (let prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
         }
     });
 
-    it('Then [data-jq-comp="search-results-component"] should have render', function(done) {
+    it('Then [data-jq-comp="search-results-component"] should have render', (done) => {
         // skip if test environment doesn't support document.createRange
-		if (!isEnvSupportDocRange) {
-			expect(isEnvSupportDocRange).toBe(false);
-			done();
-			return;
-		}
-		setTimeout(function() {
-			expect($('#searchResultTitle').text()).toBe(namespace.viewModel.searchResultTitle);
-			// expect($('#search-result-columns').children().length).not.toBe(0);
-			done();
-		}, 200);
+        if (!isEnvSupportDocRange) {
+            expect(isEnvSupportDocRange).toBe(false);
+            done();
+            return;
+        }
+        setTimeout(() => {
+            expect($('#searchResultTitle').text()).toBe(namespace.viewModel.searchResultTitle);
+            // expect($('#search-result-columns').children().length).not.toBe(0);
+            done();
+        }, 200);
     });
 
-    it('Then render forOf binding elements with comment tag wrap around', function(done) {
-        setTimeout(function() {
-            var $searchColumn = document.getElementById('search-result-columns');
-			// not sure why jasmine first execution before render complete, that's why element doesn't exsits
-			// but when run just this spec it will works
-			if (!$searchColumn.firstElementChild) {
-				expect($searchColumn.firstElementChild).toBe(null);
-				done();
-				return;
-			}
-            var firstCommentWrap = $searchColumn.firstElementChild.previousSibling;
-            var lastCommentWrap = $searchColumn.lastElementChild.nextSibling;
+    it('Then render forOf binding elements with comment tag wrap around', (done) => {
+        setTimeout(() => {
+            let $searchColumn = document.getElementById('search-result-columns');
+            // not sure why jasmine first execution before render complete, that's why element doesn't exsits
+            // but when run just this spec it will works
+            if (!$searchColumn.firstElementChild) {
+                expect($searchColumn.firstElementChild).toBe(null);
+                done();
+                return;
+            }
+            let firstCommentWrap = $searchColumn.firstElementChild.previousSibling;
+            let lastCommentWrap = $searchColumn.lastElementChild.nextSibling;
 
             expect(firstCommentWrap.nodeType).toBe(8);
             expect(lastCommentWrap.nodeType).toBe(8);
@@ -146,53 +145,53 @@ describe('When search-results-component with forOf binding inited', function() {
         }, 200);
     });
 
-    it('Then render same amount of items in viewModel.searchResults', function(done) {
-        setTimeout(function() {
-            var $searchColumn = document.getElementById('search-result-columns');
-			// not sure why jasmine first execution before render complete, that's why element doesn't exsits
-			// but when run just this spec it will works
-			if (!$searchColumn.firstElementChild) {
-				expect($searchColumn.firstElementChild).toBe(null);
-				done();
-				return;
-			}
+    it('Then render same amount of items in viewModel.searchResults', (done) => {
+        setTimeout(() => {
+            let $searchColumn = document.getElementById('search-result-columns');
+            // not sure why jasmine first execution before render complete, that's why element doesn't exsits
+            // but when run just this spec it will works
+            if (!$searchColumn.firstElementChild) {
+                expect($searchColumn.firstElementChild).toBe(null);
+                done();
+                return;
+            }
             expect($searchColumn.children.length).toBe(namespace.viewModel.searchResults.length);
             done();
         }, 200);
     });
 
-    describe('When each search item rendered', function() {
-        it('should render bindings according to searchResults data', function(done) {
+    describe('When each search item rendered', () => {
+        it('should render bindings according to searchResults data', (done) => {
             if (!isEnvSupportDocRange) {
-				expect(isEnvSupportDocRange).toBe(false);
-				done();
-				return;
-			}
-			setTimeout(function() {
-                var $results = $('#search-result-columns').children();
-				// not sure why jasmine first execution before render complete, that's why element doesn't exsits
-				// but when run just this spec it will works
-				if (!$results.length) {
-					expect($results.length).toBe(0);
-					done();
-					return;
-				}
+                expect(isEnvSupportDocRange).toBe(false);
+                done();
+                return;
+            }
+            setTimeout(() => {
+                let $results = $('#search-result-columns').children();
+                // not sure why jasmine first execution before render complete, that's why element doesn't exsits
+                // but when run just this spec it will works
+                if (!$results.length) {
+                    expect($results.length).toBe(0);
+                    done();
+                    return;
+                }
 
                 expect($results.length).not.toBe(0);
 
                 $results.each(function(index) {
-                    var indexString = String(index);
-                    var $result = $(this);
-                    var $img = $result.find('.result-item__img');
-                    var $body = $result.find('.card-body');
-                    var $footer = $result.find('.result-item__footer');
-                    var $checkbox = $footer.find('.result-item__icon-checkbox');
-                    var $options = $footer.find('select.form-control option');
-                    var imgSrc = $img.attr('src') || '';
-                    var bodyIndex = $body.find('.bodyIndex').text();
-                    var footerIndex = $footer.find('.footerIndex').text();
-                    var bookMarkIndex = $result.find('.bookMarkIndex').text();
-                    var searchResult = namespace.viewModel.searchResults[index];
+                    let indexString = String(index);
+                    let $result = $(this);
+                    let $img = $result.find('.result-item__img');
+                    let $body = $result.find('.card-body');
+                    let $footer = $result.find('.result-item__footer');
+                    let $checkbox = $footer.find('.result-item__icon-checkbox');
+                    let $options = $footer.find('select.form-control option');
+                    let imgSrc = $img.attr('src') || '';
+                    let bodyIndex = $body.find('.bodyIndex').text();
+                    let footerIndex = $footer.find('.footerIndex').text();
+                    let bookMarkIndex = $result.find('.bookMarkIndex').text();
+                    let searchResult = namespace.viewModel.searchResults[index];
 
                     bodyIndex = bodyIndex.charAt(bodyIndex.length - 1);
                     footerIndex = footerIndex.charAt(footerIndex.length - 1);

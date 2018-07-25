@@ -1,0 +1,28 @@
+<section id="compSection" data-jq-comp="temp-component" data-jq-tmp="{id:'underscore'}">
+</section>
+
+<template id="underscore">
+    <h1 id="heading" class="display-4">{{data.heading}}</h1>
+    <p id="description">{{data.description}}</p>
+    <p id="content" data-jq-text="content"></p>
+    <div id="contentNest1" data-jq-tmp="{id:'nest', data: 'contentNest1'}">
+    </div>
+</template>
+
+<template id="nest">
+    <p id="contentNest1Info" data-jq-text="contentNest1.info"></p>
+    <div id="nestPrepend" data-jq-tmp="{id:'nestPrepend', data: 'contentNest2', prepend: true}">
+        <h3 id="nestPrependHeading">Nested template prepend content</h3>
+    </div>
+    <div id="nestAppend" data-jq-tmp="{id:'nestAppend', data: 'contentNest3', append: true}">
+        <h3 id="nestAppendHeading">Nested template append content</h3>
+    </div>
+</template>
+
+<template id="nestPrepend">
+    <p id="contentNest2Info" data-jq-text="contentNest2.info"></p>
+</template>
+
+<template id="nestAppend">
+    <p id="contentNest3Info" data-jq-text="contentNest3.info"></p>
+</template>

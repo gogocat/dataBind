@@ -1,4 +1,4 @@
-import {getViewModelPropValue, isPlainObject, isEmptyObject} from './util';
+import {getViewModelPropValue, isPlainObject, isEmptyObject, each} from './util';
 
 /**
  * attrBinding
@@ -21,8 +21,7 @@ const attrBinding = (cache, viewModel, bindingAttrs) => {
     const oldAttrObj = cache.elementData.viewModelProValue;
     const vmAttrObj = getViewModelPropValue(viewModel, cache);
 
-    if (!isPlainObject(vmAttrObj) || isEmptyObject(vmAttrObj)) {
-        // reject if vmAttrListObj is not an object or empty
+    if (!isPlainObject(vmAttrObj)) {
         return;
     }
 
@@ -31,35 +30,32 @@ const attrBinding = (cache, viewModel, bindingAttrs) => {
         return;
     }
 
-    // get current DOM element attributes object
-    // let domAttrObj = util.getNodeAttrObj(cache.el, [bindingAttrs.attr]);
+    // reset old data and update it
+    cache.elementData.viewModelProValue = {};
 
     if (isEmptyObject(oldAttrObj)) {
-        for (let key in vmAttrObj) {
-            if (vmAttrObj.hasOwnProperty(key)) {
+        each(vmAttrObj, (key, value)=> {
+            cache.el.setAttribute(key, value);
+            // populate with vmAttrObj data
+            cache.elementData.viewModelProValue[key] = value;
+        });
+    } else {
+        each(oldAttrObj, (key, value)=> {
+            if (typeof vmAttrObj[key] === 'undefined') {
+                // remove attribute if not present in current vm
+                cache.el.removeAttribute(key);
+            }
+        });
+
+        each(vmAttrObj, (key, value)=> {
+            if (oldAttrObj[key] !== vmAttrObj[key]) {
+                // update attribute if value changed
                 cache.el.setAttribute(key, vmAttrObj[key]);
             }
-        }
-    } else {
-        for (let key in oldAttrObj) {
-            if (oldAttrObj.hasOwnProperty(key)) {
-                if (vmAttrObj[key] === undefined) {
-                    // remove attribute if not present in current vm
-                    cache.el.removeAttribute(key);
-                }
-            }
-        }
-        for (let key in vmAttrObj) {
-            if (vmAttrObj.hasOwnProperty(key)) {
-                if (oldAttrObj[key] !== vmAttrObj[key]) {
-                    // update attribute if value changed
-                    cache.el.setAttribute(key, vmAttrObj[key]);
-                }
-            }
-        }
+            // populate with vmAttrObj data
+            cache.elementData.viewModelProValue[key] = value;
+        });
     }
-    // update element data
-    cache.elementData.viewModelProValue = vmAttrObj;
 };
 
 export default attrBinding;

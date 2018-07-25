@@ -62,12 +62,12 @@ const isEmptyObject = (obj) => {
 /**
  * getViewModelValue
  * @description walk a object by provided string path. eg 'a.b.c'
- * @param {object} obj
+ * @param {object} viewModel
  * @param {string} prop
  * @return {object}
  */
-const getViewModelValue = (obj, prop) => {
-    return _.get(obj, prop);
+const getViewModelValue = (viewModel, prop) => {
+    return _.get(viewModel, prop);
 };
 
 /**
@@ -289,7 +289,7 @@ const each = (obj, fn) => {
     let isArrayObj = isArray(obj);
     let key;
     let value;
-    let i;
+    let i = 0;
 
     if (isArrayObj) {
         keysLength = obj.length;
@@ -387,26 +387,26 @@ const throwErrorMessage = (err = null, errorMessage = '') => {
 
 export {
     REGEX,
-    isArray,
-    isPlainObject,
-    isJsObject,
-    isEmptyObject,
+    arrayRemoveMatch,
+    cloneDomNode,
+    debounceRaf,
     each,
     extend,
     generateElementCache,
-    getViewModelValue,
-    setViewModelValue,
-    getViewModelPropValue,
-    parseStringToJson,
-    debounceRaf,
-    arrayRemoveMatch,
     getFormData,
     getFunctionParameterList,
-    invertObj,
     getNodeAttrObj,
-    cloneDomNode,
+    getViewModelPropValue,
+    getViewModelValue,
     insertAfter,
-    resolveViewModelContext,
+    invertObj,
+    isArray,
+    isEmptyObject,
+    isJsObject,
+    isPlainObject,
+    parseStringToJson,
     resolveParamList,
+    resolveViewModelContext,
+    setViewModelValue,
     throwErrorMessage,
 };

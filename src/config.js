@@ -6,6 +6,7 @@ const bindingAttrs = {
     dblclick: 'data-jq-dblclick',
     blur: 'data-jq-blur',
     focus: 'data-jq-focus',
+    hover: 'data-jq-hover',
     change: 'data-jq-change',
     submit: 'data-jq-submit',
     model: 'data-jq-model',
@@ -39,6 +40,8 @@ const bindingDataReference = {
     rootDataKey: '$root',
     currentData: '$data',
     currentIndex: '$index',
+    mouseEnterHandlerName: 'in',
+    mouseLeaveHandlerName: 'out',
 };
 
 const bindingUpdateConditions = {

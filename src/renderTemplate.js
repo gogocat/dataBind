@@ -39,8 +39,8 @@ const compileTemplate = (id, templateData = null) => {
  * @param {object} elementCache
  */
 const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
-    let settings = parseStringToJson(cache.dataKey);
-    let viewData = settings.data === '$root' ? viewModel : getViewModelValue(viewModel, settings.data);
+    let settings = typeof cache.dataKey === 'string' ? parseStringToJson(cache.dataKey) : cache.dataKey;
+    let viewData = settings.data;
     let isAppend = settings.append;
     let isPrepend = settings.prepend;
     let html;
@@ -48,6 +48,18 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
     let $index;
     let $currentElement;
     let $nestedTemplates;
+
+    cache.dataKey = settings;
+
+    if (typeof viewData === 'undefined' || viewData === '$root') {
+        viewData = viewModel;
+    } else {
+        viewData = getViewModelValue(viewModel, settings.data);
+    }
+
+    if (typeof viewData === 'function') {
+        viewData = viewData();
+    }
 
     if (!viewData) {
         return;
@@ -69,7 +81,14 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
         $domFragment.append(html);
     } else {
         $currentElement = $element;
-        $currentElement.append(html);
+        if (!isAppend && !isPrepend) {
+            $currentElement.empty();
+        }
+        if (isPrepend) {
+            $currentElement.prepend(html);
+        } else {
+            $currentElement.append(html);
+        }
     }
 
     // check if there are nested template then recurisive render them

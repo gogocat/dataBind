@@ -7,17 +7,19 @@ import {getViewModelValue, setViewModelValue, resolveViewModelContext, resolvePa
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-const changeBinding = (cache, viewModel, bindingAttrs) => {
+const changeBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     let handlerName = cache.dataKey;
     let paramList = cache.parameters;
     let modelDataKey = cache.el.getAttribute(bindingAttrs.model);
     let handlerFn;
-    let newValue;
-    let oldValue;
+    let newValue = '';
+    let oldValue = '';
     let viewModelContext;
+    let APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!handlerName) {
+    if (!handlerName || (!forceRender && !APP.$rootElement.contains(cache.el))) {
         return;
     }
 

@@ -28,11 +28,8 @@ module.exports = function(grunt) {
             src: ['./dist/js/dataBind.js'],
             host: 'http://localhost:8887',
             specs: './test/specs/*.spec.js',
-            vendor: [
-                './vendors/lodash.custom.min.js',
-                './vendors/jquery-3.2.1.min.js',
-                './vendors/jasmine-jquery.js',
-            ],
+            styles: './test/css/reporter.css',
+            vendor: ['./vendors/lodash.custom.min.js', './vendors/jquery-3.2.1.min.js', './vendors/jasmine-jquery.js'],
             helpers: [],
         },
 
@@ -40,6 +37,7 @@ module.exports = function(grunt) {
             test: {
                 src: '<%= jasmineTestSettings.src %>',
                 options: {
+                    'styles': '<%= jasmineTestSettings.styles %>',
                     'host': '<%= jasmineTestSettings.host %>',
                     'specs': '<%= jasmineTestSettings.specs %>',
                     'vendor': '<%= jasmineTestSettings.vendor %>',

@@ -7,13 +7,16 @@ import {getViewModelValue, resolveViewModelContext, resolveParamList} from './ut
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-const textBinding = (cache, viewModel, bindingAttrs) => {
+const textBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     let dataKey = cache.dataKey;
     let paramList = cache.parameters;
     let viewModelContext;
+    let APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!dataKey) {
+    // NOTE: this doesn't work for for-of, if and switch bindings because element was not in DOM
+    if (!dataKey || (!forceRender && !APP.$rootElement.contains(cache.el))) {
         return;
     }
 

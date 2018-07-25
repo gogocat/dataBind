@@ -1,9 +1,9 @@
-describe('Given dataBindBootstrp initised', function() {
-    var namespace = {};
-    var converResultsData = function(data) {
+describe('Given dataBindBootstrp initised', () => {
+    let namespace = {};
+    let converResultsData = function(data) {
         ret = [];
         data.forEach(function(item, index) {
-            var newItem = $.extend({}, item);
+            let newItem = $.extend({}, item);
             if (newItem.bookmarked) {
                 newItem.bookmarkedCss = 'active';
             }
@@ -17,10 +17,10 @@ describe('Given dataBindBootstrp initised', function() {
 
     jasmine.getFixtures().fixturesPath = 'test';
 
-    beforeEach(function() {
-        var searchUrl = '/test/mocks/searchResult.json';
+    beforeEach(() => {
+        let searchUrl = '/test/mocks/searchResult.json';
         // var featureAdsResultUrl = '/test/mocks/featureAdsResult.json';
-        var el = {
+        let el = {
             searchResultColumns: '#search-result-columns',
             messageModal: '#message-modal',
             messageTextArea: '#message',
@@ -83,7 +83,7 @@ describe('Given dataBindBootstrp initised', function() {
             isNewSearch: false,
             currentQuery: null,
             getSearchResults: function(formData) {
-                var self = this;
+                let self = this;
 
                 this.isNewSearch = JSON.stringify(self.currentQuery) !== JSON.stringify(formData);
 
@@ -107,17 +107,14 @@ describe('Given dataBindBootstrp initised', function() {
                     });
             },
             onSearchResult: function(data) {
-                var newResults = [];
+                let newResults = [];
 
                 if (this.isNewSearch) {
                     el.searchResultColumns.empty();
                     this.searchResults.length = 0;
                 }
                 // first search result - remove current results (featured items)
-                if (
-                    namespace.searchResultsComponent.isServerRendered &&
-                    !this.replacedInitResults
-                ) {
+                if (namespace.searchResultsComponent.isServerRendered && !this.replacedInitResults) {
                     this.searchResultTitle = 'Search results';
                     this.replacedInitResults = true;
                 } else {
@@ -146,9 +143,9 @@ describe('Given dataBindBootstrp initised', function() {
                 this.getSearchResults();
             },
             onAdBookmarkClick: function(e, $el) {
-                var activeCss = 'active';
-                var isActivated = $el.hasClass(activeCss);
-                var resultIndex = $el.attr('data-index');
+                let activeCss = 'active';
+                let isActivated = $el.hasClass(activeCss);
+                let resultIndex = $el.attr('data-index');
 
                 this.searchResults[resultIndex].bookmarked = !isActivated;
                 this.searchResults[resultIndex].bookmarkedCss = isActivated ? '' : 'active';
@@ -159,10 +156,7 @@ describe('Given dataBindBootstrp initised', function() {
                 this.updateStatus();
             },
             onMessageTriggerClick: function(e, $el) {
-                namespace.searchResultsComponent.publish(
-                    'TRIGGER-MESSAGE-DIALOG',
-                    this.selectedResults
-                );
+                namespace.searchResultsComponent.publish('TRIGGER-MESSAGE-DIALOG', this.selectedResults);
                 console.log('onMessageTriggerClick: ', $el);
             },
             updateStatus: function(opt) {
@@ -191,8 +185,7 @@ describe('Given dataBindBootstrp initised', function() {
             onTriggerSelectedAds: function(selectedAdData) {
                 this.selectedAdData = selectedAdData;
                 this.numSelectedProviders = selectedAdData.length > 1 ? selectedAdData.length : '';
-                this.selectedProviders =
-                    selectedAdData.length > 1 ? 'advertisers ID: ' : 'advertiser ID:';
+                this.selectedProviders = selectedAdData.length > 1 ? 'advertisers ID: ' : 'advertiser ID:';
                 this.adIds = selectedAdData.map(function(item, index) {
                     return item.id;
                 });
@@ -204,16 +197,10 @@ describe('Given dataBindBootstrp initised', function() {
             },
         };
 
-        namespace.searchBarComponent = dataBind.init(
-            $('[data-jq-comp="search-bar"]'),
-            namespace.searchBarComponentVM
-        );
+        namespace.searchBarComponent = dataBind.init($('[data-jq-comp="search-bar"]'), namespace.searchBarComponentVM);
         namespace.searchBarComponent.render().then(function() {
-            var self = this;
-            namespace.searchBarComponent.subscribe(
-                'SEARCH-COMPLETED',
-                self.viewModel.onSearchCompleted
-            );
+            let self = this;
+            namespace.searchBarComponent.subscribe('SEARCH-COMPLETED', self.viewModel.onSearchCompleted);
         });
 
         namespace.searchResultsComponent = dataBind.init(
@@ -223,12 +210,9 @@ describe('Given dataBindBootstrp initised', function() {
         namespace.searchResultsComponent
             .render() // overwrite default server rendered option
             .then(function() {
-                var self = this;
+                let self = this;
                 // subscribe events
-                namespace.searchResultsComponent.subscribe(
-                    'SEARCH-AD',
-                    self.viewModel.getSearchResults
-                );
+                namespace.searchResultsComponent.subscribe('SEARCH-AD', self.viewModel.getSearchResults);
             });
 
         namespace.messageDialogComponent = dataBind.init(
@@ -236,11 +220,8 @@ describe('Given dataBindBootstrp initised', function() {
             namespace.messageDialogComponentVM
         );
         namespace.messageDialogComponent.render().then(function() {
-            var self = this;
-            namespace.messageDialogComponent.subscribe(
-                'TRIGGER-MESSAGE-DIALOG',
-                self.viewModel.onTriggerSelectedAds
-            );
+            let self = this;
+            namespace.messageDialogComponent.subscribe('TRIGGER-MESSAGE-DIALOG', self.viewModel.onTriggerSelectedAds);
 
             el.messageModal.on('shown.bs.modal', function() {
                 el.messageTextArea[0].defaultValue = self.viewModel.defaultMessageText;
@@ -259,20 +240,18 @@ describe('Given dataBindBootstrp initised', function() {
         // spyOn(namespace.searchBarComponentVM, 'onSearchSubmit');
     });
 
-    afterEach(function() {
-        /*
+    afterEach(() => {
         // clean up all app/components
-        for (var prop in namespace) {
+        for (let prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
         }
-        */
     });
 
-    it('Then [data-jq-comp="search-bar"] should has bond with namespace.searchBarComponentVM', function(done) {
-        var $searchBar = $('[data-jq-comp="search-bar"]');
-        var searchBarRoot = $searchBar.data('$root');
+    it('Then [data-jq-comp="search-bar"] should has bond with namespace.searchBarComponentVM', (done) => {
+        let $searchBar = $('[data-jq-comp="search-bar"]');
+        let searchBarRoot = $searchBar.data('$root');
 
         setTimeout(function() {
             expect(searchBarRoot).toBeDefined();
@@ -281,7 +260,7 @@ describe('Given dataBindBootstrp initised', function() {
         }, 200);
     });
 
-    it('When [data-jq-comp="search-bar"] was server rendered then show binding should not update element', function(done) {
+    it('When [data-jq-comp="search-bar"] was server rendered then show binding should not update element', (done) => {
         setTimeout(function() {
             expect(namespace.searchBarComponent.isServerRendered).toBe(true);
             expect(namespace.searchBarComponentVM.searching).toBe(false);
@@ -290,8 +269,8 @@ describe('Given dataBindBootstrp initised', function() {
         }, 200);
     });
 
-    it('When change #searchWord input value to "Handyman" viewModel onSearchWordChange should have been called', function(done) {
-        var newSearchWord = 'Handyman';
+    it('When change #searchWord input value to "Handyman" viewModel onSearchWordChange should have been called', (done) => {
+        let newSearchWord = 'Handyman';
         setTimeout(function() {
             $('#searchWord')
                 .val(newSearchWord)
@@ -303,8 +282,8 @@ describe('Given dataBindBootstrp initised', function() {
         }, 200);
     });
 
-    it('When change #location input value to "Melbourne" viewModel onSearchLocationChange should have been called', function(done) {
-        var newLocation = 'Melbourne';
+    it('When change #location input value to "Melbourne" viewModel onSearchLocationChange should have been called', (done) => {
+        let newLocation = 'Melbourne';
         setTimeout(function() {
             $('#location')
                 .val(newLocation)
@@ -316,16 +295,16 @@ describe('Given dataBindBootstrp initised', function() {
         }, 200);
     });
 
-    it('When [data-jq-comp="search-bar"] was server rendered "data-server-rendered" attribute should have removed', function(done) {
+    it('When [data-jq-comp="search-bar"] was server rendered "data-server-rendered" attribute should have removed', (done) => {
         setTimeout(function() {
             expect($('[data-jq-comp="search-bar"]').attr('data-server-rendered')).not.toBeDefined();
             done();
         }, 200);
     });
 
-    it('When click ".search-bar__btn" button with search word and location. Then onSearchSubmit handler in viewModel should have been called', function(done) {
-        var newSearchWord = 'Air Conditioner';
-        var newLocation = 'Sydney';
+    it('When click ".search-bar__btn" button with search word and location. Then onSearchSubmit handler in viewModel should have been called', (done) => {
+        let newSearchWord = 'Air Conditioner';
+        let newLocation = 'Sydney';
 
         setTimeout(function() {
             $('#searchWord').val(newSearchWord);

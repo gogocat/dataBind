@@ -1,13 +1,13 @@
-describe('When nested data-jq-comp initised', function() {
-    var namespace = {};
+describe('When nested data-jq-comp initised', () => {
+    let namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
 
     beforeEach(function() {
-        var parentComponent;
-        var childComponent;
-        var grandChildComponent;
-        var slibingChildComponent;
+        let parentComponent;
+        let childComponent;
+        let grandChildComponent;
+        let slibingChildComponent;
 
         loadFixtures('./fixtures/nestedComponents.html');
 
@@ -31,14 +31,8 @@ describe('When nested data-jq-comp initised', function() {
             description: 'slibing child component description',
         };
 
-        parentComponent = dataBind.init(
-            $('[data-jq-comp="parent-component"]'),
-            namespace.parentComponentVM
-        );
-        childComponent = dataBind.init(
-            $('[data-jq-comp="child-component"]'),
-            namespace.childComponentVM
-        );
+        parentComponent = dataBind.init($('[data-jq-comp="parent-component"]'), namespace.parentComponentVM);
+        childComponent = dataBind.init($('[data-jq-comp="child-component"]'), namespace.childComponentVM);
         grandChildComponent = dataBind.init(
             $('[data-jq-comp="grand-child-component"]'),
             namespace.grandChildComponentVM
@@ -54,52 +48,42 @@ describe('When nested data-jq-comp initised', function() {
         slibingChildComponent.render();
     });
 
-    afterEach(function() {
+    afterEach(() => {
         // clean up all app/components
-        for (var prop in namespace) {
+        for (let prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
         }
     });
 
-    it('Then #parent-component-title and #parent-component-description should render according parentComponentVM', function(done) {
-        setTimeout(function() {
+    it('Then #parent-component-title and #parent-component-description should render according parentComponentVM', (done) => {
+        setTimeout(() => {
             expect($('#parent-component-title').text()).toBe(namespace.parentComponentVM.title);
-            expect($('#parent-component-description').text()).toBe(
-                namespace.parentComponentVM.description
-            );
+            expect($('#parent-component-description').text()).toBe(namespace.parentComponentVM.description);
             done();
         }, 200);
     });
 
-    it('Then #child-component-title and #child-component-description should render according childComponentVM', function(done) {
-        setTimeout(function() {
+    it('Then #child-component-title and #child-component-description should render according childComponentVM', (done) => {
+        setTimeout(() => {
             expect($('#child-component-title').text()).toBe(namespace.childComponentVM.title);
-            expect($('#child-component-description').text()).toBe(
-                namespace.childComponentVM.description
-            );
+            expect($('#child-component-description').text()).toBe(namespace.childComponentVM.description);
             done();
         }, 200);
     });
 
-    it('Then #grand-child-component-title and #grand-child-component-description should render according grandChildComponentVM', function(done) {
-        setTimeout(function() {
-            expect($('#grand-child-component-title').text()).toBe(
-                namespace.grandChildComponentVM.title
-            );
-            expect($('#grand-child-component-description').text()).toBe(
-                namespace.grandChildComponentVM.description
-            );
+    it('Then #grand-child-component-title and #grand-child-component-description should render according grandChildComponentVM', (done) => {
+        setTimeout(() => {
+            expect($('#grand-child-component-title').text()).toBe(namespace.grandChildComponentVM.title);
+            expect($('#grand-child-component-description').text()).toBe(namespace.grandChildComponentVM.description);
             done();
         }, 200);
     });
 
-    it('Then #slibing-child-component-title and #slibing-child-component-description should render according slibingChildComponentVM', function(done) {
-        setTimeout(function() {
-            expect($('#slibing-child-component-title').text()).toBe(
-                namespace.slibingChildComponentVM.title
-            );
+    it('Then #slibing-child-component-title and #slibing-child-component-description should render according slibingChildComponentVM', (done) => {
+        setTimeout(() => {
+            expect($('#slibing-child-component-title').text()).toBe(namespace.slibingChildComponentVM.title);
             expect($('#slibing-child-component-description').text()).toBe(
                 namespace.slibingChildComponentVM.description
             );

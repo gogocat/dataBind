@@ -10,7 +10,6 @@ function refreshApp() {
 
     viewModel.databases = ENV.generateData().toArray();
     newDbLength = viewModel.databases.length;
-    oldDbLength = newDbLength;
     shouldUpdateTemplate = oldDbLength !== newDbLength;
     // only re-render template binding if database size different
     dbMonApp.render({templateBinding: shouldUpdateTemplate});

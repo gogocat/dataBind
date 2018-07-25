@@ -9,11 +9,13 @@ import {getViewModelPropValue, isPlainObject, arrayRemoveMatch, each} from './ut
  * @param {object} cache
  * @param {object} viewModel
  * @param {object} bindingAttrs
+ * @param {boolean} forceRender
  */
-const cssBinding = (cache, viewModel, bindingAttrs) => {
+const cssBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     let dataKey = cache.dataKey;
+    let APP = viewModel.APP || viewModel.$root.APP;
 
-    if (!dataKey) {
+    if (!dataKey || (!forceRender && !APP.$rootElement.contains(cache.el))) {
         return;
     }
 
@@ -24,10 +26,9 @@ const cssBinding = (cache, viewModel, bindingAttrs) => {
     let oldCssList = cache.elementData.viewModelPropValue;
     let newCssList = '';
     let vmCssListObj = getViewModelPropValue(viewModel, cache);
-    let vmCssListArray;
+    let vmCssListArray = [];
     let isViewDataObject = false;
     let isViewDataString = false;
-    let domCssList;
     let cssList = [];
 
     if (typeof vmCssListObj === 'string') {
@@ -51,7 +52,7 @@ const cssBinding = (cache, viewModel, bindingAttrs) => {
     }
 
     // get current css classes from element
-    domCssList = cache.el.classList;
+    let domCssList = cache.el.classList;
     // clone domCssList as new array
     let domCssListLength = domCssList.length;
     for (let i = 0; i < domCssListLength; i += 1) {
@@ -74,13 +75,15 @@ const cssBinding = (cache, viewModel, bindingAttrs) => {
     }
 
     // unique cssList array
-    cssList = _.uniq(cssList).join(' ');
-    // replace all css classes
-    // TODO: this is the slowness part. Try only update changed css in the classList
-    // rather than replace the whole class attribute
-    cache.el.setAttribute('class', cssList);
+    cssList = cssList.filter((v, i, a) => {
+        return a.indexOf(v) === i;
+    });
+
+    cssList = cssList.join(' ');
     // update element data
     cache.elementData.viewModelPropValue = newCssList;
+    // replace all css classes
+    cache.el.setAttribute('class', cssList);
 };
 
 export default cssBinding;

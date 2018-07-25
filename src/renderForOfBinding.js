@@ -25,6 +25,7 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
         return throwErrorMessage(null, 'iterationData is not an plain object or array');
     }
 
+    // flag as pared for-of logic with bindingData.type
     if (!bindingData.type) {
         bindingData.type = configBindingAttrs.forOf;
         wrapCommentAround(bindingData, bindingData.el);
