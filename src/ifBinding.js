@@ -1,5 +1,5 @@
 import {bindingAttrs as configBindingAttrs} from './config';
-import {getViewModelPropValue, toBoolean} from './util';
+import {getViewModelPropValue} from './util';
 import {createClonedElementCache, wrapCommentAround} from './commentWrapper';
 import {renderIfBinding, removeIfBinding} from './renderIfBinding';
 
@@ -18,8 +18,6 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
         return;
     }
 
-    let isInvertBoolean = dataKey.charAt(0) === '!';
-
     cache.elementData = cache.elementData || {};
     cache.type = cache.type || configBindingAttrs.if;
 
@@ -27,7 +25,7 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
 
     // getViewModelPropValue could be return undefined or null
     let viewModelPropValue = getViewModelPropValue(viewModel, cache) || false;
-    let shouldRender = isInvertBoolean ? !toBoolean(viewModelPropValue) : toBoolean(viewModelPropValue);
+    let shouldRender = Boolean(viewModelPropValue);
 
     if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
         return;
