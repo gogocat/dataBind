@@ -102,15 +102,7 @@ const getViewModelPropValue = (viewModel, bindingCache) => {
         ret = ret.apply(viewModelContext, args);
     }
 
-    if (isInvertBoolean) {
-        if (ret === 'false') {
-            ret = JSON.parse(ret);
-        } else {
-            ret = Boolean(ret);
-        }
-    }
-
-    return isInvertBoolean ? !ret : ret;
+    return isInvertBoolean ? !Boolean(ret) : ret;
 };
 
 const parseStringToJson = (str) => {

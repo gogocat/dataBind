@@ -2635,15 +2635,7 @@ var getViewModelPropValue = function getViewModelPropValue(viewModel, bindingCac
         ret = ret.apply(viewModelContext, args);
     }
 
-    if (isInvertBoolean) {
-        if (ret === 'false') {
-            ret = JSON.parse(ret);
-        } else {
-            ret = Boolean(ret);
-        }
-    }
-
-    return isInvertBoolean ? !ret : ret;
+    return isInvertBoolean ? !Boolean(ret) : ret;
 };
 
 var parseStringToJson = function parseStringToJson(str) {
