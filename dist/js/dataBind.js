@@ -1,6 +1,6 @@
 /**
  * dataBind - Simple MV* framework work with jQuery and underscore template
- * @version v1.8.0
+ * @version v1.8.1
  * @link https://github.com/gogocat/dataBind#readme
  * @license MIT
  */
@@ -1593,7 +1593,7 @@ var init = function init($rootElement) {
 window.dataBind = {
     use: use,
     init: init,
-    version: '1.8.0'
+    version: '1.8.1'
 };
 
 },{"./binder":2,"./config":7}],16:[function(require,module,exports){
