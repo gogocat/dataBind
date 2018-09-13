@@ -2523,7 +2523,7 @@ exports['default'] = textBinding;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.toBoolean = exports.throwErrorMessage = exports.setViewModelValue = exports.resolveViewModelContext = exports.resolveParamList = exports.parseStringToJson = exports.isPlainObject = exports.isJsObject = exports.isEmptyObject = exports.isArray = exports.invertObj = exports.insertAfter = exports.getViewModelValue = exports.getViewModelPropValue = exports.getNodeAttrObj = exports.getFunctionParameterList = exports.getFormData = exports.generateElementCache = exports.extend = exports.each = exports.debounceRaf = exports.cloneDomNode = exports.arrayRemoveMatch = exports.REGEX = undefined;
+exports.throwErrorMessage = exports.setViewModelValue = exports.resolveViewModelContext = exports.resolveParamList = exports.parseStringToJson = exports.isPlainObject = exports.isJsObject = exports.isEmptyObject = exports.isArray = exports.invertObj = exports.insertAfter = exports.getViewModelValue = exports.getViewModelPropValue = exports.getNodeAttrObj = exports.getFunctionParameterList = exports.getFormData = exports.generateElementCache = exports.extend = exports.each = exports.debounceRaf = exports.cloneDomNode = exports.arrayRemoveMatch = exports.REGEX = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -2592,10 +2592,6 @@ var isEmptyObject = function isEmptyObject(obj) {
     return false;
 };
 
-var toBoolean = function toBoolean(value) {
-    return !!value;
-};
-
 /**
  * getViewModelValue
  * @description walk a object by provided string path. eg 'a.b.c'
@@ -2643,7 +2639,7 @@ var getViewModelPropValue = function getViewModelPropValue(viewModel, bindingCac
         if (ret === 'false') {
             ret = JSON.parse(ret);
         } else {
-            ret = toBoolean(ret);
+            ret = Boolean(ret);
         }
     }
 
@@ -2955,7 +2951,6 @@ exports.resolveParamList = resolveParamList;
 exports.resolveViewModelContext = resolveViewModelContext;
 exports.setViewModelValue = setViewModelValue;
 exports.throwErrorMessage = throwErrorMessage;
-exports.toBoolean = toBoolean;
 
 },{"./config":7}]},{},[15])
 

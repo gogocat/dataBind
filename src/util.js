@@ -59,10 +59,6 @@ const isEmptyObject = (obj) => {
     return false;
 };
 
-const toBoolean = (value) => {
-    return !!value;
-};
-
 /**
  * getViewModelValue
  * @description walk a object by provided string path. eg 'a.b.c'
@@ -110,7 +106,7 @@ const getViewModelPropValue = (viewModel, bindingCache) => {
         if (ret === 'false') {
             ret = JSON.parse(ret);
         } else {
-            ret = toBoolean(ret);
+            ret = Boolean(ret);
         }
     }
 
@@ -413,5 +409,4 @@ export {
     resolveViewModelContext,
     setViewModelValue,
     throwErrorMessage,
-    toBoolean,
 };
