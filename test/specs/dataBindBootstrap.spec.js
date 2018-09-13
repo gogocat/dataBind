@@ -266,7 +266,7 @@ describe('Given dataBindBootstrp initised', () => {
             expect(namespace.searchBarComponentVM.searching).toBe(false);
             expect($('.spinner--search').is(':visible')).toBe(true);
             done();
-        }, 200);
+        }, 300);
     });
 
     it('When change #searchWord input value to "Handyman" viewModel onSearchWordChange should have been called', (done) => {

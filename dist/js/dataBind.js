@@ -1,6 +1,6 @@
 /**
  * dataBind - Simple MV* framework work with jQuery and underscore template
- * @version v1.8.0
+ * @version v1.8.1
  * @link https://github.com/gogocat/dataBind#readme
  * @license MIT
  */
@@ -1593,7 +1593,7 @@ var init = function init($rootElement) {
 window.dataBind = {
     use: use,
     init: init,
-    version: '1.8.0'
+    version: '1.8.1'
 };
 
 },{"./binder":2,"./config":7}],16:[function(require,module,exports){
@@ -2635,15 +2635,7 @@ var getViewModelPropValue = function getViewModelPropValue(viewModel, bindingCac
         ret = ret.apply(viewModelContext, args);
     }
 
-    if (typeof ret === 'undefined' || ret === null) {
-        return ret;
-    }
-
-    if (isInvertBoolean && typeof ret === 'string' && ret === 'true' || ret === 'false') {
-        ret = JSON.parse(ret);
-    }
-
-    return isInvertBoolean && typeof ret === 'boolean' ? !ret : ret;
+    return isInvertBoolean ? !Boolean(ret) : ret;
 };
 
 var parseStringToJson = function parseStringToJson(str) {

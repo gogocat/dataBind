@@ -97,6 +97,13 @@ describe('Given [data-jq-comp="if-component"] inited', () => {
         }, 200);
     });
 
+    it('should render inverse negated boolean block', (done) => {
+        setTimeout(() => {
+            expect(document.getElementById('NotTestUnDefiniedProp')).not.toBe(null);
+            done();
+        }, 200);
+    });
+
     describe('When update viewModel renderIntro to false', () => {
         it('should render story and remove intro', (done) => {
             namespace.viewModel.renderIntro = false;

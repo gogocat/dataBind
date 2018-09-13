@@ -8,10 +8,12 @@
     <span id="afterBlock">after</span>
     <div id="testPropFn" data-jq-if="viewModelPropFn($data)">Should render this</div>
     <div id="testUnDefiniedProp" data-jq-if="undefinedViewModelPropFn($data)">Should not render this</div>
+    <div id="NotTestUnDefiniedProp" data-jq-if="!undefinedViewModelPropFn">Should render this</div>
 </section>
 
 <template id="storyIntro">
     <h1 id="storyIntroHeading" data-jq-text="story.title"></h1>
     <p id="storyDescription" data-jq-text="story.description"></p>
+    <p id="stroyPrice">Price: <span data-jq-if="!story.price">N/A</span></p>
     <a id="storyLink" data-jq-attr="setStroylinkAttr" data-jq-click="onStoryClick">click here</a>
 </template>
