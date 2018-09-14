@@ -385,6 +385,12 @@ const resolveParamList = (viewModel, paramList) => {
     });
 };
 
+const removeElement = (el) => {
+    if (el && el.parentNode) {
+        el.parentNode.removeChild(el);
+    }
+};
+
 const throwErrorMessage = (err = null, errorMessage = '') => {
     let message = err && err.message ? err.message : errorMessage;
     if (typeof console.error === 'function') {
@@ -414,6 +420,7 @@ export {
     isJsObject,
     isPlainObject,
     parseStringToJson,
+    removeElement,
     resolveParamList,
     resolveViewModelContext,
     setViewModelValue,

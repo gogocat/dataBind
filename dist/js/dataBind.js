@@ -881,10 +881,11 @@ var wrapCommentAround = function wrapCommentAround(bindingData, node) {
     commentBegin = document.createComment(prefix);
     commentEnd = document.createComment(prefix + config.commentSuffix);
     // document fragment - logic for ForOf binding
+    // check node.parentNode because node could be from cache and no longer in DOM
     if (node.nodeType === 11) {
         node.insertBefore(commentBegin, node.firstChild);
         node.appendChild(commentEnd);
-    } else {
+    } else if (node.parentNode) {
         node.parentNode.insertBefore(commentBegin, node);
         util.insertAfter(node.parentNode, commentEnd, node);
         // update bindingData details
@@ -1019,6 +1020,12 @@ var bindingUpdateConditions = {
 // maximum string length before running regex
 var maxDatakeyLength = 50;
 
+var constants = {
+    filters: {
+        ONCE: 'once'
+    }
+};
+
 exports.bindingAttrs = bindingAttrs;
 exports.dataIndexAttr = dataIndexAttr;
 exports.templateSettings = templateSettings;
@@ -1028,6 +1035,7 @@ exports.commentSuffix = commentSuffix;
 exports.bindingUpdateConditions = bindingUpdateConditions;
 exports.bindingDataReference = bindingDataReference;
 exports.maxDatakeyLength = maxDatakeyLength;
+exports.constants = constants;
 
 },{}],8:[function(require,module,exports){
 'use strict';
@@ -1521,7 +1529,7 @@ var _renderIfBinding = require('./renderIfBinding');
 var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
 
-    if (!dataKey) {
+    if (!dataKey || cache.isOnce && !cache.hasIterationBindingCache) {
         return;
     }
 
@@ -1529,17 +1537,34 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     cache.type = cache.type || _config.bindingAttrs['if'];
 
     var oldViewModelProValue = cache.elementData.viewModelPropValue;
-
     // getViewModelPropValue could be return undefined or null
     var viewModelPropValue = (0, _util.getViewModelPropValue)(viewModel, cache) || false;
-    var shouldRender = Boolean(viewModelPropValue);
 
+    if (cache.filters && cache.filters.length) {
+        (0, _util.each)(cache.filters, function (index, value) {
+            if (value === _config.constants.filters.ONCE) {
+                cache.isOnce = true;
+            } else {
+                // TODO - curry value to each pipe
+            }
+        });
+    }
+
+    // do nothing if viewModel value not changed and no child bindings
     if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
         return;
     }
 
+    var shouldRender = Boolean(viewModelPropValue);
     // store new show status
     cache.elementData.viewModelPropValue = viewModelPropValue;
+
+    // remove element
+    if (!shouldRender && cache.isOnce && cache.el.parentNode) {
+        (0, _util.removeElement)(cache.el);
+        // TODO remove this from bindingCache
+        return;
+    }
 
     // only create fragment once
     // wrap comment tag around
@@ -1560,6 +1585,11 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
             viewModel: viewModel,
             bindingAttrs: bindingAttrs
         });
+
+        if (cache.isOnce) {
+            delete cache.fragment;
+            // TODO remove this from bindingCache
+        }
     }
 };
 
@@ -2531,7 +2561,7 @@ exports['default'] = textBinding;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.throwErrorMessage = exports.setViewModelValue = exports.resolveViewModelContext = exports.resolveParamList = exports.parseStringToJson = exports.isPlainObject = exports.isJsObject = exports.isEmptyObject = exports.isArray = exports.invertObj = exports.insertAfter = exports.getViewModelValue = exports.getViewModelPropValue = exports.getNodeAttrObj = exports.getFunctionParameterList = exports.getFilterList = exports.getFormData = exports.generateElementCache = exports.extend = exports.each = exports.debounceRaf = exports.cloneDomNode = exports.arrayRemoveMatch = exports.REGEX = undefined;
+exports.throwErrorMessage = exports.setViewModelValue = exports.resolveViewModelContext = exports.resolveParamList = exports.removeElement = exports.parseStringToJson = exports.isPlainObject = exports.isJsObject = exports.isEmptyObject = exports.isArray = exports.invertObj = exports.insertAfter = exports.getViewModelValue = exports.getViewModelPropValue = exports.getNodeAttrObj = exports.getFunctionParameterList = exports.getFilterList = exports.getFormData = exports.generateElementCache = exports.extend = exports.each = exports.debounceRaf = exports.cloneDomNode = exports.arrayRemoveMatch = exports.REGEX = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -2933,6 +2963,12 @@ var resolveParamList = function resolveParamList(viewModel, paramList) {
     });
 };
 
+var removeElement = function removeElement(el) {
+    if (el && el.parentNode) {
+        el.parentNode.removeChild(el);
+    }
+};
+
 var throwErrorMessage = function throwErrorMessage() {
     var err = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     var errorMessage = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
@@ -2964,6 +3000,7 @@ exports.isEmptyObject = isEmptyObject;
 exports.isJsObject = isJsObject;
 exports.isPlainObject = isPlainObject;
 exports.parseStringToJson = parseStringToJson;
+exports.removeElement = removeElement;
 exports.resolveParamList = resolveParamList;
 exports.resolveViewModelContext = resolveViewModelContext;
 exports.setViewModelValue = setViewModelValue;

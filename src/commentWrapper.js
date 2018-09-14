@@ -80,10 +80,11 @@ const wrapCommentAround = (bindingData, node) => {
     commentBegin = document.createComment(prefix);
     commentEnd = document.createComment(prefix + config.commentSuffix);
     // document fragment - logic for ForOf binding
+    // check node.parentNode because node could be from cache and no longer in DOM
     if (node.nodeType === 11) {
         node.insertBefore(commentBegin, node.firstChild);
         node.appendChild(commentEnd);
-    } else {
+    } else if (node.parentNode) {
         node.parentNode.insertBefore(commentBegin, node);
         util.insertAfter(node.parentNode, commentEnd, node);
         // update bindingData details
