@@ -1240,14 +1240,22 @@ var populateBindingCache = function populateBindingCache(_ref) {
             dataKey: attrValue
         };
 
+        // populate cacheData.filters. update filterList first item as dataKey
+        var filterList = (0, _util.getFilterList)(attrValue);
+        if (filterList && filterList.length > 1) {
+            cacheData.dataKey = filterList[0];
+            filterList.shift(0);
+            cacheData.filters = filterList;
+        }
+
+        // populate cacheData.parameters
         // for store function call parameters eg. '$index', '$root'
         // useful with DOM for-loop template as reference to binding data
-        var paramList = (0, _util.getFunctionParameterList)(attrValue);
+        var paramList = (0, _util.getFunctionParameterList)(cacheData.dataKey);
         if (paramList) {
             cacheData.parameters = paramList;
             cacheData.dataKey = cacheData.dataKey.replace(_util.REGEX.FUNCTIONPARAM, '').trim();
         }
-
         bindingCache[type].push(cacheData);
     }
     return bindingCache;
@@ -2523,7 +2531,7 @@ exports['default'] = textBinding;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.throwErrorMessage = exports.setViewModelValue = exports.resolveViewModelContext = exports.resolveParamList = exports.parseStringToJson = exports.isPlainObject = exports.isJsObject = exports.isEmptyObject = exports.isArray = exports.invertObj = exports.insertAfter = exports.getViewModelValue = exports.getViewModelPropValue = exports.getNodeAttrObj = exports.getFunctionParameterList = exports.getFormData = exports.generateElementCache = exports.extend = exports.each = exports.debounceRaf = exports.cloneDomNode = exports.arrayRemoveMatch = exports.REGEX = undefined;
+exports.throwErrorMessage = exports.setViewModelValue = exports.resolveViewModelContext = exports.resolveParamList = exports.parseStringToJson = exports.isPlainObject = exports.isJsObject = exports.isEmptyObject = exports.isArray = exports.invertObj = exports.insertAfter = exports.getViewModelValue = exports.getViewModelPropValue = exports.getNodeAttrObj = exports.getFunctionParameterList = exports.getFilterList = exports.getFormData = exports.generateElementCache = exports.extend = exports.each = exports.debounceRaf = exports.cloneDomNode = exports.arrayRemoveMatch = exports.REGEX = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -2541,7 +2549,8 @@ var hasIsArray = Array.isArray;
 var REGEX = {
     FUNCTIONPARAM: /\((.*?)\)/,
     WHITESPACES: /\s+/g,
-    FOROF: /(.*?)\s+(?:in|of)\s+(.*)/
+    FOROF: /(.*?)\s+(?:in|of)\s+(.*)/,
+    PIPE: /\|/
 };
 
 var generateElementCache = function generateElementCache(bindingAttrs) {
@@ -2688,6 +2697,21 @@ var getFunctionParameterList = function getFunctionParameterList(str) {
         });
     }
     return paramlist;
+};
+
+var getFilterList = function getFilterList(str) {
+    var ret = void 0;
+    if (!str || str.length > config.maxDatakeyLength) {
+        return ret;
+    }
+    var filterlist = str.split(REGEX.PIPE);
+    if (filterlist.length > 1) {
+        filterlist.forEach(function (v, i) {
+            filterlist[i] = v.trim();
+        });
+        ret = filterlist;
+    }
+    return ret;
 };
 
 var invertObj = function invertObj(sourceObj) {
@@ -2928,6 +2952,7 @@ exports.each = each;
 exports.extend = extend;
 exports.generateElementCache = generateElementCache;
 exports.getFormData = getFormData;
+exports.getFilterList = getFilterList;
 exports.getFunctionParameterList = getFunctionParameterList;
 exports.getNodeAttrObj = getNodeAttrObj;
 exports.getViewModelPropValue = getViewModelPropValue;

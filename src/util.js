@@ -9,6 +9,7 @@ const REGEX = {
     FUNCTIONPARAM: /\((.*?)\)/,
     WHITESPACES: /\s+/g,
     FOROF: /(.*?)\s+(?:in|of)\s+(.*)/,
+    PIPE: /\|/,
 };
 
 const generateElementCache = (bindingAttrs) => {
@@ -155,6 +156,21 @@ const getFunctionParameterList = (str) => {
         });
     }
     return paramlist;
+};
+
+const getFilterList = (str) => {
+    let ret;
+    if (!str || str.length > config.maxDatakeyLength) {
+        return ret;
+    }
+    let filterlist = str.split(REGEX.PIPE);
+    if (filterlist.length > 1) {
+        filterlist.forEach(function(v, i) {
+            filterlist[i] = v.trim();
+        });
+        ret = filterlist;
+    }
+    return ret;
 };
 
 const invertObj = (sourceObj) => {
@@ -386,6 +402,7 @@ export {
     extend,
     generateElementCache,
     getFormData,
+    getFilterList,
     getFunctionParameterList,
     getNodeAttrObj,
     getViewModelPropValue,
