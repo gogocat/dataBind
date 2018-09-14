@@ -41,15 +41,16 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     }
 
     let shouldRender = Boolean(viewModelPropValue);
-    // store new show status
-    cache.elementData.viewModelPropValue = viewModelPropValue;
 
-    // remove element
+    // remove this cache from parent array
     if (!shouldRender && cache.isOnce && cache.el.parentNode) {
         removeElement(cache.el);
-        // TODO remove this from bindingCache
+        cache[constants.PARENT_REF].splice(cache[constants.PARENT_REF].indexOf(cache), 1);
         return;
     }
+
+    // store new show status
+    cache.elementData.viewModelPropValue = viewModelPropValue;
 
     // only create fragment once
     // wrap comment tag around
@@ -71,9 +72,11 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
             bindingAttrs: bindingAttrs,
         });
 
-        if (cache.isOnce) {
-            delete cache.fragment;
-            // TODO remove this from bindingCache
+        // if render once
+        // remove this cache from parent array if no child caches
+        if (cache.isOnce && !cache.hasIterationBindingCache) {
+            // delete cache.fragment;
+            cache[constants.PARENT_REF].splice(cache[constants.PARENT_REF].indexOf(cache), 1);
         }
     }
 };

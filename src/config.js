@@ -56,6 +56,7 @@ const constants = {
     filters: {
         ONCE: 'once',
     },
+    PARENT_REF: '_parent',
 };
 
 export {

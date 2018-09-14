@@ -1023,7 +1023,8 @@ var maxDatakeyLength = 50;
 var constants = {
     filters: {
         ONCE: 'once'
-    }
+    },
+    PARENT_REF: '_parent'
 };
 
 exports.bindingAttrs = bindingAttrs;
@@ -1185,6 +1186,8 @@ Object.defineProperty(exports, "__esModule", {
 
 var _util = require('./util');
 
+var _config = require('./config');
+
 var bindingAttrsMap = void 0;
 
 /**
@@ -1264,6 +1267,8 @@ var populateBindingCache = function populateBindingCache(_ref) {
             cacheData.parameters = paramList;
             cacheData.dataKey = cacheData.dataKey.replace(_util.REGEX.FUNCTIONPARAM, '').trim();
         }
+        // store parent array reference to cacheData
+        cacheData[_config.constants.PARENT_REF] = bindingCache[type];
         bindingCache[type].push(cacheData);
     }
     return bindingCache;
@@ -1343,7 +1348,7 @@ var createBindingCache = function createBindingCache(_ref2) {
 
 exports['default'] = createBindingCache;
 
-},{"./util":25}],11:[function(require,module,exports){
+},{"./config":7,"./util":25}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1556,15 +1561,16 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     }
 
     var shouldRender = Boolean(viewModelPropValue);
-    // store new show status
-    cache.elementData.viewModelPropValue = viewModelPropValue;
 
-    // remove element
+    // remove this cache from parent array
     if (!shouldRender && cache.isOnce && cache.el.parentNode) {
         (0, _util.removeElement)(cache.el);
-        // TODO remove this from bindingCache
+        cache[_config.constants.PARENT_REF].splice(cache[_config.constants.PARENT_REF].indexOf(cache), 1);
         return;
     }
+
+    // store new show status
+    cache.elementData.viewModelPropValue = viewModelPropValue;
 
     // only create fragment once
     // wrap comment tag around
@@ -1586,9 +1592,11 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
             bindingAttrs: bindingAttrs
         });
 
-        if (cache.isOnce) {
-            delete cache.fragment;
-            // TODO remove this from bindingCache
+        // if render once
+        // remove this cache from parent array if no child caches
+        if (cache.isOnce && !cache.hasIterationBindingCache) {
+            // delete cache.fragment;
+            cache[_config.constants.PARENT_REF].splice(cache[_config.constants.PARENT_REF].indexOf(cache), 1);
         }
     }
 };
@@ -2043,6 +2051,7 @@ var renderIfBinding = function renderIfBinding(_ref) {
         viewModel = _ref.viewModel,
         bindingAttrs = _ref.bindingAttrs;
 
+    // TODO - need skip work for render once
     if (!bindingData.fragment) {
         return;
     }
@@ -2052,7 +2061,7 @@ var renderIfBinding = function renderIfBinding(_ref) {
     var rootElement = bindingData.fragment.firstChild.cloneNode(true);
 
     // remove current old DOM.
-    if (!isDomRemoved) {
+    if (!isDomRemoved && bindingData.hasIterationBindingCache) {
         removeIfBinding(bindingData);
     }
 

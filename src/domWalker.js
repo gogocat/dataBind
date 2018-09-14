@@ -1,4 +1,5 @@
 import {invertObj, getFilterList, getFunctionParameterList, REGEX} from './util';
+import {constants} from './config';
 
 let bindingAttrsMap;
 
@@ -71,6 +72,8 @@ const populateBindingCache = ({node, attrObj, bindingCache, type}) => {
             cacheData.parameters = paramList;
             cacheData.dataKey = cacheData.dataKey.replace(REGEX.FUNCTIONPARAM, '').trim();
         }
+        // store parent array reference to cacheData
+        cacheData[constants.PARENT_REF] = bindingCache[type];
         bindingCache[type].push(cacheData);
     }
     return bindingCache;

@@ -26,6 +26,7 @@ const isTargetDomRemoved = (bindingData) => {
 };
 
 const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
+    // TODO - need skip work for render once
     if (!bindingData.fragment) {
         return;
     }
@@ -35,7 +36,8 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     const rootElement = bindingData.fragment.firstChild.cloneNode(true);
 
     // remove current old DOM.
-    if (!isDomRemoved) {
+    // TODO: check if can keep rendered DOM
+    if (!isDomRemoved && bindingData.hasIterationBindingCache) {
         removeIfBinding(bindingData);
     }
 
