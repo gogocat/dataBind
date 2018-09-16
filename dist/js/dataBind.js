@@ -2051,7 +2051,6 @@ var renderIfBinding = function renderIfBinding(_ref) {
         viewModel = _ref.viewModel,
         bindingAttrs = _ref.bindingAttrs;
 
-    // TODO - need skip work for render once
     if (!bindingData.fragment) {
         return;
     }
@@ -2061,7 +2060,7 @@ var renderIfBinding = function renderIfBinding(_ref) {
     var rootElement = bindingData.fragment.firstChild.cloneNode(true);
 
     // remove current old DOM.
-    if (!isDomRemoved && bindingData.hasIterationBindingCache) {
+    if (!isDomRemoved) {
         removeIfBinding(bindingData);
     }
 
