@@ -1,5 +1,5 @@
 import {dataIndexAttr} from './config';
-import {parseStringToJson, getViewModelValue} from './util';
+import {parseStringToJson, getViewModelPropValue} from './util';
 
 let $domFragment = null;
 let $templateRoot = null;
@@ -51,15 +51,13 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
 
     cache.dataKey = settings;
 
-    if (typeof viewData === 'undefined' || viewData === '$root') {
-        viewData = viewModel;
-    } else {
-        viewData = getViewModelValue(viewModel, settings.data);
-    }
-
-    if (typeof viewData === 'function') {
-        viewData = viewData();
-    }
+    viewData =
+        typeof viewData === 'undefined' || viewData === '$root'
+            ? viewModel
+            : getViewModelPropValue(viewModel, {
+                dataKey: settings.data,
+                parameters: cache.parameters,
+            });
 
     if (!viewData) {
         return;

@@ -2148,15 +2148,10 @@ var renderTemplate = function renderTemplate(cache, viewModel, bindingAttrs, ele
 
     cache.dataKey = settings;
 
-    if (typeof viewData === 'undefined' || viewData === '$root') {
-        viewData = viewModel;
-    } else {
-        viewData = (0, _util.getViewModelValue)(viewModel, settings.data);
-    }
-
-    if (typeof viewData === 'function') {
-        viewData = viewData();
-    }
+    viewData = typeof viewData === 'undefined' || viewData === '$root' ? viewModel : (0, _util.getViewModelPropValue)(viewModel, {
+        dataKey: settings.data,
+        parameters: cache.parameters
+    });
 
     if (!viewData) {
         return;
