@@ -1252,12 +1252,7 @@ var populateBindingCache = function populateBindingCache(_ref) {
         };
 
         // populate cacheData.filters. update filterList first item as dataKey
-        var filterList = (0, _util.getFilterList)(attrValue);
-        if (filterList && filterList.length > 1) {
-            cacheData.dataKey = filterList[0];
-            filterList.shift(0);
-            cacheData.filters = filterList;
-        }
+        cacheData = (0, _util.extractFilterList)(cacheData);
 
         // populate cacheData.parameters
         // for store function call parameters eg. '$index', '$root'
@@ -1534,7 +1529,7 @@ var _renderIfBinding = require('./renderIfBinding');
 var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
 
-    if (!dataKey || cache.isOnce && !cache.hasIterationBindingCache) {
+    if (!dataKey || cache.isOnce && cache.hasIterationBindingCache === false) {
         return;
     }
 
@@ -1544,16 +1539,6 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     var oldViewModelProValue = cache.elementData.viewModelPropValue;
     // getViewModelPropValue could be return undefined or null
     var viewModelPropValue = (0, _util.getViewModelPropValue)(viewModel, cache) || false;
-
-    if (cache.filters && cache.filters.length) {
-        (0, _util.each)(cache.filters, function (index, value) {
-            if (value === _config.constants.filters.ONCE) {
-                cache.isOnce = true;
-            } else {
-                // TODO - curry value to each pipe
-            }
-        });
-    }
 
     // do nothing if viewModel value not changed and no child bindings
     if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
@@ -2569,7 +2554,7 @@ exports['default'] = textBinding;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.throwErrorMessage = exports.setViewModelValue = exports.resolveViewModelContext = exports.resolveParamList = exports.removeElement = exports.parseStringToJson = exports.isPlainObject = exports.isJsObject = exports.isEmptyObject = exports.isArray = exports.invertObj = exports.insertAfter = exports.getViewModelValue = exports.getViewModelPropValue = exports.getNodeAttrObj = exports.getFunctionParameterList = exports.getFilterList = exports.getFormData = exports.generateElementCache = exports.extend = exports.each = exports.debounceRaf = exports.cloneDomNode = exports.arrayRemoveMatch = exports.REGEX = undefined;
+exports.throwErrorMessage = exports.setViewModelValue = exports.resolveViewModelContext = exports.resolveParamList = exports.removeElement = exports.parseStringToJson = exports.isPlainObject = exports.isJsObject = exports.isEmptyObject = exports.isArray = exports.invertObj = exports.insertAfter = exports.getViewModelValue = exports.getViewModelPropValue = exports.getNodeAttrObj = exports.getFunctionParameterList = exports.getFormData = exports.generateElementCache = exports.extractFilterList = exports.extend = exports.each = exports.debounceRaf = exports.cloneDomNode = exports.arrayRemoveMatch = exports.REGEX = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -2682,7 +2667,35 @@ var getViewModelPropValue = function getViewModelPropValue(viewModel, bindingCac
         ret = ret.apply(viewModelContext, args);
     }
 
-    return isInvertBoolean ? !Boolean(ret) : ret;
+    ret = isInvertBoolean ? !Boolean(ret) : ret;
+
+    // call through fitlers to get final value
+    ret = filtersViewModelPropValue({
+        value: ret,
+        viewModel: viewModel,
+        bindingCache: bindingCache
+    });
+
+    return ret;
+};
+
+var filtersViewModelPropValue = function filtersViewModelPropValue(_ref) {
+    var value = _ref.value,
+        viewModel = _ref.viewModel,
+        bindingCache = _ref.bindingCache;
+
+    var ret = value;
+    if (bindingCache.filters) {
+        each(bindingCache.filters, function (index, filter) {
+            var viewModelContext = resolveViewModelContext(viewModel, filter);
+            try {
+                ret = filter.call(viewModelContext, ret);
+            } catch (err) {
+                throwErrorMessage(err, 'Invalid filter: ' + filter);
+            }
+        });
+    }
+    return ret;
 };
 
 var parseStringToJson = function parseStringToJson(str) {
@@ -2737,19 +2750,28 @@ var getFunctionParameterList = function getFunctionParameterList(str) {
     return paramlist;
 };
 
-var getFilterList = function getFilterList(str) {
-    var ret = void 0;
-    if (!str || str.length > config.maxDatakeyLength) {
-        return ret;
+var extractFilterList = function extractFilterList(cacheData) {
+    if (!cacheData || !cacheData.dataKey || cacheData.dataKey.length > config.maxDatakeyLength) {
+        return cacheData;
     }
-    var filterlist = str.split(REGEX.PIPE);
-    if (filterlist.length > 1) {
-        filterlist.forEach(function (v, i) {
-            filterlist[i] = v.trim();
+    var filterList = cacheData.dataKey.split(REGEX.PIPE);
+    var isOnceIndex = void 0;
+    cacheData.dataKey = filterList[0].trim();
+    if (filterList.length > 1) {
+        filterList.shift(0);
+        filterList.forEach(function (v, i) {
+            filterList[i] = v.trim();
+            if (filterList[i] === config.constants.filters.ONCE) {
+                cacheData.isOnce = true;
+                isOnceIndex = i;
+            }
         });
-        ret = filterlist;
+        if (isOnceIndex >= 0) {
+            filterList.splice(isOnceIndex, 1);
+        }
+        cacheData.filters = filterList;
     }
-    return ret;
+    return cacheData;
 };
 
 var invertObj = function invertObj(sourceObj) {
@@ -2994,9 +3016,9 @@ exports.cloneDomNode = cloneDomNode;
 exports.debounceRaf = debounceRaf;
 exports.each = each;
 exports.extend = extend;
+exports.extractFilterList = extractFilterList;
 exports.generateElementCache = generateElementCache;
 exports.getFormData = getFormData;
-exports.getFilterList = getFilterList;
 exports.getFunctionParameterList = getFunctionParameterList;
 exports.getNodeAttrObj = getNodeAttrObj;
 exports.getViewModelPropValue = getViewModelPropValue;

@@ -103,7 +103,31 @@ const getViewModelPropValue = (viewModel, bindingCache) => {
         ret = ret.apply(viewModelContext, args);
     }
 
-    return isInvertBoolean ? !Boolean(ret) : ret;
+    ret = isInvertBoolean ? !Boolean(ret) : ret;
+
+    // call through fitlers to get final value
+    ret = filtersViewModelPropValue({
+        value: ret,
+        viewModel: viewModel,
+        bindingCache: bindingCache,
+    });
+
+    return ret;
+};
+
+const filtersViewModelPropValue = ({value, viewModel, bindingCache}) => {
+    let ret = value;
+    if (bindingCache.filters) {
+        each(bindingCache.filters, (index, filter) => {
+            let viewModelContext = resolveViewModelContext(viewModel, filter);
+            try {
+                ret = filter.call(viewModelContext, ret);
+            } catch (err) {
+                throwErrorMessage(err, `Invalid filter: ${filter}`);
+            }
+        });
+    }
+    return ret;
 };
 
 const parseStringToJson = (str) => {
@@ -158,19 +182,28 @@ const getFunctionParameterList = (str) => {
     return paramlist;
 };
 
-const getFilterList = (str) => {
-    let ret;
-    if (!str || str.length > config.maxDatakeyLength) {
-        return ret;
+const extractFilterList = (cacheData) => {
+    if (!cacheData || !cacheData.dataKey || cacheData.dataKey.length > config.maxDatakeyLength) {
+        return cacheData;
     }
-    let filterlist = str.split(REGEX.PIPE);
-    if (filterlist.length > 1) {
-        filterlist.forEach(function(v, i) {
-            filterlist[i] = v.trim();
+    let filterList = cacheData.dataKey.split(REGEX.PIPE);
+    let isOnceIndex;
+    cacheData.dataKey = filterList[0].trim();
+    if (filterList.length > 1) {
+        filterList.shift(0);
+        filterList.forEach(function(v, i) {
+            filterList[i] = v.trim();
+            if (filterList[i] === config.constants.filters.ONCE) {
+                cacheData.isOnce = true;
+                isOnceIndex = i;
+            }
         });
-        ret = filterlist;
+        if (isOnceIndex >= 0) {
+            filterList.splice(isOnceIndex, 1);
+        }
+        cacheData.filters = filterList;
     }
-    return ret;
+    return cacheData;
 };
 
 const invertObj = (sourceObj) => {
@@ -406,9 +439,9 @@ export {
     debounceRaf,
     each,
     extend,
+    extractFilterList,
     generateElementCache,
     getFormData,
-    getFilterList,
     getFunctionParameterList,
     getNodeAttrObj,
     getViewModelPropValue,
