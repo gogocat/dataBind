@@ -119,9 +119,10 @@ const filtersViewModelPropValue = ({value, viewModel, bindingCache}) => {
     let ret = value;
     if (bindingCache.filters) {
         each(bindingCache.filters, (index, filter) => {
+            let filterFn = getViewModelValue(viewModel, filter);
             let viewModelContext = resolveViewModelContext(viewModel, filter);
             try {
-                ret = filter.call(viewModelContext, ret);
+                ret = filterFn.call(viewModelContext, ret);
             } catch (err) {
                 throwErrorMessage(err, `Invalid filter: ${filter}`);
             }

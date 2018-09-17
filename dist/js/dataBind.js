@@ -2384,7 +2384,6 @@ var _renderIfBinding = require('./renderIfBinding');
  */
 var switchBinding = function switchBinding(cache, viewModel, bindingAttrs) {
     var dataKey = cache.dataKey;
-    var paramList = cache.parameters;
 
     if (!dataKey) {
         return;
@@ -2392,19 +2391,13 @@ var switchBinding = function switchBinding(cache, viewModel, bindingAttrs) {
 
     cache.elementData = cache.elementData || {};
 
-    var newExpression = (0, _util.getViewModelValue)(viewModel, dataKey);
-    if (typeof newExpression === 'function') {
-        var viewModelContext = (0, _util.resolveViewModelContext)(viewModel, newExpression);
-        paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];
-        var args = paramList.slice(0);
-        newExpression = newExpression.apply(viewModelContext, args);
-    }
+    var newExpression = (0, _util.getViewModelPropValue)(viewModel, cache);
 
-    if (newExpression === cache.elementData.expression) {
+    if (newExpression === cache.elementData.viewModelPropValue) {
         return;
     }
 
-    cache.elementData.expression = newExpression;
+    cache.elementData.viewModelPropValue = newExpression;
 
     // build switch cases if not yet defined
     if (!cache.cases) {
@@ -2443,18 +2436,11 @@ var switchBinding = function switchBinding(cache, viewModel, bindingAttrs) {
         for (var j = 0, casesLength = cache.cases.length; j < casesLength; j += 1) {
             var newCaseValue = void 0;
             if (cache.cases[j].dataKey) {
-                newCaseValue = (0, _util.getViewModelValue)(viewModel, cache.cases[j].dataKey);
-                if (typeof newCaseValue === 'function') {
-                    var _viewModelContext = (0, _util.resolveViewModelContext)(viewModel, newCaseValue);
-                    var _paramList = _paramList ? (0, _util.resolveParamList)(viewModel, _paramList) : [];
-                    var _args = _paramList.slice(0);
-                    newCaseValue = newCaseValue.apply(_viewModelContext, _args);
-                }
                 // set back to dataKey if nothing found in viewModel
-                newCaseValue = newCaseValue || cache.cases[j].dataKey;
+                newCaseValue = (0, _util.getViewModelPropValue)(viewModel, cache.cases[j]) || cache.cases[j].dataKey;
             }
 
-            if (newCaseValue === cache.elementData.expression || cache.cases[j].isDefault) {
+            if (newCaseValue === cache.elementData.viewModelPropValue || cache.cases[j].isDefault) {
                 hasMatch = true;
                 // render element
                 (0, _renderIfBinding.renderIfBinding)({
@@ -2521,8 +2507,6 @@ var _util = require('./util');
  */
 var textBinding = function textBinding(cache, viewModel, bindingAttrs, forceRender) {
     var dataKey = cache.dataKey;
-    var paramList = cache.parameters;
-    var viewModelContext = void 0;
     var APP = viewModel.APP || viewModel.$root.APP;
 
     // NOTE: this doesn't work for for-of, if and switch bindings because element was not in DOM
@@ -2530,13 +2514,7 @@ var textBinding = function textBinding(cache, viewModel, bindingAttrs, forceRend
         return;
     }
 
-    var newValue = (0, _util.getViewModelValue)(viewModel, dataKey);
-    if (typeof newValue === 'function') {
-        viewModelContext = (0, _util.resolveViewModelContext)(viewModel, newValue);
-        paramList = paramList ? (0, _util.resolveParamList)(viewModel, paramList) : [];
-        var args = paramList.slice(0);
-        newValue = newValue.apply(viewModelContext, args);
-    }
+    var newValue = (0, _util.getViewModelPropValue)(viewModel, cache) || '';
     var oldValue = cache.el.textContent;
 
     if (typeof newValue !== 'undefined' && (typeof newValue === 'undefined' ? 'undefined' : _typeof(newValue)) !== 'object' && newValue !== null) {
@@ -2687,9 +2665,10 @@ var filtersViewModelPropValue = function filtersViewModelPropValue(_ref) {
     var ret = value;
     if (bindingCache.filters) {
         each(bindingCache.filters, function (index, filter) {
+            var filterFn = getViewModelValue(viewModel, filter);
             var viewModelContext = resolveViewModelContext(viewModel, filter);
             try {
-                ret = filter.call(viewModelContext, ret);
+                ret = filterFn.call(viewModelContext, ret);
             } catch (err) {
                 throwErrorMessage(err, 'Invalid filter: ' + filter);
             }
