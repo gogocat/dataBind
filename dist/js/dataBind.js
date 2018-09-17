@@ -1853,7 +1853,7 @@ var renderForOfBinding = function renderForOfBinding(_ref) {
     }
     var keys = void 0;
     var iterationDataLength = void 0;
-    var iterationData = (0, _util.getViewModelValue)(viewModel, bindingData.iterator.dataKey);
+    var iterationData = (0, _util.getViewModelPropValue)(viewModel, bindingData.iterator);
     var isRegenerate = false;
 
     // check iterationData and set iterationDataLength
