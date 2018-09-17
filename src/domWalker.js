@@ -1,4 +1,4 @@
-import {invertObj, getFilterList, getFunctionParameterList, REGEX} from './util';
+import {invertObj, extractFilterList, getFunctionParameterList, REGEX} from './util';
 import {constants} from './config';
 
 let bindingAttrsMap;
@@ -57,12 +57,7 @@ const populateBindingCache = ({node, attrObj, bindingCache, type}) => {
         };
 
         // populate cacheData.filters. update filterList first item as dataKey
-        let filterList = getFilterList(attrValue);
-        if (filterList && filterList.length > 1) {
-            cacheData.dataKey = filterList[0];
-            filterList.shift(0);
-            cacheData.filters = filterList;
-        }
+        cacheData = extractFilterList(cacheData);
 
         // populate cacheData.parameters
         // for store function call parameters eg. '$index', '$root'

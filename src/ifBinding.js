@@ -1,5 +1,5 @@
 import {bindingAttrs as configBindingAttrs, constants} from './config';
-import {getViewModelPropValue, each, removeElement} from './util';
+import {getViewModelPropValue, removeElement} from './util';
 import {createClonedElementCache, wrapCommentAround} from './commentWrapper';
 import {renderIfBinding, removeIfBinding} from './renderIfBinding';
 
@@ -14,7 +14,7 @@ import {renderIfBinding, removeIfBinding} from './renderIfBinding';
 const ifBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
 
-    if (!dataKey || (cache.isOnce && !cache.hasIterationBindingCache)) {
+    if (!dataKey || (cache.isOnce && cache.hasIterationBindingCache === false)) {
         return;
     }
 
@@ -24,16 +24,6 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     let oldViewModelProValue = cache.elementData.viewModelPropValue;
     // getViewModelPropValue could be return undefined or null
     let viewModelPropValue = getViewModelPropValue(viewModel, cache) || false;
-
-    if (cache.filters && cache.filters.length) {
-        each(cache.filters, (index, value) => {
-            if (value === constants.filters.ONCE) {
-                cache.isOnce = true;
-            } else {
-                // TODO - curry value to each pipe
-            }
-        });
-    }
 
     // do nothing if viewModel value not changed and no child bindings
     if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {

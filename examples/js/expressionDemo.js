@@ -9,6 +9,7 @@
         story: {
             title: 'Hansel and Gretel',
             pic: '',
+            date: '2017-01-26',
             description:
                 '"Hansel and Gretel" (also known as Hansel and Grettel, Hansel and Grethel, or Little Brother and Little Sister) is a well-known fairy tale of German origin, recorded by the Brothers Grimm and published in 1812. Hansel and Gretel are a young brother and sister kidnapped by a cannibalistic witch living deep in the forest in a house constructed of cake and confectionery. The two children escape with their lives by outwitting her. The tale has been adapted to various media, most notably the opera Hänsel und Gretel (1893) by Engelbert Humperdinck. Under the Aarne–Thompson classification system, "Hansel and Gretel" is classified under Class 327.',
         },
@@ -34,6 +35,31 @@
             e.preventDefault();
             this.story.pic = '';
             this.updateView();
+        },
+        toUpper: function(strg) {
+            return strg.toUpperCase();
+        },
+        toDateFormat: function(dateString) {
+            let date = new Date(dateString);
+            let monthNames = [
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'October',
+                'November',
+                'December',
+            ];
+            let day = date.getDate();
+            let monthIndex = date.getMonth();
+            let year = date.getFullYear();
+
+            return `${day} ${monthNames[monthIndex]} ${year}`;
         },
         updateView(opt) {
             this.APP.render(opt);

@@ -1,4 +1,4 @@
-import {getViewModelValue, resolveViewModelContext, resolveParamList} from './util';
+import {getViewModelPropValue} from './util';
 import {createClonedElementCache, wrapCommentAround} from './commentWrapper';
 import {renderIfBinding, removeIfBinding} from './renderIfBinding';
 /**
@@ -12,7 +12,6 @@ import {renderIfBinding, removeIfBinding} from './renderIfBinding';
  */
 const switchBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
-    let paramList = cache.parameters;
 
     if (!dataKey) {
         return;
@@ -20,19 +19,13 @@ const switchBinding = (cache, viewModel, bindingAttrs) => {
 
     cache.elementData = cache.elementData || {};
 
-    let newExpression = getViewModelValue(viewModel, dataKey);
-    if (typeof newExpression === 'function') {
-        let viewModelContext = resolveViewModelContext(viewModel, newExpression);
-        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-        let args = paramList.slice(0);
-        newExpression = newExpression.apply(viewModelContext, args);
-    }
+    let newExpression = getViewModelPropValue(viewModel, cache);
 
-    if (newExpression === cache.elementData.expression) {
+    if (newExpression === cache.elementData.viewModelPropValue) {
         return;
     }
 
-    cache.elementData.expression = newExpression;
+    cache.elementData.viewModelPropValue = newExpression;
 
     // build switch cases if not yet defined
     if (!cache.cases) {
@@ -71,18 +64,11 @@ const switchBinding = (cache, viewModel, bindingAttrs) => {
         for (let j = 0, casesLength = cache.cases.length; j < casesLength; j += 1) {
             let newCaseValue;
             if (cache.cases[j].dataKey) {
-                newCaseValue = getViewModelValue(viewModel, cache.cases[j].dataKey);
-                if (typeof newCaseValue === 'function') {
-                    let viewModelContext = resolveViewModelContext(viewModel, newCaseValue);
-                    let paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-                    let args = paramList.slice(0);
-                    newCaseValue = newCaseValue.apply(viewModelContext, args);
-                }
                 // set back to dataKey if nothing found in viewModel
-                newCaseValue = newCaseValue || cache.cases[j].dataKey;
+                newCaseValue = getViewModelPropValue(viewModel, cache.cases[j]) || cache.cases[j].dataKey;
             }
 
-            if (newCaseValue === cache.elementData.expression || cache.cases[j].isDefault) {
+            if (newCaseValue === cache.elementData.viewModelPropValue || cache.cases[j].isDefault) {
                 hasMatch = true;
                 // render element
                 renderIfBinding({
