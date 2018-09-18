@@ -1,0 +1,13 @@
+<section data-jq-comp="filter-component">
+    <div id="intro" class="container" data-jq-if="renderIntro | once">
+        <h1 id="intro-heading" data-jq-text="heading"></h1>
+        <p id="intro-description" data-jq-text="description"></p>
+    </div>
+    <div id="story" class="container" data-jq-if="!renderIntro | once" data-jq-tmp="{id: 'storyIntro', data: 'story'}"></div>
+</section>
+
+<template id="storyIntro">
+    <h1 id="storyIntroHeading" data-jq-text="story.title"></h1>
+    <p id="storyDescription" data-jq-text="story.description"></p>
+    <p id="stroyPrice">Price: <span data-jq-text="story.price | toDiscount | addGst"></span></p>
+</template>
