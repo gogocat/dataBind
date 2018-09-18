@@ -317,6 +317,7 @@ var Binder = function () {
 
             // apply bindings to rest of the DOM
             Binder.applyBinding({
+                ctx: this,
                 elementCache: this.elementCache,
                 updateOption: updateOption,
                 bindingAttrs: this.bindingAttrs,
@@ -372,7 +373,8 @@ var Binder = function () {
     }], [{
         key: 'applyBinding',
         value: function applyBinding(_ref) {
-            var elementCache = _ref.elementCache,
+            var ctx = _ref.ctx,
+                elementCache = _ref.elementCache,
                 updateOption = _ref.updateOption,
                 bindingAttrs = _ref.bindingAttrs,
                 viewModel = _ref.viewModel;
@@ -1550,7 +1552,10 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     // remove this cache from parent array
     if (!shouldRender && cache.isOnce && cache.el.parentNode) {
         (0, _util.removeElement)(cache.el);
-        cache[_config.constants.PARENT_REF].splice(cache[_config.constants.PARENT_REF].indexOf(cache), 1);
+        // todo defer removal because this context is still inside applyBinding ifBinding forEach loop
+        setTimeout(function () {
+            cache[_config.constants.PARENT_REF].splice(cache[_config.constants.PARENT_REF].indexOf(cache), 1);
+        });
         return;
     }
 
@@ -1581,7 +1586,9 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
         // remove this cache from parent array if no child caches
         if (cache.isOnce && !cache.hasIterationBindingCache) {
             // delete cache.fragment;
-            cache[_config.constants.PARENT_REF].splice(cache[_config.constants.PARENT_REF].indexOf(cache), 1);
+            setTimeout(function () {
+                cache[_config.constants.PARENT_REF].splice(cache[_config.constants.PARENT_REF].indexOf(cache), 1);
+            });
         }
     }
 };
@@ -2077,8 +2084,8 @@ var removeIfBinding = function removeIfBinding(bindingData) {
     (0, _commentWrapper.removeElemnetsByCommentWrap)(bindingData);
     // remove cache.IterationBindingCache to prevent memory leak
     if (bindingData.hasIterationBindingCache) {
-        bindingData.iterationBindingCache = {};
-        bindingData.hasIterationBindingCache = false;
+        delete bindingData.iterationBindingCache;
+        delete bindingData.hasIterationBindingCache;
     }
 };
 

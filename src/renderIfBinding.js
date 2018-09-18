@@ -67,8 +67,8 @@ const removeIfBinding = (bindingData) => {
     removeElemnetsByCommentWrap(bindingData);
     // remove cache.IterationBindingCache to prevent memory leak
     if (bindingData.hasIterationBindingCache) {
-        bindingData.iterationBindingCache = {};
-        bindingData.hasIterationBindingCache = false;
+        delete bindingData.iterationBindingCache;
+        delete bindingData.hasIterationBindingCache;
     }
 };
 

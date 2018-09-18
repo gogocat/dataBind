@@ -1,10 +1,10 @@
-describe('Given [data-jq-comp="if-component"] inited', () => {
+describe('Given [data-jq-comp="filter-component"] inited', () => {
     let namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
 
     beforeEach(function() {
-        loadFixtures('./fixtures/filter.html');
+        loadFixtures('./fixtures/filters.html');
 
         namespace.viewModel = {
             renderIntro: false,
@@ -49,24 +49,27 @@ describe('Given [data-jq-comp="if-component"] inited', () => {
         }
     });
 
-    it('Then [data-jq-comp="filter-component"] should render', (done) => {
-        let hasIntroElementLength = namespace.viewModel.renderIntro ? 1 : 0;
+    it('Then [data-jq-comp="filter-component"] should render story not intro', (done) => {
         setTimeout(() => {
-            expect($('#intro').length).toBe(hasIntroElementLength);
-            expect($('#story').length).toBe(!namespace.viewModel.renderIntro);
-            expect($('#story')[0].firstElementChild).not.toBe(null);
+            let $intro = document.getElementById('intro');
+            let $story = document.getElementById('story');
+
+            expect($intro).toBe(null);
+            expect($story).toBeDefined();
+            expect($story.firstElementChild).not.toBe(null);
             done();
         }, 200);
     });
 
-    it('Should not re-render intro with | once filter and negate story section', (done) => {
+    it('Should render intro but not story section', (done) => {
         namespace.filterComponent.viewModel.renderIntro = true;
         namespace.filterComponent.viewModel.updateView();
 
         setTimeout(() => {
-            expect($('#intro').length).toBe(0);
-            expect($('#story').length).toBe(1);
-            expect($('#story')[0].firstElementChild).toBe(null);
+            let $intro = document.getElementById('intro');
+            let $story = document.getElementById('story');
+            expect($intro).toBeDefined();
+            expect($story).toBe(null);
             done();
         }, 200);
     });

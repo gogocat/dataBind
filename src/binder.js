@@ -151,6 +151,7 @@ class Binder {
 
         // apply bindings to rest of the DOM
         Binder.applyBinding({
+            ctx: this,
             elementCache: this.elementCache,
             updateOption: updateOption,
             bindingAttrs: this.bindingAttrs,
@@ -160,7 +161,7 @@ class Binder {
         this.initRendered = true;
     }
 
-    static applyBinding({elementCache, updateOption, bindingAttrs, viewModel}) {
+    static applyBinding({ctx, elementCache, updateOption, bindingAttrs, viewModel}) {
         if (!elementCache || !updateOption) {
             return;
         }
