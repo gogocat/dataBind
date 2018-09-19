@@ -35,10 +35,14 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     // remove this cache from parent array
     if (!shouldRender && cache.isOnce && cache.el.parentNode) {
         removeElement(cache.el);
-        // todo defer removal because this context is still inside applyBinding ifBinding forEach loop
-        setTimeout(() => {
-            cache[constants.PARENT_REF].splice(cache[constants.PARENT_REF].indexOf(cache), 1);
-        });
+        // delete cache.fragment;
+        if (viewModel.APP.postProcessQueue) {
+            viewModel.APP.postProcessQueue.push(
+                ((cache, index) => () => {
+                    cache[constants.PARENT_REF].splice(index, 1);
+                })(cache, cache[constants.PARENT_REF].indexOf(cache))
+            );
+        }
         return;
     }
 
@@ -69,9 +73,13 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
         // remove this cache from parent array if no child caches
         if (cache.isOnce && !cache.hasIterationBindingCache) {
             // delete cache.fragment;
-            setTimeout(() => {
-                cache[constants.PARENT_REF].splice(cache[constants.PARENT_REF].indexOf(cache), 1);
-            });
+            if (viewModel.APP.postProcessQueue) {
+                viewModel.APP.postProcessQueue.push(
+                    ((cache, index) => () => {
+                        cache[constants.PARENT_REF].splice(index, 1);
+                    })(cache, cache[constants.PARENT_REF].indexOf(cache))
+                );
+            }
         }
     }
 };

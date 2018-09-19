@@ -1,5 +1,5 @@
 import * as config from './config';
-import {debounceRaf, extend} from './util';
+import {debounceRaf, extend, each, throwErrorMessage} from './util';
 import renderTemplate from './renderTemplate';
 import clickBinding from './clickBinding';
 import dblclickBinding from './dbclickBinding';
@@ -139,6 +139,9 @@ class Binder {
             updateOption = createBindingOption('', opt);
         }
 
+        // create postProcessQueue before start rendering
+        this.postProcessQueue = [];
+
         // render and apply binding to template(s)
         // this is an share function therefore passing 'this' context
         renderTemplatesBinding({
@@ -157,6 +160,11 @@ class Binder {
             bindingAttrs: this.bindingAttrs,
             viewModel: this.viewModel,
         });
+
+        // trigger postProcess
+        Binder.postProcess(this.postProcessQueue);
+        // clear postProcessQueue
+        this.postProcessQueue.length = 0;
 
         this.initRendered = true;
     }
@@ -288,6 +296,21 @@ class Binder {
                 hoverBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
             });
         }
+    }
+
+    static postProcess(tasks) {
+        if (!tasks || !tasks.length) {
+            return;
+        }
+        each(tasks, (index, task) => {
+            if (typeof task === 'function') {
+                try {
+                    task();
+                } catch (err) {
+                    throwErrorMessage(err, 'Error postProcess: ' + String(task));
+                }
+            }
+        });
     }
 
     subscribe(eventName = '', fn) {

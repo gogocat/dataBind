@@ -305,6 +305,9 @@ var Binder = function () {
                 updateOption = createBindingOption('', opt);
             }
 
+            // create postProcessQueue before start rendering
+            this.postProcessQueue = [];
+
             // render and apply binding to template(s)
             // this is an share function therefore passing 'this' context
             renderTemplatesBinding({
@@ -323,6 +326,11 @@ var Binder = function () {
                 bindingAttrs: this.bindingAttrs,
                 viewModel: this.viewModel
             });
+
+            // trigger postProcess
+            Binder.postProcess(this.postProcessQueue);
+            // clear postProcessQueue
+            this.postProcessQueue.length = 0;
 
             this.initRendered = true;
         }
@@ -489,6 +497,22 @@ var Binder = function () {
                     (0, _hoverBinding2['default'])(cache, viewModel, bindingAttrs, updateOption.forceRender);
                 });
             }
+        }
+    }, {
+        key: 'postProcess',
+        value: function postProcess(tasks) {
+            if (!tasks || !tasks.length) {
+                return;
+            }
+            (0, _util.each)(tasks, function (index, task) {
+                if (typeof task === 'function') {
+                    try {
+                        task();
+                    } catch (err) {
+                        (0, _util.throwErrorMessage)(err, 'Error postProcess: ' + String(task));
+                    }
+                }
+            });
         }
     }]);
 
@@ -1552,10 +1576,14 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
     // remove this cache from parent array
     if (!shouldRender && cache.isOnce && cache.el.parentNode) {
         (0, _util.removeElement)(cache.el);
-        // todo defer removal because this context is still inside applyBinding ifBinding forEach loop
-        setTimeout(function () {
-            cache[_config.constants.PARENT_REF].splice(cache[_config.constants.PARENT_REF].indexOf(cache), 1);
-        });
+        // delete cache.fragment;
+        if (viewModel.APP.postProcessQueue) {
+            viewModel.APP.postProcessQueue.push(function (cache, index) {
+                return function () {
+                    cache[_config.constants.PARENT_REF].splice(index, 1);
+                };
+            }(cache, cache[_config.constants.PARENT_REF].indexOf(cache)));
+        }
         return;
     }
 
@@ -1586,9 +1614,13 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
         // remove this cache from parent array if no child caches
         if (cache.isOnce && !cache.hasIterationBindingCache) {
             // delete cache.fragment;
-            setTimeout(function () {
-                cache[_config.constants.PARENT_REF].splice(cache[_config.constants.PARENT_REF].indexOf(cache), 1);
-            });
+            if (viewModel.APP.postProcessQueue) {
+                viewModel.APP.postProcessQueue.push(function (cache, index) {
+                    return function () {
+                        cache[_config.constants.PARENT_REF].splice(index, 1);
+                    };
+                }(cache, cache[_config.constants.PARENT_REF].indexOf(cache)));
+            }
         }
     }
 };
