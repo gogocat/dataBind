@@ -31,7 +31,7 @@ describe('Given [data-jq-comp="filter-component"] inited', () => {
                 };
             },
             updateView: function(opt) {
-                this.APP.render(opt);
+                return this.APP.render(opt);
             },
         };
 
@@ -49,28 +49,26 @@ describe('Given [data-jq-comp="filter-component"] inited', () => {
         }
     });
 
-    it('Then [data-jq-comp="filter-component"] should render story not intro', (done) => {
+    it('Then [data-jq-comp="filter-component"] should render story with once filter and not intro', (done) => {
         setTimeout(() => {
             let $intro = document.getElementById('intro');
             let $story = document.getElementById('story');
 
             expect($intro).toBe(null);
-            expect($story).toBeDefined();
+            expect($story).not.toBe(null);
             expect($story.firstElementChild).not.toBe(null);
             done();
         }, 200);
     });
 
-    it('Should render intro but not story section', (done) => {
+    it('Should render intro but not story section after update viewModel', (done) => {
         namespace.filterComponent.viewModel.renderIntro = true;
-        namespace.filterComponent.viewModel.updateView();
-
-        setTimeout(() => {
+        namespace.filterComponent.viewModel.updateView().then(() => {
             let $intro = document.getElementById('intro');
             let $story = document.getElementById('story');
-            expect($intro).toBeDefined();
+            expect($intro).not.toBe(null);
             expect($story).toBe(null);
             done();
-        }, 200);
+        });
     });
 });
