@@ -165,6 +165,7 @@ class Binder {
         Binder.postProcess(this.postProcessQueue);
         // clear postProcessQueue
         this.postProcessQueue.length = 0;
+        delete this.postProcessQueue;
 
         this.initRendered = true;
     }
