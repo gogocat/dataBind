@@ -39,7 +39,7 @@ gulp.task('bundle', () => {
     }).transform(
         babelify.configure({
             // configure babel: https://babeljs.io/docs/usage/options/
-            presets: ['es2015'],
+            presets: ['@babel/preset-env'],
             plugins: ['transform-es3-member-expression-literals', 'transform-es3-property-literals'],
         })
     );
