@@ -14,6 +14,7 @@ import {renderIfBinding, removeIfBinding} from './renderIfBinding';
 const ifBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
 
+    // isOnce only return if there is no child bindings
     if (!dataKey || (cache.isOnce && cache.hasIterationBindingCache === false)) {
         return;
     }
@@ -36,13 +37,10 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     if (!shouldRender && cache.isOnce && cache.el.parentNode) {
         removeElement(cache.el);
         // delete cache.fragment;
-        if (viewModel.APP.postProcessQueue) {
-            viewModel.APP.postProcessQueue.push(
-                ((cache, index) => () => {
-                    cache[constants.PARENT_REF].splice(index, 1);
-                })(cache, cache[constants.PARENT_REF].indexOf(cache))
-            );
-        }
+        removeBindingInQueue({
+            viewModel: viewModel,
+            cache: cache,
+        });
         return;
     }
 
@@ -73,15 +71,25 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
         // remove this cache from parent array if no child caches
         if (cache.isOnce && !cache.hasIterationBindingCache) {
             // delete cache.fragment;
-            if (viewModel.APP.postProcessQueue) {
-                viewModel.APP.postProcessQueue.push(
-                    ((cache, index) => () => {
-                        cache[constants.PARENT_REF].splice(index, 1);
-                    })(cache, cache[constants.PARENT_REF].indexOf(cache))
-                );
-            }
+            removeBindingInQueue({
+                viewModel: viewModel,
+                cache: cache,
+            });
         }
     }
+};
+
+const removeBindingInQueue = ({viewModel, cache}) => {
+    let ret = false;
+    if (viewModel.APP.postProcessQueue) {
+        viewModel.APP.postProcessQueue.push(
+            ((cache, index) => () => {
+                cache[constants.PARENT_REF].splice(index, 1);
+            })(cache, cache[constants.PARENT_REF].indexOf(cache))
+        );
+        ret = true;
+    }
+    return ret;
 };
 
 export default ifBinding;

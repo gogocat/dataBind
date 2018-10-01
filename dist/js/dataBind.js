@@ -1551,7 +1551,7 @@ var _renderIfBinding = require("./renderIfBinding");
  * @param {object} bindingAttrs
  */
 var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
-  var dataKey = cache.dataKey;
+  var dataKey = cache.dataKey; // isOnce only return if there is no child bindings
 
   if (!dataKey || cache.isOnce && cache.hasIterationBindingCache === false) {
     return;
@@ -1572,14 +1572,10 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
   if (!shouldRender && cache.isOnce && cache.el.parentNode) {
     (0, _util.removeElement)(cache.el); // delete cache.fragment;
 
-    if (viewModel.APP.postProcessQueue) {
-      viewModel.APP.postProcessQueue.push(function (cache, index) {
-        return function () {
-          cache[_config.constants.PARENT_REF].splice(index, 1);
-        };
-      }(cache, cache[_config.constants.PARENT_REF].indexOf(cache)));
-    }
-
+    removeBindingInQueue({
+      viewModel: viewModel,
+      cache: cache
+    });
     return;
   } // store new show status
 
@@ -1608,15 +1604,29 @@ var ifBinding = function ifBinding(cache, viewModel, bindingAttrs) {
 
     if (cache.isOnce && !cache.hasIterationBindingCache) {
       // delete cache.fragment;
-      if (viewModel.APP.postProcessQueue) {
-        viewModel.APP.postProcessQueue.push(function (cache, index) {
-          return function () {
-            cache[_config.constants.PARENT_REF].splice(index, 1);
-          };
-        }(cache, cache[_config.constants.PARENT_REF].indexOf(cache)));
-      }
+      removeBindingInQueue({
+        viewModel: viewModel,
+        cache: cache
+      });
     }
   }
+};
+
+var removeBindingInQueue = function removeBindingInQueue(_ref) {
+  var viewModel = _ref.viewModel,
+      cache = _ref.cache;
+  var ret = false;
+
+  if (viewModel.APP.postProcessQueue) {
+    viewModel.APP.postProcessQueue.push(function (cache, index) {
+      return function () {
+        cache[_config.constants.PARENT_REF].splice(index, 1);
+      };
+    }(cache, cache[_config.constants.PARENT_REF].indexOf(cache)));
+    ret = true;
+  }
+
+  return ret;
 };
 
 var _default = ifBinding;
@@ -2069,12 +2079,14 @@ var renderIfBinding = function renderIfBinding(_ref) {
     return;
   }
 
-  var isDomRemoved = isTargetDomRemoved(bindingData); // use fragment for create iterationBindingCache
+  var isDomRemoved = isTargetDomRemoved(bindingData);
+  var rootElement = bindingData.el; // remove current old DOM.
+  // TODO: try preserve DOM
 
-  var rootElement = bindingData.fragment.firstChild.cloneNode(true); // remove current old DOM.
+  if (!isDomRemoved && !bindingData.isOnce) {
+    removeIfBinding(bindingData); // use fragment for create iterationBindingCache
 
-  if (!isDomRemoved) {
-    removeIfBinding(bindingData);
+    rootElement = bindingData.fragment.firstChild.cloneNode(true);
   } // walk clonedElement to create iterationBindingCache
 
 
