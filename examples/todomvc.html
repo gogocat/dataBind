@@ -22,8 +22,8 @@
         </section>
         <footer id="footer" data-jq-show="hasTask">
             <span id="todo-count">
-					<strong data-jq-text="remainingCount">0</strong>
-					<span data-jq-text="remainingCountLabel"></span> left
+                <strong data-jq-text="remainingCount">0</strong>
+                <span data-jq-text="remainingCountLabel"></span> left
             </span>
             <ul id="filters">
                 <li>
@@ -36,7 +36,8 @@
                     <a data-jq-css="showCompletedCss" data-jq-click="onShowCompletedTasks" href="#/completed">Completed</a>
                 </li>
             </ul>
-            <button id="clear-completed" data-jq-show="hasCompletedTask" data-jq-click="onClearAllCompleted">Clear completed</button>
+            <button id="clear-completed" data-jq-show="hasCompletedTask" data-jq-click="onClearAllCompleted">Clear
+                completed</button>
         </footer>
     </section>
 
@@ -45,18 +46,19 @@
     <script src="../dist/js/dataBind.js"></script>
     <script src="js/appTodo.js"></script>
 
-    <script id="taskItems" type="text/html">
-        <%  _.each(data, function(task, index) {  %>
-            <li data-jq-css="displayTasks[{{index}}]" data-index="{{index}}">
-                <div class="view">
-                    <input class="toggle" data-jq-model="displayTasks[{{index}}].completed" data-jq-change="onTaskCompleted" type="checkbox">
-                    <label for="taskEdit-{{index}}" data-jq-dblclick="onEditTask">{{task.taskTitle}}</label>
-                    <button class="destroy" data-jq-click="onTaskRemove"></button>
-                </div>
-                <input id="taskEdit-{{index}}" class="edit" type="text" data-jq-model="displayTasks[{{index}}].taskTitle" data-jq-blur="onBlurEditTask">
-            </li>
-            <% }); %>
-    </script>
+    <template id="taskItems">
+        <li data-jq-for="task of displayTasks" data-jq-css="task">
+            <div class="view">
+                <input class="toggle" data-jq-model="task.completed" data-jq-change="$root.onTaskCompleted($index)"
+                    type="checkbox">
+                <label data-jq-attr="$root.setTaskLabelAttr($index)" data-jq-dblclick="$root.onEditTask($index)"
+                    data-jq-text="task.taskTitle"></label>
+                <button class="destroy" data-jq-click="$root.onTaskRemove($index)"></button>
+            </div>
+            <input data-jq-attr="$root.setTaskInputAttr($index)" class="edit" type="text" data-jq-model="task.taskTitle"
+                data-jq-blur="$root.onBlurEditTask($index)">
+        </li>
+    </template>
 </body>
 
 </html>
