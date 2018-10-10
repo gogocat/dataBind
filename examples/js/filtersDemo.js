@@ -1,7 +1,7 @@
 (($, window) => {
-    let expressionComponent;
+    let filterComponent;
 
-    const expressionComponentViewModel = {
+    const filterComponentViewModel = {
         renderIntro: true,
         heading: 'Test expression filter',
         description: 'Filters are functions that run after a pie token "|". eg making if binding only run logic once.',
@@ -72,11 +72,11 @@
     // start binding on DOM ready
     $(document).ready(() => {
         // main
-        expressionComponent = dataBind.init($('[data-jq-comp="expressionComponent"]'), expressionComponentViewModel);
-        expressionComponent.render().then(function() {
+        filterComponent = dataBind.init($('[data-jq-comp="filterComponent"]'), filterComponentViewModel);
+        filterComponent.render().then(function() {
             // for debug
-            console.log(expressionComponent);
-            window.expressionComponent = expressionComponent;
+            console.log(filterComponent);
+            window.filterComponent = filterComponent;
         });
     });
 })(jQuery, window);
