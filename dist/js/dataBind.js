@@ -2726,8 +2726,8 @@ var filtersViewModelPropValue = function filtersViewModelPropValue(_ref) {
 
   if (bindingCache.filters) {
     each(bindingCache.filters, function (index, filter) {
-      var filterFn = getViewModelValue(viewModel, filter);
       var viewModelContext = resolveViewModelContext(viewModel, filter);
+      var filterFn = getViewModelValue.call(viewModelContext, viewModelContext, filter);
 
       try {
         ret = filterFn.call(viewModelContext, ret);

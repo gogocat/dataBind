@@ -30,10 +30,6 @@ describe('Given [data-jq-comp="filter-component"] inited', () => {
             },
         };
 
-        // jasmine spies
-        spyOn(namespace.viewModel.toDiscount, 'toDiscount');
-        spyOn(namespace.viewModel.addGst, 'addGst');
-
         namespace.filterComponent = dataBind.init($('[data-jq-comp="filter-component"]'), namespace.viewModel);
         namespace.filterComponent.render().then(() => done());
     });
@@ -61,7 +57,7 @@ describe('Given [data-jq-comp="filter-component"] inited', () => {
         namespace.filterComponent.viewModel.updateView().then(() => {
             let $intro = document.getElementById('intro');
             let $story = document.getElementById('story');
-            expect($intro).not.toBe(null);
+            expect($intro).toBe(null);
             expect($story).toBe(null);
             done();
         });
@@ -74,8 +70,6 @@ describe('Given [data-jq-comp="filter-component"] inited', () => {
         let finalPrice = namespace.viewModel.addGst(discountedPrice);
 
         expect($story).not.toBe(null);
-        expect(namespace.viewModel.toDiscount).toHaveBeenCalledWith(namespace.viewModel.story.price);
-        expect(namespace.viewModel.addGst).toHaveBeenCalledWith(discountedPrice);
-        expect(stroyPrice).toBe(finalPrice);
+        expect(Number(stroyPrice)).toBe(finalPrice);
     });
 });

@@ -119,8 +119,8 @@ const filtersViewModelPropValue = ({value, viewModel, bindingCache}) => {
     let ret = value;
     if (bindingCache.filters) {
         each(bindingCache.filters, (index, filter) => {
-            let filterFn = getViewModelValue(viewModel, filter);
             let viewModelContext = resolveViewModelContext(viewModel, filter);
+            let filterFn = getViewModelValue.call(viewModelContext, viewModelContext, filter);
             try {
                 ret = filterFn.call(viewModelContext, ret);
             } catch (err) {

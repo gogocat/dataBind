@@ -9,5 +9,5 @@
 <template id="storyIntro">
     <h1 id="storyIntroHeading" data-jq-text="story.title"></h1>
     <p id="storyDescription" data-jq-text="story.description"></p>
-    <p id="stroyPrice">Price: <span data-jq-text="story.price | toDiscount | addGst"></span></p>
+    <p>Price: <span id="stroyPrice" data-jq-text="story.price | $root.toDiscount | $root.addGst"></span></p>
 </template>
