@@ -2087,7 +2087,7 @@ var renderIfBinding = function renderIfBinding(_ref) {
     removeIfBinding(bindingData); // use fragment for create iterationBindingCache
 
     rootElement = bindingData.fragment.firstChild.cloneNode(true);
-  } // walk clonedElement to create iterationBindingCache
+  } // walk clonedElement to create iterationBindingCache once
 
 
   if (!bindingData.iterationBindingCache || !bindingData.hasIterationBindingCache) {
@@ -2108,6 +2108,7 @@ var renderIfBinding = function renderIfBinding(_ref) {
       isRegenerate: true
     });
   } // insert to new rendered DOM
+  // TODO: check unnecessary insertion when DOM is preserved
 
 
   (0, _commentWrapper.insertRenderedElements)(bindingData, rootElement);
@@ -2562,7 +2563,7 @@ var textBinding = function textBinding(cache, viewModel, bindingAttrs, forceRend
     return;
   }
 
-  var newValue = (0, _util.getViewModelPropValue)(viewModel, cache) || '';
+  var newValue = (0, _util.getViewModelPropValue)(viewModel, cache);
   var oldValue = cache.el.textContent;
 
   if (typeof newValue !== 'undefined' && _typeof(newValue) !== 'object' && newValue !== null) {

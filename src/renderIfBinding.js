@@ -41,7 +41,7 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
         rootElement = bindingData.fragment.firstChild.cloneNode(true);
     }
 
-    // walk clonedElement to create iterationBindingCache
+    // walk clonedElement to create iterationBindingCache once
     if (!bindingData.iterationBindingCache || !bindingData.hasIterationBindingCache) {
         bindingData.iterationBindingCache = createBindingCache({
             rootNode: rootElement,
@@ -62,6 +62,7 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     }
 
     // insert to new rendered DOM
+    // TODO: check unnecessary insertion when DOM is preserved
     insertRenderedElements(bindingData, rootElement);
 };
 

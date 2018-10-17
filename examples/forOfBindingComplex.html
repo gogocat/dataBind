@@ -35,17 +35,17 @@
     </template>
 
     <template id="searchResultItemBody">
-        <h4 class="card-title">{{data.title}}</h4>
-        <p class="card-text">{{data.description}}</p>
-        <small>searchResultItemBody index: {{data.$index}}</small>
+        <h4 class="card-title" data-jq-text="$data.title"></h4>
+        <p class="card-text" data-jq-text="$data.description"></p>
+        <small>searchResultItemBody index: <span data-jq-text="$index"></span></small>
     </template>
 
     <template id="searchResultItemFooter">
         <div class="card-footer result-item__footer">
-            <small>searchResultItemFooter index: {{data.$index}}</small>
+            <small>searchResultItemFooter index: <span data-jq-text="$index"></span></small>
             <div class="result-item__icon-checkbox-wrap">
-                <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}" data-jq-model="$data.selected"
-                    data-jq-change="$root.onAdMessageCheck($index)">
+                <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}"
+                    data-jq-model="$data.selected" data-jq-change="$root.onAdMessageCheck($index)">
                 <label for="{{data.id}}" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
             </div>
             <div class="form-group">
@@ -61,10 +61,10 @@
 
     <template id="searchResultItemBookMark">
         <div>
-            <small>searchResultItemBookMark index: {{data.$index}}</small>
+            <small>searchResultItemBookMark index: <span data-jq-text="$index"></span></small>
         </div>
         <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="result.bookmarkedCss" data-jq-click="$root.onAdBookmarkClick($index)"></span>
-        <span class="oi result-item__icon" data-glyph="thumb-up">{{data.numLikes}}</span>
+        <span class="oi result-item__icon" data-glyph="thumb-up" data-jq-text="$data.numLikes"></span>
     </template>
 
     <script src="../vendors/lodash.custom.min.js"></script>

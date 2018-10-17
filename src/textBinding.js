@@ -18,7 +18,7 @@ const textBinding = (cache, viewModel, bindingAttrs, forceRender) => {
         return;
     }
 
-    let newValue = getViewModelPropValue(viewModel, cache) || '';
+    let newValue = getViewModelPropValue(viewModel, cache);
     let oldValue = cache.el.textContent;
 
     if (typeof newValue !== 'undefined' && typeof newValue !== 'object' && newValue !== null) {
