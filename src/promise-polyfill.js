@@ -7,7 +7,7 @@
             constructor(executor) {
                 this.then = this.then.bind(this);
                 this.catch = this.catch.bind(this);
-                this.deferred = $.Deferred();
+                this.deferred = $.Deferred(); // eslint-disable-line new-cap
                 executor(this.deferred.resolve, this.deferred.reject);
             }
 
@@ -22,7 +22,7 @@
             static race(promises) {
                 let promise;
                 let settled = false;
-                const winner = $.Deferred();
+                const winner = $.Deferred(); // eslint-disable-line new-cap
 
                 const settle = function(settler, value) {
                     if (!settled) {
@@ -49,13 +49,13 @@
             }
 
             static reject(value) {
-                const deferred = $.Deferred();
+                const deferred = $.Deferred(); // eslint-disable-line new-cap
                 deferred.reject(value);
                 return deferred.promise();
             }
 
             static resolve(value) {
-                const deferred = $.Deferred();
+                const deferred = $.Deferred(); // eslint-disable-line new-cap
                 deferred.resolve(value);
                 return deferred.promise();
             }
