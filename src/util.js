@@ -9,10 +9,10 @@ const REGEX = {
     FUNCTIONPARAM: /\((.*?)\)/,
     WHITESPACES: /\s+/g,
     FOROF: /(.*?)\s+(?:in|of)\s+(.*)/,
-    PIPE: /\|/
+    PIPE: /\|/,
 };
 
-const generateElementCache = bindingAttrs => {
+const generateElementCache = (bindingAttrs) => {
     let elementCache = {};
     $.each(bindingAttrs, function(k, v) {
         elementCache[v] = [];
@@ -20,15 +20,15 @@ const generateElementCache = bindingAttrs => {
     return elementCache;
 };
 
-const isArray = obj => {
+const isArray = (obj) => {
     return hasIsArray ? Array.isArray(obj) : Object.prototype.toString.call(obj) === '[object Array]';
 };
 
-const isJsObject = obj => {
+const isJsObject = (obj) => {
     return obj !== null && typeof obj === 'object' && Object.prototype.toString.call(obj) === '[object Object]';
 };
 
-const isPlainObject = obj => {
+const isPlainObject = (obj) => {
     let ctor;
     let prot;
 
@@ -53,7 +53,7 @@ const isPlainObject = obj => {
     return true;
 };
 
-const isEmptyObject = obj => {
+const isEmptyObject = (obj) => {
     if (isJsObject(obj)) {
         return Object.getOwnPropertyNames(obj).length === 0;
     }
@@ -109,13 +109,13 @@ const getViewModelPropValue = (viewModel, bindingCache) => {
     ret = filtersViewModelPropValue({
         value: ret,
         viewModel: viewModel,
-        bindingCache: bindingCache
+        bindingCache: bindingCache,
     });
 
     return ret;
 };
 
-const filtersViewModelPropValue = ({ value, viewModel, bindingCache }) => {
+const filtersViewModelPropValue = ({value, viewModel, bindingCache}) => {
     let ret = value;
     if (bindingCache.filters) {
         each(bindingCache.filters, (index, filter) => {
@@ -131,7 +131,7 @@ const filtersViewModelPropValue = ({ value, viewModel, bindingCache }) => {
     return ret;
 };
 
-const parseStringToJson = str => {
+const parseStringToJson = (str) => {
     // fix unquote or single quote keys and replace single quote to double quote
     let ret = str.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":').replace(/'/g, '"');
     return JSON.parse(ret);
@@ -150,11 +150,11 @@ const arrayRemoveMatch = (toArray, frommArray) => {
     });
 };
 
-const getFormData = $form => {
+const getFormData = ($form) => {
     let sArray = $form.serializeArray();
     let data = {};
 
-    sArray.map(n => {
+    sArray.map((n) => {
         data[n['name']] = n['value'];
     });
 
@@ -168,7 +168,7 @@ const getFormData = $form => {
  * @param {string} str
  * @return {array} paramlist
  */
-const getFunctionParameterList = str => {
+const getFunctionParameterList = (str) => {
     if (!str || str.length > config.maxDatakeyLength) {
         return;
     }
@@ -183,7 +183,7 @@ const getFunctionParameterList = str => {
     return paramlist;
 };
 
-const extractFilterList = cacheData => {
+const extractFilterList = (cacheData) => {
     if (!cacheData || !cacheData.dataKey || cacheData.dataKey.length > config.maxDatakeyLength) {
         return cacheData;
     }
@@ -207,7 +207,7 @@ const extractFilterList = cacheData => {
     return cacheData;
 };
 
-const invertObj = sourceObj => {
+const invertObj = (sourceObj) => {
     return Object.keys(sourceObj).reduce(function(obj, key) {
         obj[sourceObj[key]] = key;
         return obj;
@@ -232,6 +232,7 @@ const debounceRaf = (fn, ctx = null) => {
             /* eslint-disable prefer-rest-params */
             args = Array.from ? Array.from(arguments) : Array.prototype.slice.call(arguments);
 
+            /*
             window.cancelAnimationFrame(rafId);
             rafId = window.requestAnimationFrame(() => {
                 $.when(fn.apply(ctx, args)).then(
@@ -241,6 +242,17 @@ const debounceRaf = (fn, ctx = null) => {
                 );
                 dfObj = $.Deferred(); // eslint-disable-line new-cap
                 window.cancelAnimationFrame(rafId);
+            });
+            */
+            window.clearTimeout(rafId);
+            rafId = setTimeout(() => {
+                $.when(fn.apply(ctx, args)).then(
+                    dfObj.resolve.apply(ctx, arguments),
+                    dfObj.reject.apply(ctx, arguments),
+                    dfObj.notify.apply(ctx, arguments)
+                );
+                dfObj = $.Deferred(); // eslint-disable-line new-cap
+                window.clearTimeout(rafId);
             });
             /* eslint-enable prefer-rest-params */
             return dfObj.promise();
@@ -278,7 +290,7 @@ const getNodeAttrObj = (node, skipList) => {
     }
 
     if (isArray(skipArray)) {
-        skipArray.forEach(item => {
+        skipArray.forEach((item) => {
             if (attrObj[item]) {
                 delete attrObj[item];
             }
@@ -308,7 +320,7 @@ const extend = (isDeepMerge = false, target, ...sources) => {
     }
 
     if (isMergebleObject(target) && isMergebleObject(source)) {
-        Object.keys(source).forEach(key => {
+        Object.keys(source).forEach((key) => {
             if (isMergebleObject(source[key])) {
                 if (!target[key]) {
                     target[key] = {};
@@ -355,7 +367,7 @@ const each = (obj, fn) => {
     }
 };
 
-const isMergebleObject = item => {
+const isMergebleObject = (item) => {
     return isJsObject(item) && !isArray(item);
 };
 
@@ -365,7 +377,7 @@ const isMergebleObject = item => {
  * @return {object} cloned element
  * @description helper function to clone node
  */
-const cloneDomNode = element => {
+const cloneDomNode = (element) => {
     return element.cloneNode(true);
 };
 
@@ -403,7 +415,7 @@ const resolveParamList = (viewModel, paramList) => {
     if (!viewModel || !isArray(paramList)) {
         return;
     }
-    return paramList.map(param => {
+    return paramList.map((param) => {
         param = param.trim();
 
         if (param === config.bindingDataReference.currentIndex) {
@@ -420,7 +432,7 @@ const resolveParamList = (viewModel, paramList) => {
     });
 };
 
-const removeElement = el => {
+const removeElement = (el) => {
     if (el && el.parentNode) {
         el.parentNode.removeChild(el);
     }
@@ -459,5 +471,5 @@ export {
     resolveParamList,
     resolveViewModelContext,
     setViewModelValue,
-    throwErrorMessage
+    throwErrorMessage,
 };
