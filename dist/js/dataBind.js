@@ -2865,25 +2865,12 @@ var debounceRaf = function debounceRaf(fn) {
       /* eslint-disable prefer-rest-params */
 
       args = Array.from ? Array.from(arguments) : Array.prototype.slice.call(arguments);
-      /*
       window.cancelAnimationFrame(rafId);
-      rafId = window.requestAnimationFrame(() => {
-          $.when(fn.apply(ctx, args)).then(
-              dfObj.resolve.apply(ctx, arguments),
-              dfObj.reject.apply(ctx, arguments),
-              dfObj.notify.apply(ctx, arguments)
-          );
-          dfObj = $.Deferred(); // eslint-disable-line new-cap
-          window.cancelAnimationFrame(rafId);
-      });
-      */
-
-      window.clearTimeout(rafId);
-      rafId = setTimeout(function () {
+      rafId = window.requestAnimationFrame(function () {
         $.when(fn.apply(ctx, args)).then(dfObj.resolve.apply(ctx, _arguments), dfObj.reject.apply(ctx, _arguments), dfObj.notify.apply(ctx, _arguments));
         dfObj = $.Deferred(); // eslint-disable-line new-cap
 
-        window.clearTimeout(rafId);
+        window.cancelAnimationFrame(rafId);
       });
       /* eslint-enable prefer-rest-params */
 

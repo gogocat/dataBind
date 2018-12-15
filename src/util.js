@@ -232,7 +232,6 @@ const debounceRaf = (fn, ctx = null) => {
             /* eslint-disable prefer-rest-params */
             args = Array.from ? Array.from(arguments) : Array.prototype.slice.call(arguments);
 
-            /*
             window.cancelAnimationFrame(rafId);
             rafId = window.requestAnimationFrame(() => {
                 $.when(fn.apply(ctx, args)).then(
@@ -242,17 +241,6 @@ const debounceRaf = (fn, ctx = null) => {
                 );
                 dfObj = $.Deferred(); // eslint-disable-line new-cap
                 window.cancelAnimationFrame(rafId);
-            });
-            */
-            window.clearTimeout(rafId);
-            rafId = setTimeout(() => {
-                $.when(fn.apply(ctx, args)).then(
-                    dfObj.resolve.apply(ctx, arguments),
-                    dfObj.reject.apply(ctx, arguments),
-                    dfObj.notify.apply(ctx, arguments)
-                );
-                dfObj = $.Deferred(); // eslint-disable-line new-cap
-                window.clearTimeout(rafId);
             });
             /* eslint-enable prefer-rest-params */
             return dfObj.promise();
