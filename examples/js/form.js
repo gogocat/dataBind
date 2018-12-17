@@ -87,10 +87,7 @@
         });
 
         // formComponentA
-        formComponentA = dataBind.init(
-            $('[data-jq-comp="formComponentA"]'),
-            new FormComponentVewModel()
-        );
+        formComponentA = dataBind.init($('[data-jq-comp="formComponentA"]'), new FormComponentVewModel());
 
         formComponentA.render().then(function() {
             // for debug
@@ -99,10 +96,7 @@
         });
 
         // formComponentB
-        formComponentB = dataBind.init(
-            $('[data-jq-comp="formComponentB"]'),
-            formComponentBViewModel
-        );
+        formComponentB = dataBind.init($('[data-jq-comp="formComponentB"]'), formComponentBViewModel);
 
         formComponentB.render().then(function() {
             // for debug

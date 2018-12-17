@@ -2593,8 +2593,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 // require to use lodash
 _ = window._ || {};
 var hasIsArray = Array.isArray;
-var supportPromise = false; //  typeof window['Promise'] === 'function';
-
+var supportPromise = typeof window['Promise'] === 'function';
 var REGEX = {
   FUNCTIONPARAM: /\((.*?)\)/,
   WHITESPACES: /\s+/g,
@@ -2843,6 +2842,23 @@ var invertObj = function invertObj(sourceObj) {
     return obj;
   }, {});
 };
+
+exports.invertObj = invertObj;
+
+var createDefferedObj = function createDefferedObj() {
+  var dfObj = {};
+
+  if (supportPromise) {
+    dfObj.promise = new Promise(function (resolve, reject) {
+      dfObj.resolve = resolve;
+      dfObj.reject = reject;
+    });
+  } else {
+    dfObj = $.Deferred(); // eslint-disable-line new-cap
+  }
+
+  return dfObj;
+};
 /**
  * debounce
  * @description decorate a function to be debounce using requestAnimationFrame
@@ -2852,22 +2868,11 @@ var invertObj = function invertObj(sourceObj) {
  */
 
 
-exports.invertObj = invertObj;
-
 var debounceRaf = function debounceRaf(fn) {
   var ctx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   return function (fn, ctx) {
-    var dfObj = supportPromise ? {} : $.Deferred(); // eslint-disable-line new-cap
-
-    var rafId = 0;
-
-    if (supportPromise) {
-      dfObj.promise = new Promise(function (resolve, reject) {
-        dfObj.resolve = resolve;
-        dfObj.reject = reject;
-      });
-    } // return decorated fn
-
+    var dfObj = createDefferedObj();
+    var rafId = 0; // return decorated fn
 
     return function () {
       var _arguments = arguments;
@@ -2877,14 +2882,20 @@ var debounceRaf = function debounceRaf(fn) {
       args = Array.from ? Array.from(arguments) : Array.prototype.slice.call(arguments);
       window.cancelAnimationFrame(rafId);
       rafId = window.requestAnimationFrame(function () {
-        if (supportPromise) {
-          var fnPromise = new Promise(fn.bind(ctx));
-          Promise.all([fnPromise]).then(dfObj.resolve.apply(ctx, _arguments), dfObj.reject.apply(ctx, _arguments));
-        } else {
-          $.when(fn.apply(ctx, args)).then(dfObj.resolve.apply(ctx, _arguments), dfObj.reject.apply(ctx, _arguments), dfObj.notify.apply(ctx, _arguments));
-          dfObj = $.Deferred(); // eslint-disable-line new-cap
-        }
+        try {
+          fn.apply(ctx, args);
+          dfObj.resolve.apply(ctx, _arguments);
+        } catch (err) {
+          dfObj.reject.apply(ctx, err);
+        } // reset dfObj - otherwise then callbacks will not be in execution order
+        // example:
+        // myApp.render().then(function(){console.log('ok1')});
+        // myApp.render().then(function(){console.log('ok2')});
+        // myApp.render().then(function(){console.log('ok3')});
+        // >> ok1, ok2, ok3
 
+
+        dfObj = createDefferedObj();
         window.cancelAnimationFrame(rafId);
       });
       /* eslint-enable prefer-rest-params */
