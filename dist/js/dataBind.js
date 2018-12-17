@@ -2593,6 +2593,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 // require to use lodash
 _ = window._ || {};
 var hasIsArray = Array.isArray;
+var supportPromise = false; //  typeof window['Promise'] === 'function';
+
 var REGEX = {
   FUNCTIONPARAM: /\((.*?)\)/,
   WHITESPACES: /\s+/g,
@@ -2855,9 +2857,17 @@ exports.invertObj = invertObj;
 var debounceRaf = function debounceRaf(fn) {
   var ctx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   return function (fn, ctx) {
-    var dfObj = $.Deferred(); // eslint-disable-line new-cap
+    var dfObj = supportPromise ? {} : $.Deferred(); // eslint-disable-line new-cap
 
-    var rafId = 0; // return decorated fn
+    var rafId = 0;
+
+    if (supportPromise) {
+      dfObj.promise = new Promise(function (resolve, reject) {
+        dfObj.resolve = resolve;
+        dfObj.reject = reject;
+      });
+    } // return decorated fn
+
 
     return function () {
       var _arguments = arguments;
@@ -2867,14 +2877,19 @@ var debounceRaf = function debounceRaf(fn) {
       args = Array.from ? Array.from(arguments) : Array.prototype.slice.call(arguments);
       window.cancelAnimationFrame(rafId);
       rafId = window.requestAnimationFrame(function () {
-        $.when(fn.apply(ctx, args)).then(dfObj.resolve.apply(ctx, _arguments), dfObj.reject.apply(ctx, _arguments), dfObj.notify.apply(ctx, _arguments));
-        dfObj = $.Deferred(); // eslint-disable-line new-cap
+        if (supportPromise) {
+          var fnPromise = new Promise(fn.bind(ctx));
+          Promise.all([fnPromise]).then(dfObj.resolve.apply(ctx, _arguments), dfObj.reject.apply(ctx, _arguments));
+        } else {
+          $.when(fn.apply(ctx, args)).then(dfObj.resolve.apply(ctx, _arguments), dfObj.reject.apply(ctx, _arguments), dfObj.notify.apply(ctx, _arguments));
+          dfObj = $.Deferred(); // eslint-disable-line new-cap
+        }
 
         window.cancelAnimationFrame(rafId);
       });
       /* eslint-enable prefer-rest-params */
 
-      return dfObj.promise();
+      return supportPromise ? dfObj.promise : dfObj.promise();
     };
   }(fn, ctx);
 };

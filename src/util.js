@@ -5,6 +5,8 @@ _ = window._ || {};
 
 const hasIsArray = Array.isArray;
 
+const supportPromise = false; //  typeof window['Promise'] === 'function';
+
 const REGEX = {
     FUNCTIONPARAM: /\((.*?)\)/,
     WHITESPACES: /\s+/g,
@@ -223,8 +225,15 @@ const invertObj = (sourceObj) => {
  */
 const debounceRaf = (fn, ctx = null) => {
     return (function(fn, ctx) {
-        let dfObj = $.Deferred(); // eslint-disable-line new-cap
+        let dfObj = supportPromise ? {} : $.Deferred(); // eslint-disable-line new-cap
         let rafId = 0;
+
+        if (supportPromise) {
+            dfObj.promise = new Promise((resolve, reject) => {
+                dfObj.resolve = resolve;
+                dfObj.reject = reject;
+            });
+        }
 
         // return decorated fn
         return function() {
@@ -234,16 +243,25 @@ const debounceRaf = (fn, ctx = null) => {
 
             window.cancelAnimationFrame(rafId);
             rafId = window.requestAnimationFrame(() => {
-                $.when(fn.apply(ctx, args)).then(
-                    dfObj.resolve.apply(ctx, arguments),
-                    dfObj.reject.apply(ctx, arguments),
-                    dfObj.notify.apply(ctx, arguments)
-                );
-                dfObj = $.Deferred(); // eslint-disable-line new-cap
+                if (supportPromise) {
+                    let fnPromise = new Promise(fn.bind(ctx));
+                    Promise.all([fnPromise]).then(
+                        dfObj.resolve.apply(ctx, arguments),
+                        dfObj.reject.apply(ctx, arguments)
+                    );
+                } else {
+                    $.when(fn.apply(ctx, args)).then(
+                        dfObj.resolve.apply(ctx, arguments),
+                        dfObj.reject.apply(ctx, arguments),
+                        dfObj.notify.apply(ctx, arguments)
+                    );
+                    dfObj = $.Deferred(); // eslint-disable-line new-cap
+                }
                 window.cancelAnimationFrame(rafId);
             });
+
             /* eslint-enable prefer-rest-params */
-            return dfObj.promise();
+            return supportPromise ? dfObj.promise : dfObj.promise();
         };
     })(fn, ctx);
 };
