@@ -2845,7 +2845,7 @@ var invertObj = function invertObj(sourceObj) {
 
 exports.invertObj = invertObj;
 
-var createDefferedObj = function createDefferedObj() {
+var createDeferredObj = function createDeferredObj() {
   var dfObj = {};
 
   if (supportPromise) {
@@ -2871,7 +2871,7 @@ var createDefferedObj = function createDefferedObj() {
 var debounceRaf = function debounceRaf(fn) {
   var ctx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
   return function (fn, ctx) {
-    var dfObj = createDefferedObj();
+    var dfObj = createDeferredObj();
     var rafId = 0; // return decorated fn
 
     return function () {
@@ -2895,7 +2895,7 @@ var debounceRaf = function debounceRaf(fn) {
         // >> ok1, ok2, ok3
 
 
-        dfObj = createDefferedObj();
+        dfObj = createDeferredObj();
         window.cancelAnimationFrame(rafId);
       });
       /* eslint-enable prefer-rest-params */

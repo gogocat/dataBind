@@ -216,7 +216,7 @@ const invertObj = (sourceObj) => {
     }, {});
 };
 
-const createDefferedObj = () => {
+const createDeferredObj = () => {
     let dfObj = {};
     if (supportPromise) {
         dfObj.promise = new Promise((resolve, reject) => {
@@ -238,7 +238,7 @@ const createDefferedObj = () => {
  */
 const debounceRaf = (fn, ctx = null) => {
     return (function(fn, ctx) {
-        let dfObj = createDefferedObj();
+        let dfObj = createDeferredObj();
         let rafId = 0;
 
         // return decorated fn
@@ -262,7 +262,7 @@ const debounceRaf = (fn, ctx = null) => {
                 // myApp.render().then(function(){console.log('ok2')});
                 // myApp.render().then(function(){console.log('ok3')});
                 // >> ok1, ok2, ok3
-                dfObj = createDefferedObj();
+                dfObj = createDeferredObj();
 
                 window.cancelAnimationFrame(rafId);
             });
