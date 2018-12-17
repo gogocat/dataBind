@@ -30,7 +30,7 @@ module.exports = function(grunt) {
             specs: './test/specs/*.spec.js',
             styles: './test/css/reporter.css',
             vendor: ['./vendors/lodash.custom.min.js', './vendors/jquery-3.2.1.min.js', './vendors/jasmine-jquery.js'],
-            helpers: [],
+            helpers: ['./test/helpers/testHelper.js'],
         },
 
         jasmine: {
