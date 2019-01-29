@@ -106,8 +106,8 @@
 
         // story detail componenet
         compStoryDetail = dataBind.init($('[data-jq-comp="compStoryDetail"]'), compStoryDetailViewModel);
-        compStoryDetail.render().then(function() {
-            this.subscribe('SELECTED_STORY', this.viewModel.onStoryChange);
+        compStoryDetail.render().then(function(thisComponent) {
+            thisComponent.subscribe('SELECTED_STORY', thisComponent.viewModel.onStoryChange);
             // for debug
             console.log(compStoryDetail);
             window.compStoryDetail = compStoryDetail;

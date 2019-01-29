@@ -2875,7 +2875,6 @@ var debounceRaf = function debounceRaf(fn) {
     var rafId = 0; // return decorated fn
 
     return function () {
-      var _arguments = arguments;
       var args;
       /* eslint-disable prefer-rest-params */
 
@@ -2883,10 +2882,13 @@ var debounceRaf = function debounceRaf(fn) {
       window.cancelAnimationFrame(rafId);
       rafId = window.requestAnimationFrame(function () {
         try {
-          fn.apply(ctx, args);
-          dfObj.resolve.apply(ctx, _arguments);
+          // fn is Binder.render function
+          fn.apply(ctx, args); // dfObj.resolve is function provided in .then promise chain
+          // ctx is the current component
+
+          dfObj.resolve(ctx);
         } catch (err) {
-          dfObj.reject.apply(ctx, err);
+          dfObj.reject(ctx, err);
         } // reset dfObj - otherwise then callbacks will not be in execution order
         // example:
         // myApp.render().then(function(){console.log('ok1')});

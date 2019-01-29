@@ -250,10 +250,13 @@ const debounceRaf = (fn, ctx = null) => {
             window.cancelAnimationFrame(rafId);
             rafId = window.requestAnimationFrame(() => {
                 try {
+                    // fn is Binder.render function
                     fn.apply(ctx, args);
-                    dfObj.resolve.apply(ctx, arguments);
+                    // dfObj.resolve is function provided in .then promise chain
+                    // ctx is the current component
+                    dfObj.resolve(ctx);
                 } catch (err) {
-                    dfObj.reject.apply(ctx, err);
+                    dfObj.reject(ctx, err);
                 }
 
                 // reset dfObj - otherwise then callbacks will not be in execution order
