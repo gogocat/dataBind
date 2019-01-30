@@ -10,20 +10,19 @@ import {getViewModelValue, setViewModelValue, resolveViewModelContext, resolvePa
  * @param {boolean} forceRender
  */
 const changeBinding = (cache, viewModel, bindingAttrs, forceRender) => {
-    let handlerName = cache.dataKey;
+    const handlerName = cache.dataKey;
     let paramList = cache.parameters;
-    let modelDataKey = cache.el.getAttribute(bindingAttrs.model);
-    let handlerFn;
+    const modelDataKey = cache.el.getAttribute(bindingAttrs.model);
     let newValue = '';
     let oldValue = '';
     let viewModelContext;
-    let APP = viewModel.APP || viewModel.$root.APP;
+    const APP = viewModel.APP || viewModel.$root.APP;
 
     if (!handlerName || (!forceRender && !APP.$rootElement.contains(cache.el))) {
         return;
     }
 
-    handlerFn = getViewModelValue(viewModel, handlerName);
+    const handlerFn = getViewModelValue(viewModel, handlerName);
 
     if (typeof handlerFn === 'function') {
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
@@ -33,15 +32,15 @@ const changeBinding = (cache, viewModel, bindingAttrs, forceRender) => {
         $(cache.el)
             .off('change.databind')
             .on('change.databind', function(e) {
-                let $this = $(this);
-                let isCheckbox = $this.is(':checkbox');
+                const $this = $(this);
+                const isCheckbox = $this.is(':checkbox');
                 newValue = isCheckbox ? $this.prop('checked') : _.escape($this.val());
                 // set data to viewModel
                 if (modelDataKey) {
                     oldValue = getViewModelValue(viewModel, modelDataKey);
                     setViewModelValue(viewModel, modelDataKey, newValue);
                 }
-                let args = [e, $this, newValue, oldValue].concat(paramList);
+                const args = [e, $this, newValue, oldValue].concat(paramList);
                 handlerFn.apply(viewModelContext, args);
                 oldValue = newValue;
             });

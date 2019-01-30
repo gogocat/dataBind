@@ -11,7 +11,7 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     }
     let keys;
     let iterationDataLength;
-    let iterationData = getViewModelPropValue(viewModel, bindingData.iterator);
+    const iterationData = getViewModelPropValue(viewModel, bindingData.iterator);
     let isRegenerate = false;
 
     // check iterationData and set iterationDataLength
@@ -48,7 +48,7 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     if (!isRegenerate) {
         bindingData.iterationBindingCache.forEach(function(elementCache, i) {
             if (!isEmptyObject(elementCache)) {
-                let iterationVm = createIterationViewModel({
+                const iterationVm = createIterationViewModel({
                     bindingData: bindingData,
                     viewModel: viewModel,
                     iterationData: iterationData,
@@ -68,7 +68,7 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     }
 
     // generate forOfBinding elements into fragment
-    let fragment = generateForOfElements(bindingData, viewModel, bindingAttrs, iterationData, keys);
+    const fragment = generateForOfElements(bindingData, viewModel, bindingAttrs, iterationData, keys);
 
     removeElemnetsByCommentWrap(bindingData);
 
@@ -77,7 +77,7 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
 };
 
 const createIterationViewModel = ({bindingData, viewModel, iterationData, keys, index}) => {
-    let iterationVm = {};
+    const iterationVm = {};
     iterationVm[bindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
     // populate common binding data reference
     iterationVm[bindingDataReference.rootDataKey] = viewModel.$root || viewModel;
@@ -87,8 +87,8 @@ const createIterationViewModel = ({bindingData, viewModel, iterationData, keys, 
 };
 
 const generateForOfElements = (bindingData, viewModel, bindingAttrs, iterationData, keys) => {
-    let fragment = document.createDocumentFragment();
-    let iterationDataLength = bindingData.iterationSize;
+    const fragment = document.createDocumentFragment();
+    const iterationDataLength = bindingData.iterationSize;
     let clonedItem;
     let iterationVm;
     let iterationBindingCache;

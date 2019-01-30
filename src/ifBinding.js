@@ -12,7 +12,7 @@ import {renderIfBinding, removeIfBinding} from './renderIfBinding';
  * @param {object} bindingAttrs
  */
 const ifBinding = (cache, viewModel, bindingAttrs) => {
-    let dataKey = cache.dataKey;
+    const dataKey = cache.dataKey;
 
     // isOnce only return if there is no child bindings
     if (!dataKey || (cache.isOnce && cache.hasIterationBindingCache === false)) {
@@ -22,16 +22,16 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     cache.elementData = cache.elementData || {};
     cache.type = cache.type || configBindingAttrs.if;
 
-    let oldViewModelProValue = cache.elementData.viewModelPropValue;
+    const oldViewModelProValue = cache.elementData.viewModelPropValue;
     // getViewModelPropValue could be return undefined or null
-    let viewModelPropValue = getViewModelPropValue(viewModel, cache) || false;
+    const viewModelPropValue = getViewModelPropValue(viewModel, cache) || false;
 
     // do nothing if viewModel value not changed and no child bindings
     if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
         return;
     }
 
-    let shouldRender = Boolean(viewModelPropValue);
+    const shouldRender = Boolean(viewModelPropValue);
 
     // remove this cache from parent array
     if (!shouldRender && cache.isOnce && cache.el.parentNode) {

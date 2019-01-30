@@ -91,7 +91,7 @@ class Binder {
      * @description call createBindingCache to parse view and generate bindingCache
      */
     updateElementCache(opt = {}) {
-        let elementCache = opt.elementCache || this.elementCache;
+        const elementCache = opt.elementCache || this.elementCache;
 
         if (opt.allCache) {
             // walk dom from root element to regenerate elementCache
@@ -387,7 +387,7 @@ const renderTemplatesBinding = ({ctx, elementCache, updateOption, bindingAttrs, 
  * @return {object} updateOption
  */
 const createBindingOption = (condition = '', opt = {}) => {
-    let visualBindingOptions = {
+    const visualBindingOptions = {
         templateBinding: false,
         textBinding: true,
         cssBinding: true,
@@ -398,7 +398,7 @@ const createBindingOption = (condition = '', opt = {}) => {
         forOfBinding: true,
         switchBinding: true,
     };
-    let eventsBindingOptions = {
+    const eventsBindingOptions = {
         changeBinding: true,
         clickBinding: true,
         dblclickBinding: true,
@@ -409,7 +409,7 @@ const createBindingOption = (condition = '', opt = {}) => {
     };
     // this is visualBindingOptions but everything false
     // concrete declear for performance purpose
-    let serverRenderedOptions = {
+    const serverRenderedOptions = {
         templateBinding: false,
         textBinding: false,
         cssBinding: false,
@@ -447,7 +447,7 @@ const createBindingOption = (condition = '', opt = {}) => {
  * This function is desidned for FoOf, If, switch bindings
  */
 const renderIteration = ({elementCache, iterationVm, bindingAttrs, isRegenerate}) => {
-    let bindingUpdateOption = isRegenerate
+    const bindingUpdateOption = isRegenerate
         ? createBindingOption(config.bindingUpdateConditions.init)
         : createBindingOption();
 

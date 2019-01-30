@@ -21,21 +21,21 @@ const eventSystem = {
     },
 
     off(target, event, listener) {
-        let listeners = this.wm.get(target);
+        const listeners = this.wm.get(target);
         if (!listeners) return;
-        let listenersForEvent = listeners[event];
+        const listenersForEvent = listeners[event];
         if (!listenersForEvent) return;
         listenersForEvent.delete(handler);
     },
 
     trigger(target, event) {
-        let listeners = this.wm.get(target);
+        const listeners = this.wm.get(target);
         if (!listeners) return;
-        let listenersForEvent = listeners[event];
+        const listenersForEvent = listeners[event];
         if (!listenersForEvent) return;
         // TODO: check what is listenersForEvent
         // handlers should be  listeners or listenersForEvent
-        for (let handler of handlers) {
+        for (const handler of handlers) {
             // we use a setTimeout here because we want event triggering to be asynchronous.
             // setTimeout(handler, 0, event, target);
             handler(event, target);

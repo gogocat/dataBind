@@ -12,8 +12,8 @@ import {getViewModelPropValue, isPlainObject, arrayRemoveMatch, each} from './ut
  * @param {boolean} forceRender
  */
 const cssBinding = (cache, viewModel, bindingAttrs, forceRender) => {
-    let dataKey = cache.dataKey;
-    let APP = viewModel.APP || viewModel.$root.APP;
+    const dataKey = cache.dataKey;
+    const APP = viewModel.APP || viewModel.$root.APP;
 
     if (!dataKey || (!forceRender && !APP.$rootElement.contains(cache.el))) {
         return;
@@ -23,9 +23,9 @@ const cssBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     cache.elementData.viewModelPropValue = cache.elementData.viewModelPropValue || '';
 
     // let $element = $(cache.el);
-    let oldCssList = cache.elementData.viewModelPropValue;
+    const oldCssList = cache.elementData.viewModelPropValue;
     let newCssList = '';
-    let vmCssListObj = getViewModelPropValue(viewModel, cache);
+    const vmCssListObj = getViewModelPropValue(viewModel, cache);
     let vmCssListArray = [];
     let isViewDataObject = false;
     let isViewDataString = false;
@@ -52,16 +52,16 @@ const cssBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     }
 
     // get current css classes from element
-    let domCssList = cache.el.classList;
+    const domCssList = cache.el.classList;
     // clone domCssList as new array
-    let domCssListLength = domCssList.length;
+    const domCssListLength = domCssList.length;
     for (let i = 0; i < domCssListLength; i += 1) {
         cssList.push(domCssList[i]);
     }
 
     if (isViewDataObject) {
         each(vmCssListObj, function(k, v) {
-            let i = cssList.indexOf(k);
+            const i = cssList.indexOf(k);
             if (v === true) {
                 cssList.push(k);
             } else if (i !== -1) {

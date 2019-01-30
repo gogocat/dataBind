@@ -11,7 +11,7 @@ import {renderIfBinding, removeIfBinding} from './renderIfBinding';
  * @param {object} bindingAttrs
  */
 const switchBinding = (cache, viewModel, bindingAttrs) => {
-    let dataKey = cache.dataKey;
+    const dataKey = cache.dataKey;
 
     if (!dataKey) {
         return;
@@ -19,7 +19,7 @@ const switchBinding = (cache, viewModel, bindingAttrs) => {
 
     cache.elementData = cache.elementData || {};
 
-    let newExpression = getViewModelPropValue(viewModel, cache);
+    const newExpression = getViewModelPropValue(viewModel, cache);
 
     if (newExpression === cache.elementData.viewModelPropValue) {
         return;
@@ -29,7 +29,7 @@ const switchBinding = (cache, viewModel, bindingAttrs) => {
 
     // build switch cases if not yet defined
     if (!cache.cases) {
-        let childrenElements = cache.el.children;
+        const childrenElements = cache.el.children;
         if (!childrenElements.length) {
             return;
         }
@@ -103,7 +103,7 @@ function removeUnmatchCases(cases, matchedIndex) {
 }
 
 function createCaseData(node, attrName) {
-    let caseData = {
+    const caseData = {
         el: node,
         dataKey: node.getAttribute(attrName),
         type: attrName,

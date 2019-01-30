@@ -11,7 +11,7 @@ import renderForOfBinding from './renderForOfBinding';
  * @param {object} bindingAttrs
  */
 const forOfBinding = (cache, viewModel, bindingAttrs) => {
-    let dataKey = cache.dataKey;
+    const dataKey = cache.dataKey;
 
     if (!dataKey || dataKey.length > maxDatakeyLength) {
         return;
@@ -23,7 +23,7 @@ const forOfBinding = (cache, viewModel, bindingAttrs) => {
         }
         // replace mess spaces with single space
         cache.dataKey = cache.dataKey.replace(REGEX.WHITESPACES, ' ');
-        let forExpMatch = dataKey.match(REGEX.FOROF);
+        const forExpMatch = dataKey.match(REGEX.FOROF);
 
         if (!forExpMatch) {
             return;

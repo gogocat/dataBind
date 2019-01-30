@@ -9,7 +9,7 @@ import {getViewModelPropValue, isPlainObject, isEmptyObject, each} from './util'
  * @param {object} bindingAttrs
  */
 const attrBinding = (cache, viewModel, bindingAttrs) => {
-    let dataKey = cache.dataKey;
+    const dataKey = cache.dataKey;
 
     if (!dataKey) {
         return;

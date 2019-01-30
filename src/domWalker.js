@@ -23,7 +23,7 @@ const walkDOM = (node, func) => {
 };
 
 const getAttributesObject = (node) => {
-    let ret = {};
+    const ret = {};
     Array.prototype.slice.call(node.attributes).forEach((item) => {
         ret[item.name] = item.value;
     });
@@ -62,7 +62,7 @@ const populateBindingCache = ({node, attrObj, bindingCache, type}) => {
         // populate cacheData.parameters
         // for store function call parameters eg. '$index', '$root'
         // useful with DOM for-loop template as reference to binding data
-        let paramList = getFunctionParameterList(cacheData.dataKey);
+        const paramList = getFunctionParameterList(cacheData.dataKey);
         if (paramList) {
             cacheData.parameters = paramList;
             cacheData.dataKey = cacheData.dataKey.replace(REGEX.FUNCTIONPARAM, '').trim();
@@ -84,7 +84,6 @@ const createBindingCache = ({rootNode = null, bindingAttrs = {}, skipCheck, isRe
     bindingAttrsMap = bindingAttrsMap || invertObj(bindingAttrs);
 
     const parseNode = (node, skipNodeCheckFn = defaultSkipCheck) => {
-        let attrObj;
         let isSkipForOfChild = false;
 
         if (node.nodeType !== 1 || !node.hasAttributes()) {
@@ -96,7 +95,7 @@ const createBindingCache = ({rootNode = null, bindingAttrs = {}, skipCheck, isRe
 
         // when creating sub bindingCache if is for tmp binding
         // skip same element that has forOf binding the  forOf is alredy parsed
-        attrObj = getAttributesObject(node);
+        const attrObj = getAttributesObject(node);
         const hasSkipChildParseBindings = checkSkipChildParseBindings(attrObj, bindingAttrs);
         let iterateList = [];
 

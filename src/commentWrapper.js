@@ -48,8 +48,8 @@ const setDocRangeEndAfter = (node, bindingData) => {
     if (!bindingData.commentPrefix) {
         setCommentPrefix(bindingData);
     }
-    let startTextContent = bindingData.commentPrefix;
-    let endTextContent = startTextContent + config.commentSuffix;
+    const startTextContent = bindingData.commentPrefix;
+    const endTextContent = startTextContent + config.commentSuffix;
     node = node.nextSibling;
 
     // check last wrap comment node
@@ -70,15 +70,13 @@ const setDocRangeEndAfter = (node, bindingData) => {
  * wrap frament with comment node
  */
 const wrapCommentAround = (bindingData, node) => {
-    let commentBegin;
-    let commentEnd;
     let prefix = '';
     if (!bindingData.commentPrefix) {
         setCommentPrefix(bindingData);
     }
     prefix = bindingData.commentPrefix;
-    commentBegin = document.createComment(prefix);
-    commentEnd = document.createComment(prefix + config.commentSuffix);
+    const commentBegin = document.createComment(prefix);
+    const commentEnd = document.createComment(prefix + config.commentSuffix);
     // document fragment - logic for ForOf binding
     // check node.parentNode because node could be from cache and no longer in DOM
     if (node.nodeType === 11) {

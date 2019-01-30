@@ -11,17 +11,16 @@ import {getViewModelValue, resolveViewModelContext, resolveParamList} from './ut
  * @param {boolean} forceRender
  */
 const focusBinding = (cache, viewModel, bindingAttrs, forceRender) => {
-    let handlerName = cache.dataKey;
+    const handlerName = cache.dataKey;
     let paramList = cache.parameters;
-    let handlerFn;
     let viewModelContext;
-    let APP = viewModel.APP || viewModel.$root.APP;
+    const APP = viewModel.APP || viewModel.$root.APP;
 
     if (!handlerName || (!forceRender && !APP.$rootElement.contains(cache.el))) {
         return;
     }
 
-    handlerFn = getViewModelValue(viewModel, handlerName);
+    const handlerFn = getViewModelValue(viewModel, handlerName);
 
     if (typeof handlerFn === 'function') {
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
@@ -29,7 +28,7 @@ const focusBinding = (cache, viewModel, bindingAttrs, forceRender) => {
         $(cache.el)
             .off('focus.databind')
             .on('focus.databind', function(e) {
-                let args = [e, $(this)].concat(paramList);
+                const args = [e, $(this)].concat(paramList);
                 handlerFn.apply(viewModelContext, args);
             });
     }

@@ -4,7 +4,7 @@ import {parseStringToJson, getViewModelPropValue} from './util';
 let $domFragment = null;
 let $templateRoot = null;
 let nestTemplatesCount = 0;
-let templateCache = {};
+const templateCache = {};
 
 /**
  * compileTemplate
@@ -39,15 +39,11 @@ const compileTemplate = (id, templateData = null) => {
  * @param {object} elementCache
  */
 const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
-    let settings = typeof cache.dataKey === 'string' ? parseStringToJson(cache.dataKey) : cache.dataKey;
+    const settings = typeof cache.dataKey === 'string' ? parseStringToJson(cache.dataKey) : cache.dataKey;
     let viewData = settings.data;
-    let isAppend = settings.append;
-    let isPrepend = settings.prepend;
-    let html;
-    let $element;
-    let $index;
+    const isAppend = settings.append;
+    const isPrepend = settings.prepend;
     let $currentElement;
-    let $nestedTemplates;
 
     cache.dataKey = settings;
 
@@ -63,14 +59,14 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
         return;
     }
 
-    $element = $(cache.el);
-    $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.attr(dataIndexAttr);
+    const $element = $(cache.el);
+    const $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.attr(dataIndexAttr);
     if (typeof $index !== 'undefined') {
         viewData.$index = $index;
     }
     $domFragment = $domFragment ? $domFragment : $('<div/>');
     $templateRoot = $templateRoot ? $templateRoot : $element;
-    html = compileTemplate(settings.id, viewData);
+    const html = compileTemplate(settings.id, viewData);
 
     // domFragment should be empty in first run
     // append rendered html
@@ -90,12 +86,12 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
     }
 
     // check if there are nested template then recurisive render them
-    $nestedTemplates = $currentElement.find('[' + bindingAttrs.tmp + ']');
+    const $nestedTemplates = $currentElement.find('[' + bindingAttrs.tmp + ']');
 
     if ($nestedTemplates.length) {
         nestTemplatesCount += $nestedTemplates.length;
         $nestedTemplates.each(function(index, element) {
-            let thisTemplateCache = {
+            const thisTemplateCache = {
                 el: element,
                 dataKey: element.getAttribute(bindingAttrs.tmp),
             };

@@ -647,7 +647,6 @@ var _util = require("./util");
 var blurBinding = function blurBinding(cache, viewModel, bindingAttrs, forceRender) {
   var handlerName = cache.dataKey;
   var paramList = cache.parameters;
-  var handlerFn;
   var viewModelContext;
   var APP = viewModel.APP || viewModel.$root.APP;
 
@@ -655,7 +654,7 @@ var blurBinding = function blurBinding(cache, viewModel, bindingAttrs, forceRend
     return;
   }
 
-  handlerFn = (0, _util.getViewModelValue)(viewModel, handlerName);
+  var handlerFn = (0, _util.getViewModelValue)(viewModel, handlerName);
 
   if (typeof handlerFn === 'function') {
     viewModelContext = (0, _util.resolveViewModelContext)(viewModel, handlerName);
@@ -694,7 +693,6 @@ var changeBinding = function changeBinding(cache, viewModel, bindingAttrs, force
   var handlerName = cache.dataKey;
   var paramList = cache.parameters;
   var modelDataKey = cache.el.getAttribute(bindingAttrs.model);
-  var handlerFn;
   var newValue = '';
   var oldValue = '';
   var viewModelContext;
@@ -704,7 +702,7 @@ var changeBinding = function changeBinding(cache, viewModel, bindingAttrs, force
     return;
   }
 
-  handlerFn = (0, _util.getViewModelValue)(viewModel, handlerName);
+  var handlerFn = (0, _util.getViewModelValue)(viewModel, handlerName);
 
   if (typeof handlerFn === 'function') {
     viewModelContext = (0, _util.resolveViewModelContext)(viewModel, handlerName);
@@ -755,7 +753,6 @@ var _util = require("./util");
 var clickBinding = function clickBinding(cache, viewModel, bindingAttrs, forceRender) {
   var handlerName = cache.dataKey;
   var paramList = cache.parameters;
-  var handlerFn;
   var viewModelContext;
   var APP = viewModel.APP || viewModel.$root.APP;
 
@@ -763,7 +760,7 @@ var clickBinding = function clickBinding(cache, viewModel, bindingAttrs, forceRe
     return;
   }
 
-  handlerFn = (0, _util.getViewModelValue)(viewModel, handlerName);
+  var handlerFn = (0, _util.getViewModelValue)(viewModel, handlerName);
 
   if (typeof handlerFn === 'function') {
     viewModelContext = (0, _util.resolveViewModelContext)(viewModel, handlerName);
@@ -875,8 +872,6 @@ var setDocRangeEndAfter = function setDocRangeEndAfter(node, bindingData) {
 exports.setDocRangeEndAfter = setDocRangeEndAfter;
 
 var wrapCommentAround = function wrapCommentAround(bindingData, node) {
-  var commentBegin;
-  var commentEnd;
   var prefix = '';
 
   if (!bindingData.commentPrefix) {
@@ -884,8 +879,8 @@ var wrapCommentAround = function wrapCommentAround(bindingData, node) {
   }
 
   prefix = bindingData.commentPrefix;
-  commentBegin = document.createComment(prefix);
-  commentEnd = document.createComment(prefix + config.commentSuffix); // document fragment - logic for ForOf binding
+  var commentBegin = document.createComment(prefix);
+  var commentEnd = document.createComment(prefix + config.commentSuffix); // document fragment - logic for ForOf binding
   // check node.parentNode because node could be from cache and no longer in DOM
 
   if (node.nodeType === 11) {
@@ -1167,7 +1162,6 @@ var _util = require("./util");
 var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs, forceRender) {
   var handlerName = cache.dataKey;
   var paramList = cache.parameters;
-  var handlerFn;
   var viewModelContext;
   var APP = viewModel.APP || viewModel.$root.APP;
 
@@ -1175,7 +1169,7 @@ var dblclickBinding = function dblclickBinding(cache, viewModel, bindingAttrs, f
     return;
   }
 
-  handlerFn = (0, _util.getViewModelValue)(viewModel, handlerName);
+  var handlerFn = (0, _util.getViewModelValue)(viewModel, handlerName);
 
   if (typeof handlerFn === 'function') {
     viewModelContext = (0, _util.resolveViewModelContext)(viewModel, handlerName);
@@ -1303,7 +1297,6 @@ var createBindingCache = function createBindingCache(_ref2) {
 
   var parseNode = function parseNode(node) {
     var skipNodeCheckFn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultSkipCheck;
-    var attrObj;
     var isSkipForOfChild = false;
 
     if (node.nodeType !== 1 || !node.hasAttributes()) {
@@ -1316,7 +1309,7 @@ var createBindingCache = function createBindingCache(_ref2) {
     // skip same element that has forOf binding the  forOf is alredy parsed
 
 
-    attrObj = getAttributesObject(node);
+    var attrObj = getAttributesObject(node);
     var hasSkipChildParseBindings = checkSkipChildParseBindings(attrObj, bindingAttrs);
     var iterateList = [];
 
@@ -1383,7 +1376,6 @@ var _util = require("./util");
 var focusBinding = function focusBinding(cache, viewModel, bindingAttrs, forceRender) {
   var handlerName = cache.dataKey;
   var paramList = cache.parameters;
-  var handlerFn;
   var viewModelContext;
   var APP = viewModel.APP || viewModel.$root.APP;
 
@@ -1391,7 +1383,7 @@ var focusBinding = function focusBinding(cache, viewModel, bindingAttrs, forceRe
     return;
   }
 
-  handlerFn = (0, _util.getViewModelValue)(viewModel, handlerName);
+  var handlerFn = (0, _util.getViewModelValue)(viewModel, handlerName);
 
   if (typeof handlerFn === 'function') {
     viewModelContext = (0, _util.resolveViewModelContext)(viewModel, handlerName);
@@ -1499,7 +1491,6 @@ var hoverBinding = function hoverBinding(cache, viewModel, bindingAttrs, forceRe
   var paramList = cache.parameters;
   var inHandlerName = _config.bindingDataReference.mouseEnterHandlerName;
   var outHandlerName = _config.bindingDataReference.mouseLeaveHandlerName;
-  var handlers;
   var viewModelContext;
   var APP = viewModel.APP || viewModel.$root.APP;
   cache.elementData = cache.elementData || {};
@@ -1508,7 +1499,7 @@ var hoverBinding = function hoverBinding(cache, viewModel, bindingAttrs, forceRe
     return;
   }
 
-  handlers = (0, _util.getViewModelValue)(viewModel, handlerName);
+  var handlers = (0, _util.getViewModelValue)(viewModel, handlerName);
 
   if (handlers && typeof handlers[inHandlerName] === 'function' && typeof handlers[outHandlerName] === 'function') {
     viewModelContext = (0, _util.resolveViewModelContext)(viewModel, handlerName);
@@ -2183,11 +2174,7 @@ var renderTemplate = function renderTemplate(cache, viewModel, bindingAttrs, ele
   var viewData = settings.data;
   var isAppend = settings.append;
   var isPrepend = settings.prepend;
-  var html;
-  var $element;
-  var $index;
   var $currentElement;
-  var $nestedTemplates;
   cache.dataKey = settings;
   viewData = typeof viewData === 'undefined' || viewData === '$root' ? viewModel : (0, _util.getViewModelPropValue)(viewModel, {
     dataKey: settings.data,
@@ -2198,8 +2185,8 @@ var renderTemplate = function renderTemplate(cache, viewModel, bindingAttrs, ele
     return;
   }
 
-  $element = $(cache.el);
-  $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.attr(_config.dataIndexAttr);
+  var $element = $(cache.el);
+  var $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.attr(_config.dataIndexAttr);
 
   if (typeof $index !== 'undefined') {
     viewData.$index = $index;
@@ -2207,7 +2194,7 @@ var renderTemplate = function renderTemplate(cache, viewModel, bindingAttrs, ele
 
   $domFragment = $domFragment ? $domFragment : $('<div/>');
   $templateRoot = $templateRoot ? $templateRoot : $element;
-  html = compileTemplate(settings.id, viewData); // domFragment should be empty in first run
+  var html = compileTemplate(settings.id, viewData); // domFragment should be empty in first run
   // append rendered html
 
   if (!$domFragment.children().length) {
@@ -2228,7 +2215,7 @@ var renderTemplate = function renderTemplate(cache, viewModel, bindingAttrs, ele
   } // check if there are nested template then recurisive render them
 
 
-  $nestedTemplates = $currentElement.find('[' + bindingAttrs.tmp + ']');
+  var $nestedTemplates = $currentElement.find('[' + bindingAttrs.tmp + ']');
 
   if ($nestedTemplates.length) {
     nestTemplatesCount += $nestedTemplates.length;
@@ -2376,8 +2363,6 @@ var _util = require("./util");
 var submitBinding = function submitBinding(cache, viewModel, bindingAttrs, forceRender) {
   var handlerName = cache.dataKey;
   var paramList = cache.parameters;
-  var handlerFn;
-  var $element;
   var viewModelContext;
   var APP = viewModel.APP || viewModel.$root.APP;
 
@@ -2385,8 +2370,8 @@ var submitBinding = function submitBinding(cache, viewModel, bindingAttrs, force
     return;
   }
 
-  handlerFn = (0, _util.getViewModelValue)(viewModel, handlerName);
-  $element = $(cache.el);
+  var handlerFn = (0, _util.getViewModelValue)(viewModel, handlerName);
+  var $element = $(cache.el);
 
   if (typeof handlerFn === 'function') {
     viewModelContext = (0, _util.resolveViewModelContext)(viewModel, handlerName);
@@ -2625,18 +2610,15 @@ var isJsObject = function isJsObject(obj) {
 exports.isJsObject = isJsObject;
 
 var isPlainObject = function isPlainObject(obj) {
-  var ctor;
-  var prot;
-
   if (!isJsObject(obj)) {
     return false;
   } // If has modified constructor
 
 
-  ctor = obj.constructor;
+  var ctor = obj.constructor;
   if (typeof ctor !== 'function') return false; // If has modified prototype
 
-  prot = ctor.prototype;
+  var prot = ctor.prototype;
   if (isJsObject(prot) === false) return false; // If constructor does not have an Object-specific method
 
   if (prot.hasOwnProperty('isPrototypeOf') === false) {
@@ -2822,7 +2804,7 @@ var extractFilterList = function extractFilterList(cacheData) {
         cacheData.isOnce = true;
         isOnceIndex = i;
       }
-    });
+    }); // don't store filter 'once' - because it is internal logic not a property from viewModel
 
     if (isOnceIndex >= 0) {
       filterList.splice(isOnceIndex, 1);
@@ -2875,10 +2857,8 @@ var debounceRaf = function debounceRaf(fn) {
     var rafId = 0; // return decorated fn
 
     return function () {
-      var args;
       /* eslint-disable prefer-rest-params */
-
-      args = Array.from ? Array.from(arguments) : Array.prototype.slice.call(arguments);
+      var args = Array.from ? Array.from(arguments) : Array.prototype.slice.call(arguments);
       window.cancelAnimationFrame(rafId);
       rafId = window.requestAnimationFrame(function () {
         try {
@@ -2918,12 +2898,11 @@ var debounceRaf = function debounceRaf(fn) {
 exports.debounceRaf = debounceRaf;
 
 var getNodeAttrObj = function getNodeAttrObj(node, skipList) {
-  var attrObj;
   var attributesLength = 0;
   var skipArray;
 
   if (!node || node.nodeType !== 1 || !node.hasAttributes()) {
-    return attrObj;
+    return;
   }
 
   if (skipList) {
@@ -2931,7 +2910,7 @@ var getNodeAttrObj = function getNodeAttrObj(node, skipList) {
     skipArray = typeof skipList === 'string' ? skipArray.push(skipList) : skipList;
   }
 
-  attrObj = {};
+  var attrObj = {};
   attributesLength = node.attributes.length;
 
   if (attributesLength) {
@@ -3074,13 +3053,12 @@ exports.insertAfter = insertAfter;
 
 var resolveViewModelContext = function resolveViewModelContext(viewModel, datakey) {
   var ret = viewModel;
-  var bindingDataContext;
 
   if (typeof datakey !== 'string') {
     return ret;
   }
 
-  bindingDataContext = datakey.split('.');
+  var bindingDataContext = datakey.split('.');
 
   if (bindingDataContext.length > 1) {
     if (bindingDataContext[0] === config.bindingDataReference.rootDataKey) {

@@ -12,13 +12,12 @@ import {getViewModelValue, resolveViewModelContext, resolveParamList} from './ut
  * @param {boolean} forceRender
  */
 const hoverBinding = (cache, viewModel, bindingAttrs, forceRender) => {
-    let handlerName = cache.dataKey;
+    const handlerName = cache.dataKey;
     let paramList = cache.parameters;
     const inHandlerName = bindingDataReference.mouseEnterHandlerName;
     const outHandlerName = bindingDataReference.mouseLeaveHandlerName;
-    let handlers;
     let viewModelContext;
-    let APP = viewModel.APP || viewModel.$root.APP;
+    const APP = viewModel.APP || viewModel.$root.APP;
 
     cache.elementData = cache.elementData || {};
 
@@ -26,7 +25,7 @@ const hoverBinding = (cache, viewModel, bindingAttrs, forceRender) => {
         return;
     }
 
-    handlers = getViewModelValue(viewModel, handlerName);
+    const handlers = getViewModelValue(viewModel, handlerName);
 
     if (handlers && typeof handlers[inHandlerName] === 'function' && typeof handlers[outHandlerName] === 'function') {
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
@@ -36,11 +35,11 @@ const hoverBinding = (cache, viewModel, bindingAttrs, forceRender) => {
             .off('mouseenter.databind mouseleave.databind')
             .hover(
                 function enter(e) {
-                    let args = [e, cache.el].concat(paramList);
+                    const args = [e, cache.el].concat(paramList);
                     handlers[inHandlerName].apply(viewModelContext, args);
                 },
                 function leave(e) {
-                    let args = [e, cache.el].concat(paramList);
+                    const args = [e, cache.el].concat(paramList);
                     handlers[outHandlerName].apply(viewModelContext, args);
                 }
             );

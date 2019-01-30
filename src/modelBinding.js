@@ -9,9 +9,9 @@ import {getViewModelValue} from './util';
  * @param {boolean} forceRender
  */
 const modelBinding = (cache, viewModel, bindingAttrs, forceRender) => {
-    let dataKey = cache.dataKey;
+    const dataKey = cache.dataKey;
     let newValue = '';
-    let APP = viewModel.APP || viewModel.$root.APP;
+    const APP = viewModel.APP || viewModel.$root.APP;
 
     if (!dataKey || (!forceRender && !APP.$rootElement.contains(cache.el))) {
         return;
@@ -20,12 +20,12 @@ const modelBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     newValue = getViewModelValue(viewModel, dataKey);
 
     if (typeof newValue !== 'undefined' && newValue !== null) {
-        let $element = $(cache.el);
-        let isCheckbox = $element.is(':checkbox');
-        let isRadio = $element.is(':radio');
-        let inputName = $element[0].name;
-        let $radioGroup = isRadio ? $('input[name="' + inputName + '"]') : null;
-        let oldValue = isCheckbox ? $element.prop('checked') : $element.val();
+        const $element = $(cache.el);
+        const isCheckbox = $element.is(':checkbox');
+        const isRadio = $element.is(':radio');
+        const inputName = $element[0].name;
+        const $radioGroup = isRadio ? $('input[name="' + inputName + '"]') : null;
+        const oldValue = isCheckbox ? $element.prop('checked') : $element.val();
 
         // update element value
         if (newValue !== oldValue) {

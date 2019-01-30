@@ -13,8 +13,8 @@ import {removeElemnetsByCommentWrap, insertRenderedElements} from './commentWrap
 const isTargetDomRemoved = (bindingData) => {
     let ret = false;
     if (bindingData && bindingData.previousNonTemplateElement) {
-        let commentStartTextContent = bindingData.previousNonTemplateElement.textContent;
-        let endCommentTag = bindingData.previousNonTemplateElement.nextSibling;
+        const commentStartTextContent = bindingData.previousNonTemplateElement.textContent;
+        const endCommentTag = bindingData.previousNonTemplateElement.nextSibling;
 
         if (endCommentTag.nodeType === 8) {
             if (endCommentTag.textContent === commentStartTextContent + commentSuffix) {

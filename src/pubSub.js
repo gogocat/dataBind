@@ -10,7 +10,7 @@ import * as util from './util';
     };
  */
 
-let EVENTS = {};
+const EVENTS = {};
 
 const subscribeEvent = (instance = null, eventName = '', fn, isOnce = false) => {
     if (!instance || !instance.compId || !eventName || typeof fn !== 'function') {
@@ -94,7 +94,7 @@ const publishEvent = (eventName = '', ...args) => {
     EVENTS[eventName].forEach((subscriber) => {
         Object.keys(subscriber).forEach((compId) => {
             if (typeof subscriber[compId] === 'function') {
-                let ret = subscriber[compId](...args);
+                const ret = subscriber[compId](...args);
                 if (subscriber.isOnce) {
                     unsubscribeEvent(compId, eventName);
                 }

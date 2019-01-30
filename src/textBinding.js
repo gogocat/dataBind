@@ -10,16 +10,16 @@ import {getViewModelPropValue} from './util';
  * @param {boolean} forceRender
  */
 const textBinding = (cache, viewModel, bindingAttrs, forceRender) => {
-    let dataKey = cache.dataKey;
-    let APP = viewModel.APP || viewModel.$root.APP;
+    const dataKey = cache.dataKey;
+    const APP = viewModel.APP || viewModel.$root.APP;
 
     // NOTE: this doesn't work for for-of, if and switch bindings because element was not in DOM
     if (!dataKey || (!forceRender && !APP.$rootElement.contains(cache.el))) {
         return;
     }
 
-    let newValue = getViewModelPropValue(viewModel, cache);
-    let oldValue = cache.el.textContent;
+    const newValue = getViewModelPropValue(viewModel, cache);
+    const oldValue = cache.el.textContent;
 
     if (typeof newValue !== 'undefined' && typeof newValue !== 'object' && newValue !== null) {
         if (newValue !== oldValue) {

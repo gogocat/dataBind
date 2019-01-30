@@ -15,7 +15,7 @@ const REGEX = {
 };
 
 const generateElementCache = (bindingAttrs) => {
-    let elementCache = {};
+    const elementCache = {};
     $.each(bindingAttrs, function(k, v) {
         elementCache[v] = [];
     });
@@ -31,19 +31,16 @@ const isJsObject = (obj) => {
 };
 
 const isPlainObject = (obj) => {
-    let ctor;
-    let prot;
-
     if (!isJsObject(obj)) {
         return false;
     }
 
     // If has modified constructor
-    ctor = obj.constructor;
+    const ctor = obj.constructor;
     if (typeof ctor !== 'function') return false;
 
     // If has modified prototype
-    prot = ctor.prototype;
+    const prot = ctor.prototype;
     if (isJsObject(prot) === false) return false;
 
     // If constructor does not have an Object-specific method
@@ -88,7 +85,7 @@ const setViewModelValue = (obj, prop, value) => {
 const getViewModelPropValue = (viewModel, bindingCache) => {
     let dataKey = bindingCache.dataKey;
     let paramList = bindingCache.parameters;
-    let isInvertBoolean = dataKey.charAt(0) === '!';
+    const isInvertBoolean = dataKey.charAt(0) === '!';
 
     if (isInvertBoolean) {
         dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
@@ -97,11 +94,11 @@ const getViewModelPropValue = (viewModel, bindingCache) => {
     let ret = getViewModelValue(viewModel, dataKey);
 
     if (typeof ret === 'function') {
-        let viewModelContext = resolveViewModelContext(viewModel, dataKey);
-        let oldViewModelProValue = bindingCache.elementData ? bindingCache.elementData.viewModelProValue : null;
+        const viewModelContext = resolveViewModelContext(viewModel, dataKey);
+        const oldViewModelProValue = bindingCache.elementData ? bindingCache.elementData.viewModelProValue : null;
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
         // let args = [oldViewModelProValue, bindingCache.el].concat(paramList);
-        let args = paramList.concat([oldViewModelProValue, bindingCache.el]);
+        const args = paramList.concat([oldViewModelProValue, bindingCache.el]);
         ret = ret.apply(viewModelContext, args);
     }
 
@@ -121,8 +118,8 @@ const filtersViewModelPropValue = ({value, viewModel, bindingCache}) => {
     let ret = value;
     if (bindingCache.filters) {
         each(bindingCache.filters, (index, filter) => {
-            let viewModelContext = resolveViewModelContext(viewModel, filter);
-            let filterFn = getViewModelValue.call(viewModelContext, viewModelContext, filter);
+            const viewModelContext = resolveViewModelContext(viewModel, filter);
+            const filterFn = getViewModelValue.call(viewModelContext, viewModelContext, filter);
             try {
                 ret = filterFn.call(viewModelContext, ret);
             } catch (err) {
@@ -135,7 +132,7 @@ const filtersViewModelPropValue = ({value, viewModel, bindingCache}) => {
 
 const parseStringToJson = (str) => {
     // fix unquote or single quote keys and replace single quote to double quote
-    let ret = str.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":').replace(/'/g, '"');
+    const ret = str.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":').replace(/'/g, '"');
     return JSON.parse(ret);
 };
 
@@ -153,8 +150,8 @@ const arrayRemoveMatch = (toArray, frommArray) => {
 };
 
 const getFormData = ($form) => {
-    let sArray = $form.serializeArray();
-    let data = {};
+    const sArray = $form.serializeArray();
+    const data = {};
 
     sArray.map((n) => {
         data[n['name']] = n['value'];
@@ -189,7 +186,7 @@ const extractFilterList = (cacheData) => {
     if (!cacheData || !cacheData.dataKey || cacheData.dataKey.length > config.maxDatakeyLength) {
         return cacheData;
     }
-    let filterList = cacheData.dataKey.split(REGEX.PIPE);
+    const filterList = cacheData.dataKey.split(REGEX.PIPE);
     let isOnceIndex;
     cacheData.dataKey = filterList[0].trim();
     if (filterList.length > 1) {
@@ -244,9 +241,8 @@ const debounceRaf = (fn, ctx = null) => {
 
         // return decorated fn
         return function() {
-            let args;
             /* eslint-disable prefer-rest-params */
-            args = Array.from ? Array.from(arguments) : Array.prototype.slice.call(arguments);
+            const args = Array.from ? Array.from(arguments) : Array.prototype.slice.call(arguments);
 
             window.cancelAnimationFrame(rafId);
             rafId = window.requestAnimationFrame(() => {
@@ -285,23 +281,22 @@ const debounceRaf = (fn, ctx = null) => {
  * @return {object}
  */
 const getNodeAttrObj = (node, skipList) => {
-    let attrObj;
     let attributesLength = 0;
     let skipArray;
 
     if (!node || node.nodeType !== 1 || !node.hasAttributes()) {
-        return attrObj;
+        return;
     }
     if (skipList) {
         skipArray = [];
         skipArray = typeof skipList === 'string' ? skipArray.push(skipList) : skipList;
     }
-    attrObj = {};
+    const attrObj = {};
     attributesLength = node.attributes.length;
 
     if (attributesLength) {
         for (let i = 0; i < attributesLength; i += 1) {
-            let attribute = node.attributes.item(i);
+            const attribute = node.attributes.item(i);
             attrObj[attribute.nodeName] = attribute.nodeValue;
         }
     }
@@ -358,7 +353,7 @@ const each = (obj, fn) => {
     }
     let keys = [];
     let keysLength = 0;
-    let isArrayObj = isArray(obj);
+    const isArrayObj = isArray(obj);
     let key;
     let value;
     let i = 0;
@@ -407,17 +402,16 @@ const cloneDomNode = (element) => {
  * @description helper function to insert new node before the reference node
  */
 const insertAfter = (parentNode, newNode, referenceNode) => {
-    let refNextElement = referenceNode && referenceNode.nextSibling ? referenceNode.nextSibling : null;
+    const refNextElement = referenceNode && referenceNode.nextSibling ? referenceNode.nextSibling : null;
     return parentNode.insertBefore(newNode, refNextElement);
 };
 
 const resolveViewModelContext = (viewModel, datakey) => {
     let ret = viewModel;
-    let bindingDataContext;
     if (typeof datakey !== 'string') {
         return ret;
     }
-    bindingDataContext = datakey.split('.');
+    const bindingDataContext = datakey.split('.');
     if (bindingDataContext.length > 1) {
         if (bindingDataContext[0] === config.bindingDataReference.rootDataKey) {
             ret = viewModel[config.bindingDataReference.rootDataKey] || viewModel;
@@ -456,7 +450,7 @@ const removeElement = (el) => {
 };
 
 const throwErrorMessage = (err = null, errorMessage = '') => {
-    let message = err && err.message ? err.message : errorMessage;
+    const message = err && err.message ? err.message : errorMessage;
     if (typeof console.error === 'function') {
         return console.error(message);
     }

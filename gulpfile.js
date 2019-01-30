@@ -20,8 +20,10 @@ const bundledFile = 'dataBind.js';
 // load package json data
 const pkg = require('./package.json');
 
+const {dest} = require('gulp');
+
 // release banner comment
-let banner = [
+const banner = [
     '/**',
     ' * <%= pkg.name %> - <%= pkg.description %>',
     ' * @version v<%= pkg.version %>',
@@ -33,7 +35,7 @@ let banner = [
 
 // bundle - using browserify -
 gulp.task('bundle', () => {
-    let sources = browserify({
+    const sources = browserify({
         entries: entryFilePath,
         debug: true, // Build source maps
     }).transform(

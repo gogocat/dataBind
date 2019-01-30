@@ -21,7 +21,7 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
 
     cache.elementData = cache.elementData || {};
 
-    let oldShowStatus = cache.elementData.viewModelPropValue;
+    const oldShowStatus = cache.elementData.viewModelPropValue;
 
     // store current element display default style once only
     if (
@@ -36,7 +36,7 @@ const showBinding = (cache, viewModel, bindingAttrs) => {
             cache.elementData.displayStyle = currentInlineDisplaySytle === 'none' ? 'block' : currentInlineDisplaySytle;
             cache.elementData.computedStyle = null;
         } else {
-            let computeStyle = window.getComputedStyle(cache.el, null).getPropertyValue('display');
+            const computeStyle = window.getComputedStyle(cache.el, null).getPropertyValue('display');
             cache.elementData.displayStyle = null;
             cache.elementData.computedStyle = computeStyle;
         }
