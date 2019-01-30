@@ -201,6 +201,7 @@ const extractFilterList = (cacheData) => {
                 isOnceIndex = i;
             }
         });
+        // don't store filter 'once' - because it is internal logic not a property from viewMoel
         if (isOnceIndex >= 0) {
             filterList.splice(isOnceIndex, 1);
         }
