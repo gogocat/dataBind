@@ -201,7 +201,7 @@ const extractFilterList = (cacheData) => {
                 isOnceIndex = i;
             }
         });
-        // don't store filter 'once' - because it is internal logic not a property from viewMoel
+        // don't store filter 'once' - because it is internal logic not a property from viewModel
         if (isOnceIndex >= 0) {
             filterList.splice(isOnceIndex, 1);
         }
