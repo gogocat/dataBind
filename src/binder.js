@@ -1,5 +1,5 @@
 import * as config from './config';
-import {debounceRaf, extend} from './util';
+import {debounceRaf, extend, each, throwErrorMessage} from './util';
 import renderTemplate from './renderTemplate';
 import clickBinding from './clickBinding';
 import dblclickBinding from './dbclickBinding';
@@ -139,6 +139,9 @@ class Binder {
             updateOption = createBindingOption('', opt);
         }
 
+        // create postProcessQueue before start rendering
+        this.postProcessQueue = [];
+
         // render and apply binding to template(s)
         // this is an share function therefore passing 'this' context
         renderTemplatesBinding({
@@ -151,16 +154,23 @@ class Binder {
 
         // apply bindings to rest of the DOM
         Binder.applyBinding({
+            ctx: this,
             elementCache: this.elementCache,
             updateOption: updateOption,
             bindingAttrs: this.bindingAttrs,
             viewModel: this.viewModel,
         });
 
+        // trigger postProcess
+        Binder.postProcess(this.postProcessQueue);
+        // clear postProcessQueue
+        this.postProcessQueue.length = 0;
+        delete this.postProcessQueue;
+
         this.initRendered = true;
     }
 
-    static applyBinding({elementCache, updateOption, bindingAttrs, viewModel}) {
+    static applyBinding({ctx, elementCache, updateOption, bindingAttrs, viewModel}) {
         if (!elementCache || !updateOption) {
             return;
         }
@@ -287,6 +297,21 @@ class Binder {
                 hoverBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
             });
         }
+    }
+
+    static postProcess(tasks) {
+        if (!tasks || !tasks.length) {
+            return;
+        }
+        each(tasks, (index, task) => {
+            if (typeof task === 'function') {
+                try {
+                    task();
+                } catch (err) {
+                    throwErrorMessage(err, 'Error postProcess: ' + String(task));
+                }
+            }
+        });
     }
 
     subscribe(eventName = '', fn) {

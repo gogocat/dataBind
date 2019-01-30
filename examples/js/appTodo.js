@@ -38,23 +38,19 @@
             this.tasks = newTasks;
             this.updateViewData();
         },
-        onTaskCompleted: function(e, $el, newValue, oldValue) {
-            let index = this.getCurrentTaskIndex($el);
+        onTaskCompleted: function(e, $el, newValue, oldValue, index) {
             this.tasks[index].completed = newValue;
             this.updateViewData({templateBinding: true});
         },
-        onTaskRemove: function(e, $el) {
-            let index = this.getCurrentTaskIndex($el);
+        onTaskRemove: function(e, $el, index) {
             this.tasks.splice(index, 1);
             this.updateViewData();
         },
-        onEditTask: function(e, $el) {
-            let index = this.getCurrentTaskIndex($el);
+        onEditTask: function(e, $el, index) {
             this.tasks[index].editing = true;
             this.updateViewData({templateBinding: false});
         },
-        onBlurEditTask: function(e, $el) {
-            let index = this.getCurrentTaskIndex($el);
+        onBlurEditTask: function(e, $el, index) {
             let oldValue = this.tasks[index].taskTitle;
             let newValue = _.escape($el.val().trim());
             let isChanged = false;
@@ -77,30 +73,6 @@
         onShowCompletedTasks: function(e) {
             this.displayFilter = 'completed';
             this.updateViewData();
-        },
-        getCurrentTaskIndex: function($el) {
-            let currentItemIndexAttr = 'data-index';
-            let currentItemIndex = $el.closest('[' + currentItemIndexAttr + ']').attr(currentItemIndexAttr);
-            let currentTaskTitle = '';
-            let taskListIndex;
-
-            currentItemIndex = parseFloat(currentItemIndex);
-
-            if (currentItemIndex !== NaN) {
-                currentTaskTitle = this.displayTasks[currentItemIndex].taskTitle;
-                this.tasks.some(function(task, index) {
-                    if (task.taskTitle === currentTaskTitle) {
-                        taskListIndex = index;
-                        return true;
-                    }
-                });
-            }
-
-            return taskListIndex;
-        },
-        getCurrentTaskData: function($el) {
-            let taskItemIndex = this.getCurrentTaskIndex($el);
-            return this.tasks[taskItemIndex];
         },
         getCompletedTasks: function() {
             return this.tasks.filter(function(task, index) {
@@ -134,6 +106,12 @@
                 break;
             }
             return displayTasks;
+        },
+        setTaskLabelAttr: function(index) {
+            return {for: `taskEdit-${index}`};
+        },
+        setTaskInputAttr: function(index) {
+            return {id: `taskEdit-${index}`};
         },
         updateViewData: function(renderOption) {
             let compltedTasks = this.getCompletedTasks();

@@ -5,10 +5,13 @@ _ = window._ || {};
 
 const hasIsArray = Array.isArray;
 
+const supportPromise = typeof window['Promise'] === 'function';
+
 const REGEX = {
     FUNCTIONPARAM: /\((.*?)\)/,
     WHITESPACES: /\s+/g,
     FOROF: /(.*?)\s+(?:in|of)\s+(.*)/,
+    PIPE: /\|/,
 };
 
 const generateElementCache = (bindingAttrs) => {
@@ -102,7 +105,32 @@ const getViewModelPropValue = (viewModel, bindingCache) => {
         ret = ret.apply(viewModelContext, args);
     }
 
-    return isInvertBoolean ? !Boolean(ret) : ret;
+    ret = isInvertBoolean ? !Boolean(ret) : ret;
+
+    // call through fitlers to get final value
+    ret = filtersViewModelPropValue({
+        value: ret,
+        viewModel: viewModel,
+        bindingCache: bindingCache,
+    });
+
+    return ret;
+};
+
+const filtersViewModelPropValue = ({value, viewModel, bindingCache}) => {
+    let ret = value;
+    if (bindingCache.filters) {
+        each(bindingCache.filters, (index, filter) => {
+            let viewModelContext = resolveViewModelContext(viewModel, filter);
+            let filterFn = getViewModelValue.call(viewModelContext, viewModelContext, filter);
+            try {
+                ret = filterFn.call(viewModelContext, ret);
+            } catch (err) {
+                throwErrorMessage(err, `Invalid filter: ${filter}`);
+            }
+        });
+    }
+    return ret;
 };
 
 const parseStringToJson = (str) => {
@@ -157,11 +185,49 @@ const getFunctionParameterList = (str) => {
     return paramlist;
 };
 
+const extractFilterList = (cacheData) => {
+    if (!cacheData || !cacheData.dataKey || cacheData.dataKey.length > config.maxDatakeyLength) {
+        return cacheData;
+    }
+    let filterList = cacheData.dataKey.split(REGEX.PIPE);
+    let isOnceIndex;
+    cacheData.dataKey = filterList[0].trim();
+    if (filterList.length > 1) {
+        filterList.shift(0);
+        filterList.forEach(function(v, i) {
+            filterList[i] = v.trim();
+            if (filterList[i] === config.constants.filters.ONCE) {
+                cacheData.isOnce = true;
+                isOnceIndex = i;
+            }
+        });
+        // don't store filter 'once' - because it is internal logic not a property from viewModel
+        if (isOnceIndex >= 0) {
+            filterList.splice(isOnceIndex, 1);
+        }
+        cacheData.filters = filterList;
+    }
+    return cacheData;
+};
+
 const invertObj = (sourceObj) => {
     return Object.keys(sourceObj).reduce(function(obj, key) {
         obj[sourceObj[key]] = key;
         return obj;
     }, {});
+};
+
+const createDeferredObj = () => {
+    let dfObj = {};
+    if (supportPromise) {
+        dfObj.promise = new Promise((resolve, reject) => {
+            dfObj.resolve = resolve;
+            dfObj.reject = reject;
+        });
+    } else {
+        dfObj = $.Deferred(); // eslint-disable-line new-cap
+    }
+    return dfObj;
 };
 
 /**
@@ -173,7 +239,7 @@ const invertObj = (sourceObj) => {
  */
 const debounceRaf = (fn, ctx = null) => {
     return (function(fn, ctx) {
-        let dfObj = $.Deferred(); // eslint-disable-line new-cap
+        let dfObj = createDeferredObj();
         let rafId = 0;
 
         // return decorated fn
@@ -184,15 +250,29 @@ const debounceRaf = (fn, ctx = null) => {
 
             window.cancelAnimationFrame(rafId);
             rafId = window.requestAnimationFrame(() => {
-                $.when(fn.apply(ctx, args)).then(
-                    dfObj.resolve.apply(ctx, arguments),
-                    dfObj.reject.apply(ctx, arguments),
-                    dfObj.notify.apply(ctx, arguments)
-                );
-                dfObj = $.Deferred(); // eslint-disable-line new-cap
+                try {
+                    // fn is Binder.render function
+                    fn.apply(ctx, args);
+                    // dfObj.resolve is function provided in .then promise chain
+                    // ctx is the current component
+                    dfObj.resolve(ctx);
+                } catch (err) {
+                    dfObj.reject(ctx, err);
+                }
+
+                // reset dfObj - otherwise then callbacks will not be in execution order
+                // example:
+                // myApp.render().then(function(){console.log('ok1')});
+                // myApp.render().then(function(){console.log('ok2')});
+                // myApp.render().then(function(){console.log('ok3')});
+                // >> ok1, ok2, ok3
+                dfObj = createDeferredObj();
+
+                window.cancelAnimationFrame(rafId);
             });
+
             /* eslint-enable prefer-rest-params */
-            return dfObj.promise();
+            return supportPromise ? dfObj.promise : dfObj.promise();
         };
     })(fn, ctx);
 };
@@ -369,6 +449,12 @@ const resolveParamList = (viewModel, paramList) => {
     });
 };
 
+const removeElement = (el) => {
+    if (el && el.parentNode) {
+        el.parentNode.removeChild(el);
+    }
+};
+
 const throwErrorMessage = (err = null, errorMessage = '') => {
     let message = err && err.message ? err.message : errorMessage;
     if (typeof console.error === 'function') {
@@ -384,6 +470,7 @@ export {
     debounceRaf,
     each,
     extend,
+    extractFilterList,
     generateElementCache,
     getFormData,
     getFunctionParameterList,
@@ -397,6 +484,7 @@ export {
     isJsObject,
     isPlainObject,
     parseStringToJson,
+    removeElement,
     resolveParamList,
     resolveViewModelContext,
     setViewModelValue,

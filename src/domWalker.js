@@ -1,4 +1,5 @@
-import {invertObj, getFunctionParameterList, REGEX} from './util';
+import {invertObj, extractFilterList, getFunctionParameterList, REGEX} from './util';
+import {constants} from './config';
 
 let bindingAttrsMap;
 
@@ -55,14 +56,19 @@ const populateBindingCache = ({node, attrObj, bindingCache, type}) => {
             dataKey: attrValue,
         };
 
+        // populate cacheData.filters. update filterList first item as dataKey
+        cacheData = extractFilterList(cacheData);
+
+        // populate cacheData.parameters
         // for store function call parameters eg. '$index', '$root'
         // useful with DOM for-loop template as reference to binding data
-        let paramList = getFunctionParameterList(attrValue);
+        let paramList = getFunctionParameterList(cacheData.dataKey);
         if (paramList) {
             cacheData.parameters = paramList;
             cacheData.dataKey = cacheData.dataKey.replace(REGEX.FUNCTIONPARAM, '').trim();
         }
-
+        // store parent array reference to cacheData
+        cacheData[constants.PARENT_REF] = bindingCache[type];
         bindingCache[type].push(cacheData);
     }
     return bindingCache;

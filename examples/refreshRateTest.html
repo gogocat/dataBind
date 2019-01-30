@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="description" content="" />
+        <title>Refresh rate test</title>
+    </head>
+
+    <body>
+        <div>
+            <h1>Browser performance test</h1>
+            <p>This example test how many operation can be perform within 60 FPS</p>
+            <small>
+                By Ilmari Heikkinen -
+                <a href="https://developers.google.com/web/updates/2012/07/How-to-measure-browser-graphics-performance" target="_blank">
+                    How to measure browser graphics performance
+                </a>
+        </div>
+        <div>
+            <p>Results:</p>
+            <p id="res"></p>
+            <p>Canvas:</p>
+            <p><canvas id="canvas" width="400" height="400"></canvas></p>
+            <br /><br />
+            <p>Sprite:</p>
+            <img
+                id="img"
+                src="http://lh6.ggpht.com/-TTZ5OhpPNOs/TaM83_mTXAI/AAAAAAAAH3E/HhB7AXAVBDQ/s128/chrome-a_512.png"
+            />
+        </div>
+        <script>
+            var ctx = document.getElementById('canvas').getContext('2d');
+            var img = document.getElementById('img');
+
+            var draw = function(load) {
+                var angle = 0.01;
+                ctx.clearRect(0, 0, 400, 400);
+                ctx.save();
+                ctx.translate(200, 200);
+                for (var i = 0; i < load; i++) {
+                    ctx.rotate(angle);
+                    ctx.drawImage(img, 0, 0);
+                }
+                ctx.restore();
+            };
+
+            var t, previousTime;
+            var drawLoad = 1;
+            var slowCount = 0;
+            var maxSlow = 10;
+
+            t = previousTime = performance.now();
+
+            var tick = function() {
+                var maximumFrameTime = 1000 / 60; // 60 FPS
+                t = performance.now();
+                var elapsed = t - previousTime;
+                previousTime = t;
+                if (elapsed < maximumFrameTime || slowCount < maxSlow) {
+                    if (elapsed < maximumFrameTime) {
+                        drawLoad += 10;
+                    } else {
+                        slowCount++;
+                    }
+                    draw(drawLoad);
+                    requestAnimationFrame(tick);
+                } else {
+                    // found maximum sustainable load at 30 FPS
+                    document.getElementById('res').innerHTML =
+                        'could draw ' + drawLoad + ' in ' + Math.round(maximumFrameTime) + ' ms';
+                }
+            };
+            requestAnimationFrame(tick);
+        </script>
+    </body>
+</html>

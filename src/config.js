@@ -52,6 +52,13 @@ const bindingUpdateConditions = {
 // maximum string length before running regex
 const maxDatakeyLength = 50;
 
+const constants = {
+    filters: {
+        ONCE: 'once',
+    },
+    PARENT_REF: '_parent',
+};
+
 export {
     bindingAttrs,
     dataIndexAttr,
@@ -62,4 +69,5 @@ export {
     bindingUpdateConditions,
     bindingDataReference,
     maxDatakeyLength,
+    constants,
 };

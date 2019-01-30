@@ -31,15 +31,17 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     }
 
     const isDomRemoved = isTargetDomRemoved(bindingData);
-    // use fragment for create iterationBindingCache
-    const rootElement = bindingData.fragment.firstChild.cloneNode(true);
+    let rootElement = bindingData.el;
 
     // remove current old DOM.
-    if (!isDomRemoved) {
+    // TODO: try preserve DOM
+    if (!isDomRemoved && !bindingData.isOnce) {
         removeIfBinding(bindingData);
+        // use fragment for create iterationBindingCache
+        rootElement = bindingData.fragment.firstChild.cloneNode(true);
     }
 
-    // walk clonedElement to create iterationBindingCache
+    // walk clonedElement to create iterationBindingCache once
     if (!bindingData.iterationBindingCache || !bindingData.hasIterationBindingCache) {
         bindingData.iterationBindingCache = createBindingCache({
             rootNode: rootElement,
@@ -60,6 +62,7 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     }
 
     // insert to new rendered DOM
+    // TODO: check unnecessary insertion when DOM is preserved
     insertRenderedElements(bindingData, rootElement);
 };
 
@@ -67,8 +70,8 @@ const removeIfBinding = (bindingData) => {
     removeElemnetsByCommentWrap(bindingData);
     // remove cache.IterationBindingCache to prevent memory leak
     if (bindingData.hasIterationBindingCache) {
-        bindingData.iterationBindingCache = {};
-        bindingData.hasIterationBindingCache = false;
+        delete bindingData.iterationBindingCache;
+        delete bindingData.hasIterationBindingCache;
     }
 };
 

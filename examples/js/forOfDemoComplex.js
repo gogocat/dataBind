@@ -133,7 +133,7 @@
         for (let i = 0; i < randomSeed; i += 1) {
             data.push({
                 id: i,
-                title: 'Sample gardening service',
+                title: 'Sample gardening service' + i,
                 description: descriptions[getRandomNumber(0, descriptions.length - 1)],
                 image: images[getRandomNumber(0, images.length - 1)],
                 bookmarked: false,

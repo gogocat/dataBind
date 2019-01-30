@@ -1,5 +1,5 @@
-import {bindingAttrs as configBindingAttrs} from './config';
-import {getViewModelPropValue} from './util';
+import {bindingAttrs as configBindingAttrs, constants} from './config';
+import {getViewModelPropValue, removeElement} from './util';
 import {createClonedElementCache, wrapCommentAround} from './commentWrapper';
 import {renderIfBinding, removeIfBinding} from './renderIfBinding';
 
@@ -14,7 +14,8 @@ import {renderIfBinding, removeIfBinding} from './renderIfBinding';
 const ifBinding = (cache, viewModel, bindingAttrs) => {
     let dataKey = cache.dataKey;
 
-    if (!dataKey) {
+    // isOnce only return if there is no child bindings
+    if (!dataKey || (cache.isOnce && cache.hasIterationBindingCache === false)) {
         return;
     }
 
@@ -22,12 +23,24 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
     cache.type = cache.type || configBindingAttrs.if;
 
     let oldViewModelProValue = cache.elementData.viewModelPropValue;
-
     // getViewModelPropValue could be return undefined or null
     let viewModelPropValue = getViewModelPropValue(viewModel, cache) || false;
+
+    // do nothing if viewModel value not changed and no child bindings
+    if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
+        return;
+    }
+
     let shouldRender = Boolean(viewModelPropValue);
 
-    if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
+    // remove this cache from parent array
+    if (!shouldRender && cache.isOnce && cache.el.parentNode) {
+        removeElement(cache.el);
+        // delete cache.fragment;
+        removeBindingInQueue({
+            viewModel: viewModel,
+            cache: cache,
+        });
         return;
     }
 
@@ -53,7 +66,30 @@ const ifBinding = (cache, viewModel, bindingAttrs) => {
             viewModel: viewModel,
             bindingAttrs: bindingAttrs,
         });
+
+        // if render once
+        // remove this cache from parent array if no child caches
+        if (cache.isOnce && !cache.hasIterationBindingCache) {
+            // delete cache.fragment;
+            removeBindingInQueue({
+                viewModel: viewModel,
+                cache: cache,
+            });
+        }
     }
+};
+
+const removeBindingInQueue = ({viewModel, cache}) => {
+    let ret = false;
+    if (viewModel.APP.postProcessQueue) {
+        viewModel.APP.postProcessQueue.push(
+            ((cache, index) => () => {
+                cache[constants.PARENT_REF].splice(index, 1);
+            })(cache, cache[constants.PARENT_REF].indexOf(cache))
+        );
+        ret = true;
+    }
+    return ret;
 };
 
 export default ifBinding;

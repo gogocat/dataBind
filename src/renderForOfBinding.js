@@ -1,6 +1,6 @@
 /* eslint-disable no-invalid-this */
 import {bindingAttrs as configBindingAttrs, bindingDataReference} from './config';
-import {getViewModelValue, isArray, isPlainObject, throwErrorMessage, cloneDomNode, isEmptyObject} from './util';
+import {getViewModelPropValue, isArray, isPlainObject, throwErrorMessage, cloneDomNode, isEmptyObject} from './util';
 import createBindingCache from './domWalker';
 import {renderIteration} from './binder';
 import {wrapCommentAround, removeElemnetsByCommentWrap, insertRenderedElements} from './commentWrapper';
@@ -11,7 +11,7 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     }
     let keys;
     let iterationDataLength;
-    let iterationData = getViewModelValue(viewModel, bindingData.iterator.dataKey);
+    let iterationData = getViewModelPropValue(viewModel, bindingData.iterator);
     let isRegenerate = false;
 
     // check iterationData and set iterationDataLength
