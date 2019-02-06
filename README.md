@@ -1,13 +1,16 @@
 ## What is dataBind?
 
-dataBind is a light weight JavaScript MV* framework aim for modernise web sites that use [jQuery](https://trends.builtwith.com/javascript/jQuery) - over 80%.
+dataBind is a light weight JavaScript MV* framework aim for modernise [web sites that use jQuery](https://trends.builtwith.com/javascript/jQuery).
 
-In simple overview, dataBind simpliy bind view data to the view(HTML), events, two way or one way data binding.
-Because of simplicity, dataBind is very fast. Please do try the famous dbmonster example, locate in `examples/dbmonsterForOf.html` and fiber `/examples/fiber-demo.html`. 
-Compare with [other frameworks.](http://mathieuancelin.github.io/js-repaint-perfs/)
+In simple overview, dataBind simpliy bind view data to the HTML, wire events, and provides two way or one way data binding.
+dataBind is very fast. Please do try the famous dbmonster example, locate in `examples/dbmonsterForOf.html` and fiber `/examples/fiber-demo.html` compare with [other frameworks.](http://mathieuancelin.github.io/js-repaint-perfs/)
 
 ## How to use it?
-This is a very simple example of text binding.
+This is a very simple example shows text binding. 
+
+Most of your logic will be in the viewModel (plan old JavaScript object).
+
+`dataBind.init` will return an instance of `Binder` object. This is the bond dataBind object.
 
 HTML view
 		
