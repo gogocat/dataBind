@@ -1,8 +1,6 @@
-## Welcome to GitHub Pages
+## What is dataBind?
 
-You can use the [editor on GitHub](https://github.com/gogocat/dataBind/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
-
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+dataBind is a light weight JavaScript MV* framework aim for modernise web sites that use [jQuery](https://trends.builtwith.com/javascript/jQuery ) - over 80%.
 
 ### Markdown
 
