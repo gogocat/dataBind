@@ -6,11 +6,12 @@ In simple overview, dataBind simpliy bind view data to the HTML, wire events, an
 dataBind is very fast. Please do try the famous dbmonster example, locate in `examples/dbmonsterForOf.html` and fiber `/examples/fiber-demo.html` compare with [other frameworks.](http://mathieuancelin.github.io/js-repaint-perfs/)
 
 ## How to use it?
-This is a very simple example shows text binding. 
+The following is a very simple example shows text binding. 
 
-Most of your logic will be in the viewModel (plan old JavaScript object).
+Most of the component logic will be in the viewModel(plan old JavaScript object).
 
-`dataBind.init` will return an instance of `Binder` object. This is the bond dataBind object.
+`dataBind.init` will return an instance of `Binder`(this is the bond dataBind object).
+Then just call `render` to start render to the page.
 
 HTML view
 		
