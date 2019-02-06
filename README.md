@@ -46,10 +46,47 @@ To make change, just update the viewModel data then call `render()`.
 `render` is an asynchronous, debounced function. So it will consolidate to render only once.
 
 For more advance example. Please check the `examples/bootstrap.html`. 
-Note, this example shows how to use multiple, nested components and services together. You will need to run this html in a local server.
 
-## 
+> *Note, this example shows how to use multiple, nested components and services together. You will need to run this html in a local server*.
 
+----
+
+## Supported bindings
+
+### Visual bindings
+These bindings produce visual changes
+
+### Template binding
+		
+    <section data-jq-comp="simpleComponent" data-jq-tmp="{id: 'exampleTemplate', data: '$root'}">
+    </section>
+    
+    <template id="exampleTemplate">
+    	<h1 data-jq-text="heading"></h1>
+    </template>
+
+The attribute `data-jq-tmp` accept a JSON like object. `id` is reference to the `template` element id. `data` is reference to the data object within the bound viewModel. In this example `$root` means the root of the viewModel itself.
+If there is a 3rd option as `append: true` or `prepend: true`, the content will be append or preprend to the container (the section tag in this example).
+
+### Text binding
+### css binding
+### if binding
+### show binding
+### model binding
+### attribute binding
+### forOf binding
+### switch binding
+
+### Event bindings
+These binding produce inter-activities
+### change binding
+### click binding
+### dblclick binding
+### blur binding
+### focus binding
+### hover binding
+### submit binding
+	
 ### What not
 
 Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
