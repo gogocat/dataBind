@@ -1,48 +1,45 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta name="description" content="DBMON NOT REACT" />
+        <link href="css/dbMonsterStyles.css" rel="stylesheet" type="text/css" />
+        <title>dbmon test dataBind.js</title>
+    </head>
 
-<head>
-    <meta name="description" content="DBMON NOT REACT" />
-    <link href="css/dbMonsterStyles.css" rel="stylesheet" type="text/css" />
-    <title>dbmon test dataBind.js</title>
-</head>
+    <body>
+        <div id="app">
+            <table class="table table-striped latest-data">
+                <tbody data-jq-tmp="{id:'mainTable', data: 'databases'}"></tbody>
+            </table>
+        </div>
+        <script src="https://mathieuancelin.github.io/js-repaint-perfs/ENV.js"></script>
+        <script src="https://mathieuancelin.github.io/js-repaint-perfs/lib/memory-stats.js"></script>
+        <script src="https://mathieuancelin.github.io/js-repaint-perfs/lib/monitor.js"></script>
 
-<body>
-    <div id="app">
-        <table class="table table-striped latest-data">
-            <tbody data-jq-tmp="{id:'mainTable', data: 'databases'}">
-            </tbody>
-        </table>
-    </div>
-    <script src="http://mathieuancelin.github.io/js-repaint-perfs/ENV.js"></script>
-    <script src="http://mathieuancelin.github.io/js-repaint-perfs/lib/memory-stats.js"></script>
-    <script src="http://mathieuancelin.github.io/js-repaint-perfs/lib/monitor.js"></script>
+        <script src="../vendors/lodash.custom.min.js"></script>
+        <script src="../vendors/jquery-3.2.1.min.js"></script>
+        <script src="../dist/js/dataBind.js"></script>
+        <script src="js/dbMonApp.js"></script>
 
-    <script src="../vendors/lodash.custom.min.js"></script>
-    <script src="../vendors/jquery-3.2.1.min.js"></script>
-    <script src="../dist/js/dataBind.js"></script>
-    <script src="js/dbMonApp.js"></script>
-
-    <script type="html/text" id='mainTable'>
-        <%  _.each(data, function(db, index) {  %>
-            <tr>
-                <td class="dbname" data-jq-text="databases[{{index}}].dbname"></td>
-                <td class="query-count">
-                    <span data-jq-css="databases[{{index}}].lastSample.countClassName" data-jq-text="databases[{{index}}].lastSample.nbQueries"></span>
-                </td>
-                <%  _.each(db.lastSample.topFiveQueries, function(q, i) {  %>
-                    <td class="{{q.elapsedClassName}}">
-                        <span data-jq-text="databases[{{index}}].lastSample.topFiveQueries[{{i}}].formatElapsed"></span>
-                        <div class="popover left">
-                            <div class="popover-content" data-jq-text="databases[{{index}}].lastSample.topFiveQueries[{{i}}].query">
-                            </div>
-                            <div class="arrow"></div>
-                        </div>
+        <script type="html/text" id="mainTable">
+            <%  _.each(data, function(db, index) {  %>
+                <tr>
+                    <td class="dbname" data-jq-text="databases[{{index}}].dbname"></td>
+                    <td class="query-count">
+                        <span data-jq-css="databases[{{index}}].lastSample.countClassName" data-jq-text="databases[{{index}}].lastSample.nbQueries"></span>
                     </td>
-                    <% }); %>
-            </tr>
-            <% }); %>
-    </script>
-</body>
-
+                    <%  _.each(db.lastSample.topFiveQueries, function(q, i) {  %>
+                        <td class="{{q.elapsedClassName}}">
+                            <span data-jq-text="databases[{{index}}].lastSample.topFiveQueries[{{i}}].formatElapsed"></span>
+                            <div class="popover left">
+                                <div class="popover-content" data-jq-text="databases[{{index}}].lastSample.topFiveQueries[{{i}}].query">
+                                </div>
+                                <div class="arrow"></div>
+                            </div>
+                        </td>
+                        <% }); %>
+                </tr>
+                <% }); %>
+        </script>
+    </body>
 </html>
