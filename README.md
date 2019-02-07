@@ -75,14 +75,14 @@ If there is a 3rd option as `append: true` or `prepend: true`, the content will 
 
     <h1 data-jq-text="heading"></h1>
 
-The attribute `data-jq-text` is refernce to the viewModel's property 'heading'. All binding can handle deep path reference eg.
+The attribute `data-jq-text` is refernce to the viewModel's property '**heading**'. All binding can handle deep path reference eg.
 `data-jq-text="childObj.myArray[1].heading"`
     
 ### css binding
 
     <h1 data-jq-css="mycCss"></h1>
 
-The attribute `data-jq-css` is refernce to the viewModel's property 'mycCss'. This property can be a string of css class name, an object represend mutilple css class toggle eg. `{css1: true, css2: false}` or an function that returns either string or the object.
+The attribute `data-jq-css` is refernce to the viewModel's property '**mycCss**'. This property can be a string of css class name, an object represend mutilple css class toggle eg. `{css1: true, css2: false}` or a function that returns either string or the object.
 
 ### if binding
 
@@ -90,9 +90,9 @@ The attribute `data-jq-css` is refernce to the viewModel's property 'mycCss'. Th
         <span>Hello</span>
     </h1>
     
-    <div class="" data-jq-if="!myCondition" data-jq-tmp="{id: 'someTemplateId', data: 'someData'}"></div>
+    <div data-jq-if="!myCondition" data-jq-tmp="{id: 'someTemplateId', data: 'someData'}"></div>
 
-The attribute `data-jq-if` is refernce to the viewModel's property 'myCondition'. This property can be a boolean, or an function that returns boolean.
+The attribute `data-jq-if` is refernce to the viewModel's property '**myCondition**'. This property can be a boolean, or a function that returns boolean.
 
 If `myCondition` is false. the children elements will be removed. When later `myCondition` is set to true. The elements will be render back.
 
