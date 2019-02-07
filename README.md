@@ -92,7 +92,11 @@ The attribute `data-jq-css` is refernce to the viewModel's property 'mycCss'. Th
     
     <div class="" data-jq-if="!myCondition" data-jq-tmp="{id: 'someTemplateId', data: 'someData'}"></div>
 
-The attribute `data-jq-if` is refernce to the viewModel's property 'myCondition'. This property can be a boolean, or an function that returns boolean. It can handle negate expression as well. In the second example above. When the expression `!myCondition` evaluate true. The template binding `data-jq-tmp` will run.
+The attribute `data-jq-if` is refernce to the viewModel's property 'myCondition'. This property can be a boolean, or an function that returns boolean.
+
+If `myCondition` is false. the children elements will be removed. When later `myCondition` is set to true. The elements will be render back.
+
+It can handle negate expression as well. In the second example above. When the expression `!myCondition` evaluate true. The template binding `data-jq-tmp` will execute and render content within the DIV.
 
 ### show binding
 ### model binding
