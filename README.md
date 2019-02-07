@@ -85,6 +85,15 @@ The attribute `data-jq-text` is refernce to the viewModel's property 'heading'. 
 The attribute `data-jq-css` is refernce to the viewModel's property 'mycCss'. This property can be a string of css class name, an object represend mutilple css class toggle eg. `{css1: true, css2: false}` or an function that returns either string or the object.
 
 ### if binding
+
+    <h1 data-jq-if="myCondition">
+        <span>Hello</span>
+    </h1>
+    
+    <div class="" data-jq-if="!myCondition" data-jq-tmp="{id: 'someTemplateId', data: 'someData'}"></div>
+
+The attribute `data-jq-if` is refernce to the viewModel's property 'myCondition'. This property can be a boolean, or an function that returns boolean. It can handle negate expression as well. In the second example above. When the expression `!myCondition` evaluate true. The template binding `data-jq-tmp` will run.
+
 ### show binding
 ### model binding
 ### attribute binding
