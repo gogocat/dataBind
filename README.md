@@ -78,7 +78,7 @@ dataBind also support Underscore/Lodash template intepolation.
     
     <script type="html/text" id="exampleTemplate">
         <h1 data-jq-text="heading"></h1>
-	{{description}}
+        {{description}}
     </script>
 
 > *Note, support for Underscore/Lodah template will likely to be drop in the future release.*
@@ -121,8 +121,8 @@ The attribute `data-jq-show` is refernce to the viewModel's property '**isShow**
 ### model binding
 
     <input id="userName" name="userName" type="text" 
-        data-jq-model="personalDetails.userName" 
-	data-jq-change="onInputChange" 
+        data-jq-model="personalDetails.userName"
+        data-jq-change="onInputChange" 
     required>
 
 The attribute `data-jq-model` is refernce to the viewModel's property '**personalDetails.userName**'. This property can be a string, or a function that returns string. Model binding is one-way binding that populate the input field `value` attribute with value from the corresponing viewModel property.
