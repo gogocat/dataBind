@@ -1,5 +1,5 @@
 (function(jQuery) {
-    var searchSuggestion = [
+    let searchSuggestion = [
         'Air Conditioning',
         'Heating',
         'Bricklaying',
@@ -22,18 +22,14 @@
         'Skip Hiring',
         'Scaffolding',
         'Other Building',
-        'Construction'
+        'Construction',
     ];
 
-    var substringMatcher = function(strs) {
+    let substringMatcher = function(strs) {
         return function findMatches(q, cb) {
-            var matches, substringRegex;
-
-            // an array that will be populated with substring matches
-            matches = [];
-
+            let matches = [];
             // regex used to determine if a string contains the substring `q`
-            substrRegex = new RegExp(q, 'i');
+            let substrRegex = new RegExp(q, 'i');
 
             // iterate through the pool of strings and for any string that
             // contains the substring `q`, add it to the `matches` array
@@ -51,9 +47,9 @@
         $('#scrollable-dropdown-menu .typeahead').typeahead(null, {
             name: 'searchSuggestion',
             limit: 5,
-            source: substringMatcher(searchSuggestion)
+            source: substringMatcher(searchSuggestion),
         });
-        // after typeahead init. move label and focus bar 
+        // after typeahead init. move label and focus bar
         $('[for="searchWord"]').insertAfter($('#searchWord'));
         $('.search-bar__focus-bar').insertAfter($('[for="searchWord"]'));
     });
