@@ -3,11 +3,11 @@
 dataBind is a light weight JavaScript MV* framework aim for modernise how [web sites that use jQuery](https://trends.builtwith.com/javascript/jQuery).
 
 * **Declarative:** dataBind simpliy bind view data to the HTML, wire events, and provides two way or one way data binding
-* **High performance:** dataBind is very fast. Please do try the famous [**dbmonster** example](https://gogocat.github.io/dataBind/examples/dbmonsterForOf.html), locate in `examples/dbmonsterForOf.html` and [**fiber**](https://gogocat.github.io/dataBind/examples/fiber-demo.html) `/examples/fiber-demo.html` compare with [other frameworks.](http://mathieuancelin.github.io/js-repaint-perfs/)
+* **High performance:** dataBind is very fast. Please do try the famous [**dbmonster** example](https://gogocat.github.io/dataBind/examples/dbmonsterForOf.html), locate in `examples/dbmonsterForOf.html` and [**fiber**](https://gogocat.github.io/dataBind/examples/fiber-demo.html) `/examples/fiber-demo.html` compare with [other frameworks](http://mathieuancelin.github.io/js-repaint-perfs/)
 * **DOM is the source of truth:** There is no vitrual DOM or complex reactive observables to worry about
 * **Isolated scope:** Each component only works with its own viewModel scope. No complex props pass up and down
 * **zero setup:** There is no need to run any build tool for development or production
-* **framework agnostic :** dataBind can work with any other framework. There is no need to rebuild everything in order to use it. It is decide for leverage and modernise what is work already in a web site.
+* **framework agnostic :** dataBind can work with any other framework. There is no need to rebuild everything in order to use it. It is design to leverage and modernise what is already work in a web site
 
 ## How to use it?
 The following is a very simple example shows text binding. 
@@ -149,6 +149,10 @@ The following binding produce inter-activities
 ### focus binding
 ### hover binding
 ### submit binding
+
+## Server side rendering
 	
-### What not
+### What dataBind is not...
+
+## What's next?
 
