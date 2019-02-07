@@ -136,6 +136,25 @@ For two-way data binding, use together with `data-jq-change`. It will update the
 > DOM -> viewModel
 
 ### attribute binding
+
+    <img data-jq-attr="getImgAttr">
+    
+    // js
+    var viewModel = {
+    	getImgAttr: function(oldAttrObj, $el) {
+                return {
+                    src: '/someImage.png',
+                    alt: 'some image',
+                };
+            }
+        }
+    };
+
+The attribute `data-jq-attr` is refernce to the viewModel's property '**getImgAttr**'. This property can be a object or a function that returns object with key:value. The key is the attribute name and value is the value of that attribute.
+
+attribute binding is useful for more complex usage together with for-of binding.
+Please see the `<select>` elements in this [example](https://gogocat.github.io/dataBind/examples/forOfBindingComplex.html)
+
 ### forOf binding
 ### switch binding
 
