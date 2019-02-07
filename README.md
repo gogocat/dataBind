@@ -2,9 +2,12 @@
 
 dataBind is a light weight JavaScript MV* framework aim for modernise how [web sites that use jQuery](https://trends.builtwith.com/javascript/jQuery).
 
-* **Declarative:** dataBind simpliy bind view data to the HTML, wire events, and provides two way or one way data binding.
-* **High performance:** dataBind is very fast. Please do try the famous **dbmonster** example, locate in `examples/dbmonsterForOf.html` and **fiber** `/examples/fiber-demo.html` compare with [other frameworks.](http://mathieuancelin.github.io/js-repaint-perfs/)
-* **zero setup:** There is no need to run any build tool for development.
+* **Declarative:** dataBind simpliy bind view data to the HTML, wire events, and provides two way or one way data binding
+* **High performance:** dataBind is very fast. Please do try the famous [**dbmonster** example](https://gogocat.github.io/dataBind/examples/dbmonsterForOf.html), locate in `examples/dbmonsterForOf.html` and [**fiber**](https://gogocat.github.io/dataBind/examples/fiber-demo.html) `/examples/fiber-demo.html` compare with [other frameworks.](http://mathieuancelin.github.io/js-repaint-perfs/)
+* **DOM is the source of truth:** There is no vitrual DOM or complex reactive observables to worry about
+* **Isolated scope:** Each component only works with its own viewModel scope. No complex props pass up and down
+* **zero setup:** There is no need to run any build tool for development or production
+* **framework agnostic :** dataBind can work with any other framework. There is no need to rebuild everything in order to use it. It is decide for leverage and modernise what is work already in a web site.
 
 ## How to use it?
 The following is a very simple example shows text binding. 
@@ -69,7 +72,16 @@ The following bindings produce visual changes
     </template>
 
 The attribute `data-jq-tmp` accept a JSON like object. `id` is reference to the `template` element id. `data` is reference to the data object within the bound viewModel. In this example `$root` means the root of the viewModel itself.
-If there is a 3rd option as `append: true` or `prepend: true`, the content will be append or preprend to the container (the section tag in this example).
+If there is a 3rd option as `append: true` or `prepend: true`, the content will be append or preprend to the target container (the section tag in this example).
+
+dataBind also support Underscore/Lodash template intepolation.
+    
+    <script type="html/text" id="exampleTemplate">
+        <h1 data-jq-text="heading"></h1>
+	{{description}}
+    </script>
+
+> *Note, support for Underscore/Lodah template will likely to be drop in the future release.*
 
 ### Text binding
 
@@ -96,10 +108,33 @@ The attribute `data-jq-if` is refernce to the viewModel's property '**myConditio
 
 If `myCondition` is false. the children elements will be removed. When later `myCondition` is set to true. The elements will be render back.
 
-It can handle negate expression as well. In the second example above. When the expression `!myCondition` evaluate true. The template binding `data-jq-tmp` will execute and render content within the DIV.
+With negate expression(second example above), when the expression `!myCondition` evaluate to true. The template binding `data-jq-tmp` will execute and render accordingly.
 
 ### show binding
+
+    <h1 data-jq-show="isShow">
+        <span>Hello</span>
+    </h1>
+
+The attribute `data-jq-show` is refernce to the viewModel's property '**isShow**'. This property can be a boolean, or a function that returns boolean. If `isShow` is `true` the element will be display, otherwise it will be hidden. It also can handle negate expression eg `!isShow`. 
+
 ### model binding
+
+    <input id="userName" name="userName" type="text" 
+        data-jq-model="personalDetails.userName" 
+	data-jq-change="onInputChange" 
+    required>
+
+The attribute `data-jq-model` is refernce to the viewModel's property '**personalDetails.userName**'. This property can be a string, or a function that returns string. Model binding is one-way binding that populate the input field `value` attribute with value from the corresponing viewModel property.
+
+**data-jq-model**
+> viewModel -> DOM
+
+For two-way data binding, use together with `data-jq-change`. It will update the viewModel if the value is different and then trigger the event handler `onInputChange`. More detail below.
+
+**data-jq-change**
+> DOM -> viewModel
+
 ### attribute binding
 ### forOf binding
 ### switch binding
