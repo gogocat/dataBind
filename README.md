@@ -113,6 +113,8 @@ If `myCondition` is false. the children elements will be removed. When later `my
 
 With negate expression(second example above), when the expression `!myCondition` evaluate to true. The template binding `data-jq-tmp` will execute and render accordingly.
 
+[example](https://gogocat.github.io/dataBind/examples/ifBinding.html)
+
 ### show binding
 
     <h1 data-jq-show="isShow">
