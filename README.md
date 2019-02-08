@@ -188,6 +188,7 @@ The result will looks like this:
     </div>
     <!--data-forOf_forOf_result_of_results_end-->
     
+[example](https://gogocat.github.io/dataBind/examples/forOfBinding.html)
 
 ### switch binding
 
