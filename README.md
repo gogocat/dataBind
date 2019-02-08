@@ -53,7 +53,7 @@ To make change, just update the viewModel data then call `render()`.
 
 `render` is an asynchronous, debounced function. So it will consolidate to render only once.
 
-> #### All declarative bindings accept value or function that returns value from the viewModel. ####
+#### All declarative bindings accept value or function that returns value from the viewModel. ####
 
 Example: `data-jq-text="heading"` reference to property **heading** in viewModel can be a value or function that returns value.
 
