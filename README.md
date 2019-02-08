@@ -188,6 +188,40 @@ The result will looks like this:
 
 ### switch binding
 
+    <div data-jq-switch="selectedStory">
+        <div data-jq-case="s1">
+            <h2>Case 1</h2>
+        </div>
+        <div data-jq-case="s2">
+            <h2>Case 2</h2>
+        </div>
+        <div data-jq-case="s3">
+            <h2>Case 3</h2>
+        </div>
+        <div data-jq-default="">
+            <p>No story found...</p>
+        </div>
+    </div>
+    
+    // js
+    var viewModel = {
+    	selectedStory: 's1'
+    };
+
+switch binding is a specail binding that must parent of element with `data-jq-case` or `data-jq-default` binding. Each `data-jq-case` must be siblings.
+
+The attribute `data-jq-switch` is refernce to the viewModel's property '**selectedStory**'. This property can be a string or a function that returns a string. 
+
+In this example the resule will looks like this because `selectedStory` match `data-jq-case="s1"`.
+
+    <div data-jq-switch="selectedStory">
+        <div data-jq-case="s1">
+            <h2>Case 1</h2>
+        </div>
+    </div>
+    
+[example](https://gogocat.github.io/dataBind/examples/switchBinding.html)
+
 ## Event bindings
 The following binding produce inter-activities
 
