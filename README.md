@@ -55,9 +55,7 @@ To make change, just update the viewModel data then call `render()`.
 
 #### All declarative bindings accept value or function that returns value from the viewModel. ####
 
-Example: `data-jq-text="heading"` reference to property **heading** in viewModel can be a value or function that returns value.
-
-When use as function, it will get calls with some useful parameters.
+Example: **heading** in the viewModel can be a value or function that returns value.
 
 The binding can also declear with parameters. 
  
