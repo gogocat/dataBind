@@ -246,6 +246,10 @@ The following binding produce inter-activities
 ### hover binding
 ### submit binding
 
+## Filter
+
+## One way binding
+
 ## Server side rendering
 	
 ### What dataBind is not...
