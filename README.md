@@ -86,9 +86,12 @@ dataBind also support Underscore/Lodash template intepolation.
 ### Text binding
 
     <h1 data-jq-text="heading"></h1>
+    
+    <h1 data-jq-text="fullName | uppercase"></h1>
 
-The attribute `data-jq-text` is refernce to the viewModel's property '**heading**'. All binding can handle deep path reference eg.
-`data-jq-text="childObj.myArray[1].heading"`
+The attribute `data-jq-text` is refernce to the viewModel's property '**heading**'. All binding can handle deep path reference eg. `data-jq-text="childObj.myArray[1].heading"`
+
+The 2nd example shows usage of **filter** (more detail below). The value from viewModel's property `fullName` will pass on to the viewModel's property uppercase (a function that returns value) then display.
     
 ### css binding
 
@@ -156,6 +159,36 @@ attribute binding is useful for more complex usage together with for-of binding.
 Please see the `<select>` elements in this [example](https://gogocat.github.io/dataBind/examples/forOfBindingComplex.html)
 
 ### forOf binding
+
+    <div data-jq-for="result of results">
+        <p data-jq-text="result.content"></p>
+    </div>
+    
+    // js
+    var viewModel = {
+        results: [
+            {content: '1'},
+            {content: '2'},
+            {content: '3'}
+        ]
+    };
+
+The attribute `data-jq-for` is refernce to the viewModel's property '**results**'. `forOf` binding will then loop throught the data and repeat the element. The express accept for-in `result in results`.
+
+The result will looks like this:
+
+    <!--data-forOf_result_of_results-->
+    <div>
+        <p data-jq-text="result.content">1</p>
+    </div>
+        <p data-jq-text="result.content">2</p>
+    </div>
+    <div>
+        <p data-jq-text="result.content">3</p>
+    </div>
+    <!--data-forOf_forOf_result_of_results_end-->
+    
+
 ### switch binding
 
 ## Event bindings
