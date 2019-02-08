@@ -53,6 +53,19 @@ To make change, just update the viewModel data then call `render()`.
 
 `render` is an asynchronous, debounced function. So it will consolidate to render only once.
 
+> #### All declarative bindings accept value or function that returns value from the viewModel. ####
+
+Example: `data-jq-text="heading"` reference to property **heading** in viewModel can be a value or function that returns value.
+
+When use as function, it will get calls with some useful parameters.
+
+The binding can also declear with parameters. 
+ 
+    <h5 data-jq-text="heading($data)"></h5>
+      
+The following parameters are helpers reference `$index` or `$data` or `$root`. More details below
+
+
 For more advance example. Please check the `examples/bootstrap.html`. 
 
 > *Note, bootstrap example shows how to use multiple, nested components and services together. Please run this example from a local server*.
