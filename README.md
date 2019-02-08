@@ -138,6 +138,8 @@ For two-way data binding, use together with `data-jq-change`. It will update the
 **data-jq-change**
 > DOM -> viewModel
 
+[example](https://gogocat.github.io/dataBind/examples/todomvc.html)
+
 ### attribute binding
 
     <img data-jq-attr="getImgAttr">
@@ -160,9 +162,8 @@ Please see the `<select>` elements in this [example](https://gogocat.github.io/d
 
 ### forOf binding
 
-    <div data-jq-for="result of results">
-        <p data-jq-text="result.content"></p>
-    </div>
+
+    <p data-jq-for="result of results" data-jq-text="result.content"></p>
     
     // js
     var viewModel = {
@@ -178,14 +179,9 @@ The attribute `data-jq-for` is refernce to the viewModel's property '**results**
 The result will looks like this:
 
     <!--data-forOf_result_of_results-->
-    <div>
         <p data-jq-text="result.content">1</p>
-    </div>
         <p data-jq-text="result.content">2</p>
-    </div>
-    <div>
         <p data-jq-text="result.content">3</p>
-    </div>
     <!--data-forOf_forOf_result_of_results_end-->
     
 [example](https://gogocat.github.io/dataBind/examples/forOfBinding.html)
