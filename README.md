@@ -41,7 +41,7 @@ Then just call `render` to start render to the page.
         // trigger render and log after render
         simpleComponent.render().then(function() {
             // for debug
-            console.log(filterComponent);
+            console.log(simpleComponent);
         });
     });
 ```
@@ -51,11 +51,11 @@ To make change, just update the viewModel data then call `render()`.
     
     simpleComponent.render();
 ```
-`render` is an asynchronous, debounced function. So it will consolidate to render only once.
+`render` function is an asynchronous, debounced operation. So it will consolidate changes and render only once.
 
 #### All declarative bindings accept value or function that returns value from the viewModel. ####
 
-Example: **heading** in the viewModel can be a value or function that returns value.
+Example: `heading` in the viewModel can be a value or function that returns value.
 
 The binding can also declear with parameters. 
  ```html
@@ -64,9 +64,9 @@ The binding can also declear with parameters.
 The following parameters are helpers reference `$index` or `$data` or `$root`. More details below
 
 
-For more advance example. Please check the `examples/bootstrap.html`. 
+For more advance example. Please check [**examples/bootstrap.html**](https://gogocat.github.io/dataBind/examples/bootstrap.html). 
 
-> *Note, bootstrap example shows how to use multiple, nested components and services together. Please run this example from a local server*.
+> *bootstrap example shows how to use multiple, nested components and services together. Please run this example from a local server*.
 
 ----
 
@@ -245,14 +245,10 @@ The following binding produce inter-activities
 ### focus binding
 ### hover binding
 ### submit binding
-
 ### Filter
-
 ### One way binding
-
+### communicate between components
 ### Server side rendering
-	
 ## What dataBind is not...
-
 ## What's next?
 
