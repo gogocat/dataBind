@@ -251,4 +251,6 @@ The following binding produce inter-activities
 ### Server side rendering
 ## What dataBind is not...
 ## What's next?
-
+----
+## LICENSE
+[MIT](https://gogocat.github.io/dataBind/LICENSE.txt).
