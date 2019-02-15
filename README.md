@@ -289,8 +289,8 @@ For 2 way binding, please use Model binding together. Which does data flow from 
 ```
 In this example, we update `currentTask` data whenever `onAddTask` get called(on change). `updateView` method then calls `this.APP.render(opt)`. 
 
-> Once the viewModel bound with `dataBind.init` call the viewModel will be extended. `APP` property is the bound dataBind object.
-The `render` method take an optinal object. This object flags what kind binding should be re-render. Making it very flexible to control what needs to be update or not. By default, dataBind will re-render the all bindings and only update the changed DOM elements.
+> Once the viewModel bound with `dataBind.init` call, the viewModel will be extended. `APP` property is the bound dataBind object.
+The `render` method accept an optinal object. This object flags what kind binding should be re-render. Making it very flexible to fine tune what needs to be update or not. By default, dataBind will re-render all bindings and only update the changed DOM elements.  
 
 ### click binding
 ### dblclick binding
