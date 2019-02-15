@@ -415,7 +415,7 @@ let viewModel = {
 ```
 `once` is a reserved word if Filter logic that does one time only binding. In this example because `renderIntro` is false. `data-jq-if` will not render the bound element, and because it has filter of `once`. It will be re-render the element anymore even later  `renderIntro` is set to `true`.
 
-### communicate between components
+### Communicate between components
 dataBind use pub/sub pattern to cross comminicate between components. In the [**bootstrap examples**](https://gogocat.github.io/dataBind/examples/bootstrap.html)
 ```javascript
 compSearchBar = dataBind.init($('[data-jq-comp="search-bar"]'), viewModel);
@@ -429,13 +429,27 @@ compSearchBar.render().then(function(comp) {
 compSearchResults.publish('SEARCH-COMPLETED', data);
 ..
 ```
-Search bar component `**subscribe**` an ` SEARCH-COMPLETED` event with `onSearchCompleted` handler after call initial render.
+Search bar component `subscribe` an ` SEARCH-COMPLETED` event with `onSearchCompleted` handler after call initial render.
 
 Late on, the search result component `compSearchResults` get search result and **publish** `SEARCH-COMPLETED` event with data. Which will then trigger **compSearchBar** component's `onSearchCompleted` handler.
 
 > Notice the event publisher and the event subscriber are the individual component. There is no central pub/sub channel. So multiple components can subscribe a same event and can be unsubscribe individually.
 
-### Server side rendering
+### Server side rendering and rehydration
+dataBind can work with any server sider rendering technology. There is no need setup new infrastruture to render html javascript on server side. The HTML markup can be render using .Net, JSP or PHP.
+
+```html
+<div data-jq-comp="search-bar" data-server-rendered>
+    ...
+</div>
+```
+### rehydratio
+This example shows `search-bar` component has a `data-server-rendered` attribite. This attribute tells dataBind(client side) don't render anything on initial load, but parse all the bindings.
+
+Later on, when viewModel updated, calling `render` method will then update the view according to the viewModel.
+
+> The viewModel should has exact same data as the server side rendered version. So when later on calls `render` the content will update correctly.
+
 ## What dataBind is not...
 ## What's next?
 ----
