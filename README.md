@@ -382,11 +382,12 @@ let viewModel = {
 
 ### Filter
 ```javascript
-<p>Price: <span id="stroyPrice" data-jq-text="story.price | $root.toDiscount | $root.addGst"></span></p>
+<p>Price: <span data-jq-text="story.price | toDiscount | addGst"></span></p>
 
 // js
 let viewModel = {
     gstRate: 1.1,
+    discountRate: 10,
     story: {
         price: 100
     },
@@ -399,7 +400,7 @@ let viewModel = {
 }
 ```
 Filter is a convenient way to carry a value and run through series of functions. In this example `data-jq-text` binding refernce to the viewModel property `story.price`. With the ` | ` filter annotation, the value `100` will then pass to viewModel's root level `toDiscount` method, and then `addGst` methods. The last fitler value will then use for display.
-Filter methods is just simple function that recevie a value and must return a value.
+Filter methods is just simple function that recevie a value and must return a value. 
 
 ### One time binding
 ```javascript
