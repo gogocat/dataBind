@@ -429,9 +429,9 @@ compSearchBar.render().then(function(comp) {
 compSearchResults.publish('SEARCH-COMPLETED', data);
 ..
 ```
-Search bar component `subscribe` an ` SEARCH-COMPLETED` event with `onSearchCompleted` handler after call initial render.
+Search bar component subscribed ` SEARCH-COMPLETED` event with `onSearchCompleted` as handler after the initial `render` call.
 
-Late on, the search result component `compSearchResults` get search result and **publish** `SEARCH-COMPLETED` event with data. Which will then trigger **compSearchBar** component's `onSearchCompleted` handler.
+Late on, `compSearchResults` component **publish** `SEARCH-COMPLETED` event with data. Which will then trigger **compSearchBar** component's `onSearchCompleted` handler.
 
 > Notice the event publisher and the event subscriber are the individual component. There is no central pub/sub channel. So multiple components can subscribe a same event and can be unsubscribe individually.
 
@@ -443,7 +443,7 @@ dataBind can work with any server sider rendering technology. There is no need s
     ...
 </div>
 ```
-### rehydratio
+**rehydration**
 This example shows `search-bar` component has a `data-server-rendered` attribite. This attribute tells dataBind(client side) don't render anything on initial load, but parse all the bindings.
 
 Later on, when viewModel updated, calling `render` method will then update the view according to the viewModel.
