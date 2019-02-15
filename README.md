@@ -416,6 +416,25 @@ let viewModel = {
 `once` is a reserved word if Filter logic that does one time only binding. In this example because `renderIntro` is false. `data-jq-if` will not render the bound element, and because it has filter of `once`. It will be re-render the element anymore even later  `renderIntro` is set to `true`.
 
 ### communicate between components
+dataBind use pub/sub pattern to cross comminicate between components. In the [**bootstrap examples**](https://gogocat.github.io/dataBind/examples/bootstrap.html)
+```javascript
+compSearchBar = dataBind.init($('[data-jq-comp="search-bar"]'), viewModel);
+compSearchBar.render().then(function(comp) {
+    let self = comp;
+    compSearchBar.subscribe('SEARCH-COMPLETED', self.viewModel.onSearchCompleted);
+});
+
+\\ compSearchResults.js
+...
+compSearchResults.publish('SEARCH-COMPLETED', data);
+..
+```
+Search bar component `**subscribe**` an ` SEARCH-COMPLETED` event with `onSearchCompleted` handler after call initial render.
+
+Late on, the search result component `compSearchResults` get search result and **publish** `SEARCH-COMPLETED` event with data. Which will then trigger **compSearchBar** component's `onSearchCompleted` handler.
+
+> Notice the event publisher and the event subscriber are the individual component. There is no central pub/sub channel. So multiple components can subscribe a same event and can be unsubscribe individually.
+
 ### Server side rendering
 ## What dataBind is not...
 ## What's next?
