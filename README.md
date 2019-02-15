@@ -293,10 +293,62 @@ In this example, we update `currentTask` data whenever `onAddTask` get called(on
 The `render` method accept an optinal object. This object flags what kind binding should be re-render. Making it very flexible to fine tune what needs to be update or not. By default, dataBind will re-render all bindings and only update the changed DOM elements.  
 
 ### click binding
+```javascript
+ <button id="clear-completed" data-jq-click="onClearAllCompleted">
+     Clear completed
+ </button>
+ 
+ // js
+    let viewModel = {
+        onClearAllCompleted: function(e, $el) {
+            // do something...
+        }
+    }
+```
+`data-jq-click` binding is an event handler binding for 'click' event. The handler will receive ` event object ` and the `DOM element(not jQuery object)`.
+
 ### dblclick binding
+```javascript
+ <button id="clear-completed" data-jq-dblclick="onDoubleClicked">
+     Clear completed
+ </button>
+ 
+ // js
+    let viewModel = {
+        onDoubleClicked: function(e, $el) {
+            // do something...
+        }
+    }
+```
+`data-jq-dblclick` binding is an event handler binding for double click event. The handler will receive ` event object ` and the `DOM element(not jQuery object)`.
+
 ### blur binding
+```javascript
+ <input name="firstName" type="text" data-jq-blur="onBlur">
+ 
+ // js
+    let viewModel = {
+        onBlur: function(e, $el) {
+            // do something...
+        }
+    }
+```
+`data-jq-blur` binding is an event handler binding for 'blur' event. The handler will receive ` event object ` and the `DOM element(not jQuery object)`.
+
 ### focus binding
+```javascript
+ <input name="firstName" type="text" data-jq-focus="onFocus">
+ 
+ // js
+    let viewModel = {
+        onFocus: function(e, $el) {
+            // do something...
+        }
+    }
+```
+`data-jq-focus` binding is an event handler binding for 'focus' event. The handler will receive ` event object ` and the `DOM element(not jQuery object)`.
 ### hover binding
+
 ### submit binding
 ### Filter
 ### One way binding
