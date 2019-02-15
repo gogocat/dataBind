@@ -348,8 +348,38 @@ The `render` method accept an optinal object. This object flags what kind bindin
 ```
 `data-jq-focus` binding is an event handler binding for 'focus' event. The handler will receive ` event object ` and the `DOM element(not jQuery object)`.
 ### hover binding
+```javascript
+<div data-jq-hover="onHover">Hi</div>
+
+ // js
+    let viewModel = {
+        onHover:{
+            in: function(e, $el) {
+                // do something when mouse in
+            },
+            out: function(e, $el) {
+                // do something when mouse out
+            }
+        }
+    }
+```
+`data-jq-hover` binding is an special event handler binding for 'mouseenter' and 'mouseleave' events. The binding property must be a object with `in` and `out` functions. Each function will receive ` event object ` and the `DOM element(not jQuery object)`.
 
 ### submit binding
+```javascript
+    <form id="my-form" data-jq-submit="onSubmit">
+    ...
+    </form>
+    
+    // js
+    let viewModel = {
+        onSubmit: function(e, $el, formData) {
+            // do something...
+        }
+    }
+```
+`data-jq-focus` binding is an event handler binding for 'submit' event. The handler will receive ` event object ` and the `DOM element(not jQuery object)` and the JSON object represent the form data.
+
 ### Filter
 ### One way binding
 ### communicate between components
