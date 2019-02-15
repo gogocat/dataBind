@@ -158,7 +158,7 @@ For two-way data binding; use together with `data-jq-change`. It will update the
     <img data-jq-attr="getImgAttr">
     
     // js
-    var viewModel = {
+    let viewModel = {
     	getImgAttr: function(oldAttrObj, $el) {
                 return {
                     src: '/someImage.png',
@@ -179,7 +179,7 @@ Please see the `<select>` elements in this [example](https://gogocat.github.io/d
     <p data-jq-for="result of results" data-jq-text="result.content"></p>
     
     // js
-    var viewModel = {
+    let viewModel = {
         results: [
             {content: '1'},
             {content: '2'},
@@ -217,7 +217,7 @@ The result will looks like this:
     </div>
     
     // js
-    var viewModel = {
+    let viewModel = {
     	selectedStory: 's1'
     };
 ```
@@ -239,6 +239,59 @@ In this example the result will looks like this, since selectedStory` match `dat
 The following binding produce interactivities
 
 ### change binding
+```javascript
+    <input id="new-todo" type="text" 
+           data-jq-change="onAddTask" 
+           placeholder="What needs to be done?" 
+           autofocus>
+           
+    // js
+    let viewModel = {
+        onAddTask: function(e, $el, newValue, oldValue) {
+            // do something...
+        },
+    }
+```
+`data-jq-change` binding is use form input elements(input, checkbox, select..etc) on change event. The bound viewModel handler `onAddTask` will receive the `event object`, `bound DOM element (not jQuery object)`, `new value` and the `old value`.
+
+To make things more flexible. `data-jq-change` is one way binding (Data flows from DOM to viewModel).
+For 2 way binding, please use Model binding together. Which does data flow from viewModel to DOM.
+
+```javascript
+<div data-jq-comp="todoComponent">
+    <input id="new-todo" type="text" 
+           data-jq-change="onAddTask" 
+           data-jq-model="currentTask"
+           placeholder="What needs to be done?" 
+           autofocus>
+</div>
+    // js
+    let toDoApp;
+    let viewModel = {
+        currentTask = '',
+        onAddTask: function(e, $el, newValue, oldValue) {
+            e.preventDefault();
+            this.currentTask = newValue;
+            this.updateView();
+        },
+        updateView(opt) {
+            // re-render
+            this.APP.render(opt);
+        }
+    }
+    
+     $(document).ready(() => {
+        // init data bind with view
+        toDoApp = dataBind.init($('[data-jq-comp="todoComponent"]'), viewModel);
+        // trigger render
+        toDoApp.render();
+    });
+```
+In this example, we update `currentTask` data whenever `onAddTask` get called(on change). `updateView` method then calls `this.APP.render(opt)`. 
+
+> Once the viewModel bound with `dataBind.init` call the viewModel will be extended. `APP` property is the bound dataBind object.
+The `render` method take an optinal object. This object flags what kind binding should be re-render. Making it very flexible to control what needs to be update or not. By default, dataBind will re-render the all bindings and only update the changed DOM elements.
+
 ### click binding
 ### dblclick binding
 ### blur binding
