@@ -381,7 +381,39 @@ let viewModel = {
 `data-jq-focus` binding is an event handler binding for 'submit' event. The handler will receive ` event object ` and the `DOM element(not jQuery object)` and the JSON object represent the form data.
 
 ### Filter
-### One way binding
+```javascript
+<p>Price: <span id="stroyPrice" data-jq-text="story.price | $root.toDiscount | $root.addGst"></span></p>
+
+// js
+let viewModel = {
+    gstRate: 1.1,
+    story: {
+        price: 100
+    },
+    toDiscount: function(value) {
+        return Number(value) * this.discountRate;
+    },
+    addGst: function(value) {
+        return Number(value) * this.gstRate;
+    },
+}
+```
+Filter is a convenient way to carry a value and run through series of functions. In this example `data-jq-text` binding refernce to the viewModel property `story.price`. With the ` | ` filter annotation, the value `100` will then pass to viewModel's root level `toDiscount` method, and then `addGst` methods. The last fitler value will then use for display.
+Filter methods is just simple function that recevie a value and must return a value.
+
+### One time binding
+```javascript
+<div data-jq-if="renderIntro | once">
+    <h1>Introduction</h1>
+</div>
+
+// js
+let viewModel = {
+    renderIntro: false
+}
+```
+`once` is a reserved word if Filter logic that does one time only binding. In this example because `renderIntro` is false. `data-jq-if` will not render the bound element, and because it has filter of `once`. It will be re-render the element anymore even later  `renderIntro` is set to `true`.
+
 ### communicate between components
 ### Server side rendering
 ## What dataBind is not...
