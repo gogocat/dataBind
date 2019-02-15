@@ -7,14 +7,14 @@ dataBind is a light weight JavaScript MV* framework aim for modernise how [web s
 * **DOM is the source of truth:** There is no vitrual DOM or complex reactive observables to worry about
 * **Isolated scope:** Each component only works with its own viewModel scope. No complex props pass up and down
 * **zero setup:** There is no need to run any build tool for development or production
-* **framework agnostic :** dataBind can work with any other framework. There is no need to rebuild everything in order to use it. It is design to leverage and modernise what is already work in a web site
+* **framework agnostic :** dataBind can work with any other framework. There is no need to rebuild everything in order to use it. It is design to leverage and modernise what is already working
 
 ## How to use it?
 The following is a very simple example shows text binding. 
 
-Most of the component logic will be in the viewModel(plan old JavaScript object).
+Most of the component logic will be in the viewModel(plain old JavaScript object).
 
-`dataBind.init` will return an instance of `Binder`(this is the bond dataBind object).
+`dataBind.init` will return an instance of `Binder`(this is the bound dataBind object).
 Then just call `render` to start render to the page.
 
 **HTML**
@@ -45,7 +45,7 @@ Then just call `render` to start render to the page.
         });
     });
 ```
-To make change, just update the viewModel data then call `render()`.
+To make change, just update the data in viewModel and then call `render()`.
 ```javascript		
     simpleComponentViewModel.heading='new heading';
     
@@ -53,11 +53,11 @@ To make change, just update the viewModel data then call `render()`.
 ```
 `render` function is an asynchronous, debounced operation. So it will consolidate changes and render only once.
 
-#### All declarative bindings accept value or function that returns value from the viewModel. ####
+> :bulb: *All declarative bindings accept value or function that returns value from the viewModel*.
 
 Example: `heading` in the viewModel can be a value or function that returns value.
 
-The binding can also declear with parameters. 
+The binding can also pass-in parameters. 
  ```html
     <h5 data-jq-text="heading($data)"></h5>
 ```
@@ -83,7 +83,7 @@ The following bindings produce visual changes
     </template>
 ```
 The attribute `data-jq-tmp` accept a JSON like object. `id` is reference to the `template` element id. `data` is reference to the data object within the bound viewModel. In this example `$root` means the root of the viewModel itself.
-If there is a 3rd option as `append: true` or `prepend: true`, the content will be append or preprend to the target container (the section tag in this example).
+If there a 3rd option as `append: true` or `prepend: true`, the content will then append or preprend to the target container (the section tag in this example). This make building infinity scroll content very easy and efficient.
 
 dataBind also support Underscore/Lodash template intepolation.
 ```html
@@ -92,7 +92,7 @@ dataBind also support Underscore/Lodash template intepolation.
         {{description}}
     </script>
 ````
-> *Note, support for Underscore/Lodah template will likely to be drop in the future release.*
+> :warning: *Support for Underscore/Lodah template will likely to be drop in the future release.*
 
 ### Text binding
 ```html
@@ -100,9 +100,9 @@ dataBind also support Underscore/Lodash template intepolation.
     
     <h1 data-jq-text="fullName | uppercase"></h1>
 ```
-The attribute `data-jq-text` is refernce to the viewModel's property '**heading**'. All binding can handle deep path reference eg. `data-jq-text="childObj.myArray[1].heading"`
+The attribute `data-jq-text` is refernce to the viewModel's property '**heading**'. All binding can handle deep object path reference eg. `data-jq-text="childObj.myArray[1].heading"`
 
-The 2nd example shows usage of **filter** (more detail below). The value from viewModel's property `fullName` will pass on to the viewModel's property uppercase (a function that returns value) then display.
+The 2nd example shows usage of **filter** ` | `. The value from viewModel's property `fullName` will pass on to the viewModel's `uppercase` function that returns value to be display. Filters can be chain together one after the other. more detail below.
     
 ### css binding
 ```html
@@ -118,9 +118,9 @@ The attribute `data-jq-css` is refernce to the viewModel's property '**mycCss**'
     
     <div data-jq-if="!myCondition" data-jq-tmp="{id: 'someTemplateId', data: 'someData'}"></div>
 ```
-The attribute `data-jq-if` is refernce to the viewModel's property '**myCondition**'. This property can be a boolean, or a function that returns boolean.
+The attribute `data-jq-if` is refernce to the viewModel's property '**myCondition**'. This property can be a boolean or a function that returns boolean.
 
-If `myCondition` is false. the children elements will be removed. When later `myCondition` is set to true. The elements will be render back.
+If `myCondition` is false. the children elements will be removed from DOM. When later `myCondition` is set to true. The elements will then render back.
 
 With negate expression(second example above), when the expression `!myCondition` evaluate to true. The template binding `data-jq-tmp` will execute and render accordingly.
 
@@ -132,7 +132,7 @@ With negate expression(second example above), when the expression `!myCondition`
         <span>Hello</span>
     </h1>
 ```
-The attribute `data-jq-show` is refernce to the viewModel's property '**isShow**'. This property can be a boolean, or a function that returns boolean. If `isShow` is `true` the element will be display, otherwise it will be hidden. It also can handle negate expression eg `!isShow`. 
+The attribute `data-jq-show` is refernce to the viewModel's property '**isShow**'. This property can be a boolean or a function that returns boolean. If `isShow` is `true` the element will be display, otherwise it will be hidden. It also can handle negate expression eg `!isShow`. 
 
 ### model binding
 ```html
@@ -141,12 +141,12 @@ The attribute `data-jq-show` is refernce to the viewModel's property '**isShow**
         data-jq-change="onInputChange" 
     required>
 ```
-The attribute `data-jq-model` is refernce to the viewModel's property '**personalDetails.userName**'. This property can be a string, or a function that returns string. Model binding is one-way binding that populate the input field `value` attribute with value from the corresponing viewModel property.
+The attribute `data-jq-model` is refernce to the viewModel's property '**personalDetails.userName**'. This property can be a string or a function that returns string. Model binding is a one-way binding operation that populate the input field `value` attribute with value come from the viewModel.
 
 **data-jq-model**
 > viewModel -> DOM
 
-For two-way data binding, use together with `data-jq-change`. It will update the viewModel if the value is different and then trigger the event handler `onInputChange`. More detail below.
+For two-way data binding; use together with `data-jq-change`. It will update the viewModel if the value has changed and then trigger the event handler `onInputChange`. More detail below.
 
 **data-jq-change**
 > DOM -> viewModel
@@ -168,9 +168,9 @@ For two-way data binding, use together with `data-jq-change`. It will update the
         }
     };
 ```
-The attribute `data-jq-attr` is refernce to the viewModel's property '**getImgAttr**'. This property can be a object or a function that returns object with key:value. The key is the attribute name and value is the value of that attribute.
+The attribute `data-jq-attr` is refernce to the viewModel's property '**getImgAttr**'. This property can be a object or a function that returns object with `key:value`. The key is the attribute name and value is the value of that attribute.
 
-attribute binding is useful for more complex usage together with for-of binding.
+attribute binding is useful for more complex usage together with `data-jq-for` binding.
 Please see the `<select>` elements in this [example](https://gogocat.github.io/dataBind/examples/forOfBindingComplex.html)
 
 ### forOf binding
@@ -187,7 +187,7 @@ Please see the `<select>` elements in this [example](https://gogocat.github.io/d
         ]
     };
 ```
-The attribute `data-jq-for` is refernce to the viewModel's property '**results**'. `forOf` binding will then loop throught the data and repeat the element. The express accept for-in `result in results`.
+The attribute `data-jq-for` is refernce to the viewModel's property '**results**'. It will then loop throught the data and repeat the element. The express also accept 'for-in' syntax eg `result in results`.
 
 The result will looks like this:
 ```html
@@ -195,7 +195,7 @@ The result will looks like this:
         <p data-jq-text="result.content">1</p>
         <p data-jq-text="result.content">2</p>
         <p data-jq-text="result.content">3</p>
-    <!--data-forOf_forOf_result_of_results_end-->
+    <!--data-forOf_result_of_results_end-->
 ```
 [example](https://gogocat.github.io/dataBind/examples/forOfBinding.html)
 
@@ -221,11 +221,11 @@ The result will looks like this:
     	selectedStory: 's1'
     };
 ```
-switch binding is a specail binding that must parent of element with `data-jq-case` or `data-jq-default` binding. Each `data-jq-case` must be siblings.
+Switch binding is a specail binding that the bound element must be parent of `data-jq-case` or `data-jq-default` binding elements, and each `data-jq-case`  or `data-jq-default` must be siblings.
 
 The attribute `data-jq-switch` is refernce to the viewModel's property '**selectedStory**'. This property can be a string or a function that returns a string. 
 
-In this example the resule will looks like this because `selectedStory` match `data-jq-case="s1"`.
+In this example the result will looks like this, since selectedStory` match `data-jq-case="s1"`.
 ```html
     <div data-jq-switch="selectedStory">
         <div data-jq-case="s1">
@@ -236,7 +236,7 @@ In this example the resule will looks like this because `selectedStory` match `d
 [example](https://gogocat.github.io/dataBind/examples/switchBinding.html)
 
 ## Event bindings
-The following binding produce inter-activities
+The following binding produce interactivities
 
 ### change binding
 ### click binding
