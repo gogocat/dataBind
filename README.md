@@ -119,6 +119,45 @@ For edge case usage; pass an optional setting object when calling `render` to co
     submitBinding: true,
 };
 ```
+**Overwrite 'data-jq-x` namespace and underscore template settings**
+```javascript
+// global dataBind setting
+dataBind.use({
+    bindingAttrs: {
+        comp: 'data-xy-comp',
+        tmp: 'data-xy-tmp',
+        text: 'data-xy-text',
+        click: 'data-xy-click',
+        dblclick: 'data-xy-dblclick',
+        blur: 'data-xy-blur',
+        focus: 'data-xy-focus',
+        hover: 'data-xy-hover',
+        change: 'data-xy-change',
+        submit: 'data-xy-submit',
+        model: 'data-xy-model',
+        show: 'data-xy-show',
+        css: 'data-xy-css',
+        attr: 'data-xy-attr',
+        forOf: 'data-xy-for',
+        if: 'data-xy-if',
+        switch: 'data-xy-switch',
+        case: 'data-xy-case',
+        default: 'data-xy-default'
+    },
+    templateSettings: {
+        evaluate: /<%([\s\S]+?)%>/g,
+        interpolate: /\{\{=(.+?)\}\}/g,
+        escape: /\{\{(.+?)\}\}/g,
+    };
+});
+
+// init
+simpleComponent = dataBind.init($('[data-jq-comp="simpleComponent"]'), simpleComponentViewModel);
+// render
+simpleComponent.render();
+```
+dataBind `use` method can be use to set global setting of binding attribute namespace. It accept an option object show in above example.
+It also can use to overwrite **underscore** interpolate settings settings
 
 ## Visual bindings
 The following bindings produce visual changes
