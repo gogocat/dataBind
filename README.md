@@ -571,11 +571,13 @@ dataBind respect any server sider rendering technology. Just mark the component 
 </div>
 ```
 **Rehydration** - 
-When dataBind parse a component that has `data-server-rendered` attribite. dataBind will not render on initial call of `render`, but will parse all the bindings.
+When dataBind parse a component that has `data-server-rendered` attribute. dataBind will not render on the initial call of `render`, but will parse all the bindings.
 
 Next time calling `render` method will then update the view according to the viewModel.
 
-> The viewModel should has exact same data as the server side rendered version. So when later on calls `render` the content will update correctly. *Currently rehydration for **if, forOf and switch** bindings are still work in progress.*
+> The viewModel should has exact same data as the server side rendered version. So when later on calls `render` the content will update correctly. 
+
+*Currently rehydration for **if, forOf and switch** bindings are still work in progress.*
 
 ## What dataBind is good for
 dataBind is designed for leaverage existing infrastructure. 
