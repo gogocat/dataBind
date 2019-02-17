@@ -450,6 +450,20 @@ let viewModel = {
 Filter is a convenient way to carry a value and run through series of functions. In this example `data-jq-text` binding refernce to the viewModel property `story.price`. With the ` | ` filter annotation, the value `100` will then pass to viewModel's root level `toDiscount` method, and then `addGst` methods. The last fitler value will then use for display.
 Filter methods is just simple function that recevie a value and must return a value. 
 
+### $data, $root and $index
+```javascript
+<div data-jq-for="question of questions">
+    <label data-jq-text="question.title"
+           data-jq-attr="getQuestionLabelAttr($data, $index)"
+           data-jq-css="$root.labelCss"
+    >
+    </label>
+    <input type="text" data-jq-attr="getQuestionInputAttr($data, $index)">
+</div>
+```
+When using `data-jq-for` binding, `$data` is refer to the current data in the loop. `$index` is refer to the current loop index
+`$root` is refer to the viewModel root level.
+
 ### One time binding
 ```javascript
 <div data-jq-if="renderIntro | once">
