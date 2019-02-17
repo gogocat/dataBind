@@ -564,19 +564,18 @@ Supported events are
 - **publish** - component publish an event
 
 ### Server side rendering and rehydration
-dataBind can work with any server sider rendering technology. There is no need setup new infrastruture to render html javascript on server side. The HTML markup can be render using .Net, JSP or PHP.
-
+dataBind respect any server sider rendering technology. Just mark the component with `data-server-rendered` attribute.
 ```html
 <div data-jq-comp="search-bar" data-server-rendered>
     ...
 </div>
 ```
-**rehydration**
-This example shows `search-bar` component has a `data-server-rendered` attribite. This attribute tells dataBind(client side) don't render anything on initial load, but parse all the bindings.
+**Rehydration** - 
+When dataBind parse a component that has `data-server-rendered` attribite. dataBind will not render on initial call of `render`, but will parse all the bindings.
 
-Later on, when viewModel updated, calling `render` method will then update the view according to the viewModel.
+Next time calling `render` method will then update the view according to the viewModel.
 
-> The viewModel should has exact same data as the server side rendered version. So when later on calls `render` the content will update correctly.
+> The viewModel should has exact same data as the server side rendered version. So when later on calls `render` the content will update correctly. *Currently rehydration for **if, forOf and switch** bindings are still work in progress.*
 
 ## What dataBind is good for
 dataBind is designed for leaverage existing infrastructure. 
