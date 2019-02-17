@@ -361,11 +361,8 @@ let viewModel = {
     onAddTask: function(e, $el, newValue, oldValue) {
         e.preventDefault();
         this.currentTask = newValue;
-        this.updateView();
-    },
-    updateView(opt) {
         // re-render
-        this.APP.render(opt);
+        this.APP.render();
     }
 }
 
@@ -376,10 +373,9 @@ let viewModel = {
     toDoApp.render();
 });
 ```
-In this example, we update `currentTask` data whenever `onAddTask` get called(on change). `updateView` method then calls `this.APP.render(opt)`. 
+In this example, we update `currentTask` data whenever `onAddTask` get called(on change) then calls `this.APP.render()`. 
 
-> Once the viewModel bound with `dataBind.init` call, the viewModel will be extended. `APP` property is the bound dataBind object.
-The `render` method accept an optinal object. This object flags what kind binding should be re-render. Making it very flexible to fine tune what needs to be update or not. By default, dataBind will re-render all bindings and only update the changed DOM elements.  
+> Once the viewModel bound with `dataBind.init` call, the viewModel will be extended. `APP` property is the bound dataBind object. 
 
 ### click binding
 ```javascript
