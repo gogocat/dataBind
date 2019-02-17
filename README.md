@@ -70,6 +70,54 @@ For more advance example. Please check [**examples/bootstrap.html**](https://gog
 
 ----
 
+### The init and render functions
+```javascript
+...
+// DOM ready bind viewModel with target DOM element
+const simpleComponent = dataBind.init($('[data-jq-comp="simpleComponent"]'), simpleComponentViewModel);
+
+// trigger render, then console log for debug
+simpleComponent.render().then(function(ctx) {
+    // for debug
+    console.log(simpleComponent === ctx);
+});
+...
+```
+In this simple example. First we call `.init` to initialise the component with the viewModle:
+```javascript
+const simpleComponent = dataBind.init([targetDOMElement], [viewModel]);
+```
+The returned value of `dataBind.init` is a instance of `Binder`, which is the bound component. Behind the scene, dataBind will parse the target DOM element and cache elements that has binding attributes and wire up with the viewModel. At this stage it doesn't make any change to the DOM.
+
+The next call of `render` function is to render value from viewModel to the DOM (if there are difference). It returns a `promise` object for logic that can be trigger after the component fully rendered.
+
+The resolver callback will receive a `context` object; because inside the resolver function `this` is refer to window.
+`context` object is the same object as `simpleComponent` in this example. 
+
+To re-render the component, just call `render`. As mentioned, this function is an asynchronous and debounced operation. This mean, doesn't matter how many times it get call it will only make change to DOM once. Minimise browser repaint/reflow whever data updated.
+
+For edge case usage; pass an optional setting object when calling `render` to control what binding should be render or not.
+```javascript
+{
+    templateBinding: true,
+    textBinding: true,
+    cssBinding: true,
+    ifBinding: true,
+    showBinding: true,
+    modelBinding: true,
+    attrBinding: true,
+    forOfBinding: true,
+    switchBinding: true,
+    changeBinding: true,
+    clickBinding: true,
+    dblclickBinding: true,
+    blurBinding: true,
+    focusBinding: true,
+    hoverBinding: true,
+    submitBinding: true,
+};
+```
+
 ## Visual bindings
 The following bindings produce visual changes
 
@@ -450,8 +498,21 @@ Later on, when viewModel updated, calling `render` method will then update the v
 
 > The viewModel should has exact same data as the server side rendered version. So when later on calls `render` the content will update correctly.
 
-## What dataBind is not...
+## What dataBind is good for
+dataBind is designed for leaverage existing infrastructure. 
+It is good fit for web sites that is:
+- already [using jQuery (72%)](https://trends.builtwith.com/javascript/jQuery).
+- has exisitng server side render technology eg. PHP, .Net, JSP etc
+- quickly build something to test the market but maintainable and easy to unit test
+
+### what not
+- new project - Angular, Aurelia or React... may be a better choice
+- dataBind is not an full stack soultion
+- micro component base - dataBind's component concept is not aim to be as small as a `<p>` tag seen in some library
+
 ## What's next?
+The next major version, already on the way, will implement dataBind with native web component. This will make micro component concept super easy, truely portable and really fast.
+
 ----
 ## LICENSE
 [MIT](https://gogocat.github.io/dataBind/LICENSE.txt).
