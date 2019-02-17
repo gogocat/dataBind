@@ -100,7 +100,7 @@ To re-render the component, just call `render`. As mentioned, this function is a
 
 For edge case; pass an optional setting object when calling `render` to control what binding should be render or not.
 ```javascript
-{
+simpleComponent.render({
     templateBinding: true,
     textBinding: true,
     cssBinding: true,
@@ -117,7 +117,7 @@ For edge case; pass an optional setting object when calling `render` to control 
     focusBinding: true,
     hoverBinding: true,
     submitBinding: true,
-};
+});
 ```
 **Overwrite 'data-jq-x` namespace and underscore template settings**
 ```javascript
