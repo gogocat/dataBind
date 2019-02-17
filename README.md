@@ -156,8 +156,8 @@ simpleComponent = dataBind.init($('[data-jq-comp="simpleComponent"]'), simpleCom
 // render
 simpleComponent.render();
 ```
-dataBind `use` method can be use to set global setting of binding attribute namespace. It accept an option object show in above example.
-It also can use to overwrite **underscore** interpolate settings settings
+dataBind `use` method can be use to set global setting of binding attribute namespace. It accept an option object showing in above example.
+It also can use to overwrite **underscore** interpolate settings.
 
 ## Visual bindings
 The following bindings produce visual changes
