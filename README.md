@@ -593,7 +593,7 @@ It is good fit for web sites that is:
 
 ## What's next?
 - Remove jQuery dependency
-- The next major version, already on the way, will implement dataBind with native web component. This will make micro component concept super easy, truely portable and really fast.
+- The next major version, already on the way, will implement dataBind with native [web component](https://developer.mozilla.org/en-US/docs/Web/Web_Components). This will make micro component concept super easy, truely portable.
 
 ----
 ## LICENSE
