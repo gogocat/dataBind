@@ -1,6 +1,6 @@
 ## What is dataBind?
 
-dataBind is a light weight javaScript [MV* framework](http://www.techbloginterview.com/what-is-a-mv-framework/) aim for modernise how [web sites that use jQuery](https://trends.builtwith.com/javascript/jQuery).
+dataBind is a light weight javaScript [MV* framework](http://www.techbloginterview.com/what-is-a-mv-framework/) aim for modernise [web sites that already using jQuery](https://trends.builtwith.com/javascript/jQuery).
 
 * **Declarative:** dataBind simpliy bind view data to the HTML, wire events, and provides two way or one way data binding
 * **High performance:** dataBind is very fast. Please do try the famous [**dbmonster** example](https://gogocat.github.io/dataBind/examples/dbmonsterForOf.html), locate in `examples/dbmonsterForOf.html` and [**fiber**](https://gogocat.github.io/dataBind/examples/fiber-demo.html) `/examples/fiber-demo.html` compare with [other frameworks](http://mathieuancelin.github.io/js-repaint-perfs/)
@@ -8,6 +8,8 @@ dataBind is a light weight javaScript [MV* framework](http://www.techblogintervi
 * **Isolated scope:** Each component only works with its own viewModel scope. No complex props pass up and down
 * **zero setup:** There is no need to run any build tool for development or production
 * **framework agnostic :** dataBind can work with any other framework. There is no need to rebuild everything in order to use it. It is design to leverage and modernise what is already working
+
+*dataBind itself only use couple of jQuery methods internally.*
 
 ## How to use it?
 The following is a very simple example shows text binding. 
@@ -525,7 +527,8 @@ It is good fit for web sites that is:
 - micro component base - dataBind's component concept is not aim to be as small as a `<p>` tag seen in some library
 
 ## What's next?
-The next major version, already on the way, will implement dataBind with native web component. This will make micro component concept super easy, truely portable and really fast.
+- Remove jQuery dependency
+- The next major version, already on the way, will implement dataBind with native web component. This will make micro component concept super easy, truely portable and really fast.
 
 ----
 ## LICENSE
