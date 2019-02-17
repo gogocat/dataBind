@@ -463,14 +463,14 @@ let viewModel = {
     }
 }
 ```
-`data-jq-focus` binding is an event handler binding for 'submit' event. The handler will receive ` event object ` and the `DOM element(not jQuery object)` and the JSON object represent the form data.
+`data-jq-focus` binding is an event handler binding for 'submit' event. The handler will receive ` event object ` and the `DOM element(not jQuery object)` and a JSON object represent the form data.
 
 ### Filter
 ```javascript
 <p>Price: <span data-jq-text="story.price | toDiscount | addGst"></span></p>
 
 // js
-let viewModel = {
+const viewModel = {
     gstRate: 1.1,
     discountRate: 10,
     story: {
@@ -484,8 +484,8 @@ let viewModel = {
     },
 }
 ```
-Filter is a convenient way to carry a value and run through series of functions. In this example `data-jq-text` binding refernce to the viewModel property `story.price`. With the ` | ` filter annotation, the value `100` will then pass to viewModel's root level `toDiscount` method, and then `addGst` methods. The last fitler value will then use for display.
-Filter methods is just simple function that recevie a value and must return a value. 
+Filter is a convenient way to carry a value and run through series of functions. In this example `data-jq-text` binding refernce to the viewModel property `story.price`. With the ` | ` filter annotation, the value `100` will then pass to `toDiscount` method, and then `addGst` methods. The last fitler's value will then use for display.
+'Filter' is just simple function that recevie a value and return a value. 
 
 ### $data, $root and $index
 ```javascript
@@ -497,6 +497,28 @@ Filter methods is just simple function that recevie a value and must return a va
     </label>
     <input type="text" data-jq-attr="getQuestionInputAttr($data, $index)">
 </div>
+
+// js
+const viewModel = {
+    labelCss: 'form-label',
+    questions: [
+        {
+            title: 'How are you?',
+            fieldName: 'howAreYou'
+        }
+    ],
+    getQuestionLabelAttr: function(data, index, oldAttr, $el) {
+        return {
+            'for': `${data.fieldName}-${index}`
+        };
+    },
+    getQuestionInputAttr: function(data, index, oldAttr, $el) {
+       return {
+            'name': `${data.fieldName}-${index}`
+            'id': `${data.fieldName}-${index}`
+        };
+    },
+}
 ```
 When using `data-jq-for` binding, `$data` is refer to the current data in the loop. `$index` is refer to the current loop index
 `$root` is refer to the viewModel root level.
