@@ -96,9 +96,9 @@ The next call of `render` function is to render value from viewModel to the DOM 
 The resolver callback will receive a `context` object; because inside the resolver function `this` is refer to window.
 `context` object is the same object as `simpleComponent` in this example. 
 
-To re-render the component, just call `render`. As mentioned, this function is an asynchronous and debounced operation. This mean, doesn't matter how many times it get call it will only make change to DOM once. Minimise browser repaint/reflow whever data updated.
+To re-render the component, just call `render`. As mentioned, this function is an asynchronous and debounced operation. This mean, doesn't matter how many times it get call it will only make change to DOM once. Minimise browser repaint/reflow.
 
-For edge case usage; pass an optional setting object when calling `render` to control what binding should be render or not.
+For edge case; pass an optional setting object when calling `render` to control what binding should be render or not.
 ```javascript
 {
     templateBinding: true,
@@ -121,7 +121,7 @@ For edge case usage; pass an optional setting object when calling `render` to co
 ```
 **Overwrite 'data-jq-x` namespace and underscore template settings**
 ```javascript
-// global dataBind setting
+// global dataBind settings
 dataBind.use({
     bindingAttrs: {
         comp: 'data-xy-comp',
