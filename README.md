@@ -534,7 +534,7 @@ let viewModel = {
     renderIntro: false
 }
 ```
-`once` is a reserved word if Filter logic that does one time only binding. In this example because `renderIntro` is false. `data-jq-if` will not render the bound element, and because it has filter of `once`. It will be re-render the element anymore even later  `renderIntro` is set to `true`.
+`once` is a reserved word in Filter logic, which does one time only binding. In this example because `renderIntro` is false. `data-jq-if` will not render the bound element, and because it has filter of `once`. It will not re-render the element anymore even later  `renderIntro` is set to `true`. dataBind actually unbind the element after first render.
 
 ### Communicate between components
 dataBind use pub/sub pattern to cross comminicate between components. In the [**bootstrap examples**](https://gogocat.github.io/dataBind/examples/bootstrap.html)
@@ -555,6 +555,13 @@ Search bar component subscribed ` SEARCH-COMPLETED` event with `onSearchComplete
 Late on, `compSearchResults` component **publish** `SEARCH-COMPLETED` event with data. Which will then trigger **compSearchBar** component's `onSearchCompleted` handler.
 
 > Notice the event publisher and the event subscriber are the individual component. There is no central pub/sub channel. So multiple components can subscribe a same event and can be unsubscribe individually.
+
+Supported events are 
+- **subscribe**  - component subscribe an event
+- **subscribeOnce** - component subscribe an event only once
+- **unsubscribe** - component unsubscribe an event
+- **unsubscribeAll** - component unsubscribe all events
+- **publish** - component publish an event
 
 ### Server side rendering and rehydration
 dataBind can work with any server sider rendering technology. There is no need setup new infrastruture to render html javascript on server side. The HTML markup can be render using .Net, JSP or PHP.
