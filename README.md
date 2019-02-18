@@ -191,7 +191,7 @@ dataBind also support Underscore/Lodash template intepolation.
 ```
 The attribute `data-jq-text` is refernce to the viewModel's property '**heading**'. All binding can handle deep object path reference eg. `data-jq-text="childObj.myArray[1].heading"`
 
-The 2nd example shows usage of **filter** ` | `. The value from viewModel's property `fullName` will pass on to the viewModel's `uppercase` function that returns value to be display. Filters can be chain together one after the other. more detail below.
+The 2nd example shows usage of **filter** ' | '. The value from viewModel's property `fullName` will pass on to the viewModel's `uppercase` function that returns value to be display. Filters can be chain together one after the other. more detail below.
     
 ### css binding
 ```html
