@@ -1,11 +1,15 @@
 // databing compSearchResults
 
 (function($, window) {
+    const isGithubPage = window.location.hostname === 'gogocat.github.io';
+
+    const examplePath = isGithubPage ? 'https://gogocat.github.io/dataBind/examples/' : '/examples/';
+
     let compSearchResults;
 
-    let searchUrl = '/examples/bootstrap/js/searchResult.json';
+    let searchUrl = `${examplePath}bootstrap/js/searchResult.json`;
 
-    let featureAdsResultUrl = '/examples/bootstrap/js/featureAdsResult.json';
+    let featureAdsResultUrl = `${examplePath}bootstrap/js/featureAdsResult.json`;
 
     let $searchResultColumns = $('#search-result-columns');
 
