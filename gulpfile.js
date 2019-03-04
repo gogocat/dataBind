@@ -20,8 +20,6 @@ const bundledFile = 'dataBind.js';
 // load package json data
 const pkg = require('./package.json');
 
-const {dest} = require('gulp');
-
 // release banner comment
 const banner = [
     '/**',
