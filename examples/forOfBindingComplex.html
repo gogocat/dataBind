@@ -1,76 +1,97 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" data-framework="dataBind">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>dataBind Demo | data-jq-for-of</title>
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="bootstrap/css/open-iconic.css" />
+        <link rel="stylesheet" href="bootstrap/css/homeservices.css" />
+    </head>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>dataBind Demo | data-jq-for-of</title>
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="bootstrap/css/open-iconic.css">
-    <link rel="stylesheet" href="bootstrap/css/homeservices.css">
-</head>
-
-<body>
-    <div class="container">
-        <h5>For of binding complex demo</h5>
-        <button id="btnRandomRender">Random re-render 0-30 items</button>
-        <button id="btnStopRandomRender">Stop</button>
-        <div class="container search-result" data-jq-comp="search-results-component">
-            <h4 id="searchResultTitle" class="text-center section-title" data-jq-text="searchResultTitle"></h4>
-            <div id="search-result-columns" class="card-columns" data-jq-tmp="{id: 'searchResultItem', data: 'searchResults', append: true}">
+    <body>
+        <div class="container">
+            <h5>For of binding complex demo</h5>
+            <button id="btnRandomRender">Random re-render 0-30 items</button>
+            <button id="btnStopRandomRender">Stop</button>
+            <div class="container search-result" data-jq-comp="search-results-component">
+                <h4 id="searchResultTitle" class="text-center section-title" data-jq-text="searchResultTitle"></h4>
+                <div
+                    id="search-result-columns"
+                    class="card-columns"
+                    data-jq-tmp="{id: 'searchResultItem', data: 'searchResults', append: true}"
+                ></div>
             </div>
         </div>
-    </div>
 
-    <!-- searchResultItem test with deep nested templates -->
-    <template id="searchResultItem">
-        <div class="card result-item" data-jq-for="result in searchResults" data-jq-css="result.highlightCss">
-            <img class="card-img-top result-item__img" data-jq-attr="$root.getResultItemAttr($index)">
-            <div class="card-body" data-jq-tmp="{id: 'searchResultItemBody', data: 'result'}"></div>
-            <div data-jq-tmp="{id: 'searchResultItemFooter', data: 'result'}"></div>
-        </div>
-    </template>
-
-    <template id="searchResultItemBody">
-        <h4 class="card-title" data-jq-text="$data.title"></h4>
-        <p class="card-text" data-jq-text="$data.description"></p>
-        <small>searchResultItemBody index: <span data-jq-text="$index"></span></small>
-    </template>
-
-    <template id="searchResultItemFooter">
-        <div class="card-footer result-item__footer">
-            <small>searchResultItemFooter index: <span data-jq-text="$index"></span></small>
-            <div class="result-item__icon-checkbox-wrap">
-                <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}"
-                    data-jq-model="$data.selected" data-jq-change="$root.onAdMessageCheck($index)">
-                <label for="{{data.id}}" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
+        <!-- searchResultItem test with deep nested templates -->
+        <template id="searchResultItem">
+            <div class="card result-item" data-jq-for="result in searchResults" data-jq-css="result.highlightCss">
+                <img class="card-img-top result-item__img" data-jq-attr="$root.getResultItemAttr($index)" />
+                <div class="card-body" data-jq-tmp="{id: 'searchResultItemBody', data: 'result'}"></div>
+                <div data-jq-tmp="{id: 'searchResultItemFooter', data: 'result'}"></div>
             </div>
-            <div class="form-group">
-                <label for="exampleFormControlSelect1">Example select</label>
-                <select class="form-control" id="exampleFormControlSelect1">
-                    <option>---- Please select ----</option>
-                    <option data-jq-for="option of result.options" data-jq-text="option.text" data-jq-attr="$root.setResultOptionAttr($data)"></option>
-                </select>
+        </template>
+
+        <template id="searchResultItemBody">
+            <h4 class="card-title" data-jq-text="$data.title"></h4>
+            <p class="card-text" data-jq-text="$data.description"></p>
+            <small>searchResultItemBody index: <span data-jq-text="$index"></span></small>
+        </template>
+
+        <template id="searchResultItemFooter">
+            <div class="card-footer result-item__footer">
+                <small>searchResultItemFooter index: <span data-jq-text="$index"></span></small>
+                <div class="result-item__icon-checkbox-wrap">
+                    <input
+                        class="result-item__icon result-item__icon-checkbox"
+                        type="checkbox"
+                        id="{{ data.id }}"
+                        name="{{ data.id }}"
+                        data-jq-model="$data.selected"
+                        data-jq-change="$root.onAdMessageCheck($index)"
+                    />
+                    <label
+                        for="{{ data.id }}"
+                        class="oi result-item__icon-checkbox-label"
+                        data-glyph="task"
+                        aria-label="Message this seller"
+                    ></label>
+                </div>
+                <div class="form-group">
+                    <label for="exampleFormControlSelect1">Example select</label>
+                    <select class="form-control" id="exampleFormControlSelect1">
+                        <option>---- Please select ----</option>
+                        <option
+                            data-jq-for="option of result.options"
+                            data-jq-text="option.text"
+                            data-jq-attr="$root.setResultOptionAttr($data)"
+                        ></option>
+                    </select>
+                </div>
+                <span data-jq-tmp="{id: 'searchResultItemBookMark', data: 'result'}"></span>
             </div>
-            <span data-jq-tmp="{id: 'searchResultItemBookMark', data: 'result'}"></span>
-        </div>
-    </template>
+        </template>
 
-    <template id="searchResultItemBookMark">
-        <div>
-            <small>searchResultItemBookMark index: <span data-jq-text="$index"></span></small>
-        </div>
-        <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="result.bookmarkedCss" data-jq-click="$root.onAdBookmarkClick($index)"></span>
-        <span class="oi result-item__icon" data-glyph="thumb-up" data-jq-text="$data.numLikes"></span>
-    </template>
+        <template id="searchResultItemBookMark">
+            <div>
+                <small>searchResultItemBookMark index: <span data-jq-text="$index"></span></small>
+            </div>
+            <span
+                class="oi result-item__icon"
+                data-glyph="bookmark"
+                data-jq-css="result.bookmarkedCss"
+                data-jq-click="$root.onAdBookmarkClick($index)"
+            ></span>
+            <span class="oi result-item__icon" data-glyph="thumb-up" data-jq-text="$data.numLikes"></span>
+        </template>
 
-    <script src="../vendors/lodash.custom.min.js"></script>
-    <script src="../vendors/jquery-3.2.1.min.js"></script>
-    <script src="../dist/js/dataBind.js"></script>
-    <script src="js/forOfDemoComplex.js"></script>
-</body>
-
+        <script src="../vendors/lodash.custom.min.js"></script>
+        <script src="../vendors/jquery-3.2.1.min.js"></script>
+        <script src="../dist/js/dataBind.min.js"></script>
+        <script src="js/forOfDemoComplex.js"></script>
+    </body>
 </html>

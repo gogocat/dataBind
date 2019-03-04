@@ -1,50 +1,48 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" data-framework="dataBind">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>dataBind Demo | if binding</title>
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="bootstrap/css/open-iconic.css" />
+    </head>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>dataBind Demo | if binding</title>
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="bootstrap/css/open-iconic.css">
-</head>
-
-<body>
-    <div class="container">
-        <section data-jq-comp="filterComponent">
-            <div>
-                <h5 data-jq-text="heading"></h5>
-                <p data-jq-text="description"></p>
-            </div>
-            <div data-jq-if="renderIntro | once" data-jq-tmp="{id: 'storyIntro', data: '$root'}"></div>
-            <div data-jq-if="!renderIntro | once" data-jq-text="defaultMessage"></div>
-        </section>
-    </div>
-
-    <template id="storyIntro">
-        <div class="card-header">
-            <h4 class="font-weight-normal" data-jq-text="story.title | toUpper"></h4>
+    <body>
+        <div class="container">
+            <section data-jq-comp="filterComponent">
+                <div>
+                    <h5 data-jq-text="heading"></h5>
+                    <p data-jq-text="description"></p>
+                </div>
+                <div data-jq-if="renderIntro | once" data-jq-tmp="{id: 'storyIntro', data: '$root'}"></div>
+                <div data-jq-if="!renderIntro | once" data-jq-text="defaultMessage"></div>
+            </section>
         </div>
-        <div class="card-body d-flex align-items-start">
-            <img class="mr-4" data-jq-if="story.pic | once" data-jq-attr="setStoryImgAttr">
-            <div>
-                <p data-jq-text="story.description"></p>
-                <p>Publish date: <span data-jq-text="story.date | toDateFormat | toUpper"></span></p>
-                <p>Price: <span data-jq-if="!story.price">N/A</span></p>
-                <hr id="afterBlock">
-                <button class="btn btn-primary" data-jq-click="addPic">add story pic data</button>
-                <button class="btn btn-outline-primary" data-jq-click="removePic">remove story pic data</button>
+
+        <template id="storyIntro">
+            <div class="card-header">
+                <h4 class="font-weight-normal" data-jq-text="story.title | toUpper"></h4>
             </div>
-        </div>
-    </template>
+            <div class="card-body d-flex align-items-start">
+                <img class="mr-4" data-jq-if="story.pic | once" data-jq-attr="setStoryImgAttr" />
+                <div>
+                    <p data-jq-text="story.description"></p>
+                    <p>Publish date: <span data-jq-text="story.date | toDateFormat | toUpper"></span></p>
+                    <p>Price: <span data-jq-if="!story.price">N/A</span></p>
+                    <hr id="afterBlock" />
+                    <button class="btn btn-primary" data-jq-click="addPic">add story pic data</button>
+                    <button class="btn btn-outline-primary" data-jq-click="removePic">remove story pic data</button>
+                </div>
+            </div>
+        </template>
 
-    <script src="../vendors/lodash.custom.min.js"></script>
-    <script src="../vendors/jquery-3.2.1.min.js"></script>
-    <script src="../dist/js/dataBind.js"></script>
-    <script src="js/filtersDemo.js"></script>
-</body>
-
+        <script src="../vendors/lodash.custom.min.js"></script>
+        <script src="../vendors/jquery-3.2.1.min.js"></script>
+        <script src="../dist/js/dataBind.min.js"></script>
+        <script src="js/filtersDemo.js"></script>
+    </body>
 </html>

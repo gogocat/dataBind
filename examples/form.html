@@ -1,59 +1,55 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" data-framework="dataBind">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>dataBind Demo | form</title>
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="bootstrap/css/open-iconic.css" />
+    </head>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>dataBind Demo | form</title>
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="bootstrap/css/open-iconic.css">
-</head>
-
-<body>
-    <section data-jq-comp="formApp" data-jq-tmp="{id:'formIntro', data:'intro', prepend: true}">
-        <div class="container">
-            <h5>formComponentA new instance of FormComponentVewModel</h5>
-            <div data-jq-comp="formComponentA" data-jq-tmp="{id:'formItems', data:'personalDetails'}">
-            </div>
-            <h5>formComponentB new instance of FormComponentVewModel</h5>
-            <div data-jq-comp="formComponentB" data-jq-tmp="{id:'formItems', data:'personalDetails'}">
-            </div>
-            <div data-jq-attr="attrTest">
-                This is attribute binding test!
-            </div>
-        </div>
-    </section>
-
-    <script src="../vendors/lodash.custom.min.js"></script>
-    <script src="../vendors/jquery-3.2.1.min.js"></script>
-    <script src="../dist/js/dataBind.js"></script>
-    <script src="js/form.js"></script>
-
-    <script id="formIntro" type="text/html">
-        <div class="jumbotron">
+    <body>
+        <section data-jq-comp="formApp" data-jq-tmp="{id:'formIntro', data:'intro', prepend: true}">
             <div class="container">
-                <h1 class="display-3" data-jq-text="intro.title"></h1>
-                <p data-jq-text="description">{{data.description}}</p>
-                <p>
-                    <a class="btn btn-primary btn-lg" href="#" role="button" data-jq-click="onBtnClick" data-jq-text="intro.btnText"></a>
-                </p>
-            </div>
-        </div>
-    </script>
-
-    <script id="formItems" type="text/html">
-        <%  _.each(data, function(formItem, index) {  %>
-            <div class="form-row" data-jq-show="personalDetails[{{index}}].show">
-                <div class="col-8">
-                    <label for="name" data-jq-css="personalDetails[{{index}}].updatedCss" data-jq-text="personalDetails[{{index}}].label"></label>
-                    <input id="{{formItem.inputName}}" name="{{formItem.inputName}}" type="text" class="form-control" value="" data-jq-model="personalDetails[{{index}}].value" data-jq-change="onInputChange" required>
+                <h5>formComponentA new instance of FormComponentVewModel</h5>
+                <div data-jq-comp="formComponentA" data-jq-tmp="{id:'formItems', data:'personalDetails'}"></div>
+                <h5>formComponentB new instance of FormComponentVewModel</h5>
+                <div data-jq-comp="formComponentB" data-jq-tmp="{id:'formItems', data:'personalDetails'}"></div>
+                <div data-jq-attr="attrTest">
+                    This is attribute binding test!
                 </div>
             </div>
-            <% }); %>
-    </script>
-</body>
+        </section>
 
+        <script src="../vendors/lodash.custom.min.js"></script>
+        <script src="../vendors/jquery-3.2.1.min.js"></script>
+        <script src="../dist/js/dataBind.min.js"></script>
+        <script src="js/form.js"></script>
+
+        <script id="formIntro" type="text/html">
+            <div class="jumbotron">
+                <div class="container">
+                    <h1 class="display-3" data-jq-text="intro.title"></h1>
+                    <p data-jq-text="description">{{data.description}}</p>
+                    <p>
+                        <a class="btn btn-primary btn-lg" href="#" role="button" data-jq-click="onBtnClick" data-jq-text="intro.btnText"></a>
+                    </p>
+                </div>
+            </div>
+        </script>
+
+        <script id="formItems" type="text/html">
+            <%  _.each(data, function(formItem, index) {  %>
+                <div class="form-row" data-jq-show="personalDetails[{{index}}].show">
+                    <div class="col-8">
+                        <label for="name" data-jq-css="personalDetails[{{index}}].updatedCss" data-jq-text="personalDetails[{{index}}].label"></label>
+                        <input id="{{formItem.inputName}}" name="{{formItem.inputName}}" type="text" class="form-control" value="" data-jq-model="personalDetails[{{index}}].value" data-jq-change="onInputChange" required>
+                    </div>
+                </div>
+                <% }); %>
+        </script>
+    </body>
 </html>

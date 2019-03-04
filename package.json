@@ -26,15 +26,15 @@
     "homepage": "https://github.com/gogocat/dataBind#readme",
     "devDependencies": {
         "@babel/cli": "^7.2.3",
-        "@babel/core": "^7.2.2",
+        "@babel/core": "^7.3.4",
         "@babel/plugin-transform-object-assign": "^7.2.0",
-        "@babel/preset-env": "^7.3.1",
+        "@babel/preset-env": "^7.3.4",
         "babel-eslint": "^10.0.1",
         "babel-plugin-transform-es3-member-expression-literals": "^6.22.0",
         "babel-plugin-transform-es3-property-literals": "^6.22.0",
         "babelify": "^10.0.0",
         "browserify": "^16.2.3",
-        "eslint": "^5.12.1",
+        "eslint": "^5.15.0",
         "eslint-config-google": "^0.11.0",
         "eslint-plugin-import": "^2.16.0",
         "eslint-plugin-node": "^8.0.1",
@@ -65,7 +65,7 @@
         "rollup-plugin-commonjs": "^9.2.0",
         "rollup-plugin-eslint": "^5.0.0",
         "rollup-plugin-node-resolve": "^4.0.0",
-        "rollup-plugin-uglify": "^6.0.2",
+        "rollup-plugin-uglify-es": "0.0.1",
         "vinyl-buffer": "^1.0.1",
         "vinyl-source-stream": "^2.0.0"
     }
