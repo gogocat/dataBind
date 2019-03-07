@@ -1,22 +1,14 @@
 // databing compSearchResults
 
 (function($, window) {
-    const isGithubPage = window.location.hostname === 'gogocat.github.io';
-
-    const examplePath = isGithubPage ? 'https://gogocat.github.io/dataBind/examples/' : '/examples/';
-
     let compSearchResults;
-
-    let searchUrl = `${examplePath}bootstrap/js/searchResult.json`;
-
-    let featureAdsResultUrl = `${examplePath}bootstrap/js/featureAdsResult.json`;
-
-    let $searchResultColumns = $('#search-result-columns');
-
-    let converResultsData = function(data) {
+    const searchUrl = '/examples/bootstrap/js/searchResult.json';
+    const featureAdsResultUrl = '/examples/bootstrap/js/featureAdsResult.json';
+    const $searchResultColumns = $('#search-result-columns');
+    const converResultsData = function(data) {
         ret = [];
         data.forEach(function(item, index) {
-            let newItem = $.extend({}, item);
+            const newItem = $.extend({}, item);
             if (newItem.bookmarked) {
                 newItem.bookmarkedCss = 'active';
             }
@@ -27,8 +19,7 @@
         });
         return ret;
     };
-
-    let viewModel = {
+    const viewModel = {
         searchResultTitle: 'Featured service providers',
         messageTriggerCss: '',
         bookmarkCss: '',
@@ -41,7 +32,7 @@
         isNewSearch: false,
         currentQuery: null,
         getSearchResults: function(formData) {
-            let self = this;
+            const self = this;
 
             this.isNewSearch = JSON.stringify(self.currentQuery) !== JSON.stringify(formData);
 
@@ -105,11 +96,9 @@
             this.getSearchResults();
         },
         onAdBookmarkClick: function(e, $el) {
-            let activeCss = 'active';
-
-            let isActivated = $el.hasClass(activeCss);
-
-            let resultIndex = $el.attr('data-index');
+            const activeCss = 'active';
+            const isActivated = $el.hasClass(activeCss);
+            const resultIndex = $el.attr('data-index');
 
             this.searchResults[resultIndex].bookmarked = !isActivated;
             this.searchResults[resultIndex].bookmarkedCss = isActivated ? '' : 'active';
@@ -140,7 +129,7 @@
         compSearchResults
             .render() // overwrite default server rendered option
             .then(function(comp) {
-                let self = comp;
+                const self = comp;
                 // subscribe events
                 compSearchResults.subscribe('SEARCH-AD', self.viewModel.getSearchResults);
                 // for debug only

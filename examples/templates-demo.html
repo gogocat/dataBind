@@ -1,38 +1,35 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" data-framework="dataBind">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>dataBind Demo | template binding</title>
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="bootstrap/css/open-iconic.css" />
+    </head>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>dataBind Demo | template binding</title>
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="bootstrap/css/open-iconic.css">
-</head>
+    <body>
+        <section data-jq-comp="temp-component" data-jq-show="isDisplay" data-jq-tmp="{id:'intro'}"></section>
 
-<body>
-    <section data-jq-comp="temp-component" data-jq-show="isDisplay" data-jq-tmp="{id:'intro'}">
-    </section>
+        <script src="../vendors/lodash.custom.min.js"></script>
+        <script src="../vendors/jquery-3.2.1.min.js"></script>
+        <script src="../dist/js/dataBind.min.js"></script>
+        <script src="js/templateDemo.js"></script>
 
-    <script src="../vendors/lodash.custom.min.js"></script>
-    <script src="../vendors/jquery-3.2.1.min.js"></script>
-    <script src="../dist/js/dataBind.js"></script>
-    <script src="js/templateDemo.js"></script>
+        <template id="intro">
+            <h1 class="display-4">{{ data.heading }}</h1>
+            <p>{{ data.description }}</p>
+            <p data-jq-text="content"></p>
+            <div data-jq-tmp="{id:'nest', data: 'subContent', append: true}">
+                <h3>Nested template render</h3>
+            </div>
+        </template>
 
-    <template id="intro">
-        <h1 class="display-4">{{data.heading}}</h1>
-        <p>{{data.description}}</p>
-        <p data-jq-text="content"></p>
-        <div data-jq-tmp="{id:'nest', data: 'subContent', append: true}">
-            <h3>Nested template render</h3>
-        </div>
-    </template>
-
-    <template id="nest">
-        <p data-jq-text="subContent.description"></p>
-    </template>
-</body>
-
+        <template id="nest">
+            <p data-jq-text="subContent.description"></p>
+        </template>
+    </body>
 </html>

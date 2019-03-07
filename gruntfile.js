@@ -25,7 +25,7 @@ module.exports = function(grunt) {
 
         // this is just config for jasmine - not a grunt module
         jasmineTestSettings: {
-            src: ['./dist/js/dataBind.js'],
+            src: ['./dist/js/dataBind.min.js'],
             host: 'http://localhost:8887',
             specs: './test/specs/*.spec.js',
             styles: './test/css/reporter.css',

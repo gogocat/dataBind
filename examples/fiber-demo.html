@@ -1,72 +1,83 @@
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Fiber Demo with dataBind</title>
+        <style>
+            html {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fiber Demo with dataBind</title>
-    <style>
-        html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif,
+                    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+            }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-        }
+            h1 {
+                display: block;
+                text-align: center;
+                margin-bottom: 0.5rem;
+                font-family: inherit;
+                font-weight: 500;
+                line-height: 1.2;
+                border-bottom: 1px solid #ddd;
+                padding: 0.7em 0;
+            }
 
-        h1 {
-            display: block;
-            text-align: center;
-            margin-bottom: .5rem;
-            font-family: inherit;
-            font-weight: 500;
-            line-height: 1.2;
-            border-bottom: 1px solid #ddd;
-            padding: 0.7em 0;
-        }
+            .description {
+                text-align: center;
+            }
 
-        .container {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 10px;
-            height: 10px;
-            background: rgb(238, 238, 238);
-            transform-origin: 0px 0px 0px;
-            transform: scaleX(0.679952) scaleY(0.7) translateZ(0.1px);
-            will-change: auto;
-        }
+            .container {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 10px;
+                height: 10px;
+                background: rgb(238, 238, 238);
+                transform-origin: 0px 0px 0px;
+                transform: scaleX(0.679952) scaleY(0.7) translateZ(0.1px);
+                will-change: auto;
+            }
 
-        .dot {
-            position: absolute;
-            left: 971.875px;
-            top: 479.688px;
-            width: 32.5px;
-            height: 32.5px;
-            border-radius: 50%;
-            font: 15px/32.5px sans-serif;
-            text-align: center;
-            cursor: pointer;
-        }
-    </style>
-</head>
+            .dot {
+                position: absolute;
+                left: 971.875px;
+                top: 479.688px;
+                width: 32.5px;
+                height: 32.5px;
+                border-radius: 50%;
+                font: 15px/32.5px sans-serif;
+                text-align: center;
+                cursor: pointer;
+            }
+        </style>
+    </head>
 
-<body>
-    <h1>Fiber Demo with dataBind</h1>
-    <div id="container" data-jq-comp="fiberDemoComponent" data-jq-attr="containerAttr" data-jq-css="containerCss">
-        <div data-jq-tmp="{id: 'fiberDemoContent'}">
+    <body>
+        <div class="description">
+            <h1>Fiber Demo with dataBind</h1>
+            <p>This demo dataBind can update 1000 node while animating and keeping high framerate.</p>
         </div>
-    </div>
+        <div id="container" data-jq-comp="fiberDemoComponent" data-jq-attr="containerAttr" data-jq-css="containerCss">
+            <div data-jq-tmp="{id: 'fiberDemoContent'}"></div>
+        </div>
 
-    <template id="fiberDemoContent">
-        <div data-jq-for="dot of dots" data-jq-text="dot.text" data-jq-css="$root.dotCss" data-jq-attr="dot.attr" data-jq-hover="$root.onHoverDot($index)"></div>
-    </template>
+        <template id="fiberDemoContent">
+            <div
+                data-jq-for="dot of dots"
+                data-jq-text="dot.text"
+                data-jq-css="$root.dotCss"
+                data-jq-attr="dot.attr"
+                data-jq-hover="$root.onHoverDot($index)"
+            ></div>
+        </template>
 
-    <script src="../vendors/lodash.custom.min.js"></script>
-    <script src="../vendors/jquery-3.2.1.min.js"></script>
-    <script src="../dist/js/dataBind.js"></script>
-    <script src="js/fiberDemo.js"></script>
-</body>
-
+        <script src="../vendors/lodash.custom.min.js"></script>
+        <script src="../vendors/jquery-3.2.1.min.js"></script>
+        <script src="../dist/js/dataBind.min.js"></script>
+        <script src="js/fiberDemo.js"></script>
+    </body>
 </html>

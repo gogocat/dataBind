@@ -1,5 +1,5 @@
 (function(jQuery) {
-    let searchSuggestion = [
+    const searchSuggestion = [
         'Air Conditioning',
         'Heating',
         'Bricklaying',
@@ -25,11 +25,13 @@
         'Construction',
     ];
 
-    let substringMatcher = function(strs) {
+    const substringMatcher = function(strs) {
         return function findMatches(q, cb) {
-            let matches = [];
+            // an array that will be populated with substring matches
+            const matches = [];
+
             // regex used to determine if a string contains the substring `q`
-            let substrRegex = new RegExp(q, 'i');
+            const substrRegex = new RegExp(q, 'i');
 
             // iterate through the pool of strings and for any string that
             // contains the substring `q`, add it to the `matches` array

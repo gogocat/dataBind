@@ -2,15 +2,11 @@
 
 (function($, window) {
     let compMessageDialog;
-
-
-    let el = {
+    const el = {
         messageModal: '#message-modal',
         messageTextArea: '#message',
     };
-
-
-    let viewModel = {
+    const viewModel = {
         numSelectedProviders: '',
         selectedAdData: [],
         adIds: [],
@@ -46,7 +42,7 @@
 
         compMessageDialog = dataBind.init($('[data-jq-comp="message-dialog-component"]'), viewModel);
         compMessageDialog.render().then(function(comp) {
-            let self = comp;
+            const self = comp;
             compMessageDialog.subscribe('TRIGGER-MESSAGE-DIALOG', self.viewModel.onTriggerSelectedAds);
 
             el.messageModal.on('shown.bs.modal', function() {

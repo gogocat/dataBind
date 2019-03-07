@@ -1,367 +1,605 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Bootstrap 4 dataBind Demo</title>
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="bootstrap/css/open-iconic.css" />
+        <link rel="stylesheet" href="bootstrap/css/homeservices.css" />
+    </head>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>Bootstrap 4 dataBind Demo</title>
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="bootstrap/css/open-iconic.css">
-    <link rel="stylesheet" href="bootstrap/css/homeservices.css">
-</head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <a class="navbar-brand" href="#">Navbar</a>
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-toggle="collapse"
+                data-target="#navbarsExampleDefault"
+                aria-controls="navbarsExampleDefault"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-<body>
-
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="#">Navbar</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
-            aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Home
-                        <span class="sr-only">(current)</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#">Disabled</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true"
-                        aria-expanded="false">Dropdown</a>
-                    <div class="dropdown-menu" aria-labelledby="dropdown01">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-    <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron hero">
-        <div class="container">
-            <h1 class="display-3">Yes we can!</h1>
-            <p>
-                Get service quotes in one click.
-            </p>
-        </div>
-    </div>
-
-    <div class="search-bar" data-jq-comp="search-bar" data-server-rendered>
-        <div class="container">
-            <form id="search-form" data-jq-submit="onSearchSubmit">
-                <div class="form-row">
-                    <div class="col-8" id="scrollable-dropdown-menu">
-                        <input id="searchWord" name="searchWord" type="text" class="form-control typeahead" value="" data-jq-model="searchWord" data-jq-change="onSearchWordChange"
-                            required>
-                        <label for="searchWord" class="search-bar__label search-bar__label--large">I'm looking for...</label>
-                        <span class="search-bar__focus-bar"></span>
-                    </div>
-                    <div class="col-3 input-group">
-                        <span class="oi search-bar__map-marker" data-glyph="map-marker"></span>
-                        <input id="location" name="location" type="text" class="form-control" data-jq-model="searchLocation" data-jq-change="onSearchLocationChange"
-                            placeholder="Location" value="Sydney" aria-label="Location">
-                        <span class="search-bar__focus-bar"></span>
-                    </div>
-                    <div class="col">
-                        <button class="btn btn-success search-bar__btn" type="submit">
-                            <span class="spinner spinner--search" data-jq-show="searching"></span>
-                            <span data-jq-show="!searching">
-                                <span class="sr-only">Search</span>
-                                <span class="oi" data-glyph="magnifying-glass" aria-hidden="true"></span>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="container search-result" data-jq-comp="search-results-component" data-server-rendered>
-        <h4 id="searchResultTitle" class="text-center section-title" data-jq-text="searchResultTitle">Featured service providers</h4>
-
-        <div id="search-result-columns" class="card-columns" data-jq-tmp="{id: 'searchResultItem', data: '$root', append: true}">
-
-            <div class="card result-item" data-index="0">
-                <img class="card-img-top result-item__img" src="bootstrap/images/pic-home.jpg" alt="Card image">
-                <div class="card-body">
-                    <h4 class="card-title">Card title that wraps to a new line</h4>
-                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content
-                        is a little bit longer.</p>
-                </div>
-                <div class="card-footer result-item__footer">
-                    <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid0" name="adid0" data-index="0" data-jq-model="searchResults[0].selected"
-                            data-jq-change="onAdMessageCheck">
-                        <label for="adid0" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
-                    </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[0].bookmarkedCss" data-jq-click="onAdBookmarkClick"
-                        data-index="0"></span>
-                    <span class="oi result-item__icon" data-glyph="thumb-up">99</span>
-                </div>
-            </div>
-
-            <div class="card result-item" data-index="1">
-                <div class="card-body">
-                    <h4 class="card-title">Card title</h4>
-                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card
-                        has even longer content than the first to show that equal height action.</p>
-                </div>
-                <div class="card-footer result-item__footer">
-                    <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid1" name="adid1" data-index="1" data-jq-model="searchResults[1].selected"
-                            data-jq-change="onAdMessageCheck">
-                        <label for="adid1" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
-                    </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[1].bookmarkedCss" data-jq-click="onAdBookmarkClick"
-                        data-index="1"></span>
-                    <span class="oi result-item__icon" data-glyph="thumb-up">9</span>
-                </div>
-            </div>
-
-            <div class="card result-item" data-index="2">
-                <img class="card-img-top result-item__img" src="bootstrap/images/pic-deck.jpg" alt="Card image">
-                <div class="card-body">
-                    <h4 class="card-title">Card title</h4>
-                    <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
-                </div>
-                <div class="card-footer result-item__footer">
-                    <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid2" name="adid2" data-index="2" data-jq-model="searchResults[2].selected"
-                            data-jq-change="onAdMessageCheck">
-                        <label for="adid2" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
-                    </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[2].bookmarkedCss" data-jq-click="onAdBookmarkClick"
-                        data-index="2"></span>
-                    <span class="oi result-item__icon" data-glyph="thumb-up">24</span>
-                </div>
-            </div>
-
-            <div class="card result-item result-item--highlight" data-index="3">
-                <img class="card-img-top result-item__img" src="bootstrap/images/pic-carpenter.jpg" alt="Card image">
-                <div class="card-body">
-                    <h4 class="card-title">Card title</h4>
-                    <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
-                </div>
-                <div class="card-footer result-item__footer">
-                    <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid3" name="adid3" data-index="3" data-jq-model="searchResults[3].selected"
-                            data-jq-change="onAdMessageCheck">
-                        <label for="adid3" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
-                    </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[3].bookmarkedCss" data-jq-click="onAdBookmarkClick"
-                        data-index="3"></span>
-                    <span class="oi result-item__icon" data-glyph="thumb-up">8</span>
-                </div>
-            </div>
-
-            <div class="card result-item" data-index="4">
-                <div class="card-body">
-                    <h4 class="card-title">Card title</h4>
-                    <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
-                </div>
-                <div class="card-footer result-item__footer">
-                    <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid4" name="adid4" data-index="4" data-jq-model="searchResults[4].selected"
-                            data-jq-change="onAdMessageCheck">
-                        <label for="adid4" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
-                    </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[4].bookmarkedCss" data-jq-click="onAdBookmarkClick"
-                        data-index="4"></span>
-                    <span class="oi result-item__icon" data-glyph="thumb-up">68</span>
-                </div>
-            </div>
-
-            <div class="card result-item" data-index="5">
-                <img class="card-img-top result-item__img" src="bootstrap/images/pic-bathrooms.jpg" alt="Card image">
-                <div class="card-body">
-                    <h4 class="card-title">Card title that wraps to a new line</h4>
-                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content
-                        is a little bit longer.</p>
-                </div>
-                <div class="card-footer result-item__footer">
-                    <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid5" name="adid5" data-index="5" data-jq-model="searchResults[5].selected"
-                            data-jq-change="onAdMessageCheck">
-                        <label for="adid5" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
-                    </div>
-                    <span class="oi result-item__icon active" data-glyph="bookmark" data-jq-css="searchResults[5].bookmarkedCss" data-jq-click="onAdBookmarkClick"
-                        data-index="5"></span>
-                    <span class="oi result-item__icon" data-glyph="thumb-up">99+</span>
-                </div>
-            </div>
-
-            <div class="card result-item" data-index="6">
-                <div class="card-body">
-                    <h4 class="card-title">Card title</h4>
-                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card
-                        has even longer content than the first to show that equal height action.</p>
-                </div>
-                <div class="card-footer result-item__footer">
-                    <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid6" name="adid6" data-index="6" data-jq-model="searchResults[6].selected"
-                            data-jq-change="onAdMessageCheck">
-                        <label for="adid6" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
-                    </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[6].bookmarkedCss" data-jq-click="onAdBookmarkClick"
-                        data-index="6"></span>
-                    <span class="oi result-item__icon" data-glyph="thumb-up">9</span>
-                </div>
-            </div>
-
-            <div class="card result-item" data-index="7">
-                <img class="card-img-top result-item__img" src="bootstrap/images/pic-backyard.jpg" alt="Card image">
-                <div class="card-body">
-                    <h4 class="card-title">Card title</h4>
-                    <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
-                </div>
-                <div class="card-footer result-item__footer">
-                    <div class="result-item__icon-checkbox-wrap">
-                        <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid7" name="adid7" data-index="7" data-jq-model="searchResults[7].selected"
-                            data-jq-change="onAdMessageCheck">
-                        <label for="adid7" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
-                    </div>
-                    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[7].bookmarkedCss" data-jq-click="onAdBookmarkClick"
-                        data-index="7"></span>
-                    <span class="oi result-item__icon" data-glyph="thumb-up">24</span>
-                </div>
-            </div>
-        </div>
-
-        <button type="button" class="btn btn-outline-secondary search-result__btn-more" data-jq-show="showMore" data-jq-click="onMoreResults">
-            <span class="spinner" data-jq-show="loading"></span>
-            <span data-jq-show="!loading">More</span>
-        </button>
-
-        <div class="mass-message__trigger-wrap" data-jq-css="messageTriggerCss" data-jq-click="onMessageTriggerClick" data-toggle="modal"
-            data-target="#message-modal">
-            <div class="mass-message__trigger">
-                <span class="oi mass-message__trigger-icon" data-glyph="pencil" aria-label="write message"></span>
-            </div>
-        </div>
-    </div>
-
-    <footer class="footer">
-        <div class="container">
-            <span class="">Sticky footer</span>
-        </div>
-    </footer>
-
-    <div id="message-modal" class="modal fade" data-jq-comp="message-dialog-component" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg message-modal" role="document">
-            <div class="modal-content message-modal__content">
-                <form id="formMessage" data-jq-submit="onMessageSubmit">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Send Message</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div data-jq-show="!sendingMessage">
-                            <div class="alert alert-primary" role="alert">
-                                <h4 class="alert-heading">Well done!</h4>
-                                <p>Send a single message to all
-                                    <strong data-jq-text="numSelectedProviders"></strong> selected service providers with just one click.</p>
-                                <p>This message will be send to
-                                    <span data-jq-text="selectedProviders"></span>
-                                </p>
-                                <hr>
-                                <p class="mb-0">
-                                    <strong>Tips:</strong> Provide details of your job request to have more accurate quotes.</p>
-                            </div>
-                            <div class="form-group">
-                                <label for="message">Message</label>
-                                <textarea class="form-control" id="message" name="message" rows="8" required></textarea>
-                            </div>
+            <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#"
+                            >Home
+                            <span class="sr-only">(current)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Link</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#">Disabled</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a
+                            class="nav-link dropdown-toggle"
+                            href="http://example.com"
+                            id="dropdown01"
+                            data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            >Dropdown</a
+                        >
+                        <div class="dropdown-menu" aria-labelledby="dropdown01">
+                            <a class="dropdown-item" href="#">Action</a>
+                            <a class="dropdown-item" href="#">Another action</a>
+                            <a class="dropdown-item" href="#">Something else here</a>
                         </div>
-                        <div data-jq-show="sendingMessage" class="message-modal__content-success">
-                            <span class="oi message-modal__icon-success" data-glyph="check"></span>
-                            <p>Your message successfully send to
-                                <span data-jq-text="selectedProviders"></span>
-                            </p>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main jumbotron for a primary marketing message or call to action -->
+        <div class="jumbotron hero">
+            <div class="container">
+                <h1 class="display-3">Yes we can!</h1>
+                <p>
+                    Get service quotes in one click.
+                </p>
+            </div>
+        </div>
+
+        <div class="search-bar" data-jq-comp="search-bar" data-server-rendered>
+            <div class="container">
+                <form id="search-form" data-jq-submit="onSearchSubmit">
+                    <div class="form-row">
+                        <div class="col-8" id="scrollable-dropdown-menu">
+                            <input
+                                id="searchWord"
+                                name="searchWord"
+                                type="text"
+                                class="form-control typeahead"
+                                value=""
+                                data-jq-model="searchWord"
+                                data-jq-change="onSearchWordChange"
+                                required
+                            />
+                            <label for="searchWord" class="search-bar__label search-bar__label--large"
+                                >I'm looking for...</label
+                            >
+                            <span class="search-bar__focus-bar"></span>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-success message-modal__btn-cta" data-jq-show="!sendingMessage">Send</button>
+                        <div class="col-3 input-group">
+                            <span class="oi search-bar__map-marker" data-glyph="map-marker"></span>
+                            <input
+                                id="location"
+                                name="location"
+                                type="text"
+                                class="form-control"
+                                data-jq-model="searchLocation"
+                                data-jq-change="onSearchLocationChange"
+                                placeholder="Location"
+                                value="Sydney"
+                                aria-label="Location"
+                            />
+                            <span class="search-bar__focus-bar"></span>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-success search-bar__btn" type="submit">
+                                <span class="spinner spinner--search" data-jq-show="searching"></span>
+                                <span data-jq-show="!searching">
+                                    <span class="sr-only">Search</span>
+                                    <span class="oi" data-glyph="magnifying-glass" aria-hidden="true"></span>
+                                </span>
+                            </button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
 
-    <!-- searchResultItem test with deep nested templates -->
-    <script id="searchResultItem" type="text/html">
-        <%  
-            _.each(data.searchResults, function(result, index) {
-                if (index < data.startIndex) {
-                    console.log('data.startIndex: ', data.startIndex);
-                    return;
-                }
-        %>
-            <div class="card result-item" data-index="{{index}}" data-jq-css="searchResults[{{index}}].highlightCss">
-                <% if (result.image) { %>
-                    <img class="card-img-top result-item__img" src="{{result.image}}" alt="{{result.title}}">
-                    <% } %>
-                        <div class="card-body" data-jq-tmp="{id: 'searchResultItemBody', data: 'searchResults[{{index}}]'}"></div>
-                        <div data-jq-tmp="{id: 'searchResultItemFooter', data: 'searchResults[{{index}}]'}" data-index="{{index}}"></div>
+        <div class="container search-result" data-jq-comp="search-results-component" data-server-rendered>
+            <h4 id="searchResultTitle" class="text-center section-title" data-jq-text="searchResultTitle">
+                Featured service providers
+            </h4>
+
+            <div
+                id="search-result-columns"
+                class="card-columns"
+                data-jq-tmp="{id: 'searchResultItem', data: '$root', append: true}"
+            >
+                <div class="card result-item" data-index="0">
+                    <img class="card-img-top result-item__img" src="bootstrap/images/pic-home.jpg" alt="Card image" />
+                    <div class="card-body">
+                        <h4 class="card-title">Card title that wraps to a new line</h4>
+                        <p class="card-text">
+                            This is a longer card with supporting text below as a natural lead-in to additional content.
+                            This content is a little bit longer.
+                        </p>
+                    </div>
+                    <div class="card-footer result-item__footer">
+                        <div class="result-item__icon-checkbox-wrap">
+                            <input
+                                class="result-item__icon result-item__icon-checkbox"
+                                type="checkbox"
+                                id="adid0"
+                                name="adid0"
+                                data-index="0"
+                                data-jq-model="searchResults[0].selected"
+                                data-jq-change="onAdMessageCheck"
+                            />
+                            <label
+                                for="adid0"
+                                class="oi result-item__icon-checkbox-label"
+                                data-glyph="task"
+                                aria-label="Message this seller"
+                            ></label>
+                        </div>
+                        <span
+                            class="oi result-item__icon"
+                            data-glyph="bookmark"
+                            data-jq-css="searchResults[0].bookmarkedCss"
+                            data-jq-click="onAdBookmarkClick"
+                            data-index="0"
+                        ></span>
+                        <span class="oi result-item__icon" data-glyph="thumb-up">99</span>
+                    </div>
+                </div>
+
+                <div class="card result-item" data-index="1">
+                    <div class="card-body">
+                        <h4 class="card-title">Card title</h4>
+                        <p class="card-text">
+                            This is a wider card with supporting text below as a natural lead-in to additional content.
+                            This card has even longer content than the first to show that equal height action.
+                        </p>
+                    </div>
+                    <div class="card-footer result-item__footer">
+                        <div class="result-item__icon-checkbox-wrap">
+                            <input
+                                class="result-item__icon result-item__icon-checkbox"
+                                type="checkbox"
+                                id="adid1"
+                                name="adid1"
+                                data-index="1"
+                                data-jq-model="searchResults[1].selected"
+                                data-jq-change="onAdMessageCheck"
+                            />
+                            <label
+                                for="adid1"
+                                class="oi result-item__icon-checkbox-label"
+                                data-glyph="task"
+                                aria-label="Message this seller"
+                            ></label>
+                        </div>
+                        <span
+                            class="oi result-item__icon"
+                            data-glyph="bookmark"
+                            data-jq-css="searchResults[1].bookmarkedCss"
+                            data-jq-click="onAdBookmarkClick"
+                            data-index="1"
+                        ></span>
+                        <span class="oi result-item__icon" data-glyph="thumb-up">9</span>
+                    </div>
+                </div>
+
+                <div class="card result-item" data-index="2">
+                    <img class="card-img-top result-item__img" src="bootstrap/images/pic-deck.jpg" alt="Card image" />
+                    <div class="card-body">
+                        <h4 class="card-title">Card title</h4>
+                        <p class="card-text">
+                            This card has supporting text below as a natural lead-in to additional content.
+                        </p>
+                    </div>
+                    <div class="card-footer result-item__footer">
+                        <div class="result-item__icon-checkbox-wrap">
+                            <input
+                                class="result-item__icon result-item__icon-checkbox"
+                                type="checkbox"
+                                id="adid2"
+                                name="adid2"
+                                data-index="2"
+                                data-jq-model="searchResults[2].selected"
+                                data-jq-change="onAdMessageCheck"
+                            />
+                            <label
+                                for="adid2"
+                                class="oi result-item__icon-checkbox-label"
+                                data-glyph="task"
+                                aria-label="Message this seller"
+                            ></label>
+                        </div>
+                        <span
+                            class="oi result-item__icon"
+                            data-glyph="bookmark"
+                            data-jq-css="searchResults[2].bookmarkedCss"
+                            data-jq-click="onAdBookmarkClick"
+                            data-index="2"
+                        ></span>
+                        <span class="oi result-item__icon" data-glyph="thumb-up">24</span>
+                    </div>
+                </div>
+
+                <div class="card result-item result-item--highlight" data-index="3">
+                    <img
+                        class="card-img-top result-item__img"
+                        src="bootstrap/images/pic-carpenter.jpg"
+                        alt="Card image"
+                    />
+                    <div class="card-body">
+                        <h4 class="card-title">Card title</h4>
+                        <p class="card-text">
+                            This card has supporting text below as a natural lead-in to additional content.
+                        </p>
+                    </div>
+                    <div class="card-footer result-item__footer">
+                        <div class="result-item__icon-checkbox-wrap">
+                            <input
+                                class="result-item__icon result-item__icon-checkbox"
+                                type="checkbox"
+                                id="adid3"
+                                name="adid3"
+                                data-index="3"
+                                data-jq-model="searchResults[3].selected"
+                                data-jq-change="onAdMessageCheck"
+                            />
+                            <label
+                                for="adid3"
+                                class="oi result-item__icon-checkbox-label"
+                                data-glyph="task"
+                                aria-label="Message this seller"
+                            ></label>
+                        </div>
+                        <span
+                            class="oi result-item__icon"
+                            data-glyph="bookmark"
+                            data-jq-css="searchResults[3].bookmarkedCss"
+                            data-jq-click="onAdBookmarkClick"
+                            data-index="3"
+                        ></span>
+                        <span class="oi result-item__icon" data-glyph="thumb-up">8</span>
+                    </div>
+                </div>
+
+                <div class="card result-item" data-index="4">
+                    <div class="card-body">
+                        <h4 class="card-title">Card title</h4>
+                        <p class="card-text">
+                            This card has supporting text below as a natural lead-in to additional content.
+                        </p>
+                    </div>
+                    <div class="card-footer result-item__footer">
+                        <div class="result-item__icon-checkbox-wrap">
+                            <input
+                                class="result-item__icon result-item__icon-checkbox"
+                                type="checkbox"
+                                id="adid4"
+                                name="adid4"
+                                data-index="4"
+                                data-jq-model="searchResults[4].selected"
+                                data-jq-change="onAdMessageCheck"
+                            />
+                            <label
+                                for="adid4"
+                                class="oi result-item__icon-checkbox-label"
+                                data-glyph="task"
+                                aria-label="Message this seller"
+                            ></label>
+                        </div>
+                        <span
+                            class="oi result-item__icon"
+                            data-glyph="bookmark"
+                            data-jq-css="searchResults[4].bookmarkedCss"
+                            data-jq-click="onAdBookmarkClick"
+                            data-index="4"
+                        ></span>
+                        <span class="oi result-item__icon" data-glyph="thumb-up">68</span>
+                    </div>
+                </div>
+
+                <div class="card result-item" data-index="5">
+                    <img
+                        class="card-img-top result-item__img"
+                        src="bootstrap/images/pic-bathrooms.jpg"
+                        alt="Card image"
+                    />
+                    <div class="card-body">
+                        <h4 class="card-title">Card title that wraps to a new line</h4>
+                        <p class="card-text">
+                            This is a longer card with supporting text below as a natural lead-in to additional content.
+                            This content is a little bit longer.
+                        </p>
+                    </div>
+                    <div class="card-footer result-item__footer">
+                        <div class="result-item__icon-checkbox-wrap">
+                            <input
+                                class="result-item__icon result-item__icon-checkbox"
+                                type="checkbox"
+                                id="adid5"
+                                name="adid5"
+                                data-index="5"
+                                data-jq-model="searchResults[5].selected"
+                                data-jq-change="onAdMessageCheck"
+                            />
+                            <label
+                                for="adid5"
+                                class="oi result-item__icon-checkbox-label"
+                                data-glyph="task"
+                                aria-label="Message this seller"
+                            ></label>
+                        </div>
+                        <span
+                            class="oi result-item__icon active"
+                            data-glyph="bookmark"
+                            data-jq-css="searchResults[5].bookmarkedCss"
+                            data-jq-click="onAdBookmarkClick"
+                            data-index="5"
+                        ></span>
+                        <span class="oi result-item__icon" data-glyph="thumb-up">99+</span>
+                    </div>
+                </div>
+
+                <div class="card result-item" data-index="6">
+                    <div class="card-body">
+                        <h4 class="card-title">Card title</h4>
+                        <p class="card-text">
+                            This is a wider card with supporting text below as a natural lead-in to additional content.
+                            This card has even longer content than the first to show that equal height action.
+                        </p>
+                    </div>
+                    <div class="card-footer result-item__footer">
+                        <div class="result-item__icon-checkbox-wrap">
+                            <input
+                                class="result-item__icon result-item__icon-checkbox"
+                                type="checkbox"
+                                id="adid6"
+                                name="adid6"
+                                data-index="6"
+                                data-jq-model="searchResults[6].selected"
+                                data-jq-change="onAdMessageCheck"
+                            />
+                            <label
+                                for="adid6"
+                                class="oi result-item__icon-checkbox-label"
+                                data-glyph="task"
+                                aria-label="Message this seller"
+                            ></label>
+                        </div>
+                        <span
+                            class="oi result-item__icon"
+                            data-glyph="bookmark"
+                            data-jq-css="searchResults[6].bookmarkedCss"
+                            data-jq-click="onAdBookmarkClick"
+                            data-index="6"
+                        ></span>
+                        <span class="oi result-item__icon" data-glyph="thumb-up">9</span>
+                    </div>
+                </div>
+
+                <div class="card result-item" data-index="7">
+                    <img
+                        class="card-img-top result-item__img"
+                        src="bootstrap/images/pic-backyard.jpg"
+                        alt="Card image"
+                    />
+                    <div class="card-body">
+                        <h4 class="card-title">Card title</h4>
+                        <p class="card-text">
+                            This card has supporting text below as a natural lead-in to additional content.
+                        </p>
+                    </div>
+                    <div class="card-footer result-item__footer">
+                        <div class="result-item__icon-checkbox-wrap">
+                            <input
+                                class="result-item__icon result-item__icon-checkbox"
+                                type="checkbox"
+                                id="adid7"
+                                name="adid7"
+                                data-index="7"
+                                data-jq-model="searchResults[7].selected"
+                                data-jq-change="onAdMessageCheck"
+                            />
+                            <label
+                                for="adid7"
+                                class="oi result-item__icon-checkbox-label"
+                                data-glyph="task"
+                                aria-label="Message this seller"
+                            ></label>
+                        </div>
+                        <span
+                            class="oi result-item__icon"
+                            data-glyph="bookmark"
+                            data-jq-css="searchResults[7].bookmarkedCss"
+                            data-jq-click="onAdBookmarkClick"
+                            data-index="7"
+                        ></span>
+                        <span class="oi result-item__icon" data-glyph="thumb-up">24</span>
+                    </div>
+                </div>
             </div>
-            <% }); %>
-    </script>
 
-    <script id="searchResultItemBody" type="text/html">
-        <h4 class="card-title">{{data.title}}</h4>
-        <p class="card-text">{{data.description}}</p>
-    </script>
+            <button
+                type="button"
+                class="btn btn-outline-secondary search-result__btn-more"
+                data-jq-show="showMore"
+                data-jq-click="onMoreResults"
+            >
+                <span class="spinner" data-jq-show="loading"></span>
+                <span data-jq-show="!loading">More</span>
+            </button>
 
-    <script id="searchResultItemFooter" type="text/html">
-        <div class="card-footer result-item__footer">
-            <div class="result-item__icon-checkbox-wrap">
-                <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}" data-index="{{data.$index}}" data-jq-model="searchResults[{{data.$index}}].selected" data-jq-change="onAdMessageCheck">
-                <label for="{{data.id}}" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
+            <div
+                class="mass-message__trigger-wrap"
+                data-jq-css="messageTriggerCss"
+                data-jq-click="onMessageTriggerClick"
+                data-toggle="modal"
+                data-target="#message-modal"
+            >
+                <div class="mass-message__trigger">
+                    <span class="oi mass-message__trigger-icon" data-glyph="pencil" aria-label="write message"></span>
+                </div>
             </div>
-
-            <span data-jq-tmp="{id: 'searchResultItemBookMark', data: 'searchResults[{{data.$index}}]'}" data-index="{{data.$index}}"></span>
         </div>
-    </script>
 
-    <script id="searchResultItemBookMark" type="text/html">
-        <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[{{data.$index}}].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="{{data.$index}}"></span>
-        <span class="oi result-item__icon" data-glyph="thumb-up">{{data.numLikes}}</span>
-    </script>
+        <footer class="footer">
+            <div class="container">
+                <span class="">Sticky footer</span>
+            </div>
+        </footer>
 
-    <!-- bootstrap 4 JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="../vendors/jquery-3.2.1.min.js"></script>
-    <script src="bootstrap/js/popper.min.js"></script>
-    <script src="bootstrap/js/bootstrap.min.js"></script>
+        <div
+            id="message-modal"
+            class="modal fade"
+            data-jq-comp="message-dialog-component"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="myLargeModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog modal-lg message-modal" role="document">
+                <div class="modal-content message-modal__content">
+                    <form id="formMessage" data-jq-submit="onMessageSubmit">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Send Message</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div data-jq-show="!sendingMessage">
+                                <div class="alert alert-primary" role="alert">
+                                    <h4 class="alert-heading">Well done!</h4>
+                                    <p>
+                                        Send a single message to all
+                                        <strong data-jq-text="numSelectedProviders"></strong> selected service providers
+                                        with just one click.
+                                    </p>
+                                    <p>
+                                        This message will be send to
+                                        <span data-jq-text="selectedProviders"></span>
+                                    </p>
+                                    <hr />
+                                    <p class="mb-0">
+                                        <strong>Tips:</strong> Provide details of your job request to have more accurate
+                                        quotes.
+                                    </p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="message">Message</label>
+                                    <textarea
+                                        class="form-control"
+                                        id="message"
+                                        name="message"
+                                        rows="8"
+                                        required
+                                    ></textarea>
+                                </div>
+                            </div>
+                            <div data-jq-show="sendingMessage" class="message-modal__content-success">
+                                <span class="oi message-modal__icon-success" data-glyph="check"></span>
+                                <p>
+                                    Your message successfully send to
+                                    <span data-jq-text="selectedProviders"></span>
+                                </p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                                    Close
+                                </button>
+                                <button
+                                    type="submit"
+                                    class="btn btn-success message-modal__btn-cta"
+                                    data-jq-show="!sendingMessage"
+                                >
+                                    Send
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
-    <!-- twitter typeahead JavaScript -->
-    <script src="bootstrap/js/typeahead.jquery.js"></script>
-    <script src="bootstrap/js/searchSuggestion.js"></script>
+        <!-- searchResultItem test with deep nested templates -->
+        <script id="searchResultItem" type="text/html">
+            <%
+                _.each(data.searchResults, function(result, index) {
+                    if (index < data.startIndex) {
+                        console.log('data.startIndex: ', data.startIndex);
+                        return;
+                    }
+            %>
+                <div class="card result-item" data-index="{{index}}" data-jq-css="searchResults[{{index}}].highlightCss">
+                    <% if (result.image) { %>
+                        <img class="card-img-top result-item__img" src="{{result.image}}" alt="{{result.title}}">
+                        <% } %>
+                            <div class="card-body" data-jq-tmp="{id: 'searchResultItemBody', data: 'searchResults[{{index}}]'}"></div>
+                            <div data-jq-tmp="{id: 'searchResultItemFooter', data: 'searchResults[{{index}}]'}" data-index="{{index}}"></div>
+                </div>
+                <% }); %>
+        </script>
 
-    <!-- dataBind JavaScript -->
-    <script src="../vendors/lodash.custom.min.js"></script>
-    <!-- <script src="../dist/js/dataBind.js"></script> -->
-    <script src="../dist/js/dataBind.js"></script>
+        <script id="searchResultItemBody" type="text/html">
+            <h4 class="card-title">{{data.title}}</h4>
+            <p class="card-text">{{data.description}}</p>
+        </script>
 
-    <!-- demo components JavaScript -->
-    <script src="bootstrap/js/compSearchBar.js"></script>
-    <script src="bootstrap/js/compSearchResults.js"></script>
-    <script src="bootstrap/js/compMessageDialog.js"></script>
-</body>
+        <script id="searchResultItemFooter" type="text/html">
+            <div class="card-footer result-item__footer">
+                <div class="result-item__icon-checkbox-wrap">
+                    <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}" data-index="{{data.$index}}" data-jq-model="searchResults[{{data.$index}}].selected" data-jq-change="onAdMessageCheck">
+                    <label for="{{data.id}}" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
+                </div>
 
+                <span data-jq-tmp="{id: 'searchResultItemBookMark', data: 'searchResults[{{data.$index}}]'}" data-index="{{data.$index}}"></span>
+            </div>
+        </script>
+
+        <script id="searchResultItemBookMark" type="text/html">
+            <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[{{data.$index}}].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="{{data.$index}}"></span>
+            <span class="oi result-item__icon" data-glyph="thumb-up">{{data.numLikes}}</span>
+        </script>
+
+        <!-- bootstrap 4 JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="../vendors/jquery-3.2.1.min.js"></script>
+        <script src="bootstrap/js/popper.min.js"></script>
+        <script src="bootstrap/js/bootstrap.min.js"></script>
+
+        <!-- twitter typeahead JavaScript -->
+        <script src="bootstrap/js/typeahead.jquery.js"></script>
+        <script src="bootstrap/js/searchSuggestion.js"></script>
+
+        <!-- dataBind JavaScript -->
+        <script src="../vendors/lodash.custom.min.js"></script>
+        <!-- <script src="../dist/js/dataBind.js"></script> -->
+        <script src="../dist/js/dataBind.min.js"></script>
+
+        <!-- demo components JavaScript -->
+        <script src="bootstrap/js/compSearchBar.js"></script>
+        <script src="bootstrap/js/compSearchResults.js"></script>
+        <script src="bootstrap/js/compMessageDialog.js"></script>
+    </body>
 </html>

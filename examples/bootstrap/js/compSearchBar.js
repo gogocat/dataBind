@@ -2,19 +2,16 @@
 
 (function($, window) {
     let compSearchBar;
-
-    let getFormData = function($form) {
-        let sArray = $form.serializeArray();
-
-        let data = {};
+    const getFormData = function($form) {
+        const sArray = $form.serializeArray();
+        const data = {};
         sArray.map(function(n) {
             data[n['name']] = n['value'];
         });
 
         return data;
     };
-
-    let viewModel = {
+    const viewModel = {
         searchWord: '',
         searchLocation: '',
         searching: false,
@@ -51,7 +48,7 @@
     $(document).ready(function() {
         compSearchBar = dataBind.init($('[data-jq-comp="search-bar"]'), viewModel);
         compSearchBar.render().then(function(comp) {
-            let self = comp;
+            const self = comp;
             compSearchBar.subscribe('SEARCH-COMPLETED', self.viewModel.onSearchCompleted);
             // for debug only
             window.compSearchBarViewModel = self.viewModel;

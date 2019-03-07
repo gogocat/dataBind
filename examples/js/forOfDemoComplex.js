@@ -2,7 +2,7 @@
 (function($, window) {
     let searchResultsComponent;
 
-    let viewModel = {
+    const viewModel = {
         searchResultTitle: 'Featured service providers',
         messageTriggerCss: '',
         bookmarkCss: '',
@@ -83,7 +83,7 @@
             },
         ],
         getResultItemAttr: function(index, oldAttrObj, $el) {
-            let self = this;
+            const self = this;
             if (self.searchResults[index].image) {
                 return {
                     src: self.searchResults[index].image,
@@ -109,7 +109,7 @@
     };
 
     const generateRamdomData = () => {
-        let data = [];
+        const data = [];
         const getRandomNumber = (x, y) => {
             return Math.floor(Math.random() * (y - x + 1) + x);
         };
@@ -164,6 +164,7 @@
 
             $('#btnRandomRender').on('click', function(e) {
                 e.preventDefault();
+                clearInterval(window.updateInterval);
                 updateResults();
             });
 
