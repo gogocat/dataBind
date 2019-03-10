@@ -1,4 +1,5 @@
 ![GitHub release](https://img.shields.io/github/release/gogocat/dataBind.svg)
+![coverage](https://img.shields.io/badge/coverage-70%25-green.svg?cacheSeconds=2592000)
 
 ## What is dataBind?
 
