@@ -1,3 +1,5 @@
+![GitHub release](https://img.shields.io/github/release/gogocat/dataBind.svg)
+
 ## What is dataBind?
 
 dataBind is a light weight javaScript [MV* framework](http://www.techbloginterview.com/what-is-a-mv-framework/) aim for modernise [web sites that already using jQuery](https://trends.builtwith.com/javascript/jQuery).
