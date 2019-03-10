@@ -3,6 +3,8 @@
 
 ## What is dataBind?
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/aa1a90adb78444df9525064efe8591d3)](https://app.codacy.com/app/gogocat/dataBind?utm_source=github.com&utm_medium=referral&utm_content=gogocat/dataBind&utm_campaign=Badge_Grade_Dashboard)
+
 dataBind is a light weight javaScript [MV* framework](http://www.techbloginterview.com/what-is-a-mv-framework/) aim for modernise [web sites that already using jQuery](https://trends.builtwith.com/javascript/jQuery).
 
 * **Declarative:** dataBind simpliy bind view data to the HTML, wire events, and provides two way or one way data binding
