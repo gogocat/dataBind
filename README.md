@@ -1,5 +1,7 @@
 ![GitHub release](https://img.shields.io/github/release/gogocat/dataBind.svg)
 ![coverage](https://img.shields.io/badge/coverage-70%25-green.svg?cacheSeconds=2592000)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e754785d29d946bf9a0ab7146869caec)](https://www.codacy.com/app/gogocat/dataBind?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gogocat/dataBind&amp;utm_campaign=Badge_Grade)
+![GitHub](https://img.shields.io/github/license/gogocat/dataBind.svg)
 
 ## What is dataBind?
 
