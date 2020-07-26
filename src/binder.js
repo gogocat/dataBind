@@ -23,10 +23,6 @@ let compIdIndex = 0;
 
 class Binder {
     constructor($rootElement, viewModel, bindingAttrs) {
-        if ($rootElement instanceof window.jQuery && $rootElement.length) {
-            $rootElement = $rootElement.eq(0)[0];
-        }
-
         if (!$rootElement || $rootElement.nodeType !== 1 || viewModel === null || typeof viewModel !== 'object') {
             throw new TypeError('$rootElement or viewModel is invalid');
         }
@@ -54,11 +50,7 @@ class Binder {
 
         // for jquery user set viewModel referece to $rootElement for easy debug
         // otherwise use Expando to attach viewModel to $rootElement
-        if (window.jQuery) {
-            window.jQuery(this.$rootElement).data(config.bindingDataReference.rootDataKey, this.viewModel);
-        } else {
-            this.$rootElement[config.bindingDataReference.rootDataKey] = this.viewModel;
-        }
+        this.$rootElement[config.bindingDataReference.rootDataKey] = this.viewModel;
 
         return this;
     }
@@ -206,11 +198,7 @@ class Binder {
         }
 
         // apply switch Binding
-        if (
-            updateOption.switchBinding &&
-            elementCache[bindingAttrs.switch] &&
-            elementCache[bindingAttrs.switch].length
-        ) {
+        if (updateOption.switchBinding && elementCache[bindingAttrs.switch] && elementCache[bindingAttrs.switch].length) {
             elementCache[bindingAttrs.switch].forEach((cache) => {
                 switchBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
             });
@@ -238,22 +226,14 @@ class Binder {
         }
 
         // apply change binding
-        if (
-            updateOption.changeBinding &&
-            elementCache[bindingAttrs.change] &&
-            elementCache[bindingAttrs.change].length
-        ) {
+        if (updateOption.changeBinding && elementCache[bindingAttrs.change] && elementCache[bindingAttrs.change].length) {
             elementCache[bindingAttrs.change].forEach((cache) => {
                 changeBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
             });
         }
 
         // apply submit binding
-        if (
-            updateOption.submitBinding &&
-            elementCache[bindingAttrs.submit] &&
-            elementCache[bindingAttrs.submit].length
-        ) {
+        if (updateOption.submitBinding && elementCache[bindingAttrs.submit] && elementCache[bindingAttrs.submit].length) {
             elementCache[bindingAttrs.submit].forEach((cache) => {
                 submitBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
             });
@@ -267,11 +247,7 @@ class Binder {
         }
 
         // apply double click binding
-        if (
-            updateOption.dblclickBinding &&
-            elementCache[bindingAttrs.dblclick] &&
-            elementCache[bindingAttrs.dblclick].length
-        ) {
+        if (updateOption.dblclickBinding && elementCache[bindingAttrs.dblclick] && elementCache[bindingAttrs.dblclick].length) {
             elementCache[bindingAttrs.dblclick].forEach((cache) => {
                 dblclickBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
             });
@@ -447,9 +423,7 @@ const createBindingOption = (condition = '', opt = {}) => {
  * This function is desidned for FoOf, If, switch bindings
  */
 const renderIteration = ({elementCache, iterationVm, bindingAttrs, isRegenerate}) => {
-    const bindingUpdateOption = isRegenerate
-        ? createBindingOption(config.bindingUpdateConditions.init)
-        : createBindingOption();
+    const bindingUpdateOption = isRegenerate ? createBindingOption(config.bindingUpdateConditions.init) : createBindingOption();
 
     // enforce render even element is not in DOM tree
     bindingUpdateOption.forceRender = true;
@@ -473,4 +447,9 @@ const renderIteration = ({elementCache, iterationVm, bindingAttrs, isRegenerate}
     });
 };
 
-export {Binder, createBindingOption, renderTemplatesBinding, renderIteration};
+export {
+    Binder,
+    createBindingOption,
+    renderTemplatesBinding,
+    renderIteration,
+};

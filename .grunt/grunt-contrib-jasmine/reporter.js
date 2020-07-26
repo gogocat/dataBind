@@ -4,9 +4,7 @@
 
 
 (function() {
-  const sendMessage = (type, param) => {
-    window[type] && window[type](param);
-  };
+  const sendMessage = window.sendMessage || (function () {});
 
   const reporter = {
     jasmineStarted: function() {

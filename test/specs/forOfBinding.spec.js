@@ -1,8 +1,9 @@
+/* eslint-disable max-len */
 // It seems PhantomJS has issue with createComment and createRange
-let isEnvSupportDocRange = ((document) => {
+const isEnvSupportDocRange = ((document) => {
     let docRange;
     let commentNode;
-    let commentText = 'x';
+    const commentText = 'x';
     let ret = true;
 
     if (typeof document.createRange !== 'function') {
@@ -22,7 +23,7 @@ let isEnvSupportDocRange = ((document) => {
 })(document);
 
 describe('When search-results-component with forOf binding inited', () => {
-    let namespace = {};
+    const namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
 
@@ -68,7 +69,7 @@ describe('When search-results-component with forOf binding inited', () => {
                 },
             ],
             getResultItemAttr: function(index, oldAttrObj, $el) {
-                let self = this;
+                const self = this;
                 if (self.searchResults[index].image) {
                     return {
                         src: self.searchResults[index].image,
@@ -94,8 +95,8 @@ describe('When search-results-component with forOf binding inited', () => {
         };
 
         namespace.searchResultsComponent = dataBind.init(
-            $('[data-jq-comp="search-results-component"]'),
-            namespace.viewModel
+            document.querySelector('[data-jq-comp="search-results-component"]'),
+            namespace.viewModel,
         );
 
         namespace.searchResultsComponent.render();
@@ -103,7 +104,7 @@ describe('When search-results-component with forOf binding inited', () => {
 
     afterEach(() => {
         // clean up all app/components
-        for (let prop in namespace) {
+        for (const prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
@@ -126,7 +127,7 @@ describe('When search-results-component with forOf binding inited', () => {
 
     it('Then render forOf binding elements with comment tag wrap around', (done) => {
         setTimeout(() => {
-            let $searchColumn = document.getElementById('search-result-columns');
+            const $searchColumn = document.getElementById('search-result-columns');
             // not sure why jasmine first execution before render complete, that's why element doesn't exsits
             // but when run just this spec it will works
             if (!$searchColumn.firstElementChild) {
@@ -134,8 +135,8 @@ describe('When search-results-component with forOf binding inited', () => {
                 done();
                 return;
             }
-            let firstCommentWrap = $searchColumn.firstElementChild.previousSibling;
-            let lastCommentWrap = $searchColumn.lastElementChild.nextSibling;
+            const firstCommentWrap = $searchColumn.firstElementChild.previousSibling;
+            const lastCommentWrap = $searchColumn.lastElementChild.nextSibling;
 
             expect(firstCommentWrap.nodeType).toBe(8);
             expect(lastCommentWrap.nodeType).toBe(8);
@@ -147,7 +148,7 @@ describe('When search-results-component with forOf binding inited', () => {
 
     it('Then render same amount of items in viewModel.searchResults', (done) => {
         setTimeout(() => {
-            let $searchColumn = document.getElementById('search-result-columns');
+            const $searchColumn = document.getElementById('search-result-columns');
             // not sure why jasmine first execution before render complete, that's why element doesn't exsits
             // but when run just this spec it will works
             if (!$searchColumn.firstElementChild) {
@@ -168,7 +169,7 @@ describe('When search-results-component with forOf binding inited', () => {
                 return;
             }
             setTimeout(() => {
-                let $results = $('#search-result-columns').children();
+                const $results = $('#search-result-columns').children();
                 // not sure why jasmine first execution before render complete, that's why element doesn't exsits
                 // but when run just this spec it will works
                 if (!$results.length) {
@@ -180,18 +181,18 @@ describe('When search-results-component with forOf binding inited', () => {
                 expect($results.length).not.toBe(0);
 
                 $results.each(function(index) {
-                    let indexString = String(index);
-                    let $result = $(this);
-                    let $img = $result.find('.result-item__img');
-                    let $body = $result.find('.card-body');
-                    let $footer = $result.find('.result-item__footer');
-                    let $checkbox = $footer.find('.result-item__icon-checkbox');
-                    let $options = $footer.find('select.form-control option');
-                    let imgSrc = $img.attr('src') || '';
+                    const indexString = String(index);
+                    const $result = $(this);
+                    const $img = $result.find('.result-item__img');
+                    const $body = $result.find('.card-body');
+                    const $footer = $result.find('.result-item__footer');
+                    const $checkbox = $footer.find('.result-item__icon-checkbox');
+                    const $options = $footer.find('select.form-control option');
+                    const imgSrc = $img.attr('src') || '';
                     let bodyIndex = $body.find('.bodyIndex').text();
                     let footerIndex = $footer.find('.footerIndex').text();
                     let bookMarkIndex = $result.find('.bookMarkIndex').text();
-                    let searchResult = namespace.viewModel.searchResults[index];
+                    const searchResult = namespace.viewModel.searchResults[index];
 
                     bodyIndex = bodyIndex.charAt(bodyIndex.length - 1);
                     footerIndex = footerIndex.charAt(footerIndex.length - 1);
@@ -204,7 +205,7 @@ describe('When search-results-component with forOf binding inited', () => {
                     expect($footer.length).not.toBe(0);
                     expect(footerIndex).toEqual(indexString);
                     expect(bookMarkIndex).toEqual(indexString);
-                    expect($checkbox.is(':checked')).toEqual(Boolean(searchResult.selected));
+                    expect($checkbox[0].checked).toEqual(Boolean(searchResult.selected));
                     // first option is not from data
                     expect($options.length).toEqual(searchResult.options.length + 1);
                     expect($options.eq(index + 1).text()).toEqual(searchResult.options[index].text);

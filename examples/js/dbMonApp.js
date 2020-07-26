@@ -1,9 +1,8 @@
-let dbMonApp,
-    viewModel = {
-        databases: ENV.generateData().toArray(),
-    },
-    oldDbLength = viewModel.databases.length,
-    newDbLength = 0;
+const viewModel = {
+    databases: ENV.generateData().toArray(),
+};
+let oldDbLength = viewModel.databases.length;
+let newDbLength = 0;
 
 function refreshApp() {
     let shouldUpdateTemplate = true;
@@ -19,10 +18,9 @@ function refreshApp() {
     setTimeout(refreshApp, ENV.timeout);
 }
 
-$(document).ready(function() {
-    dbMonApp = dataBind.init($('#app'), viewModel);
-    dbMonApp.render().then(function() {
-        console.log('dbMonApp inited');
-        refreshApp();
-    });
+
+const dbMonApp = dataBind.init(document.getElementById('app'), viewModel);
+dbMonApp.render().then(function() {
+    console.log('dbMonApp inited');
+    refreshApp();
 });

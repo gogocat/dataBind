@@ -12,7 +12,65 @@ const REGEX = {
     WHITESPACES: /\s+/g,
     FOROF: /(.*?)\s+(?:in|of)\s+(.*)/,
     PIPE: /\|/,
+    HTML_TAG: /^[\s]*<([a-z][^\/\s>]+)/i,
+    BAG_TAGS: /<(script|del)(?=[\s>])[\w\W]*?<\/\1\s*>/ig,
 };
+
+const IS_SUPPORT_TEMPLATE = 'content' in document.createElement('template');
+
+const WRAP_MAP = {
+    div: ['div', '<div>', '</div>'],
+    thead: ['table', '<table>', '</table>'],
+    col: ['colgroup', '<table><colgroup>', '</colgroup></table>'],
+    tr: ['tbody', '<table><tbody>', '</tbody></table>'],
+    td: ['tr', '<table><tr>', '</tr></table>'],
+};
+WRAP_MAP.caption = WRAP_MAP.colgroup = WRAP_MAP.tbody = WRAP_MAP.tfoot = WRAP_MAP.thead;
+WRAP_MAP.th = WRAP_MAP.td;
+
+
+function getFirstHtmlStringTag(htmlString) {
+    const match = htmlString.match(REGEX.HTML_TAG);
+    if (match) {
+        return match[1];
+    }
+    return null;
+}
+
+function removeBadTags(htmlString = '') {
+    return htmlString.replace(REGEX.BAG_TAGS, '');
+}
+
+function createHtmlFragment(htmlString) {
+    if (typeof htmlString !== 'string') {
+        return null;
+    }
+    // use template element
+    if (IS_SUPPORT_TEMPLATE) {
+        const template = document.createElement('template');
+        template.innerHTML = removeBadTags(htmlString);
+        return template.content;
+    }
+    // use document fragment with wrap html tag for tr, td etc.
+    const fragment = document.createDocumentFragment();
+    const queryContainer = document.createElement('div');
+    const firstTag = getFirstHtmlStringTag(htmlString);
+    const wrap = WRAP_MAP[firstTag || 'div'];
+
+    if (wrap[0] === 'div') {
+        return document.createRange().createContextualFragment(htmlString);
+    }
+
+    queryContainer.insertAdjacentHTML('beforeend', `${wrap[1]}${htmlString}${wrap[2]}`);
+
+    const query = queryContainer.querySelector(wrap[0]);
+
+    while (query.firstChild) {
+        fragment.appendChild(query.firstChild);
+    }
+
+    return fragment;
+}
 
 const generateElementCache = (bindingAttrs) => {
     const elementCache = {};
@@ -150,11 +208,23 @@ const arrayRemoveMatch = (toArray, frommArray) => {
 };
 
 const getFormData = ($form) => {
-    const sArray = $form.serializeArray();
     const data = {};
 
-    sArray.map((n) => {
-        data[n['name']] = n['value'];
+    if (!$form instanceof HTMLFormElement) {
+        return data;
+    }
+
+    const formData = new FormData($form);
+
+    formData.forEach((value, key) => {
+        if (!Object.prototype.hasOwnProperty.call( Object, key ) ) {
+            data[key] = value;
+            return;
+        }
+        if (!Array.isArray(data[key])) {
+            data[key] = [data[key]];
+        }
+        data[key].push(value);
     });
 
     return data;
@@ -253,7 +323,8 @@ const debounceRaf = (fn, ctx = null) => {
                     // ctx is the current component
                     dfObj.resolve(ctx);
                 } catch (err) {
-                    dfObj.reject(ctx, err);
+                    console.error('error in rendering: ', err);
+                    dfObj.reject(err);
                 }
 
                 // reset dfObj - otherwise then callbacks will not be in execution order
@@ -449,6 +520,15 @@ const removeElement = (el) => {
     }
 };
 
+const emptyElement = (node) => {
+    if (node && node.firstChild) {
+        while (node.firstChild) {
+            node.removeChild(node.firstChild);
+        }
+    }
+    return node;
+};
+
 const throwErrorMessage = (err = null, errorMessage = '') => {
     const message = err && err.message ? err.message : errorMessage;
     if (typeof console.error === 'function') {
@@ -461,8 +541,10 @@ export {
     REGEX,
     arrayRemoveMatch,
     cloneDomNode,
+    createHtmlFragment,
     debounceRaf,
     each,
+    emptyElement,
     extend,
     extractFilterList,
     generateElementCache,

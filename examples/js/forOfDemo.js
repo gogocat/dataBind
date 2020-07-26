@@ -1,6 +1,4 @@
-(function($, window) {
-    let forOfComponent;
-
+(function() {
     // viewModel as Class for create multiple instance
     class FormComponentVewModel {
         constructor() {
@@ -44,7 +42,7 @@
         }
 
         getInputIdName(index, oldAttrObj, $el) {
-            let inputSetting = this.personalDetails[index];
+            const inputSetting = this.personalDetails[index];
             return {
                 id: inputSetting.inputName,
                 name: inputSetting.inputName,
@@ -72,7 +70,7 @@
                     label: 'Country',
                     value: '',
                     updatedCss: 'updated',
-                }
+                },
             );
             this.updateView();
         }
@@ -93,13 +91,11 @@
     forOfComponentViewModel = new FormComponentVewModel();
 
     // start binding on DOM ready
-    $(document).ready(function() {
-        // formComponentC - test for-of binding
-        forOfComponent = dataBind.init($('[data-jq-comp="forOfComponent"]'), forOfComponentViewModel);
-        forOfComponent.render().then(function() {
-            // for debug
-            console.log(forOfComponent);
-            window.forOfComponent = forOfComponent;
-        });
+
+    // formComponentC - test for-of binding
+    const forOfComponent = dataBind.init(document.querySelector('[data-jq-comp="forOfComponent"]'), forOfComponentViewModel);
+    forOfComponent.render().then(function() {
+        // for debug
+        window.forOfComponent = forOfComponent;
     });
-})(jQuery, window);
+})();

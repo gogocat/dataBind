@@ -13,12 +13,7 @@
 
     <body>
         <section data-jq-comp="temp-component" data-jq-show="isDisplay" data-jq-tmp="{id:'intro'}"></section>
-
-        <script src="../vendors/lodash.custom.min.js"></script>
-        <script src="../vendors/jquery-3.2.1.min.js"></script>
-        <script src="../dist/js/dataBind.min.js"></script>
-        <script src="js/templateDemo.js"></script>
-
+        
         <template id="intro">
             <h1 class="display-4">{{ data.heading }}</h1>
             <p>{{ data.description }}</p>
@@ -31,5 +26,10 @@
         <template id="nest">
             <p data-jq-text="subContent.description"></p>
         </template>
+
+        <script src="../vendors/lodash.custom.min.js"></script>
+        <script src="../vendors/jquery-3.2.1.min.js"></script>
+        <script src="../dist/js/dataBind.min.js"></script>
+        <script src="js/templateDemo.js"></script>
     </body>
 </html>

@@ -12,16 +12,16 @@ describe('Given dataBind lib loaded', () => {
     });
 
     it('Should throw error if mounting root element does not exits', () => {
-        let viewModel = {};
+        const viewModel = {};
 
         expect(function() {
-            dataBind.init($('#xyz'), viewModel);
+            dataBind.init(document.getElementById('#xyz'), viewModel);
         }).toThrowError();
     });
 
     it('Should throw error if viewModel does not exits', () => {
         expect(function() {
-            testApp = dataBind.init($('#xyz'));
+            testApp = dataBind.init(document.getElementById('#xyz'));
         }).toThrowError();
     });
 });

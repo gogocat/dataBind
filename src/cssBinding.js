@@ -1,4 +1,9 @@
-import {getViewModelPropValue, isPlainObject, arrayRemoveMatch, each} from './util';
+import {
+    getViewModelPropValue,
+    isPlainObject,
+    arrayRemoveMatch,
+    each,
+} from './util';
 
 /**
  * cssBinding
@@ -22,7 +27,6 @@ const cssBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     cache.elementData = cache.elementData || {};
     cache.elementData.viewModelPropValue = cache.elementData.viewModelPropValue || '';
 
-    // let $element = $(cache.el);
     const oldCssList = cache.elementData.viewModelPropValue;
     let newCssList = '';
     const vmCssListObj = getViewModelPropValue(viewModel, cache);

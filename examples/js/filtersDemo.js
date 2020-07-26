@@ -1,6 +1,5 @@
-(($, window) => {
-    let filterComponent;
-
+/* eslint-disable max-len */
+(() => {
     const filterComponentViewModel = {
         renderIntro: true,
         heading: 'Test expression filter',
@@ -40,8 +39,8 @@
             return strg.toUpperCase();
         },
         toDateFormat: function(dateString) {
-            let date = new Date(dateString);
-            let monthNames = [
+            const date = new Date(dateString);
+            const monthNames = [
                 'January',
                 'February',
                 'March',
@@ -55,9 +54,9 @@
                 'November',
                 'December',
             ];
-            let day = date.getDate();
-            let monthIndex = date.getMonth();
-            let year = date.getFullYear();
+            const day = date.getDate();
+            const monthIndex = date.getMonth();
+            const year = date.getFullYear();
 
             return `${day} ${monthNames[monthIndex]} ${year}`;
         },
@@ -70,13 +69,12 @@
         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLxVHKpB93yhxRUb8Wbc1NkUA4Nf8QBMPieKeeL1ugcZivy82INw';
 
     // start binding on DOM ready
-    $(document).ready(() => {
-        // main
-        filterComponent = dataBind.init($('[data-jq-comp="filterComponent"]'), filterComponentViewModel);
-        filterComponent.render().then(function() {
-            // for debug
-            console.log(filterComponent);
-            window.filterComponent = filterComponent;
-        });
+
+    // main
+    filterComponent = dataBind.init(document.querySelector('[data-jq-comp="filterComponent"]'), filterComponentViewModel);
+    filterComponent.render().then(function() {
+        // for debug
+        console.log(filterComponent);
+        window.filterComponent = filterComponent;
     });
-})(jQuery, window);
+})();

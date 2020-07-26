@@ -24,12 +24,12 @@
     },
 
     "rules": {
-        "indent": [2, 4],
+        "indent": ["error", 4],
         "linebreak-style": 0,
         "require-jsdoc": 0,
         "max-len": [
             2,
-            120,
+            150,
             2,
             {
                 "ignoreUrls": true,

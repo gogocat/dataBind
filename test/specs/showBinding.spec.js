@@ -1,6 +1,6 @@
 describe('Given [data-jq-comp="show-component"] inited', () => {
-    let namespace = {};
-    let isVisible = function(el) {
+    const namespace = {};
+    const isVisible = function(el) {
         return el.offsetHeight > 0;
     };
 
@@ -26,14 +26,14 @@ describe('Given [data-jq-comp="show-component"] inited', () => {
             },
         };
 
-        namespace.myComponent = dataBind.init($('[data-jq-comp="show-component"]'), namespace.viewModel);
+        namespace.myComponent = dataBind.init(document.querySelector('[data-jq-comp="show-component"]'), namespace.viewModel);
 
         namespace.myComponent.render();
     });
 
     afterEach(() => {
         // clean up all app/components
-        for (let prop in namespace) {
+        for (const prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
@@ -49,14 +49,14 @@ describe('Given [data-jq-comp="show-component"] inited', () => {
 
     it('Should show or hide headings as defined in viewModel', (done) => {
         setTimeout(() => {
-            let $heading2 = document.getElementById('heading2');
-            let $heading2Invert = document.getElementById('heading2-invert');
-            let $heading3 = document.getElementById('heading3');
-            let $heading3Invert = document.getElementById('heading3-invert');
-            let $heading4 = document.getElementById('heading4');
-            let $heading5 = document.getElementById('heading5');
-            let $heading6 = document.getElementById('heading6');
-            let $heading7 = document.getElementById('heading7');
+            const $heading2 = document.getElementById('heading2');
+            const $heading2Invert = document.getElementById('heading2-invert');
+            const $heading3 = document.getElementById('heading3');
+            const $heading3Invert = document.getElementById('heading3-invert');
+            const $heading4 = document.getElementById('heading4');
+            const $heading5 = document.getElementById('heading5');
+            const $heading6 = document.getElementById('heading6');
+            const $heading7 = document.getElementById('heading7');
 
             expect($heading2.style.display).toBe('');
             expect(isVisible($heading2)).toBe(namespace.viewModel.displayHeading2);
@@ -91,7 +91,7 @@ describe('Given [data-jq-comp="show-component"] inited', () => {
         namespace.viewModel.updateView();
 
         setTimeout(() => {
-            let $heading2 = document.getElementById('heading2');
+            const $heading2 = document.getElementById('heading2');
             expect($heading2.style.display).toBe('none');
             expect(isVisible($heading2)).toBe(namespace.viewModel.displayHeading2);
             done();
@@ -103,8 +103,8 @@ describe('Given [data-jq-comp="show-component"] inited', () => {
         namespace.viewModel.updateView();
 
         setTimeout(() => {
-            let $heading2 = document.getElementById('heading2');
-            let $heading2Invert = document.getElementById('heading2-invert');
+            const $heading2 = document.getElementById('heading2');
+            const $heading2Invert = document.getElementById('heading2-invert');
 
             expect($heading2.style.display).toBe('none');
             expect(isVisible($heading2)).toBe(namespace.viewModel.displayHeading2);
@@ -120,7 +120,7 @@ describe('Given [data-jq-comp="show-component"] inited', () => {
         namespace.viewModel.updateView();
 
         setTimeout(() => {
-            let $heading4 = document.getElementById('heading4');
+            const $heading4 = document.getElementById('heading4');
 
             expect($heading4.style.display).toBe('none');
             expect(isVisible($heading4)).toBe(namespace.viewModel.displayHeading4);
@@ -128,7 +128,7 @@ describe('Given [data-jq-comp="show-component"] inited', () => {
             namespace.viewModel.displayHeading4 = true;
             namespace.viewModel.updateView();
             setTimeout(function() {
-                let $heading4 = document.getElementById('heading4');
+                const $heading4 = document.getElementById('heading4');
 
                 expect($heading4.style.display).toBe('');
                 expect(isVisible($heading4)).toBe(namespace.viewModel.displayHeading4);
@@ -139,7 +139,7 @@ describe('Given [data-jq-comp="show-component"] inited', () => {
 
     it('Should not show heading8 as property is not defined in viewModel', (done) => {
         setTimeout(() => {
-            let $heading8 = document.getElementById('heading8');
+            const $heading8 = document.getElementById('heading8');
 
             expect($heading8.style.display).toBe('none');
             expect(isVisible($heading8)).toBe(false);

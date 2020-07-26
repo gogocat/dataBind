@@ -1,5 +1,9 @@
 /* eslint-disable no-invalid-this */
-import {getViewModelValue, resolveViewModelContext, resolveParamList} from './util';
+import {
+    getViewModelValue,
+    resolveViewModelContext,
+    resolveParamList,
+} from './util';
 
 /**
  * focusBinding
@@ -25,12 +29,14 @@ const focusBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     if (typeof handlerFn === 'function') {
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-        $(cache.el)
-            .off('focus.databind')
-            .on('focus.databind', function(e) {
-                const args = [e, $(this)].concat(paramList);
-                handlerFn.apply(viewModelContext, args);
-            });
+
+        function focusHandler(e) {
+            const args = [e, e.currentTarget].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
+        }
+
+        cache.el.removeEventListener('focus', focusHandler, false);
+        cache.el.addEventListener('focus', focusHandler, false);
     }
 };
 

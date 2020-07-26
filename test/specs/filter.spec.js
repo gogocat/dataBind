@@ -1,5 +1,6 @@
+/* eslint-disable max-len */
 describe('Given [data-jq-comp="filter-component"] inited', () => {
-    let namespace = {};
+    const namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
 
@@ -30,13 +31,13 @@ describe('Given [data-jq-comp="filter-component"] inited', () => {
             },
         };
 
-        namespace.filterComponent = dataBind.init($('[data-jq-comp="filter-component"]'), namespace.viewModel);
+        namespace.filterComponent = dataBind.init(document.querySelector('[data-jq-comp="filter-component"]'), namespace.viewModel);
         namespace.filterComponent.render().then(() => done());
     });
 
     afterEach(() => {
         // clean up all app/components
-        for (let prop in namespace) {
+        for (const prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
@@ -44,8 +45,8 @@ describe('Given [data-jq-comp="filter-component"] inited', () => {
     });
 
     it('Then [data-jq-comp="filter-component"] should render story with once filter and not intro', () => {
-        let $intro = document.getElementById('intro');
-        let $story = document.getElementById('story');
+        const $intro = document.getElementById('intro');
+        const $story = document.getElementById('story');
 
         expect($intro).toBe(null);
         expect($story).not.toBe(null);
@@ -55,8 +56,8 @@ describe('Given [data-jq-comp="filter-component"] inited', () => {
     it('Should render intro but not story section after update viewModel', (done) => {
         namespace.filterComponent.viewModel.renderIntro = true;
         namespace.filterComponent.viewModel.updateView().then(() => {
-            let $intro = document.getElementById('intro');
-            let $story = document.getElementById('story');
+            const $intro = document.getElementById('intro');
+            const $story = document.getElementById('story');
             expect($intro).toBe(null);
             expect($story).toBe(null);
             done();
@@ -64,10 +65,10 @@ describe('Given [data-jq-comp="filter-component"] inited', () => {
     });
 
     it('Should render story and stroyPrice pass through filters | toDiscount | addGst', () => {
-        let $story = document.getElementById('story');
-        let stroyPrice = document.getElementById('stroyPrice').textContent;
-        let discountedPrice = namespace.viewModel.toDiscount(namespace.viewModel.story.price);
-        let finalPrice = namespace.viewModel.addGst(discountedPrice);
+        const $story = document.getElementById('story');
+        const stroyPrice = document.getElementById('stroyPrice').textContent;
+        const discountedPrice = namespace.viewModel.toDiscount(namespace.viewModel.story.price);
+        const finalPrice = namespace.viewModel.addGst(discountedPrice);
 
         expect($story).not.toBe(null);
         expect(Number(stroyPrice)).toBe(finalPrice);

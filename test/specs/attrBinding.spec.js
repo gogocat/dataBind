@@ -1,6 +1,6 @@
 describe('Given [data-jq-comp="attr-component"] inited', () => {
-    let namespace = {};
-    let testAttr2Obj = {
+    const namespace = {};
+    const testAttr2Obj = {
         id: 'newId',
         ref: 'newRef2',
     };
@@ -24,14 +24,14 @@ describe('Given [data-jq-comp="attr-component"] inited', () => {
             },
         };
 
-        namespace.myAttrComponent = dataBind.init($('[data-jq-comp="attr-component"]'), namespace.viewModel);
+        namespace.myAttrComponent = dataBind.init(document.querySelector('[data-jq-comp="attr-component"]'), namespace.viewModel);
 
         namespace.myAttrComponent.render();
     });
 
     afterEach(() => {
         // clean up all app/components
-        for (let prop in namespace) {
+        for (const prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
@@ -40,7 +40,7 @@ describe('Given [data-jq-comp="attr-component"] inited', () => {
 
     it('Then [data-jq-comp="myAttrComponent"] should have render', (done) => {
         setTimeout(() => {
-            let $testAttr1 = document.getElementById('testAttr1');
+            const $testAttr1 = document.getElementById('testAttr1');
             expect($testAttr1.textContent).toBe(namespace.viewModel.heading);
             done();
         }, 200);
@@ -48,7 +48,7 @@ describe('Given [data-jq-comp="attr-component"] inited', () => {
 
     it('Should update testAttr1 attributes', (done) => {
         setTimeout(function() {
-            let $testAttr1 = document.getElementById('testAttr1');
+            const $testAttr1 = document.getElementById('testAttr1');
             expect($testAttr1.getAttribute('ref')).toBe(namespace.viewModel.attr1.ref);
             expect($testAttr1.getAttribute('style')).toBe(namespace.viewModel.attr1.style);
             // check existing attribute untouch
@@ -60,7 +60,7 @@ describe('Given [data-jq-comp="attr-component"] inited', () => {
 
     it('Should update testAttr2 attributes as viewModel function property', (done) => {
         setTimeout(() => {
-            let $testAttr2 = document.getElementById(testAttr2Obj.id);
+            const $testAttr2 = document.getElementById(testAttr2Obj.id);
             expect($testAttr2.getAttribute('ref')).toBe(testAttr2Obj.ref);
             expect($testAttr2.getAttribute('id')).toBe(testAttr2Obj.id);
             done();
@@ -68,15 +68,15 @@ describe('Given [data-jq-comp="attr-component"] inited', () => {
     });
 
     it('Should update attribute when viewModel updated', (done) => {
-        let updatedRef = 'updatedRef';
-        let disabled = 'disabled';
+        const updatedRef = 'updatedRef';
+        const disabled = 'disabled';
 
         namespace.viewModel.attr1.ref = updatedRef;
         namespace.viewModel.attr1.disabled = disabled;
         namespace.myAttrComponent.render();
 
         setTimeout(() => {
-            let $testAttr1 = document.getElementById('testAttr1');
+            const $testAttr1 = document.getElementById('testAttr1');
             expect($testAttr1.getAttribute('ref')).toBe(updatedRef);
             expect($testAttr1.getAttribute('disabled')).toBe(disabled);
             expect($testAttr1.getAttribute('style')).toBe(namespace.viewModel.attr1.style);
@@ -88,13 +88,13 @@ describe('Given [data-jq-comp="attr-component"] inited', () => {
     });
 
     it('Should remove attribute when viewModel updated', (done) => {
-        let updatedRef2 = 'updatedRef2';
+        const updatedRef2 = 'updatedRef2';
         namespace.viewModel.attr1 = {
             ref: updatedRef2,
         };
 
         setTimeout(() => {
-            let $testAttr1 = document.getElementById('testAttr1');
+            const $testAttr1 = document.getElementById('testAttr1');
             expect($testAttr1.getAttribute('ref')).toBe(updatedRef2);
             expect($testAttr1.getAttribute('style')).toBe(null);
             // check existing attribute untouch

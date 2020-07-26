@@ -1,6 +1,10 @@
 /* eslint-disable no-invalid-this */
 import {bindingDataReference} from './config';
-import {getViewModelValue, resolveViewModelContext, resolveParamList} from './util';
+import {
+    getViewModelValue,
+    resolveViewModelContext,
+    resolveParamList,
+} from './util';
 
 /**
  * blurBinding
@@ -21,6 +25,7 @@ const hoverBinding = (cache, viewModel, bindingAttrs, forceRender) => {
 
     cache.elementData = cache.elementData || {};
 
+    // TODO: check what is APP.$rootElement.contains(cache.el)
     if (!handlerName || (!forceRender && !APP.$rootElement.contains(cache.el))) {
         return;
     }
@@ -31,18 +36,21 @@ const hoverBinding = (cache, viewModel, bindingAttrs, forceRender) => {
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
 
-        $(cache.el)
-            .off('mouseenter.databind mouseleave.databind')
-            .hover(
-                function enter(e) {
-                    const args = [e, cache.el].concat(paramList);
-                    handlers[inHandlerName].apply(viewModelContext, args);
-                },
-                function leave(e) {
-                    const args = [e, cache.el].concat(paramList);
-                    handlers[outHandlerName].apply(viewModelContext, args);
-                }
-            );
+        function onMouseEnterHandler(e) {
+            const args = [e, cache.el].concat(paramList);
+            handlers[inHandlerName].apply(viewModelContext, args);
+        }
+
+        function onMouseLeaveHandler(e) {
+            const args = [e, cache.el].concat(paramList);
+            handlers[outHandlerName].apply(viewModelContext, args);
+        }
+
+        cache.el.removeEventListener('mouseenter', onMouseEnterHandler, false);
+        cache.el.removeEventListener('mouseleave', onMouseLeaveHandler, false);
+
+        cache.el.addEventListener('mouseenter', onMouseEnterHandler, false);
+        cache.el.addEventListener('mouseleave', onMouseLeaveHandler, false);
     }
 };
 

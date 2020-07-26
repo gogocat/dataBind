@@ -1,5 +1,9 @@
 /* eslint-disable no-invalid-this */
-import {getViewModelValue, resolveViewModelContext, resolveParamList} from './util';
+import {
+    getViewModelValue,
+    resolveViewModelContext,
+    resolveParamList,
+} from './util';
 
 /**
  * blurBinding
@@ -26,12 +30,13 @@ const blurBinding = (cache, viewModel, bindingAttrs, forceRender) => {
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
 
-        $(cache.el)
-            .off('blur.databind')
-            .on('blur.databind', function(e) {
-                const args = [e, $(this)].concat(paramList);
-                handlerFn.apply(viewModelContext, args);
-            });
+        function blurHandler(e) {
+            const args = [e, e.currentTarget].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
+        }
+
+        cache.el.removeEventListener('blur', blurHandler, false);
+        cache.el.addEventListener('blur', blurHandler, false);
     }
 };
 

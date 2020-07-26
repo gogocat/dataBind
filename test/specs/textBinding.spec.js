@@ -1,6 +1,6 @@
 describe('Given [data-jq-comp="text-component"] inited', () => {
-    let namespace = {};
-    let testContent2 = 'text-binding content';
+    const namespace = {};
+    const testContent2 = 'text-binding content';
 
     jasmine.getFixtures().fixturesPath = 'test';
 
@@ -18,14 +18,14 @@ describe('Given [data-jq-comp="text-component"] inited', () => {
             },
         };
 
-        namespace.myTextComponent = dataBind.init($('[data-jq-comp="text-component"]'), namespace.viewModel);
+        namespace.myTextComponent = dataBind.init(document.querySelector('[data-jq-comp="text-component"]'), namespace.viewModel);
 
         namespace.myTextComponent.render();
     });
 
     afterEach(() => {
         // clean up all app/components
-        for (let prop in namespace) {
+        for (const prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
@@ -34,9 +34,9 @@ describe('Given [data-jq-comp="text-component"] inited', () => {
 
     it('Then [data-jq-comp="myTextComponent"] should have render', (done) => {
         setTimeout(() => {
-            let $heading = document.getElementById('text-binding-heading');
-            let $textBindingContent = document.getElementById('text-binding-content');
-            let $textBindingContent2 = document.getElementById('text-binding-content2');
+            const $heading = document.getElementById('text-binding-heading');
+            const $textBindingContent = document.getElementById('text-binding-content');
+            const $textBindingContent2 = document.getElementById('text-binding-content2');
 
             expect($heading.textContent).toBe(namespace.viewModel.heading);
             expect($textBindingContent.textContent).toBe(namespace.viewModel.description);

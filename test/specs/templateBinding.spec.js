@@ -1,5 +1,5 @@
 describe('Given [data-jq-comp="temp-component"] inited', () => {
-    let namespace = {};
+    const namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
 
@@ -29,14 +29,14 @@ describe('Given [data-jq-comp="temp-component"] inited', () => {
             },
         };
 
-        namespace.myComponent = dataBind.init($('[data-jq-comp="temp-component"]'), namespace.viewModel);
+        namespace.myComponent = dataBind.init(document.querySelector('[data-jq-comp="temp-component"]'), namespace.viewModel);
 
         namespace.myComponent.render();
     });
 
     afterEach(() => {
         // clean up all app/components
-        for (let prop in namespace) {
+        for (const prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
@@ -53,12 +53,12 @@ describe('Given [data-jq-comp="temp-component"] inited', () => {
 
     it('Should render undercore template without setting data', (done) => {
         setTimeout(() => {
-            let viewModel = namespace.viewModel;
-            let $compSection = document.getElementById('compSection');
-            let $heading = document.getElementById('heading');
-            let $description = document.getElementById('description');
-            let $content = document.getElementById('content');
-            let $contentNest1 = document.getElementById('contentNest1');
+            const viewModel = namespace.viewModel;
+            const $compSection = document.getElementById('compSection');
+            const $heading = document.getElementById('heading');
+            const $description = document.getElementById('description');
+            const $content = document.getElementById('content');
+            const $contentNest1 = document.getElementById('contentNest1');
 
             expect($compSection.children.length).not.toBe(0);
             expect($heading.textContent).toBe(viewModel.heading);
@@ -71,11 +71,11 @@ describe('Given [data-jq-comp="temp-component"] inited', () => {
 
     it('Should render nested templates with standard dataBindings', (done) => {
         setTimeout(() => {
-            let viewModel = namespace.viewModel;
-            let $contentNest1 = document.getElementById('contentNest1');
-            let $contentNest1Info = document.getElementById('contentNest1Info');
-            let $nestPrepend = document.getElementById('nestPrepend');
-            let $nestAppend = document.getElementById('nestAppend');
+            const viewModel = namespace.viewModel;
+            const $contentNest1 = document.getElementById('contentNest1');
+            const $contentNest1Info = document.getElementById('contentNest1Info');
+            const $nestPrepend = document.getElementById('nestPrepend');
+            const $nestAppend = document.getElementById('nestAppend');
 
             expect($contentNest1.children.length).not.toBe(0);
             expect($contentNest1Info.textContent).toBe(viewModel.contentNest1.info);
@@ -87,10 +87,10 @@ describe('Given [data-jq-comp="temp-component"] inited', () => {
 
     it('Should render nested template prepend option', (done) => {
         setTimeout(() => {
-            let viewModel = namespace.viewModel;
-            let $nestPrepend = document.getElementById('nestPrepend');
-            let $nestPrependHeading = document.getElementById('nestPrependHeading');
-            let $contentNest2Info = document.getElementById('contentNest2Info');
+            const viewModel = namespace.viewModel;
+            const $nestPrepend = document.getElementById('nestPrepend');
+            const $nestPrependHeading = document.getElementById('nestPrependHeading');
+            const $contentNest2Info = document.getElementById('contentNest2Info');
 
             expect($nestPrepend.children.length).toBeGreaterThan(1);
             expect($nestPrependHeading).not.toBe(null);
@@ -102,10 +102,10 @@ describe('Given [data-jq-comp="temp-component"] inited', () => {
 
     it('Should render nested template append option', (done) => {
         setTimeout(() => {
-            let viewModel = namespace.viewModel;
-            let $nestAppend = document.getElementById('nestAppend');
-            let $nestAppendHeading = document.getElementById('nestAppendHeading');
-            let $contentNest3Info = document.getElementById('contentNest3Info');
+            const viewModel = namespace.viewModel;
+            const $nestAppend = document.getElementById('nestAppend');
+            const $nestAppendHeading = document.getElementById('nestAppendHeading');
+            const $contentNest3Info = document.getElementById('contentNest3Info');
 
             expect($nestAppend.children.length).toBeGreaterThan(1);
             expect($nestAppendHeading).not.toBe(null);

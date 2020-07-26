@@ -1,6 +1,6 @@
 describe('Given form-component initised', () => {
-    let getElementAttributesObj = function($el) {
-        let obj = {};
+    const getElementAttributesObj = function($el) {
+        const obj = {};
         $.each($el[0].attributes, function() {
             if (this.specified) {
                 obj[this.name] = this.value;
@@ -9,7 +9,7 @@ describe('Given form-component initised', () => {
         return obj;
     };
 
-    let formComponentVM = {
+    const formComponentVM = {
         title: 'form component title',
         description: 'form component description',
         carName: 'saab',
@@ -68,13 +68,13 @@ describe('Given form-component initised', () => {
             namespace.formComponentApp.render();
         },
     };
-    let namespace = {};
+    const namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
 
     beforeEach(() => {
         loadFixtures('./fixtures/formBindings.html');
-        namespace.formComponentApp = dataBind.init($('[data-jq-comp="form-component"]'), formComponentVM);
+        namespace.formComponentApp = dataBind.init(document.querySelector('[data-jq-comp="form-component"]'), formComponentVM);
         namespace.formComponentApp.render();
     });
 
@@ -102,11 +102,15 @@ describe('Given form-component initised', () => {
     });
 
     it('When change #new-todo input value then viewModel should have updated', (done) => {
-        let task1 = 'new test task';
+        const task1 = 'new test task';
         setTimeout(function() {
-            $('#new-todo')
-                .val(task1)
-                .trigger('change');
+            const $newTodo = document.getElementById('new-todo');
+            const evt = document.createEvent('HTMLEvents');
+
+            evt.initEvent('change', true, true);
+            $newTodo.value = task1;
+            $newTodo.dispatchEvent(evt);
+
             // defer to check after asyn render
             setTimeout(function() {
                 expect(formComponentVM.taskName).toBe(task1);
@@ -118,9 +122,13 @@ describe('Given form-component initised', () => {
 
     it('When #toggle-all checked then viewModel should have updated', (done) => {
         setTimeout(() => {
-            $('#toggle-all')
-                .prop('checked', true)
-                .trigger('change');
+            const $toggleAll = document.getElementById('toggle-all');
+            const evt = document.createEvent('HTMLEvents');
+
+            evt.initEvent('change', true, true);
+            $toggleAll.checked = true;
+            $toggleAll.dispatchEvent(evt);
+
             // defer to check after asyn render
             setTimeout(() => {
                 expect(formComponentVM.markAllCompleted).toBe(true);
@@ -130,12 +138,16 @@ describe('Given form-component initised', () => {
     });
 
     it('When #carName dropdwon changed then viewModel should have updated', (done) => {
-        let newCarName = 'audi';
+        const newCarName = 'audi';
 
         setTimeout(() => {
-            $('#carName')
-                .val(newCarName)
-                .trigger('change');
+            const $carName = document.getElementById('carName');
+            const evt = document.createEvent('HTMLEvents');
+
+            evt.initEvent('change', true, true);
+            $carName.value = newCarName;
+            $carName.dispatchEvent(evt);
+
             // defer to check after asyn render
             setTimeout(() => {
                 expect(formComponentVM.carName).toBe(newCarName);
@@ -145,12 +157,16 @@ describe('Given form-component initised', () => {
     });
 
     it('When #radioMale changed then viewModel should have updated', (done) => {
-        let newGender = 'male';
+        const newGender = 'male';
 
         setTimeout(() => {
-            $('#radioMale')
-                .prop('checked', true)
-                .trigger('change');
+            const radioMale = document.getElementById('radioMale');
+            const evt = document.createEvent('HTMLEvents');
+
+            evt.initEvent('change', true, true);
+            radioMale.checked = true;
+            radioMale.dispatchEvent(evt);
+
             // defer to check after asyn render
             setTimeout(() => {
                 expect(formComponentVM.gender).toBe(newGender);
@@ -160,12 +176,15 @@ describe('Given form-component initised', () => {
     });
 
     it('When #testDate date input changed then viewModel should have updated', (done) => {
-        let newTestDate = '2018-01-01';
+        const newTestDate = '2018-01-01';
 
         setTimeout(() => {
-            $('#testDate')
-                .val(newTestDate)
-                .trigger('change');
+            const $testDate = document.getElementById('testDate');
+            const evt = document.createEvent('HTMLEvents');
+
+            evt.initEvent('change', true, true);
+            $testDate.value = newTestDate;
+            $testDate.dispatchEvent(evt);
 
             // defer to check after asyn render
             setTimeout(() => {
@@ -176,12 +195,16 @@ describe('Given form-component initised', () => {
     });
 
     it('When #testRange range input changed then viewModel should have updated', (done) => {
-        let newTestRange = '3';
+        const newTestRange = '3';
 
         setTimeout(() => {
-            $('#testRange')
-                .val(newTestRange)
-                .trigger('change');
+            const $testRange = document.getElementById('testRange');
+            const evt = document.createEvent('HTMLEvents');
+
+            evt.initEvent('change', true, true);
+            $testRange.value = newTestRange;
+            $testRange.dispatchEvent(evt);
+
             // defer to check after asyn render
             setTimeout(() => {
                 expect(formComponentVM.testRange).toBe(newTestRange);
@@ -192,14 +215,18 @@ describe('Given form-component initised', () => {
     });
 
     it('When #message range input changed with xss html then viewModel data should have escaped value and updated', (done) => {
-        let newMessage = 'This is a new message for test <script>alert(xss)</script>';
+        const newMessage = 'This is a new message for test <script>alert(xss)</script>';
 
-        let escapedMessage = 'This is a new message for test &lt;script&gt;alert(xss)&lt;/script&gt;';
+        const escapedMessage = 'This is a new message for test &lt;script&gt;alert(xss)&lt;/script&gt;';
 
         setTimeout(() => {
-            $('#message')
-                .val(newMessage)
-                .trigger('change');
+            const $message = document.getElementById('message');
+            const evt = document.createEvent('HTMLEvents');
+
+            evt.initEvent('change', true, true);
+            $message.value = newMessage;
+            $message.dispatchEvent(evt);
+
             // defer to check after asyn render
             setTimeout(() => {
                 expect(formComponentVM.message).toBe(escapedMessage);
@@ -209,21 +236,31 @@ describe('Given form-component initised', () => {
     });
 
     it('When #labelTaskeName label double clicked then viewModel should have updated and #taskName should show', (done) => {
-        $('#labelTaskeName')
-            .trigger('dblclick')
-            .trigger('change');
+        const $labelTaskeName = document.getElementById('labelTaskeName');
+        const evtDblclick = document.createEvent('MouseEvents');
+        const evtChange = document.createEvent('HTMLEvents');
+
+        evtDblclick.initEvent('dblclick', true, true);
+        evtChange.initEvent('change', true, true);
+
+        $labelTaskeName.dispatchEvent(evtDblclick);
+        $labelTaskeName.dispatchEvent(evtChange);
+
         // defer to check after asyn render
         setTimeout(() => {
+            const $taskName = document.getElementById('taskName');
+
             expect($('#taskName').is(':visible')).toBe(formComponentVM.showTaskNameInput);
-            $('#taskName').trigger('focus');
-            $('#taskName').trigger('blur');
+
+            $taskName.focus();
+            $taskName.blur();
             done();
         }, 100);
     });
 
     describe('Element with attribute binding', () => {
         it('should display attribute from viewModel', (done) => {
-            let $el = $('[data-jq-attr="testAttr"]');
+            const $el = $('[data-jq-attr="testAttr"]');
             let attrObj = {};
             setTimeout(() => {
                 attrObj = getElementAttributesObj($el);
@@ -235,7 +272,7 @@ describe('Given form-component initised', () => {
         });
 
         it('should update attribute according to viewModel', (done) => {
-            let $el = $('[data-jq-attr="testAttr"]');
+            const $el = $('[data-jq-attr="testAttr"]');
             let attrObj = {};
             formComponentVM.testAttr = {
                 id: '8888',
