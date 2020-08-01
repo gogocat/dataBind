@@ -1,5 +1,9 @@
 /* eslint-disable no-invalid-this */
-import {getViewModelValue, resolveViewModelContext, resolveParamList} from './util';
+import {
+    getViewModelValue,
+    resolveViewModelContext,
+    resolveParamList,
+} from './util';
 
 /**
  * dblclickBinding
@@ -25,12 +29,14 @@ const dblclickBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     if (typeof handlerFn === 'function') {
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-        $(cache.el)
-            .off('dblclick.databind')
-            .on('dblclick.databind', function(e) {
-                const args = [e, $(this)].concat(paramList);
-                handlerFn.apply(viewModelContext, args);
-            });
+
+        function dbclickHandler(e) {
+            const args = [e, e.currentTarget].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
+        }
+
+        cache.el.removeEventListener('dblclick', dbclickHandler, false);
+        cache.el.addEventListener('dblclick', dbclickHandler, false);
     }
 };
 

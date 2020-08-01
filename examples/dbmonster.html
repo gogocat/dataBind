@@ -12,15 +12,7 @@
                 <tbody data-jq-tmp="{id:'mainTable', data: 'databases'}"></tbody>
             </table>
         </div>
-        <script src="https://mathieuancelin.github.io/js-repaint-perfs/ENV.js"></script>
-        <script src="https://mathieuancelin.github.io/js-repaint-perfs/lib/memory-stats.js"></script>
-        <script src="https://mathieuancelin.github.io/js-repaint-perfs/lib/monitor.js"></script>
-
-        <script src="../vendors/lodash.custom.min.js"></script>
-        <script src="../vendors/jquery-3.2.1.min.js"></script>
-        <script src="../dist/js/dataBind.min.js"></script>
-        <script src="js/dbMonApp.js"></script>
-
+        
         <script type="html/text" id="mainTable">
             <%  _.each(data, function(db, index) {  %>
                 <tr>
@@ -39,7 +31,15 @@
                         </td>
                         <% }); %>
                 </tr>
-                <% }); %>
+            <% }); %>
         </script>
+
+        <script src="https://mathieuancelin.github.io/js-repaint-perfs/ENV.js"></script>
+        <script src="https://mathieuancelin.github.io/js-repaint-perfs/lib/memory-stats.js"></script>
+        <script src="https://mathieuancelin.github.io/js-repaint-perfs/lib/monitor.js"></script>
+
+        <script src="../vendors/lodash.custom.min.js"></script>
+        <script src="../dist/js/dataBind.min.js"></script>
+        <script src="js/dbMonApp.js"></script>
     </body>
 </html>

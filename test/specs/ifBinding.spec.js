@@ -1,5 +1,6 @@
+/* eslint-disable max-len */
 describe('Given [data-jq-comp="if-component"] inited', () => {
-    let namespace = {};
+    const namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
 
@@ -38,7 +39,7 @@ describe('Given [data-jq-comp="if-component"] inited', () => {
             },
         };
 
-        namespace.myIfComponent = dataBind.init($('[data-jq-comp="if-component"]'), namespace.viewModel);
+        namespace.myIfComponent = dataBind.init(document.querySelector('[data-jq-comp="if-component"]'), namespace.viewModel);
 
         namespace.myIfComponent.render();
 
@@ -48,7 +49,7 @@ describe('Given [data-jq-comp="if-component"] inited', () => {
 
     afterEach(() => {
         // clean up all app/components
-        for (let prop in namespace) {
+        for (const prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
@@ -65,8 +66,8 @@ describe('Given [data-jq-comp="if-component"] inited', () => {
 
     it('Then render if-binding elements with comment tag wrap around', (done) => {
         setTimeout(() => {
-            let introOpenCommentWrap = document.getElementById('intro').previousSibling;
-            let introCloseCommentWrap = document.getElementById('intro').nextSibling;
+            const introOpenCommentWrap = document.getElementById('intro').previousSibling;
+            const introCloseCommentWrap = document.getElementById('intro').nextSibling;
 
             expect(introOpenCommentWrap.nodeType).toBe(8);
             expect(introCloseCommentWrap.nodeType).toBe(8);
@@ -119,7 +120,12 @@ describe('Given [data-jq-comp="if-component"] inited', () => {
                 expect($('#storyLink').attr('target')).toBe('_blank');
                 expect($('#storyLink').attr('rel')).toBe('noopener noreferrer');
 
-                $('#storyLink').click();
+                const evt = document.createEvent('HTMLEvents');
+                evt.initEvent('click', true, true);
+
+                const $searchInput = document.getElementById('storyLink');
+                $searchInput.dispatchEvent(evt);
+
                 expect(namespace.viewModel.onStoryClick).toHaveBeenCalled();
                 namespace.viewModel.onStoryClick.calls.reset();
                 done();
@@ -146,9 +152,14 @@ describe('Given [data-jq-comp="if-component"] inited', () => {
             namespace.viewModel.updateView();
 
             setTimeout(() => {
+                const $storyLink = document.getElementById('storyLink');
+                const evt = document.createEvent('HTMLEvents');
+                evt.initEvent('click', true, true);
+
                 expect($('#story').length).toBe(1);
                 expect($('#intro').length).toBe(0);
-                $('#storyLink').click();
+
+                $storyLink.dispatchEvent(evt);
                 expect(namespace.viewModel.onStoryClick).toHaveBeenCalled();
                 namespace.viewModel.onStoryClick.calls.reset();
                 done();

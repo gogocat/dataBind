@@ -1,14 +1,9 @@
 describe('When nested data-jq-comp initised', () => {
-    let namespace = {};
+    const namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
 
     beforeEach(function() {
-        let parentComponent;
-        let childComponent;
-        let grandChildComponent;
-        let slibingChildComponent;
-
         loadFixtures('./fixtures/nestedComponents.html');
 
         namespace.parentComponentVM = {
@@ -31,15 +26,15 @@ describe('When nested data-jq-comp initised', () => {
             description: 'slibing child component description',
         };
 
-        parentComponent = dataBind.init($('[data-jq-comp="parent-component"]'), namespace.parentComponentVM);
-        childComponent = dataBind.init($('[data-jq-comp="child-component"]'), namespace.childComponentVM);
-        grandChildComponent = dataBind.init(
-            $('[data-jq-comp="grand-child-component"]'),
-            namespace.grandChildComponentVM
+        const parentComponent = dataBind.init(document.querySelector('[data-jq-comp="parent-component"]'), namespace.parentComponentVM);
+        const childComponent = dataBind.init(document.querySelector('[data-jq-comp="child-component"]'), namespace.childComponentVM);
+        const grandChildComponent = dataBind.init(
+            document.querySelector('[data-jq-comp="grand-child-component"]'),
+            namespace.grandChildComponentVM,
         );
-        slibingChildComponent = dataBind.init(
-            $('[data-jq-comp="slibing-child-component"]'),
-            namespace.slibingChildComponentVM
+        const slibingChildComponent = dataBind.init(
+            document.querySelector('[data-jq-comp="slibing-child-component"]'),
+            namespace.slibingChildComponentVM,
         );
 
         parentComponent.render();
@@ -50,7 +45,7 @@ describe('When nested data-jq-comp initised', () => {
 
     afterEach(() => {
         // clean up all app/components
-        for (let prop in namespace) {
+        for (const prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
@@ -85,7 +80,7 @@ describe('When nested data-jq-comp initised', () => {
         setTimeout(() => {
             expect($('#slibing-child-component-title').text()).toBe(namespace.slibingChildComponentVM.title);
             expect($('#slibing-child-component-description').text()).toBe(
-                namespace.slibingChildComponentVM.description
+                namespace.slibingChildComponentVM.description,
             );
             done();
         }, 200);

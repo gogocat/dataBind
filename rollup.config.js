@@ -1,7 +1,8 @@
-import babel from 'rollup-plugin-babel';
+import babel from '@rollup/plugin-babel';
 import {eslint} from 'rollup-plugin-eslint';
 import banner from 'rollup-plugin-banner';
 
+// eslint-disable-next-line no-unused-vars
 const pkg = require('./package.json');
 
 export default {
@@ -17,7 +18,7 @@ export default {
                 'version <%= pkg.version %>\n' +
                 'By <%= pkg.author %>\n' +
                 'link <%= pkg.homepage %>\n' +
-                'license <%= pkg.license %>\n'
+                'license <%= pkg.license %>\n',
         ),
         eslint({
             parser: 'babel-eslint',
@@ -33,10 +34,7 @@ export default {
             },
         }),
         babel({
-            exclude: 'node_modules/**',
-            runtimeHelpers: true,
-            presets: ['@babel/preset-env'],
-            plugins: ['transform-es3-member-expression-literals', 'transform-es3-property-literals'],
+            babelHelpers: 'bundled',
         }),
     ],
 };

@@ -1,7 +1,6 @@
+/* eslint-disable max-len */
 // search-results-component
-(function($, window) {
-    let searchResultsComponent;
-
+(() => {
     const viewModel = {
         searchResultTitle: 'Featured service providers',
         messageTriggerCss: '',
@@ -153,25 +152,27 @@
     };
 
     // start binding on DOM ready
-    $(document).ready(function() {
-        // debug
-        searchResultsComponent = dataBind.init($('[data-jq-comp="search-results-component"]'), viewModel);
 
-        searchResultsComponent.render().then(function() {
-            // for debug
-            console.log(searchResultsComponent);
-            window.searchResultsComponent = searchResultsComponent;
+    // debug
+    const searchResultsComponent = dataBind.init(document.querySelector('[data-jq-comp="search-results-component"]'), viewModel);
 
-            $('#btnRandomRender').on('click', function(e) {
-                e.preventDefault();
-                clearInterval(window.updateInterval);
-                updateResults();
-            });
+    searchResultsComponent.render().then(function() {
+        // for debug
+        console.log(searchResultsComponent);
+        window.searchResultsComponent = searchResultsComponent;
 
-            $('#btnStopRandomRender').on('click', function(e) {
-                e.preventDefault();
-                clearInterval(window.updateInterval);
-            });
-        });
+        btnRandomRender = document.getElementById('btnRandomRender');
+        btnStopRandomRender = document.getElementById('btnStopRandomRender');
+
+        btnRandomRender.addEventListener('click', function(e) {
+            e.preventDefault();
+            clearInterval(window.updateInterval);
+            updateResults();
+        }, false);
+
+        btnStopRandomRender.addEventListener('click', function(e) {
+            e.preventDefault();
+            clearInterval(window.updateInterval);
+        }, false);
     });
-})(jQuery, window);
+})();

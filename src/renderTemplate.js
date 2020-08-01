@@ -1,5 +1,10 @@
 import {dataIndexAttr} from './config';
-import {parseStringToJson, getViewModelPropValue} from './util';
+import {
+    createHtmlFragment,
+    emptyElement,
+    getViewModelPropValue,
+    parseStringToJson,
+} from './util';
 
 let $domFragment = null;
 let $templateRoot = null;
@@ -47,71 +52,80 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
 
     cache.dataKey = settings;
 
-    viewData =
-        typeof viewData === 'undefined' || viewData === '$root'
-            ? viewModel
-            : getViewModelPropValue(viewModel, {
-                dataKey: settings.data,
-                parameters: cache.parameters,
-            });
+    viewData = (typeof viewData === 'undefined' || viewData === '$root') ?
+        viewModel :
+        getViewModelPropValue(viewModel, {
+            dataKey: settings.data,
+            parameters: cache.parameters,
+        });
 
     if (!viewData) {
         return;
     }
 
-    const $element = $(cache.el);
-    const $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.attr(dataIndexAttr);
+    const $element = cache.el;
+    const $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.getAttribute(dataIndexAttr);
+
     if (typeof $index !== 'undefined') {
         viewData.$index = $index;
     }
-    $domFragment = $domFragment ? $domFragment : $('<div/>');
-    $templateRoot = $templateRoot ? $templateRoot : $element;
-    const html = compileTemplate(settings.id, viewData);
 
-    // domFragment should be empty in first run
+    $domFragment = $domFragment || document.createDocumentFragment();
+
+    $templateRoot = $templateRoot || $element;
+
+    const htmlString = compileTemplate(settings.id, viewData);
+
+    const htmlFragment = createHtmlFragment(htmlString);
+
     // append rendered html
-    if (!$domFragment.children().length) {
-        $currentElement = $domFragment;
-        $domFragment.append(html);
+    if (!$domFragment.childNodes.length) {
+        // domFragment should be empty in first run
+        $currentElement = $domFragment; // copy of $domFragment for later find nested template check
+        $domFragment.appendChild(htmlFragment);
     } else {
-        $currentElement = $element;
+        // during recursive run keep append to current fragment
+        $currentElement = $element; // reset to current nested template element
         if (!isAppend && !isPrepend) {
-            $currentElement.empty();
+            $currentElement = emptyElement($currentElement);
         }
         if (isPrepend) {
-            $currentElement.prepend(html);
+            $currentElement.insertBefore(htmlFragment, $currentElement.firstChild);
         } else {
-            $currentElement.append(html);
+            $currentElement.appendChild(htmlFragment);
         }
     }
 
     // check if there are nested template then recurisive render them
-    const $nestedTemplates = $currentElement.find('[' + bindingAttrs.tmp + ']');
+    const $nestedTemplates = $currentElement.querySelectorAll('[' + bindingAttrs.tmp + ']');
 
-    if ($nestedTemplates.length) {
-        nestTemplatesCount += $nestedTemplates.length;
-        $nestedTemplates.each(function(index, element) {
+    const nestedTemplatesLength = $nestedTemplates.length;
+
+    if (nestedTemplatesLength) {
+        nestTemplatesCount += nestedTemplatesLength;
+
+        for (let i=0; i < nestedTemplatesLength; i+=1) {
             const thisTemplateCache = {
-                el: element,
-                dataKey: element.getAttribute(bindingAttrs.tmp),
+                el: $nestedTemplates[i],
+                dataKey: $nestedTemplates[i].getAttribute(bindingAttrs.tmp),
             };
             elementCache[bindingAttrs.tmp].push(thisTemplateCache);
             // recursive template render
             renderTemplate(thisTemplateCache, viewModel, bindingAttrs, elementCache);
             nestTemplatesCount -= 1;
-        });
+        }
     }
 
     // no more nested tempalted to render, start to append $domFragment into $templateRoot
     if (nestTemplatesCount === 0) {
         // append to DOM once
         if (!isAppend && !isPrepend) {
-            $templateRoot.empty();
+            $templateRoot = emptyElement($templateRoot);
         }
         if (isPrepend) {
-            $templateRoot.prepend($domFragment.html());
+            $templateRoot.insertBefore($domFragment, $templateRoot.firstChild);
         } else {
-            $templateRoot.append($domFragment.html());
+            $templateRoot.appendChild($domFragment);
         }
         // clear cached fragment
         $domFragment = $templateRoot = null;

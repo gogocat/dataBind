@@ -1,9 +1,20 @@
 /* eslint-disable no-invalid-this */
 import {bindingAttrs as configBindingAttrs, bindingDataReference} from './config';
-import {getViewModelPropValue, isArray, isPlainObject, throwErrorMessage, cloneDomNode, isEmptyObject} from './util';
+import {
+    getViewModelPropValue,
+    isArray,
+    isPlainObject,
+    throwErrorMessage,
+    cloneDomNode,
+    isEmptyObject,
+} from './util';
 import createBindingCache from './domWalker';
 import {renderIteration} from './binder';
-import {wrapCommentAround, removeElemnetsByCommentWrap, insertRenderedElements} from './commentWrapper';
+import {
+    wrapCommentAround,
+    removeElemnetsByCommentWrap,
+    insertRenderedElements,
+} from './commentWrapper';
 
 const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     if (!bindingData || !viewModel || !bindingAttrs) {

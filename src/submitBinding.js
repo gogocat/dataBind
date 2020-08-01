@@ -1,4 +1,9 @@
-import {getViewModelValue, resolveViewModelContext, resolveParamList, getFormData} from './util';
+import {
+    getViewModelValue,
+    resolveViewModelContext,
+    resolveParamList,
+    getFormData,
+} from './util';
 
 /**
  * submitBinding
@@ -19,16 +24,19 @@ const submitBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     }
 
     const handlerFn = getViewModelValue(viewModel, handlerName);
-    const $element = $(cache.el);
+    const $element = cache.el;
 
     if (typeof handlerFn === 'function') {
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-        // assing on change event
-        $element.off('submit.databind').on('submit.databind', function(e) {
+
+        function submitHandler(e) {
             const args = [e, $element, getFormData($element)].concat(paramList);
             handlerFn.apply(viewModelContext, args);
-        });
+        }
+        // assing on change event
+        cache.el.removeEventListener('submit', submitHandler, false);
+        cache.el.addEventListener('submit', submitHandler, false);
     }
 };
 

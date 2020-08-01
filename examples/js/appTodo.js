@@ -1,7 +1,5 @@
-(function($, window) {
-    let todoApp;
-    let db;
-    let viewModel = {
+(() => {
+    const viewModel = {
         appName: 'Todos',
         tasks: [],
         displayTasks: [],
@@ -23,7 +21,7 @@
             // force filter all mode
             this.displayFilter = 'all';
             this.updateViewData();
-            $el.val('');
+            $el.value = '';
         },
         onMarkAllCompleted: function(e, $el, newValue, oldValue) {
             this.tasks.forEach(function(task, index) {
@@ -32,7 +30,7 @@
             this.updateViewData();
         },
         onClearAllCompleted: function(e, $el) {
-            let newTasks = this.tasks.filter(function(task, index) {
+            const newTasks = this.tasks.filter(function(task, index) {
                 return task.completed !== true;
             });
             this.tasks = newTasks;
@@ -51,8 +49,8 @@
             this.updateViewData({templateBinding: false});
         },
         onBlurEditTask: function(e, $el, index) {
-            let oldValue = this.tasks[index].taskTitle;
-            let newValue = _.escape($el.val().trim());
+            const oldValue = this.tasks[index].taskTitle;
+            const newValue = _.escape($el.value.trim());
             let isChanged = false;
 
             if (oldValue !== newValue) {
@@ -114,9 +112,9 @@
             return {id: `taskEdit-${index}`};
         },
         updateViewData: function(renderOption) {
-            let compltedTasks = this.getCompletedTasks();
-            let compltedTasksLength = compltedTasks.length;
-            let currentTaskLength = this.tasks.length;
+            const compltedTasks = this.getCompletedTasks();
+            const compltedTasksLength = compltedTasks.length;
+            const currentTaskLength = this.tasks.length;
 
             renderOption = renderOption || {templateBinding: true};
             this.hasTask = currentTaskLength > 0;
@@ -133,7 +131,7 @@
         },
     };
 
-    db = {
+    const db = {
         set: function(storeKey, data) {
             if (storeKey && data) {
                 localStorage.setItem(storeKey, JSON.stringify(data));
@@ -151,17 +149,15 @@
 
     viewModel.displayTasks = db.get('todos') || [];
 
-    $(document).ready(function() {
-        todoApp = dataBind.init($('#todoapp'), viewModel);
-        todoApp.render().then(function() {
-            // retrive data from storage
-            viewModel.tasks = db.get('todos') || [];
-            // update viewModel data and trigger todoApp.render
-            if (viewModel.tasks.length) {
-                viewModel.updateViewData();
-            }
-            // for debug
-            window.todoApp = todoApp;
-        });
+    const todoApp = dataBind.init(document.getElementById('todoapp'), viewModel);
+    todoApp.render().then(function() {
+        // retrive data from storage
+        viewModel.tasks = db.get('todos') || [];
+        // update viewModel data and trigger todoApp.render
+        if (viewModel.tasks.length) {
+            viewModel.updateViewData();
+        }
+        // for debug
+        window.todoApp = todoApp;
     });
-})(jQuery, window);
+})();

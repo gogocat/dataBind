@@ -1,6 +1,6 @@
 describe('Given [data-jq-comp="blur-component"] initised', () => {
-    let namespace = {};
-    let testBlurValue = 'onBlur called';
+    const namespace = {};
+    const testBlurValue = 'onBlur called';
 
     jasmine.getFixtures().fixturesPath = 'test';
 
@@ -20,14 +20,14 @@ describe('Given [data-jq-comp="blur-component"] initised', () => {
             },
         };
 
-        namespace.blurComponent = dataBind.init($('[data-jq-comp="blur-component"]'), namespace.viewModel);
+        namespace.blurComponent = dataBind.init(document.querySelector('[data-jq-comp="blur-component"]'), namespace.viewModel);
         namespace.blurComponent.render();
     });
 
     afterEach(() => {
         // clean up app
         // clean up all app/components
-        for (let prop in namespace) {
+        for (const prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
@@ -43,7 +43,7 @@ describe('Given [data-jq-comp="blur-component"] initised', () => {
     });
 
     it('should update "blurInput" value after onBlur', (done) => {
-        let $blurInput = document.getElementById('blurInput');
+        const $blurInput = document.getElementById('blurInput');
         setTimeout(() => {
             $blurInput.focus();
             $blurInput.blur();

@@ -1,9 +1,5 @@
-(function($, window) {
-    let formApp;
-    let formComponentA;
-    let formComponentB;
-    let formComponentBViewModel;
-    let formAppViewModel = {
+(() =>{
+    const formAppViewModel = {
         intro: {
             title: 'Form generator demo',
             description: `This is a dataBind example to auto generate form by data.
@@ -58,7 +54,7 @@
     }
 
     // use new instance of FormComponentVewModel and overwrite personalDetails
-    formComponentBViewModel = new FormComponentVewModel();
+    const formComponentBViewModel = new FormComponentVewModel();
     formComponentBViewModel.personalDetails = [
         {
             show: true,
@@ -77,31 +73,30 @@
     ];
 
     // start binding on DOM ready
-    $(document).ready(function() {
-        // main formApp
-        formApp = dataBind.init($('[data-jq-comp="formApp"]'), formAppViewModel);
-        formApp.render().then(function() {
-            // for debug
-            console.log(formApp);
-            window.formApp = formApp;
-        });
 
-        // formComponentA
-        formComponentA = dataBind.init($('[data-jq-comp="formComponentA"]'), new FormComponentVewModel());
-
-        formComponentA.render().then(function() {
-            // for debug
-            console.log(formComponentA);
-            window.formComponentA = formComponentA;
-        });
-
-        // formComponentB
-        formComponentB = dataBind.init($('[data-jq-comp="formComponentB"]'), formComponentBViewModel);
-
-        formComponentB.render().then(function() {
-            // for debug
-            console.log(formComponentB);
-            window.formComponentB = formComponentB;
-        });
+    // main formApp
+    const formApp = dataBind.init(document.querySelector('[data-jq-comp="formApp"]'), formAppViewModel);
+    formApp.render().then(function() {
+        // for debug
+        console.log(formApp);
+        window.formApp = formApp;
     });
-})(jQuery, window);
+
+    // formComponentA
+    const formComponentA = dataBind.init(document.querySelector('[data-jq-comp="formComponentA"]'), new FormComponentVewModel());
+
+    formComponentA.render().then(function() {
+        // for debug
+        console.log(formComponentA);
+        window.formComponentA = formComponentA;
+    });
+
+    // formComponentB
+    const formComponentB = dataBind.init(document.querySelector('[data-jq-comp="formComponentB"]'), formComponentBViewModel);
+
+    formComponentB.render().then(function() {
+        // for debug
+        console.log(formComponentB);
+        window.formComponentB = formComponentB;
+    });
+})();

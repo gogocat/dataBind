@@ -1,8 +1,9 @@
+/* eslint-disable max-len */
 describe('Given [data-jq-comp="switch-component"] inited', () => {
-    let namespace = {};
+    const namespace = {};
 
     // stories data
-    let storiesData = {
+    const storiesData = {
         s1: {
             title: 'Hansel and Gretel',
             pic:
@@ -38,7 +39,7 @@ describe('Given [data-jq-comp="switch-component"] inited', () => {
                 {title: 'The Giving Tree', value: 's3'},
             ],
             onSelectedStory: function(newValue) {
-                let id = newValue;
+                const id = newValue;
 
                 if (storiesData[id] && id !== this.selectedStory) {
                     this.story = storiesData[id];
@@ -67,14 +68,14 @@ describe('Given [data-jq-comp="switch-component"] inited', () => {
             },
         };
 
-        namespace.mySwitchComponent = dataBind.init($('[data-jq-comp="switch-component"]'), namespace.viewModel);
+        namespace.mySwitchComponent = dataBind.init(document.querySelector('[data-jq-comp="switch-component"]'), namespace.viewModel);
 
         namespace.mySwitchComponent.render();
     });
 
     afterEach(() => {
         // clean up all app/components
-        for (let prop in namespace) {
+        for (const prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
@@ -105,10 +106,10 @@ describe('Given [data-jq-comp="switch-component"] inited', () => {
         namespace.viewModel.onSelectedStory('s1');
 
         setTimeout(() => {
-            let $case1 = document.getElementById('case1');
-            let $storyTitle = $case1.querySelector('h4');
-            let $storyImg = $case1.querySelector('img');
-            let $storyDescription = $case1.querySelector('p');
+            const $case1 = document.getElementById('case1');
+            const $storyTitle = $case1.querySelector('h4');
+            const $storyImg = $case1.querySelector('img');
+            const $storyDescription = $case1.querySelector('p');
 
             // check child non switch binding element still exists
             expect(document.getElementById('switch-component-heading').textContent).toBe(namespace.viewModel.heading);
@@ -130,9 +131,9 @@ describe('Given [data-jq-comp="switch-component"] inited', () => {
         namespace.viewModel.onSelectedStory('s2');
 
         setTimeout(() => {
-            let $case2 = document.getElementById('case2');
-            let $storyTitle = $case2.querySelector('h4');
-            let $storyDescription = $case2.querySelector('p');
+            const $case2 = document.getElementById('case2');
+            const $storyTitle = $case2.querySelector('h4');
+            const $storyDescription = $case2.querySelector('p');
 
             // check child non switch binding element still exists
             expect(document.getElementById('switch-component-heading').textContent).toBe(namespace.viewModel.heading);
@@ -153,9 +154,9 @@ describe('Given [data-jq-comp="switch-component"] inited', () => {
         namespace.viewModel.onSelectedStory('xyz');
 
         setTimeout(() => {
-            let $defaultCase = document.getElementById('default-case');
-            let $defaultCaseTextContent = $defaultCase.querySelector('p').textContent;
-            let defatulCaseText = 'No story found...';
+            const $defaultCase = document.getElementById('default-case');
+            const $defaultCaseTextContent = $defaultCase.querySelector('p').textContent;
+            const defatulCaseText = 'No story found...';
 
             // check child non switch binding element still exists
             expect(document.getElementById('switch-component-heading').textContent).toBe(namespace.viewModel.heading);

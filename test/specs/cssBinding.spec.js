@@ -1,5 +1,5 @@
 describe('Given [data-jq-comp="css-component"] inited', () => {
-    let namespace = {};
+    const namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
 
@@ -24,14 +24,14 @@ describe('Given [data-jq-comp="css-component"] inited', () => {
             },
         };
 
-        namespace.myCssComponent = dataBind.init($('[data-jq-comp="css-component"]'), namespace.viewModel);
+        namespace.myCssComponent = dataBind.init(document.querySelector('[data-jq-comp="css-component"]'), namespace.viewModel);
 
         namespace.myCssComponent.render();
     });
 
     afterEach(() => {
         // clean up all app/components
-        for (let prop in namespace) {
+        for (const prop in namespace) {
             if (namespace.hasOwnProperty(prop)) {
                 delete namespace[prop];
             }
@@ -40,7 +40,7 @@ describe('Given [data-jq-comp="css-component"] inited', () => {
 
     it('Then [data-jq-comp="myCssComponent"] should have render', (done) => {
         setTimeout(() => {
-            let $heading = document.getElementById('myCssComponentHeading');
+            const $heading = document.getElementById('myCssComponentHeading');
             expect($heading.textContent).toBe(namespace.viewModel.heading);
             done();
         }, 200);
@@ -48,10 +48,10 @@ describe('Given [data-jq-comp="css-component"] inited', () => {
 
     it('should apply css bindings', (done) => {
         setTimeout(() => {
-            let $testCssOne = document.getElementById('testCssOne');
-            let testCssOneClassName = $testCssOne.className;
-            let $testCssTwo = document.getElementById('testCssTwo');
-            let testCssTwoClassName = $testCssTwo.className;
+            const $testCssOne = document.getElementById('testCssOne');
+            const testCssOneClassName = $testCssOne.className;
+            const $testCssTwo = document.getElementById('testCssTwo');
+            const testCssTwoClassName = $testCssTwo.className;
 
             expect(testCssOneClassName).toBe('testCssOne a b c');
             expect(testCssTwoClassName).toBe('testCssTwo x y z e f');
@@ -69,8 +69,8 @@ describe('Given [data-jq-comp="css-component"] inited', () => {
         namespace.viewModel.updateView();
 
         setTimeout(() => {
-            let $testCssOne = document.getElementById('testCssOne');
-            let testCssOneClassName = $testCssOne.className;
+            const $testCssOne = document.getElementById('testCssOne');
+            const testCssOneClassName = $testCssOne.className;
 
             expect(testCssOneClassName).toBe('testCssOne a c');
             done();

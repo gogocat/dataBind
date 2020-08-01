@@ -1,6 +1,5 @@
-(($, window) => {
-    let myComponent;
-
+/* eslint-disable max-len */
+(() => {
     const myComponentViewModel = {
         heading: 'This heading is inside switch binding',
         title: 'Test switch binding',
@@ -20,7 +19,7 @@
             }
         },
         onSelectedStory: function(e, $el, newValue, oldValue) {
-            let id = newValue;
+            const id = newValue;
 
             e.preventDefault();
 
@@ -74,13 +73,11 @@
     };
 
     // start binding on DOM ready
-    $(document).ready(() => {
-        // main
-        myComponent = dataBind.init($('[data-jq-comp="myComponent"]'), myComponentViewModel);
-        myComponent.render().then(function() {
-            // for debug
-            console.log(myComponent);
-            window.myComponent = myComponent;
-        });
+    // main
+    const myComponent = dataBind.init(document.querySelector('[data-jq-comp="myComponent"]'), myComponentViewModel);
+    myComponent.render().then(function() {
+        // for debug
+        console.log(myComponent);
+        window.myComponent = myComponent;
     });
-})(jQuery, window);
+})();

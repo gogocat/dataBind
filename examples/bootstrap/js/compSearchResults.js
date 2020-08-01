@@ -50,7 +50,7 @@
                     }, 1000);
                 })
                 .fail(function(jqXHR, textStatus, errorThrown) {
-                    this.loading = false;
+                    self.loading = false;
                     compSearchResults.publish('SEARCH-COMPLETED', {
                         fail: errorThrown,
                     });
@@ -99,8 +99,8 @@
         },
         onAdBookmarkClick: function(e, $el) {
             const activeCss = 'active';
-            const isActivated = $el.hasClass(activeCss);
-            const resultIndex = $el.attr('data-index');
+            const isActivated = $el.classList.contains(activeCss);
+            const resultIndex = $el.getAttribute('data-index');
 
             this.searchResults[resultIndex].bookmarked = !isActivated;
             this.searchResults[resultIndex].bookmarkedCss = isActivated ? '' : 'active';

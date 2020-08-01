@@ -1,6 +1,4 @@
-(($, window) => {
-    let templateComponent;
-
+(() => {
     const viewModel = {
         heading: 'Test template binding',
         description: 'This is intro and it is looking good!',
@@ -15,12 +13,10 @@
     };
 
     // start binding on DOM ready
-    $(document).ready(() => {
-        templateComponent = dataBind.init($('[data-jq-comp="temp-component"]'), viewModel);
-        templateComponent.render().then(() => {
-            // for debug
-            console.log(templateComponent);
-            window.templateComponent = templateComponent;
-        });
+    const templateComponent = dataBind.init(document.querySelector('[data-jq-comp="temp-component"]'), viewModel);
+    templateComponent.render().then(() => {
+        // for debug
+        console.log(templateComponent);
+        window.templateComponent = templateComponent;
     });
-})(jQuery, window);
+})();

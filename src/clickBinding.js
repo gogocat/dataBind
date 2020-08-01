@@ -1,5 +1,9 @@
 /* eslint-disable no-invalid-this */
-import {getViewModelValue, resolveViewModelContext, resolveParamList} from './util';
+import {
+    getViewModelValue,
+    resolveViewModelContext,
+    resolveParamList,
+} from './util';
 
 /**
  * clickBinding
@@ -26,12 +30,14 @@ const clickBinding = (cache, viewModel, bindingAttrs, forceRender) => {
     if (typeof handlerFn === 'function') {
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-        $(cache.el)
-            .off('click.databind')
-            .on('click.databind', function(e) {
-                const args = [e, $(this)].concat(paramList);
-                handlerFn.apply(viewModelContext, args);
-            });
+
+        function clickHandler(e) {
+            const args = [e, e.currentTarget].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
+        }
+
+        cache.el.removeEventListener('click', clickHandler, false);
+        cache.el.addEventListener('click', clickHandler, false);
     }
 };
 

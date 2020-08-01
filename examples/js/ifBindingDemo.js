@@ -1,7 +1,5 @@
-(($, window) => {
-    let myComponent;
-    let compStoryDetail;
-
+/* eslint-disable max-len */
+(() => {
     const myComponentViewModel = {
         renderIntro: false,
         heading: 'Test if binding',
@@ -95,22 +93,21 @@
     };
 
     // start binding on DOM ready
-    $(document).ready(() => {
-        // main
-        myComponent = dataBind.init($('[data-jq-comp="myComponent"]'), myComponentViewModel);
-        myComponent.render().then(function() {
-            // for debug
-            console.log(myComponent);
-            window.myComponent = myComponent;
-        });
 
-        // story detail componenet
-        compStoryDetail = dataBind.init($('[data-jq-comp="compStoryDetail"]'), compStoryDetailViewModel);
-        compStoryDetail.render().then(function(thisComponent) {
-            thisComponent.subscribe('SELECTED_STORY', thisComponent.viewModel.onStoryChange);
-            // for debug
-            console.log(compStoryDetail);
-            window.compStoryDetail = compStoryDetail;
-        });
+    // main
+    const myComponent = dataBind.init(document.querySelector('[data-jq-comp="myComponent"]'), myComponentViewModel);
+    myComponent.render().then(function() {
+        // for debug
+        console.log(myComponent);
+        window.myComponent = myComponent;
     });
-})(jQuery, window);
+
+    // story detail componenet
+    const compStoryDetail = dataBind.init(document.querySelector('[data-jq-comp="compStoryDetail"]'), compStoryDetailViewModel);
+    compStoryDetail.render().then(function(thisComponent) {
+        thisComponent.subscribe('SELECTED_STORY', thisComponent.viewModel.onStoryChange);
+        // for debug
+        console.log(compStoryDetail);
+        window.compStoryDetail = compStoryDetail;
+    });
+})();

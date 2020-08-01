@@ -1,5 +1,5 @@
-let fiberComponent = {};
-let fiberViewModel = {
+
+const fiberViewModel = {
     containerAttr: {style: 'width:auto'},
     containerCss: 'container',
     dots: [],
@@ -31,7 +31,7 @@ function createDotList(size = 1000, x = 0, y = 0) {
     const newSize = size / 2;
     return createDotList(newSize, x, y - newSize / 2).concat(
         createDotList(newSize, x - newSize, y + newSize / 2),
-        createDotList(newSize, x + newSize, y + newSize / 2)
+        createDotList(newSize, x + newSize, y + newSize / 2),
     );
 }
 
@@ -54,7 +54,7 @@ function createDot(x, y) {
 function recursiveUpdateDotsData(viewModel) {
     const remainder = getElapsedSecond() % 10;
     const text = Math.floor(remainder) + '';
-    let scaleXFactor = (1 + (5 - Math.abs(5 - remainder)) / 10) / 2.1;
+    const scaleXFactor = (1 + (5 - Math.abs(5 - remainder)) / 10) / 2.1;
 
     // update viewModel data
     viewModel.dots.forEach((dot) => {
@@ -77,16 +77,14 @@ function getElapsedSecond() {
 fiberViewModel.dots = createDotList();
 
 // start binding on DOM ready
-$(document).ready(function() {
-    const $fiberComponent = $('[data-jq-comp="fiberDemoComponent"]');
-    // formComponentC - test for-of binding
-    fiberComponent = dataBind.init($fiberComponent, fiberViewModel);
-    fiberComponent.render().then(function() {
-        // for debug
-        console.log(fiberComponent);
-        window.fiberComponent = fiberComponent;
+// formComponentC - test for-of binding
+const fiberComponent = dataBind.init(document.querySelector('[data-jq-comp="fiberDemoComponent"]'), fiberViewModel);
+fiberComponent.render().then(function() {
+    // for debug
+    console.log(fiberComponent);
+    window.fiberComponent = fiberComponent;
 
-        // recursive
-        recursiveUpdateDotsData(fiberViewModel);
-    });
+    // recursive
+    recursiveUpdateDotsData(fiberViewModel);
 });
+
