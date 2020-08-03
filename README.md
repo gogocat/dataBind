@@ -5,7 +5,7 @@
 
 ## What is dataBind?
 
-dataBind is a light weight javaScript [MV* framework](http://www.techbloginterview.com/what-is-a-mv-framework/) aim for modernise [web sites that already using jQuery](https://trends.builtwith.com/javascript/jQuery).
+dataBind is a light weight javaScript [MV* framework](http://www.techbloginterview.com/what-is-a-mv-framework/) aim for update DOM easier and in better managed way.
 
 * **Declarative:** dataBind simpliy bind view data to the HTML, wire events, and provides two way or one way data binding
 * **High performance:** dataBind is very fast. Please do try the famous [**dbmonster** example](https://gogocat.github.io/dataBind/examples/dbmonsterForOf.html), locate in `examples/dbmonsterForOf.html` and [**fiber**](https://gogocat.github.io/dataBind/examples/fiber-demo.html) `/examples/fiber-demo.html` compare with [other frameworks](http://mathieuancelin.github.io/js-repaint-perfs/)
@@ -14,7 +14,6 @@ dataBind is a light weight javaScript [MV* framework](http://www.techblogintervi
 * **zero setup:** There is no need to run any build tool for development or production
 * **framework agnostic :** dataBind can work with any other framework. There is no need to rebuild everything in order to use it. It is design to leverage and modernise what is already working
 
-*dataBind itself only use couple of jQuery methods internally.*
 
 ## How to use it?
 The following is a very simple example shows text binding. 
@@ -35,22 +34,21 @@ Then just call `render` to start render to the page.
 ```
 **Js**
 ```javascript
-let simpleComponent;
+
 const simpleComponentViewModel = {
     heading: 'Test heading',
     description: 'This is my test description',
 };
-// start binding on DOM ready
-$(document).ready(() => {
-    // init data bind with view
-    simpleComponent = dataBind.init($('[data-jq-comp="simpleComponent"]'), simpleComponentViewModel);
 
-    // trigger render and log after render
-    simpleComponent.render().then(function() {
-        // for debug
-        console.log(simpleComponent);
-    });
+// init data bind with view
+const simpleComponent = dataBind.init(document.querySelector('[data-jq-comp="simpleComponent"]'), simpleComponentViewModel);
+
+// trigger render and log after render
+simpleComponent.render().then(function() {
+    // for debug
+    console.log(simpleComponent);
 });
+
 ```
 To make change, just update the data in viewModel and then call `render()`.
 ```javascript		
@@ -81,7 +79,7 @@ For more advance example. Please check [**examples/bootstrap.html**](https://gog
 ```javascript
 ...
 // DOM ready bind viewModel with target DOM element
-const simpleComponent = dataBind.init($('[data-jq-comp="simpleComponent"]'), simpleComponentViewModel);
+const simpleComponent = dataBind.init(document.querySelector('[data-jq-comp="simpleComponent"]'), simpleComponentViewModel);
 
 // trigger render, then console log for debug
 simpleComponent.render().then(function(ctx) {
@@ -157,7 +155,7 @@ dataBind.use({
 });
 
 // init
-simpleComponent = dataBind.init($('[data-jq-comp="simpleComponent"]'), simpleComponentViewModel);
+const simpleComponent = dataBind.init(document.querySelector('[data-jq-comp="simpleComponent"]'), simpleComponentViewModel);
 // render
 simpleComponent.render();
 ```
@@ -360,8 +358,8 @@ For 2 way binding, please use Model binding together. Which does data flow from 
            autofocus>
 </div>
 // js
-let toDoApp;
-let viewModel = {
+
+const viewModel = {
     currentTask = '',
     onAddTask: function(e, $el, newValue, oldValue) {
         e.preventDefault();
@@ -371,12 +369,12 @@ let viewModel = {
     }
 }
 
- $(document).ready(() => {
-    // init data bind with view
-    toDoApp = dataBind.init($('[data-jq-comp="todoComponent"]'), viewModel);
-    // trigger render
-    toDoApp.render();
-});
+
+// init data bind with view
+const toDoApp = dataBind.init(document.querySelector('[data-jq-comp="todoComponent"]'), viewModel);
+// trigger render
+toDoApp.render();
+
 ```
 In this example, we update `currentTask` data whenever `onAddTask` get called(on change) then calls `this.APP.render()`. 
 
@@ -416,8 +414,8 @@ let viewModel = {
 ```javascript
  <input name="firstName" type="text" data-jq-blur="onBlur">
  
- // js
-let viewModel = {
+// js
+const viewModel = {
     onBlur: function(e, $el) {
         // do something...
     }
@@ -430,7 +428,7 @@ let viewModel = {
  <input name="firstName" type="text" data-jq-focus="onFocus">
  
  // js
-let viewModel = {
+const viewModel = {
     onFocus: function(e, $el) {
         // do something...
     }
@@ -442,7 +440,7 @@ let viewModel = {
 <div data-jq-hover="onHover">Hi</div>
 
  // js
-let viewModel = {
+const viewModel = {
     onHover:{
         in: function(e, $el) {
             // do something when mouse in
@@ -462,7 +460,7 @@ let viewModel = {
 </form>
 
 // js
-let viewModel = {
+const viewModel = {
     onSubmit: function(e, $el, formData) {
         // do something...
     }
@@ -544,7 +542,7 @@ let viewModel = {
 ### Communicate between components
 dataBind use pub/sub pattern to cross comminicate between components. In the [**bootstrap examples**](https://gogocat.github.io/dataBind/examples/bootstrap.html)
 ```javascript
-compSearchBar = dataBind.init($('[data-jq-comp="search-bar"]'), viewModel);
+const compSearchBar = dataBind.init(document.querySelector('[data-jq-comp="search-bar"]'), viewModel);
 compSearchBar.render().then(function(comp) {
     let self = comp;
     compSearchBar.subscribe('SEARCH-COMPLETED', self.viewModel.onSearchCompleted);
