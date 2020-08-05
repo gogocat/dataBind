@@ -11,7 +11,7 @@ const createClonedElementCache = (bindingData) => {
 
 const setCommentPrefix = (bindingData) => {
     if (!bindingData || !bindingData.type) {
-        return;
+        return bindingData;
     }
     let commentPrefix = '';
     const dataKeyMarker = bindingData.dataKey ? bindingData.dataKey.replace(util.REGEX.WHITESPACES, '_') : '';
