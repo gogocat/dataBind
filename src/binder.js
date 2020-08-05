@@ -1,14 +1,17 @@
 import * as config from './config';
-import {debounceRaf, extend, each, throwErrorMessage} from './util';
+import {
+    debounceRaf,
+    each,
+    extend,
+    getViewModelValue,
+    resolveViewModelContext,
+    resolveParamList,
+    throwErrorMessage,
+} from './util';
 import renderTemplate from './renderTemplate';
-import clickBinding from './clickBinding';
-import dblclickBinding from './dbclickBinding';
-import blurBinding from './blurBinding';
-import focusBinding from './focusBinding';
 import hoverBinding from './hoverBinding';
 import changeBinding from './changeBinding';
 import modelBinding from './modelBinding';
-import submitBinding from './submitBinding';
 import textBinding from './textBinding';
 import showBinding from './showBinding';
 import cssBinding from './cssBinding';
@@ -235,35 +238,60 @@ class Binder {
         // apply submit binding
         if (updateOption.submitBinding && elementCache[bindingAttrs.submit] && elementCache[bindingAttrs.submit].length) {
             elementCache[bindingAttrs.submit].forEach((cache) => {
-                submitBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+                createEventBinding({
+                    cache,
+                    forceRender: updateOption.forceRender,
+                    type: 'submit',
+                    viewModel,
+                });
             });
         }
 
         // apply click binding
         if (updateOption.clickBinding && elementCache[bindingAttrs.click] && elementCache[bindingAttrs.click].length) {
             elementCache[bindingAttrs.click].forEach((cache) => {
-                clickBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+                createEventBinding({
+                    cache,
+                    forceRender: updateOption.forceRender,
+                    type: 'click',
+                    viewModel,
+                });
             });
         }
 
         // apply double click binding
         if (updateOption.dblclickBinding && elementCache[bindingAttrs.dblclick] && elementCache[bindingAttrs.dblclick].length) {
             elementCache[bindingAttrs.dblclick].forEach((cache) => {
-                dblclickBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+                createEventBinding({
+                    cache,
+                    forceRender: updateOption.forceRender,
+                    type: 'dblclick',
+                    viewModel,
+                });
             });
         }
 
         // apply blur binding
         if (updateOption.blurBinding && elementCache[bindingAttrs.blur] && elementCache[bindingAttrs.blur].length) {
             elementCache[bindingAttrs.blur].forEach((cache) => {
-                blurBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+                createEventBinding({
+                    cache,
+                    forceRender: updateOption.forceRender,
+                    type: 'blur',
+                    viewModel,
+                });
             });
         }
 
         // apply focus binding
         if (updateOption.focusBinding && elementCache[bindingAttrs.focus] && elementCache[bindingAttrs.focus].length) {
             elementCache[bindingAttrs.focus].forEach((cache) => {
-                focusBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+                createEventBinding({
+                    cache,
+                    forceRender: updateOption.forceRender,
+                    type: 'focus',
+                    viewModel,
+                });
             });
         }
 
@@ -447,8 +475,40 @@ const renderIteration = ({elementCache, iterationVm, bindingAttrs, isRegenerate}
     });
 };
 
+const createEventBinding = ({
+    cache = {},
+    forceRender = false,
+    type = '',
+    viewModel = {},
+}) => {
+    const handlerName = cache.dataKey;
+    let paramList = cache.parameters;
+    let viewModelContext;
+    const APP = viewModel.APP || viewModel.$root.APP;
+
+    if (!type || !handlerName || (!forceRender && !APP.$rootElement.contains(cache.el))) {
+        return;
+    }
+
+    const handlerFn = getViewModelValue(viewModel, handlerName);
+
+    if (typeof handlerFn === 'function') {
+        viewModelContext = resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
+
+        const handlerWrap = (e) => {
+            const args = [e, e.currentTarget].concat(paramList);
+            handlerFn.apply(viewModelContext, args);
+        };
+
+        cache.el.removeEventListener(type, handlerWrap, false);
+        cache.el.addEventListener(type, handlerWrap, false);
+    }
+};
+
 export {
     Binder,
+    createEventBinding,
     createBindingOption,
     renderTemplatesBinding,
     renderIteration,

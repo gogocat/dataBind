@@ -267,29 +267,6 @@
         return frommArray.indexOf(value) < 0;
       });
     };
-
-    const getFormData = $form => {
-      const data = {};
-
-      if (!$form instanceof HTMLFormElement) {
-        return data;
-      }
-
-      const formData = new FormData($form);
-      formData.forEach((value, key) => {
-        if (!Object.prototype.hasOwnProperty.call(Object, key)) {
-          data[key] = value;
-          return;
-        }
-
-        if (!Array.isArray(data[key])) {
-          data[key] = [data[key]];
-        }
-
-        data[key].push(value);
-      });
-      return data;
-    };
     /**
      * getFunctionParameterList
      * @description convert parameter string to arrary
@@ -714,155 +691,6 @@
 
     /* eslint-disable no-invalid-this */
     /**
-     * clickBinding
-     * @description
-     * DOM decleartive click event binding
-     * event handler bind to viewModel method according to the DOM attribute
-     * @param {object} cache
-     * @param {object} viewModel
-     * @param {object} bindingAttrs
-     * @param {boolean} forceRender
-     */
-
-    const clickBinding = (cache, viewModel, bindingAttrs, forceRender) => {
-      const handlerName = cache.dataKey;
-      let paramList = cache.parameters;
-      let viewModelContext;
-      const APP = viewModel.APP || viewModel.$root.APP;
-
-      if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
-        return;
-      }
-
-      const handlerFn = getViewModelValue(viewModel, handlerName);
-
-      if (typeof handlerFn === 'function') {
-        viewModelContext = resolveViewModelContext(viewModel, handlerName);
-        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-
-        function clickHandler(e) {
-          const args = [e, e.currentTarget].concat(paramList);
-          handlerFn.apply(viewModelContext, args);
-        }
-
-        cache.el.removeEventListener('click', clickHandler, false);
-        cache.el.addEventListener('click', clickHandler, false);
-      }
-    };
-
-    /* eslint-disable no-invalid-this */
-    /**
-     * dblclickBinding
-     * DOM decleartive double click event binding
-     * event handler bind to viewModel method according to the DOM attribute
-     * @param {object} cache
-     * @param {object} viewModel
-     * @param {object} bindingAttrs
-     * @param {boolean} forceRender
-     */
-
-    const dblclickBinding = (cache, viewModel, bindingAttrs, forceRender) => {
-      const handlerName = cache.dataKey;
-      let paramList = cache.parameters;
-      let viewModelContext;
-      const APP = viewModel.APP || viewModel.$root.APP;
-
-      if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
-        return;
-      }
-
-      const handlerFn = getViewModelValue(viewModel, handlerName);
-
-      if (typeof handlerFn === 'function') {
-        viewModelContext = resolveViewModelContext(viewModel, handlerName);
-        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-
-        function dbclickHandler(e) {
-          const args = [e, e.currentTarget].concat(paramList);
-          handlerFn.apply(viewModelContext, args);
-        }
-
-        cache.el.removeEventListener('dblclick', dbclickHandler, false);
-        cache.el.addEventListener('dblclick', dbclickHandler, false);
-      }
-    };
-
-    /* eslint-disable no-invalid-this */
-    /**
-     * blurBinding
-     * DOM decleartive on blur event binding
-     * event handler bind to viewModel method according to the DOM attribute
-     * @param {object} cache
-     * @param {object} viewModel
-     * @param {object} bindingAttrs
-     * @param {boolean} forceRender
-     */
-
-    const blurBinding = (cache, viewModel, bindingAttrs, forceRender) => {
-      const handlerName = cache.dataKey;
-      let paramList = cache.parameters;
-      let viewModelContext;
-      const APP = viewModel.APP || viewModel.$root.APP;
-
-      if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
-        return;
-      }
-
-      const handlerFn = getViewModelValue(viewModel, handlerName);
-
-      if (typeof handlerFn === 'function') {
-        viewModelContext = resolveViewModelContext(viewModel, handlerName);
-        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-
-        function blurHandler(e) {
-          const args = [e, e.currentTarget].concat(paramList);
-          handlerFn.apply(viewModelContext, args);
-        }
-
-        cache.el.removeEventListener('blur', blurHandler, false);
-        cache.el.addEventListener('blur', blurHandler, false);
-      }
-    };
-
-    /* eslint-disable no-invalid-this */
-    /**
-     * focusBinding
-     * DOM decleartive on focus event binding
-     * event handler bind to viewModel method according to the DOM attribute
-     * @param {object} cache
-     * @param {object} viewModel
-     * @param {object} bindingAttrs
-     * @param {boolean} forceRender
-     */
-
-    const focusBinding = (cache, viewModel, bindingAttrs, forceRender) => {
-      const handlerName = cache.dataKey;
-      let paramList = cache.parameters;
-      let viewModelContext;
-      const APP = viewModel.APP || viewModel.$root.APP;
-
-      if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
-        return;
-      }
-
-      const handlerFn = getViewModelValue(viewModel, handlerName);
-
-      if (typeof handlerFn === 'function') {
-        viewModelContext = resolveViewModelContext(viewModel, handlerName);
-        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-
-        function focusHandler(e) {
-          const args = [e, e.currentTarget].concat(paramList);
-          handlerFn.apply(viewModelContext, args);
-        }
-
-        cache.el.removeEventListener('focus', focusHandler, false);
-        cache.el.addEventListener('focus', focusHandler, false);
-      }
-    };
-
-    /* eslint-disable no-invalid-this */
-    /**
      * blurBinding
      * DOM decleartive on blur event binding
      * event handler bind to viewModel method according to the DOM attribute
@@ -1003,43 +831,6 @@
             $element.value = newValue;
           }
         }
-      }
-    };
-
-    /**
-     * submitBinding
-     * @description on form submit binding. pass current form data as json object to handler
-     * @param {object} cache
-     * @param {object} viewModel
-     * @param {object} bindingAttrs
-     * @param {boolean} forceRender
-     */
-
-    const submitBinding = (cache, viewModel, bindingAttrs, forceRender) => {
-      const handlerName = cache.dataKey;
-      let paramList = cache.parameters;
-      let viewModelContext;
-      const APP = viewModel.APP || viewModel.$root.APP;
-
-      if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
-        return;
-      }
-
-      const handlerFn = getViewModelValue(viewModel, handlerName);
-      const $element = cache.el;
-
-      if (typeof handlerFn === 'function') {
-        viewModelContext = resolveViewModelContext(viewModel, handlerName);
-        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-
-        function submitHandler(e) {
-          const args = [e, $element, getFormData($element)].concat(paramList);
-          handlerFn.apply(viewModelContext, args);
-        } // assing on change event
-
-
-        cache.el.removeEventListener('submit', submitHandler, false);
-        cache.el.addEventListener('submit', submitHandler, false);
       }
     };
 
@@ -1450,7 +1241,7 @@
 
     const setCommentPrefix = bindingData => {
       if (!bindingData || !bindingData.type) {
-        return;
+        return bindingData;
       }
 
       let commentPrefix$1 = '';
@@ -2371,35 +2162,60 @@
 
         if (updateOption.submitBinding && elementCache[bindingAttrs.submit] && elementCache[bindingAttrs.submit].length) {
           elementCache[bindingAttrs.submit].forEach(cache => {
-            submitBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+            createEventBinding({
+              cache,
+              forceRender: updateOption.forceRender,
+              type: 'submit',
+              viewModel
+            });
           });
         } // apply click binding
 
 
         if (updateOption.clickBinding && elementCache[bindingAttrs.click] && elementCache[bindingAttrs.click].length) {
           elementCache[bindingAttrs.click].forEach(cache => {
-            clickBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+            createEventBinding({
+              cache,
+              forceRender: updateOption.forceRender,
+              type: 'click',
+              viewModel
+            });
           });
         } // apply double click binding
 
 
         if (updateOption.dblclickBinding && elementCache[bindingAttrs.dblclick] && elementCache[bindingAttrs.dblclick].length) {
           elementCache[bindingAttrs.dblclick].forEach(cache => {
-            dblclickBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+            createEventBinding({
+              cache,
+              forceRender: updateOption.forceRender,
+              type: 'dblclick',
+              viewModel
+            });
           });
         } // apply blur binding
 
 
         if (updateOption.blurBinding && elementCache[bindingAttrs.blur] && elementCache[bindingAttrs.blur].length) {
           elementCache[bindingAttrs.blur].forEach(cache => {
-            blurBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+            createEventBinding({
+              cache,
+              forceRender: updateOption.forceRender,
+              type: 'blur',
+              viewModel
+            });
           });
         } // apply focus binding
 
 
         if (updateOption.focusBinding && elementCache[bindingAttrs.focus] && elementCache[bindingAttrs.focus].length) {
           elementCache[bindingAttrs.focus].forEach(cache => {
-            focusBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+            createEventBinding({
+              cache,
+              forceRender: updateOption.forceRender,
+              type: 'focus',
+              viewModel
+            });
           });
         } // apply hover binding
 
@@ -2596,6 +2412,37 @@
         bindingAttrs: bindingAttrs,
         viewModel: iterationVm
       });
+    };
+
+    const createEventBinding = ({
+      cache = {},
+      forceRender = false,
+      type = '',
+      viewModel = {}
+    }) => {
+      const handlerName = cache.dataKey;
+      let paramList = cache.parameters;
+      let viewModelContext;
+      const APP = viewModel.APP || viewModel.$root.APP;
+
+      if (!type || !handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
+        return;
+      }
+
+      const handlerFn = getViewModelValue(viewModel, handlerName);
+
+      if (typeof handlerFn === 'function') {
+        viewModelContext = resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
+
+        const handlerWrap = e => {
+          const args = [e, e.currentTarget].concat(paramList);
+          handlerFn.apply(viewModelContext, args);
+        };
+
+        cache.el.removeEventListener(type, handlerWrap, false);
+        cache.el.addEventListener(type, handlerWrap, false);
+      }
     };
 
     let bindingAttrs$1 = bindingAttrs;
