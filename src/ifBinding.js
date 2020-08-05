@@ -85,7 +85,7 @@ const removeBindingInQueue = ({viewModel, cache}) => {
         viewModel.APP.postProcessQueue.push(
             ((cache, index) => () => {
                 cache[constants.PARENT_REF].splice(index, 1);
-            })(cache, cache[constants.PARENT_REF].indexOf(cache))
+            })(cache, cache[constants.PARENT_REF].indexOf(cache)),
         );
         ret = true;
     }
