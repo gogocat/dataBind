@@ -88,6 +88,42 @@
     WRAP_MAP.caption = WRAP_MAP.colgroup = WRAP_MAP.tbody = WRAP_MAP.tfoot = WRAP_MAP.thead;
     WRAP_MAP.th = WRAP_MAP.td;
 
+    const isArray = obj => {
+      return hasIsArray ? Array.isArray(obj) : Object.prototype.toString.call(obj) === '[object Array]';
+    };
+
+    const isJsObject = obj => {
+      return obj !== null && typeof obj === 'object' && Object.prototype.toString.call(obj) === '[object Object]';
+    };
+
+    const isPlainObject = obj => {
+      if (!isJsObject(obj)) {
+        return false;
+      } // If has modified constructor
+
+
+      const ctor = obj.constructor;
+      if (typeof ctor !== 'function') return false; // If has modified prototype
+
+      const prot = ctor.prototype;
+      if (isJsObject(prot) === false) return false; // If constructor does not have an Object-specific method
+
+      if (prot.hasOwnProperty('isPrototypeOf') === false) {
+        return false;
+      } // Most likely a plain Object
+
+
+      return true;
+    };
+
+    const isEmptyObject = obj => {
+      if (isJsObject(obj)) {
+        return Object.getOwnPropertyNames(obj).length === 0;
+      }
+
+      return false;
+    };
+
     function getFirstHtmlStringTag(htmlString) {
       const match = htmlString.match(REGEX.HTML_TAG);
 
@@ -133,42 +169,6 @@
 
       return fragment;
     }
-
-    const isArray = obj => {
-      return hasIsArray ? Array.isArray(obj) : Object.prototype.toString.call(obj) === '[object Array]';
-    };
-
-    const isJsObject = obj => {
-      return obj !== null && typeof obj === 'object' && Object.prototype.toString.call(obj) === '[object Object]';
-    };
-
-    const isPlainObject = obj => {
-      if (!isJsObject(obj)) {
-        return false;
-      } // If has modified constructor
-
-
-      const ctor = obj.constructor;
-      if (typeof ctor !== 'function') return false; // If has modified prototype
-
-      const prot = ctor.prototype;
-      if (isJsObject(prot) === false) return false; // If constructor does not have an Object-specific method
-
-      if (prot.hasOwnProperty('isPrototypeOf') === false) {
-        return false;
-      } // Most likely a plain Object
-
-
-      return true;
-    };
-
-    const isEmptyObject = obj => {
-      if (isJsObject(obj)) {
-        return Object.getOwnPropertyNames(obj).length === 0;
-      }
-
-      return false;
-    };
     /**
      * getViewModelValue
      * @description walk a object by provided string path. eg 'a.b.c'
@@ -266,6 +266,29 @@
       return toArray.filter((value, index) => {
         return frommArray.indexOf(value) < 0;
       });
+    };
+
+    const getFormData = $form => {
+      const data = {};
+
+      if (!$form instanceof HTMLFormElement) {
+        return data;
+      }
+
+      const formData = new FormData($form);
+      formData.forEach((value, key) => {
+        if (!Object.prototype.hasOwnProperty.call(Object, key)) {
+          data[key] = value;
+          return;
+        }
+
+        if (!Array.isArray(data[key])) {
+          data[key] = [data[key]];
+        }
+
+        data[key].push(value);
+      });
+      return data;
     };
     /**
      * getFunctionParameterList
@@ -2386,7 +2409,6 @@
      * This function is desidned for FoOf, If, switch bindings
      */
 
-
     const renderIteration = ({
       elementCache,
       iterationVm,
@@ -2436,7 +2458,16 @@
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
 
         const handlerWrap = e => {
-          const args = [e, e.currentTarget].concat(paramList);
+          let formData;
+          let args = [];
+
+          if (type === 'submit') {
+            formData = getFormData(e.currentTarget);
+            args = [e, e.currentTarget, formData].concat(paramList);
+          } else {
+            args = [e, e.currentTarget].concat(paramList);
+          }
+
           handlerFn.apply(viewModelContext, args);
         };
 

@@ -46,7 +46,7 @@
     };
 
     $(document).ready(function() {
-        compSearchBar = dataBind.init($('[data-jq-comp="search-bar"]'), viewModel);
+        compSearchBar = dataBind.init($('[data-jq-comp="search-bar"]')[0], viewModel);
         compSearchBar.render().then(function(comp) {
             const self = comp;
             compSearchBar.subscribe('SEARCH-COMPLETED', self.viewModel.onSearchCompleted);

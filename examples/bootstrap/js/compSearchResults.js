@@ -127,7 +127,7 @@
     $.getJSON(featureAdsResultUrl).done(function(featureAdsResultData) {
         viewModel.searchResults = converResultsData(featureAdsResultData);
 
-        compSearchResults = dataBind.init($('[data-jq-comp="search-results-component"]'), viewModel);
+        compSearchResults = dataBind.init($('[data-jq-comp="search-results-component"]')[0], viewModel);
         compSearchResults
             .render() // overwrite default server rendered option
             .then(function(comp) {

@@ -28,6 +28,42 @@ const WRAP_MAP = {
 WRAP_MAP.caption = WRAP_MAP.colgroup = WRAP_MAP.tbody = WRAP_MAP.tfoot = WRAP_MAP.thead;
 WRAP_MAP.th = WRAP_MAP.td;
 
+const isArray = (obj) => {
+    return hasIsArray ? Array.isArray(obj) : Object.prototype.toString.call(obj) === '[object Array]';
+};
+
+const isJsObject = (obj) => {
+    return obj !== null && typeof obj === 'object' && Object.prototype.toString.call(obj) === '[object Object]';
+};
+
+const isPlainObject = (obj) => {
+    if (!isJsObject(obj)) {
+        return false;
+    }
+
+    // If has modified constructor
+    const ctor = obj.constructor;
+    if (typeof ctor !== 'function') return false;
+
+    // If has modified prototype
+    const prot = ctor.prototype;
+    if (isJsObject(prot) === false) return false;
+
+    // If constructor does not have an Object-specific method
+    if (prot.hasOwnProperty('isPrototypeOf') === false) {
+        return false;
+    }
+
+    // Most likely a plain Object
+    return true;
+};
+
+const isEmptyObject = (obj) => {
+    if (isJsObject(obj)) {
+        return Object.getOwnPropertyNames(obj).length === 0;
+    }
+    return false;
+};
 
 function getFirstHtmlStringTag(htmlString) {
     const match = htmlString.match(REGEX.HTML_TAG);
@@ -74,47 +110,18 @@ function createHtmlFragment(htmlString) {
 
 const generateElementCache = (bindingAttrs) => {
     const elementCache = {};
-    $.each(bindingAttrs, function(k, v) {
-        elementCache[v] = [];
-    });
+
+    for (const i in bindingAttrs) {
+        if (bindingAttrs.hasOwnProperty(i)) {
+            if (isArray(bindingAttrs)) {
+                elementCache[bindingAttrs[i]] = [];
+            } else {
+                elementCache[i] = [];
+            }
+        }
+    }
+
     return elementCache;
-};
-
-const isArray = (obj) => {
-    return hasIsArray ? Array.isArray(obj) : Object.prototype.toString.call(obj) === '[object Array]';
-};
-
-const isJsObject = (obj) => {
-    return obj !== null && typeof obj === 'object' && Object.prototype.toString.call(obj) === '[object Object]';
-};
-
-const isPlainObject = (obj) => {
-    if (!isJsObject(obj)) {
-        return false;
-    }
-
-    // If has modified constructor
-    const ctor = obj.constructor;
-    if (typeof ctor !== 'function') return false;
-
-    // If has modified prototype
-    const prot = ctor.prototype;
-    if (isJsObject(prot) === false) return false;
-
-    // If constructor does not have an Object-specific method
-    if (prot.hasOwnProperty('isPrototypeOf') === false) {
-        return false;
-    }
-
-    // Most likely a plain Object
-    return true;
-};
-
-const isEmptyObject = (obj) => {
-    if (isJsObject(obj)) {
-        return Object.getOwnPropertyNames(obj).length === 0;
-    }
-    return false;
 };
 
 /**

@@ -443,6 +443,7 @@ const createBindingOption = (condition = '', opt = {}) => {
     return updateOption;
 };
 
+import {getFormData} from './util';
 /**
  * renderIteration
  * @param {object} opt
@@ -497,7 +498,14 @@ const createEventBinding = ({
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
 
         const handlerWrap = (e) => {
-            const args = [e, e.currentTarget].concat(paramList);
+            let formData;
+            let args = [];
+            if (type === 'submit') {
+                formData = getFormData(e.currentTarget);
+                args = [e, e.currentTarget, formData].concat(paramList);
+            } else {
+                args = [e, e.currentTarget].concat(paramList);
+            }
             handlerFn.apply(viewModelContext, args);
         };
 
