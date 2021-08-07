@@ -10,7 +10,7 @@
 (function () {
     'use strict';
 
-    const bindingAttrs = {
+    const bindingAttrs$1 = {
       comp: 'data-jq-comp',
       tmp: 'data-jq-tmp',
       text: 'data-jq-text',
@@ -41,7 +41,7 @@
     };
     const commentSuffix = '_end'; // global setting of underscore template inteprolate default token
 
-    const templateSettings = {
+    const templateSettings$1 = {
       evaluate: /<%([\s\S]+?)%>/g,
       interpolate: /\{\{=(.+?)\}\}/g,
       escape: /\{\{(.+?)\}\}/g
@@ -1271,19 +1271,19 @@
       const dataKeyMarker = bindingData.dataKey ? bindingData.dataKey.replace(REGEX.WHITESPACES, '_') : '';
 
       switch (bindingData.type) {
-        case bindingAttrs.forOf:
+        case bindingAttrs$1.forOf:
           commentPrefix$1 = commentPrefix.forOf;
           break;
 
-        case bindingAttrs.if:
+        case bindingAttrs$1.if:
           commentPrefix$1 = commentPrefix.if;
           break;
 
-        case bindingAttrs.case:
+        case bindingAttrs$1.case:
           commentPrefix$1 = commentPrefix.case;
           break;
 
-        case bindingAttrs.default:
+        case bindingAttrs$1.default:
           commentPrefix$1 = commentPrefix.default;
           break;
       }
@@ -1406,9 +1406,9 @@
     const renderForOfBinding = ({
       bindingData,
       viewModel,
-      bindingAttrs: bindingAttrs$1
+      bindingAttrs
     }) => {
-      if (!bindingData || !viewModel || !bindingAttrs$1) {
+      if (!bindingData || !viewModel || !bindingAttrs) {
         return;
       }
 
@@ -1429,7 +1429,7 @@
 
 
       if (!bindingData.type) {
-        bindingData.type = bindingAttrs.forOf;
+        bindingData.type = bindingAttrs$1.forOf;
         wrapCommentAround(bindingData, bindingData.el);
       } // assign forOf internal id to bindingData once
 
@@ -1438,7 +1438,7 @@
         // store iterationDataLength
         bindingData.iterationSize = iterationDataLength; // remove orignal node for-of attributes
 
-        bindingData.el.removeAttribute(bindingAttrs$1.forOf);
+        bindingData.el.removeAttribute(bindingAttrs.forOf);
         isRegenerate = true;
       } else {
         // only regenerate cache if iterationDataLength changed
@@ -1460,7 +1460,7 @@
             renderIteration({
               elementCache: elementCache,
               iterationVm: iterationVm,
-              bindingAttrs: bindingAttrs$1,
+              bindingAttrs: bindingAttrs,
               isRegenerate: false
             });
           }
@@ -1469,7 +1469,7 @@
       } // generate forOfBinding elements into fragment
 
 
-      const fragment = generateForOfElements(bindingData, viewModel, bindingAttrs$1, iterationData, keys);
+      const fragment = generateForOfElements(bindingData, viewModel, bindingAttrs, iterationData, keys);
       removeElemnetsByCommentWrap(bindingData); // insert fragment content into DOM
 
       return insertRenderedElements(bindingData, fragment);
@@ -1671,7 +1671,7 @@
      * @param {object} bindingAttrs
      */
 
-    const ifBinding = (cache, viewModel, bindingAttrs$1) => {
+    const ifBinding = (cache, viewModel, bindingAttrs) => {
       const dataKey = cache.dataKey; // isOnce only return if there is no child bindings
 
       if (!dataKey || cache.isOnce && cache.hasIterationBindingCache === false) {
@@ -1679,7 +1679,7 @@
       }
 
       cache.elementData = cache.elementData || {};
-      cache.type = cache.type || bindingAttrs.if;
+      cache.type = cache.type || bindingAttrs$1.if;
       const oldViewModelProValue = cache.elementData.viewModelPropValue; // getViewModelPropValue could be return undefined or null
 
       const viewModelPropValue = getViewModelPropValue(viewModel, cache) || false; // do nothing if viewModel value not changed and no child bindings
@@ -1707,7 +1707,7 @@
 
       if (!cache.fragment) {
         wrapCommentAround(cache, cache.el);
-        cache.el.removeAttribute(bindingAttrs$1.if);
+        cache.el.removeAttribute(bindingAttrs.if);
         createClonedElementCache(cache);
       }
 
@@ -1719,7 +1719,7 @@
         renderIfBinding({
           bindingData: cache,
           viewModel: viewModel,
-          bindingAttrs: bindingAttrs$1
+          bindingAttrs: bindingAttrs
         }); // if render once
         // remove this cache from parent array if no child caches
 
@@ -2476,22 +2476,22 @@
       }
     };
 
-    let bindingAttrs$1 = bindingAttrs;
-    let templateSettings$1 = templateSettings;
+    let bindingAttrs = bindingAttrs$1;
+    let templateSettings = templateSettings$1;
 
     const use = (settings = {}) => {
       if (settings.bindingAttrs) {
-        bindingAttrs$1 = $.extend({}, settings.bindingAttrs);
+        bindingAttrs = $.extend({}, settings.bindingAttrs);
       }
 
       if (settings.templateSettings) {
-        templateSettings$1 = $.extend({}, settings.templateSettings);
+        templateSettings = $.extend({}, settings.templateSettings);
       }
     };
 
     const init = ($rootElement, viewModel = null) => {
-      _.templateSettings = templateSettings$1;
-      return new Binder($rootElement, viewModel, bindingAttrs$1);
+      _.templateSettings = templateSettings;
+      return new Binder($rootElement, viewModel, bindingAttrs);
     }; // expose to global
 
 
