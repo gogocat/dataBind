@@ -1,4 +1,6 @@
+import 'promise-polyfill/src/polyfill';
 import * as config from './config';
+import {extend} from './util';
 import {Binder} from './binder';
 
 let bindingAttrs = config.bindingAttrs;
@@ -6,10 +8,10 @@ let templateSettings = config.templateSettings;
 
 const use = (settings = {}) => {
     if (settings.bindingAttrs) {
-        bindingAttrs = $.extend({}, settings.bindingAttrs);
+        bindingAttrs = extend({}, settings.bindingAttrs);
     }
     if (settings.templateSettings) {
-        templateSettings = $.extend({}, settings.templateSettings);
+        templateSettings = extend({}, settings.templateSettings);
     }
 };
 

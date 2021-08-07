@@ -5,8 +5,6 @@ _ = window._ || {};
 
 const hasIsArray = Array.isArray;
 
-const supportPromise = typeof window['Promise'] === 'function';
-
 const REGEX = {
     FUNCTIONPARAM: /\((.*?)\)/,
     WHITESPACES: /\s+/g,
@@ -292,15 +290,13 @@ const invertObj = (sourceObj) => {
 };
 
 const createDeferredObj = () => {
-    let dfObj = {};
-    if (supportPromise) {
-        dfObj.promise = new Promise((resolve, reject) => {
-            dfObj.resolve = resolve;
-            dfObj.reject = reject;
-        });
-    } else {
-        dfObj = $.Deferred(); // eslint-disable-line new-cap
-    }
+    const dfObj = {};
+
+    dfObj.promise = new Promise((resolve, reject) => {
+        dfObj.resolve = resolve;
+        dfObj.reject = reject;
+    });
+
     return dfObj;
 };
 
@@ -345,8 +341,7 @@ const debounceRaf = (fn, ctx = null) => {
                 window.cancelAnimationFrame(rafId);
             });
 
-            /* eslint-enable prefer-rest-params */
-            return supportPromise ? dfObj.promise : dfObj.promise();
+            return dfObj.promise;
         };
     })(fn, ctx);
 };
