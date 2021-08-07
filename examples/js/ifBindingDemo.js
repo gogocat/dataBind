@@ -95,7 +95,7 @@
     // start binding on DOM ready
 
     // main
-    const myComponent = dataBind.init(document.querySelector('[data-jq-comp="myComponent"]'), myComponentViewModel);
+    const myComponent = dataBind.init(document.querySelector('[data-bind-comp="myComponent"]'), myComponentViewModel);
     myComponent.render().then(function() {
         // for debug
         console.log(myComponent);
@@ -103,7 +103,7 @@
     });
 
     // story detail componenet
-    const compStoryDetail = dataBind.init(document.querySelector('[data-jq-comp="compStoryDetail"]'), compStoryDetailViewModel);
+    const compStoryDetail = dataBind.init(document.querySelector('[data-bind-comp="compStoryDetail"]'), compStoryDetailViewModel);
     compStoryDetail.render().then(function(thisComponent) {
         thisComponent.subscribe('SELECTED_STORY', thisComponent.viewModel.onStoryChange);
         // for debug

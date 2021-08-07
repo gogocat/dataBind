@@ -3,7 +3,7 @@
     const myComponentViewModel = {
         heading: 'This heading is inside switch binding',
         title: 'Test switch binding',
-        description: 'Switch binding will add / remove its direct child elements that has data-jq-case expression.',
+        description: 'Switch binding will add / remove its direct child elements that has data-bind-case expression.',
         selectedStory: '',
         story: {},
         storyOptions: [
@@ -74,7 +74,7 @@
 
     // start binding on DOM ready
     // main
-    const myComponent = dataBind.init(document.querySelector('[data-jq-comp="myComponent"]'), myComponentViewModel);
+    const myComponent = dataBind.init(document.querySelector('[data-bind-comp="myComponent"]'), myComponentViewModel);
     myComponent.render().then(function() {
         // for debug
         console.log(myComponent);

@@ -71,7 +71,7 @@
     // start binding on DOM ready
 
     // main
-    filterComponent = dataBind.init(document.querySelector('[data-jq-comp="filterComponent"]'), filterComponentViewModel);
+    filterComponent = dataBind.init(document.querySelector('[data-bind-comp="filterComponent"]'), filterComponentViewModel);
     filterComponent.render().then(function() {
         // for debug
         console.log(filterComponent);

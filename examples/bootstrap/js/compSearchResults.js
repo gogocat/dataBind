@@ -57,6 +57,23 @@
                     self.logError(jqXHR, textStatus, errorThrown);
                 });
         },
+        getImgAttr: function(data) {
+            return {
+                src: data.image || '',
+                alt: data.title || '',
+            };
+        },
+        getMessageCheckBoxAttr: function(data) {
+            return {
+                id: data.id,
+                name: data.id,
+            };
+        },
+        getMessageCheckBoxLabelAttr: function(data) {
+            return {
+                for: data.id,
+            };
+        },
         onSearchResult: function(data) {
             let newResults = [];
 
@@ -89,6 +106,7 @@
             console.log('onSearchResult: ', data);
         },
         logError: function() {
+            // eslint-disable-next-line prefer-rest-params
             console.warn('search result error: ', arguments);
         },
         onMoreResults: function() {
@@ -127,7 +145,7 @@
     $.getJSON(featureAdsResultUrl).done(function(featureAdsResultData) {
         viewModel.searchResults = converResultsData(featureAdsResultData);
 
-        compSearchResults = dataBind.init($('[data-jq-comp="search-results-component"]')[0], viewModel);
+        compSearchResults = dataBind.init($('[data-bind-comp="search-results-component"]')[0], viewModel);
         compSearchResults
             .render() // overwrite default server rendered option
             .then(function(comp) {

@@ -1,16 +1,16 @@
-<section data-jq-comp="switch-component">
-    <div data-jq-switch="selectedStory">
-        <h3 id="switch-component-heading" data-jq-text="heading"></h3>
-        <div id="case1" data-jq-case="s1" class="mt-3 card box-shadow" data-jq-tmp="{id: 'compStoryDetailTemplate', data: '$root'}">
+<section data-bind-comp="switch-component">
+    <div data-bind-switch="selectedStory">
+        <h3 id="switch-component-heading" data-bind-text="heading"></h3>
+        <div id="case1" data-bind-case="s1" class="mt-3 card box-shadow" data-bind-tmp="{id: 'compStoryDetailTemplate', data: '$root'}">
             <h2>Case 1</h2>
         </div>
-        <div id="case2" data-jq-case="s2" class="mt-3 card box-shadow" data-jq-tmp="{id: 'compStoryDetailTemplate', data: '$root'}">
+        <div id="case2" data-bind-case="s2" class="mt-3 card box-shadow" data-bind-tmp="{id: 'compStoryDetailTemplate', data: '$root'}">
             <h2>Case 2</h2>
         </div>
-        <div id="case3" data-jq-case="s3" class="mt-3 card box-shadow" data-jq-tmp="{id: 'compStoryDetailTemplate', data: '$root'}">
+        <div id="case3" data-bind-case="s3" class="mt-3 card box-shadow" data-bind-tmp="{id: 'compStoryDetailTemplate', data: '$root'}">
             <h2>Case 3</h2>
         </div>
-        <div id="default-case" data-jq-default="">
+        <div id="default-case" data-bind-default="">
             <p>No story found...</p>
         </div>
     </div>
@@ -18,10 +18,10 @@
 
 <template id="compStoryDetailTemplate">
     <div class="card-header">
-        <h4 class="font-weight-normal" data-jq-text="story.title"></h4>
+        <h4 class="font-weight-normal" data-bind-text="story.title"></h4>
     </div>
     <div class="card-body d-flex align-items-start">
-        <img class="mr-4" data-jq-if="story.pic" data-jq-attr="setStoryImgAttr">
-        <p class="" data-jq-text="story.description"></p>
+        <img class="mr-4" data-bind-if="story.pic" data-bind-attr="setStoryImgAttr">
+        <p class="" data-bind-text="story.description"></p>
     </div>
 </template>

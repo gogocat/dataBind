@@ -78,7 +78,7 @@ fiberViewModel.dots = createDotList();
 
 // start binding on DOM ready
 // formComponentC - test for-of binding
-const fiberComponent = dataBind.init(document.querySelector('[data-jq-comp="fiberDemoComponent"]'), fiberViewModel);
+const fiberComponent = dataBind.init(document.querySelector('[data-bind-comp="fiberDemoComponent"]'), fiberViewModel);
 fiberComponent.render().then(function() {
     // for debug
     console.log(fiberComponent);

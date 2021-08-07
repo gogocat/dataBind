@@ -61,21 +61,20 @@
             <h1>Fiber Demo with dataBind</h1>
             <p>This demo dataBind can update 1000 node while animating and keeping high framerate.</p>
         </div>
-        <div id="container" data-jq-comp="fiberDemoComponent" data-jq-attr="containerAttr" data-jq-css="containerCss">
-            <div data-jq-tmp="{id: 'fiberDemoContent'}"></div>
+        <div id="container" data-bind-comp="fiberDemoComponent" data-bind-attr="containerAttr" data-bind-css="containerCss">
+            <div data-bind-tmp="{id: 'fiberDemoContent'}"></div>
         </div>
 
         <template id="fiberDemoContent">
             <div
-                data-jq-for="dot of dots"
-                data-jq-text="dot.text"
-                data-jq-css="$root.dotCss"
-                data-jq-attr="dot.attr"
-                data-jq-hover="$root.onHoverDot($index)"
+                data-bind-for="dot of dots"
+                data-bind-text="dot.text"
+                data-bind-css="$root.dotCss"
+                data-bind-attr="dot.attr"
+                data-bind-hover="$root.onHoverDot($index)"
             ></div>
         </template>
 
-        <script src="../vendors/lodash.custom.min.js"></script>
         <script src="../dist/js/dataBind.min.js"></script>
         <script src="js/fiberDemo.js"></script>
     </body>

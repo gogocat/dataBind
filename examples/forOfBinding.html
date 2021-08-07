@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>dataBind Demo | data-jq-for-of</title>
+        <title>dataBind Demo | data-bind-for-of</title>
         <!-- Bootstrap core CSS -->
         <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
         <link rel="stylesheet" href="bootstrap/css/open-iconic.css" />
@@ -14,18 +14,18 @@
     <body>
         <div class="container">
             <h5>For of binding</h5>
-            <div data-jq-comp="forOfComponent">
+            <div data-bind-comp="forOfComponent">
                 <h2>Before for-of</h2>
                 <div
                     class="form-row"
-                    data-jq-for="item of personalDetails"
-                    data-jq-show="item.show"
-                    data-jq-tmp="{id:'formItems', data: '$root.personalDetails'}"
+                    data-bind-for="item of personalDetails"
+                    data-bind-show="item.show"
+                    data-bind-tmp="{id:'formItems', data: '$root.personalDetails'}"
                 ></div>
                 <h2>after for-of</h2>
                 <div>
-                    <button data-jq-click="addRows">Add 2 row</button>
-                    <button data-jq-click="removeRows">Remove last 2 row</button>
+                    <button data-bind-click="addRows">Add 2 row</button>
+                    <button data-bind-click="removeRows">Remove last 2 row</button>
                 </div>
             </div>
         </div>
@@ -33,20 +33,19 @@
         <!-- form example templates -->
         <template id="formItems">
             <div class="col-8">
-                <label for="name" data-jq-css="item.updatedCss" data-jq-text="item.label"></label>
+                <label for="name" data-bind-css="item.updatedCss" data-bind-text="item.label"></label>
                 <input
-                    data-jq-attr="$root.getInputIdName($index)"
+                    data-bind-attr="$root.getInputIdName($index)"
                     type="text"
                     class="form-control"
                     value=""
-                    data-jq-model="item.value"
-                    data-jq-change="$root.onInputChange($index)"
+                    data-bind-model="item.value"
+                    data-bind-change="$root.onInputChange($index)"
                     required
                 />
             </div>
         </template>
 
-        <script src="../vendors/lodash.custom.min.js"></script>
         <script src="../dist/js/dataBind.min.js"></script>
         <script src="js/forOfDemo.js"></script>
     </body>

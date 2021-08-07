@@ -1,22 +1,22 @@
 <!-- For test server rendered no visual change but event bindings -->
-<section class="search-bar" data-jq-comp="search-bar" data-server-rendered>
+<section class="search-bar" data-bind-comp="search-bar" data-server-rendered>
     <div class="container">
-        <form id="search-form" data-jq-submit="onSearchSubmit">
+        <form id="search-form" data-bind-submit="onSearchSubmit">
             <div class="form-row">
                 <div class="col-8" id="scrollable-dropdown-menu">
-                    <input id="searchWord" name="searchWord" type="text" class="form-control typeahead" value="" data-jq-model="searchWord" data-jq-change="onSearchWordChange" required>
+                    <input id="searchWord" name="searchWord" type="text" class="form-control typeahead" value="" data-bind-model="searchWord" data-bind-change="onSearchWordChange" required>
                     <label for="searchWord" class="search-bar__label search-bar__label--large">I'm looking for...</label>
                     <span class="search-bar__focus-bar"></span>
                 </div>
                 <div class="col-3 input-group">
                     <span class="oi search-bar__map-marker" data-glyph="map-marker"></span>
-                    <input id="location" name="location" type="text" class="form-control" data-jq-model="searchLocation" data-jq-change="onSearchLocationChange" placeholder="Location" value="Sydney" aria-label="Location">
+                    <input id="location" name="location" type="text" class="form-control" data-bind-model="searchLocation" data-bind-change="onSearchLocationChange" placeholder="Location" value="Sydney" aria-label="Location">
                     <span class="search-bar__focus-bar"></span>
                 </div>
                 <div class="col">
                     <button class="btn btn-success search-bar__btn" type="submit">
-                        <span class="spinner spinner--search" data-jq-show="searching"></span>
-                        <span data-jq-show="!searching">
+                        <span class="spinner spinner--search" data-bind-show="searching"></span>
+                        <span data-bind-show="!searching">
                             <span class="sr-only">Search</span>
                             <span class="oi" data-glyph="magnifying-glass" aria-hidden="true"></span>
                         </span>
@@ -28,9 +28,9 @@
 </section>
 
 <!-- For test template binding with data-server-rendered and append -->
-<section class="container search-result" data-jq-comp="search-results-component" data-server-rendered>
-    <h4 class="text-center section-title" data-jq-text="searchResultTitle">Featured service providers</h4>
-    <div id="search-result-columns" class="card-columns" data-jq-tmp="{id: 'searchResultItem', data: '$root', append: true}">
+<section class="container search-result" data-bind-comp="search-results-component" data-server-rendered>
+    <h4 class="text-center section-title" data-bind-text="searchResultTitle">Featured service providers</h4>
+    <div id="search-result-columns" class="card-columns" data-bind-tmp="{id: 'searchResultItem', data: '$root', append: true}">
         <div class="card result-item" data-index="0">
             <img class="card-img-top result-item__img" src="bootstrap/images/pic-home.jpg" alt="Card image">
             <div class="card-body">
@@ -39,10 +39,10 @@
             </div>
             <div class="card-footer result-item__footer">
                 <div class="result-item__icon-checkbox-wrap">
-                    <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid0" name="adid0" data-index="0" data-jq-model="searchResults[0].selected" data-jq-change="onAdMessageCheck">
+                    <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid0" name="adid0" data-index="0" data-bind-model="searchResults[0].selected" data-bind-change="onAdMessageCheck">
                     <label for="adid0" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
                 </div>
-                <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[0].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="0"></span>
+                <span class="oi result-item__icon" data-glyph="bookmark" data-bind-css="searchResults[0].bookmarkedCss" data-bind-click="onAdBookmarkClick" data-index="0"></span>
                 <span class="oi result-item__icon" data-glyph="thumb-up">99</span>
             </div>
         </div>
@@ -54,10 +54,10 @@
             </div>
             <div class="card-footer result-item__footer">
                 <div class="result-item__icon-checkbox-wrap">
-                    <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid1" name="adid1" data-index="1" data-jq-model="searchResults[1].selected" data-jq-change="onAdMessageCheck">
+                    <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid1" name="adid1" data-index="1" data-bind-model="searchResults[1].selected" data-bind-change="onAdMessageCheck">
                     <label for="adid1" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
                 </div>
-                <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[1].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="1"></span>
+                <span class="oi result-item__icon" data-glyph="bookmark" data-bind-css="searchResults[1].bookmarkedCss" data-bind-click="onAdBookmarkClick" data-index="1"></span>
                 <span class="oi result-item__icon" data-glyph="thumb-up">9</span>
             </div>
         </div>
@@ -70,31 +70,31 @@
             </div>
             <div class="card-footer result-item__footer">
                 <div class="result-item__icon-checkbox-wrap">
-                    <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid2" name="adid2" data-index="2" data-jq-model="searchResults[2].selected" data-jq-change="onAdMessageCheck">
+                    <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="adid2" name="adid2" data-index="2" data-bind-model="searchResults[2].selected" data-bind-change="onAdMessageCheck">
                     <label for="adid2" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
                 </div>
-                <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[2].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="2"></span>
+                <span class="oi result-item__icon" data-glyph="bookmark" data-bind-css="searchResults[2].bookmarkedCss" data-bind-click="onAdBookmarkClick" data-index="2"></span>
                 <span class="oi result-item__icon" data-glyph="thumb-up">24</span>
             </div>
         </div>
     </div>
 
-    <button type="button" class="btn btn-outline-secondary search-result__btn-more" data-jq-show="showMore" data-jq-click="onMoreResults">
-        <span class="spinner" data-jq-show="loading"></span>
-        <span data-jq-show="!loading">More</span>
+    <button type="button" class="btn btn-outline-secondary search-result__btn-more" data-bind-show="showMore" data-bind-click="onMoreResults">
+        <span class="spinner" data-bind-show="loading"></span>
+        <span data-bind-show="!loading">More</span>
     </button>
 
-    <div class="mass-message__trigger-wrap" data-jq-css="messageTriggerCss" data-jq-click="onMessageTriggerClick" data-toggle="modal" data-target="#message-modal">
+    <div class="mass-message__trigger-wrap" data-bind-css="messageTriggerCss" data-bind-click="onMessageTriggerClick" data-toggle="modal" data-target="#message-modal">
         <div class="mass-message__trigger">
             <span class="oi mass-message__trigger-icon" data-glyph="pencil" aria-label="write message"></span>
         </div>
     </div>
 </section>
 
-<div id="message-modal" class="modal fade" data-jq-comp="message-dialog-component" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+<div id="message-modal" class="modal fade" data-bind-comp="message-dialog-component" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg message-modal" role="document">
         <div class="modal-content message-modal__content">
-            <form id="formMessage" data-jq-submit="onMessageSubmit">
+            <form id="formMessage" data-bind-submit="onMessageSubmit">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Send Message</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -102,11 +102,11 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div data-jq-show="!sendingMessage">
+                    <div data-bind-show="!sendingMessage">
                         <div class="alert alert-primary" role="alert">
                             <h4 class="alert-heading">Well done!</h4>
-                            <p>Send a single message to all <strong data-jq-text="numSelectedProviders"></strong> selected service providers with just one click.</p>
-                            <p>This message will be send to <span data-jq-text="selectedProviders"></span></p>
+                            <p>Send a single message to all <strong data-bind-text="numSelectedProviders"></strong> selected service providers with just one click.</p>
+                            <p>This message will be send to <span data-bind-text="selectedProviders"></span></p>
                             <hr>
                             <p class="mb-0"><strong>Tips:</strong> Provide details of your job request to have more accurate quotes.</p>
                         </div>
@@ -115,13 +115,13 @@
                             <textarea class="form-control" id="message" name="message" rows="8" required></textarea>
                         </div>
                     </div>
-                    <div data-jq-show="sendingMessage" class="message-modal__content-success">
+                    <div data-bind-show="sendingMessage" class="message-modal__content-success">
                         <span class="oi message-modal__icon-success" data-glyph="check"></span>
-                        <p>Your message successfully send to <span data-jq-text="selectedProviders"></span></p>
+                        <p>Your message successfully send to <span data-bind-text="selectedProviders"></span></p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-success message-modal__btn-cta" data-jq-show="!sendingMessage">Send</button>
+                        <button type="submit" class="btn btn-success message-modal__btn-cta" data-bind-show="!sendingMessage">Send</button>
                     </div>
                 </div>
             </form>
@@ -130,41 +130,63 @@
 </div>
 
 <!-- searchResultItem test with deep nested templates -->
-<script id="searchResultItem" type="text/html">
-    <%  
-        _.each(data.searchResults, function(result, index) {
-            if (index < data.startIndex) {
-                console.log('data.startIndex: ', data.startIndex);
-                return;
-            }
-    %>
-        <div class="card result-item" data-index="{{index}}" data-jq-css="searchResults[{{index}}].highlightCss">
-            <% if (result.image) { %>
-                <img class="card-img-top result-item__img" src="{{result.image}}" alt="{{result.title}}">
-                <% } %>
-                    <div class="card-body" data-jq-tmp="{id: 'searchResultItemBody', data: 'searchResults[{{index}}]'}"></div>
-                    <div data-jq-tmp="{id: 'searchResultItemFooter', data: 'searchResults[{{index}}]'}" data-index="{{index}}"></div>
-        </div>
-        <% }); %>
-</script>
+<template id="searchResultItem">
+    <div 
+        class="card result-item" 
+        data-bind-css="$data.highlightCss"
+        data-bind-for="result of $root.searchResults"
+    >
+        <img 
+            data-bind-if="result.image"
+            data-bind-attr="$root.getImgAttr($data)"
+            class="card-img-top result-item__img" 
+        >
+        <div 
+            class="card-body"
+            data-bind-tmp="{id: 'searchResultItemBody', data: 'result'}"
+        ></div>
+        <div data-bind-tmp="{id: 'searchResultItemFooter', data: 'result'}" ></div>
+    </div>
+</template>
 
-<script id="searchResultItemBody" type="text/html">
-    <h4 class="card-title">{{data.title}}</h4>
-    <p class="card-text">{{data.description}}</p>
-</script>
+<template id="searchResultItemBody">
+    <h4 class="card-title" data-bind-text="$data.title"></h4>
+    <p class="card-text" data-bind-text="$data.description"></p>
+</template>
 
-<script id="searchResultItemFooter" type="text/html">
+<template id="searchResultItemFooter">
     <div class="card-footer result-item__footer">
         <div class="result-item__icon-checkbox-wrap">
-            <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}" data-index="{{data.$index}}" data-jq-model="searchResults[{{data.$index}}].selected" data-jq-change="onAdMessageCheck">
-            <label for="{{data.id}}" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
+            <input 
+                class="result-item__icon result-item__icon-checkbox"
+                type="checkbox" 
+                data-bind-attr="$root.getMessageCheckBoxAttr($data)"
+                data-bind-model="$data.selected" 
+                data-bind-change="$root.onAdMessageCheck"
+            >
+            <label 
+                data-bind-attr="$root.getMessageCheckBoxLabelAttr($data)"
+                class="oi result-item__icon-checkbox-label" 
+                data-glyph="task" 
+                aria-label="Message this seller"
+            ></label>
         </div>
-
-        <span data-jq-tmp="{id: 'searchResultItemBookMark', data: 'searchResults[{{data.$index}}]'}" data-index="{{data.$index}}"></span>
+        <span 
+            data-bind-tmp="{id: 'searchResultItemBookMark', data: '$data'}" 
+        ></span>
     </div>
-</script>
+</template>
 
-<script id="searchResultItemBookMark" type="text/html">
-    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="searchResults[{{data.$index}}].bookmarkedCss" data-jq-click="onAdBookmarkClick" data-index="{{data.$index}}"></span>
-    <span class="oi result-item__icon" data-glyph="thumb-up">{{data.numLikes}}</span>
-</script>
+<template id="searchResultItemBookMark">
+    <span 
+        class="oi result-item__icon" 
+        data-glyph="bookmark" 
+        data-bind-css="$data.bookmarkedCss" 
+        data-bind-click="onAdBookmarkClick" 
+    ></span>
+    <span 
+        class="oi result-item__icon" 
+        data-glyph="thumb-up"
+        data-bind-text="$data.numLikes"
+    ></span>
+</template>

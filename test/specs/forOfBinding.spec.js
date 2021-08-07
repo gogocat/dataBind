@@ -95,7 +95,7 @@ describe('When search-results-component with forOf binding inited', () => {
         };
 
         namespace.searchResultsComponent = dataBind.init(
-            document.querySelector('[data-jq-comp="search-results-component"]'),
+            document.querySelector('[data-bind-comp="search-results-component"]'),
             namespace.viewModel,
         );
 
@@ -111,7 +111,7 @@ describe('When search-results-component with forOf binding inited', () => {
         }
     });
 
-    it('Then [data-jq-comp="search-results-component"] should have render', (done) => {
+    it('Then [data-bind-comp="search-results-component"] should have render', (done) => {
         // skip if test environment doesn't support document.createRange
         if (!isEnvSupportDocRange) {
             expect(isEnvSupportDocRange).toBe(false);

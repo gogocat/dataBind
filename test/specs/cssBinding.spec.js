@@ -1,4 +1,4 @@
-describe('Given [data-jq-comp="css-component"] inited', () => {
+describe('Given [data-bind-comp="css-component"] inited', () => {
     const namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
@@ -24,7 +24,7 @@ describe('Given [data-jq-comp="css-component"] inited', () => {
             },
         };
 
-        namespace.myCssComponent = dataBind.init(document.querySelector('[data-jq-comp="css-component"]'), namespace.viewModel);
+        namespace.myCssComponent = dataBind.init(document.querySelector('[data-bind-comp="css-component"]'), namespace.viewModel);
 
         namespace.myCssComponent.render();
     });
@@ -38,7 +38,7 @@ describe('Given [data-jq-comp="css-component"] inited', () => {
         }
     });
 
-    it('Then [data-jq-comp="myCssComponent"] should have render', (done) => {
+    it('Then [data-bind-comp="myCssComponent"] should have render', (done) => {
         setTimeout(() => {
             const $heading = document.getElementById('myCssComponentHeading');
             expect($heading.textContent).toBe(namespace.viewModel.heading);

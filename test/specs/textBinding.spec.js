@@ -1,4 +1,4 @@
-describe('Given [data-jq-comp="text-component"] inited', () => {
+describe('Given [data-bind-comp="text-component"] inited', () => {
     const namespace = {};
     const testContent2 = 'text-binding content';
 
@@ -18,7 +18,7 @@ describe('Given [data-jq-comp="text-component"] inited', () => {
             },
         };
 
-        namespace.myTextComponent = dataBind.init(document.querySelector('[data-jq-comp="text-component"]'), namespace.viewModel);
+        namespace.myTextComponent = dataBind.init(document.querySelector('[data-bind-comp="text-component"]'), namespace.viewModel);
 
         namespace.myTextComponent.render();
     });
@@ -32,7 +32,7 @@ describe('Given [data-jq-comp="text-component"] inited', () => {
         }
     });
 
-    it('Then [data-jq-comp="myTextComponent"] should have render', (done) => {
+    it('Then [data-bind-comp="myTextComponent"] should have render', (done) => {
         setTimeout(() => {
             const $heading = document.getElementById('text-binding-heading');
             const $textBindingContent = document.getElementById('text-binding-content');

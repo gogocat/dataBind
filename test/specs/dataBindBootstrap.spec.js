@@ -198,14 +198,14 @@ describe('Given dataBindBootstrp initised', () => {
             },
         };
 
-        namespace.searchBarComponent = dataBind.init(document.querySelector('[data-jq-comp="search-bar"]'), namespace.searchBarComponentVM);
+        namespace.searchBarComponent = dataBind.init(document.querySelector('[data-bind-comp="search-bar"]'), namespace.searchBarComponentVM);
         namespace.searchBarComponent.render().then(function(ctx) {
             const self = ctx;
             namespace.searchBarComponent.subscribe('SEARCH-COMPLETED', self.viewModel.onSearchCompleted);
         });
 
         namespace.searchResultsComponent = dataBind.init(
-            document.querySelector('[data-jq-comp="search-results-component"]'),
+            document.querySelector('[data-bind-comp="search-results-component"]'),
             namespace.searchResultsComponentVM,
         );
         namespace.searchResultsComponent
@@ -217,7 +217,7 @@ describe('Given dataBindBootstrp initised', () => {
             });
 
         namespace.messageDialogComponent = dataBind.init(
-            document.querySelector('[data-jq-comp="message-dialog-component"]'),
+            document.querySelector('[data-bind-comp="message-dialog-component"]'),
             namespace.messageDialogComponentVM,
         );
         namespace.messageDialogComponent.render().then(function(ctx) {
@@ -250,8 +250,8 @@ describe('Given dataBindBootstrp initised', () => {
         }
     });
 
-    it('Then [data-jq-comp="search-bar"] should has bond with namespace.searchBarComponentVM', (done) => {
-        const $searchBar = $('[data-jq-comp="search-bar"]');
+    it('Then [data-bind-comp="search-bar"] should has bond with namespace.searchBarComponentVM', (done) => {
+        const $searchBar = $('[data-bind-comp="search-bar"]');
         const searchBarRoot = $searchBar[0]['$root'];
 
         setTimeout(function() {
@@ -261,7 +261,7 @@ describe('Given dataBindBootstrp initised', () => {
         }, 200);
     });
 
-    it('When [data-jq-comp="search-bar"] was server rendered then show binding should not update element', (done) => {
+    it('When [data-bind-comp="search-bar"] was server rendered then show binding should not update element', (done) => {
         setTimeout(function() {
             expect(namespace.searchBarComponent.isServerRendered).toBe(true);
             expect(namespace.searchBarComponentVM.searching).toBe(false);
@@ -304,9 +304,9 @@ describe('Given dataBindBootstrp initised', () => {
         }, 200);
     });
 
-    it('When [data-jq-comp="search-bar"] was server rendered "data-server-rendered" attribute should have removed', (done) => {
+    it('When [data-bind-comp="search-bar"] was server rendered "data-server-rendered" attribute should have removed', (done) => {
         setTimeout(function() {
-            expect($('[data-jq-comp="search-bar"]').attr('data-server-rendered')).not.toBeDefined();
+            expect($('[data-bind-comp="search-bar"]').attr('data-server-rendered')).not.toBeDefined();
             done();
         }, 200);
     });

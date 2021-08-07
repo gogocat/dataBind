@@ -12,23 +12,21 @@
     </head>
 
     <body>
-        <section data-jq-comp="temp-component" data-jq-show="isDisplay" data-jq-tmp="{id:'intro'}"></section>
+        <section data-bind-comp="temp-component" data-bind-show="isDisplay" data-bind-tmp="{id:'intro'}"></section>
         
         <template id="intro">
-            <h1 class="display-4">{{ data.heading }}</h1>
-            <p>{{ data.description }}</p>
-            <p data-jq-text="content"></p>
-            <div data-jq-tmp="{id:'nest', data: 'subContent', append: true}">
+            <h1 class="display-4" data-bind-text="heading"></h1>
+            <p data-bind-text="description"></p>
+            <p data-bind-text="content"></p>
+            <div data-bind-tmp="{id:'nest', data: 'subContent', append: true}">
                 <h3>Nested template render</h3>
             </div>
         </template>
 
         <template id="nest">
-            <p data-jq-text="subContent.description"></p>
+            <p data-bind-text="subContent.description"></p>
         </template>
 
-        <script src="../vendors/lodash.custom.min.js"></script>
-        <script src="../vendors/jquery-3.2.1.min.js"></script>
         <script src="../dist/js/dataBind.min.js"></script>
         <script src="js/templateDemo.js"></script>
     </body>

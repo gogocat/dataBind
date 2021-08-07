@@ -1,4 +1,4 @@
-describe('Given [data-jq-comp="blur-component"] initised', () => {
+describe('Given [data-bind-comp="blur-component"] initised', () => {
     const namespace = {};
     const testBlurValue = 'onBlur called';
 
@@ -20,7 +20,7 @@ describe('Given [data-jq-comp="blur-component"] initised', () => {
             },
         };
 
-        namespace.blurComponent = dataBind.init(document.querySelector('[data-jq-comp="blur-component"]'), namespace.viewModel);
+        namespace.blurComponent = dataBind.init(document.querySelector('[data-bind-comp="blur-component"]'), namespace.viewModel);
         namespace.blurComponent.render();
     });
 

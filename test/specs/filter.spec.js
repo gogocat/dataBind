@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-describe('Given [data-jq-comp="filter-component"] inited', () => {
+describe('Given [data-bind-comp="filter-component"] inited', () => {
     const namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
@@ -31,7 +31,7 @@ describe('Given [data-jq-comp="filter-component"] inited', () => {
             },
         };
 
-        namespace.filterComponent = dataBind.init(document.querySelector('[data-jq-comp="filter-component"]'), namespace.viewModel);
+        namespace.filterComponent = dataBind.init(document.querySelector('[data-bind-comp="filter-component"]'), namespace.viewModel);
         namespace.filterComponent.render().then(() => done());
     });
 
@@ -44,7 +44,7 @@ describe('Given [data-jq-comp="filter-component"] inited', () => {
         }
     });
 
-    it('Then [data-jq-comp="filter-component"] should render story with once filter and not intro', () => {
+    it('Then [data-bind-comp="filter-component"] should render story with once filter and not intro', () => {
         const $intro = document.getElementById('intro');
         const $story = document.getElementById('story');
 

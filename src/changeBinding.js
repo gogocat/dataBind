@@ -5,6 +5,7 @@ import {
     resolveViewModelContext,
     resolveParamList,
 } from './util';
+import _escape from './_escape';
 
 /**
  * changeBinding
@@ -36,7 +37,7 @@ const changeBinding = (cache, viewModel, bindingAttrs, forceRender) => {
         function changeHandler(e) {
             const $this = this;
             const isCheckbox = $this.type === 'checkbox';
-            newValue = isCheckbox ? $this.checked : _.escape($this.value);
+            newValue = isCheckbox ? $this.checked : _escape($this.value);
             // set data to viewModel
             if (modelDataKey) {
                 oldValue = getViewModelValue(viewModel, modelDataKey);

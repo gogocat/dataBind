@@ -1,8 +1,6 @@
 MIT License
 
 Copyright (c) 2018 Wing Kwong Adam Chow
-Copyright (c) 2014 Taylor Hakes (promise-polyfill https://github.com/taylorhakes/promise-polyfill)
-Copyright (c) 2014 Forbes Lindesay (promise-polyfill https://github.com/taylorhakes/promise-polyfill)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -1,23 +1,23 @@
 const bindingAttrs = {
-    comp: 'data-jq-comp',
-    tmp: 'data-jq-tmp',
-    text: 'data-jq-text',
-    click: 'data-jq-click',
-    dblclick: 'data-jq-dblclick',
-    blur: 'data-jq-blur',
-    focus: 'data-jq-focus',
-    hover: 'data-jq-hover',
-    change: 'data-jq-change',
-    submit: 'data-jq-submit',
-    model: 'data-jq-model',
-    show: 'data-jq-show',
-    css: 'data-jq-css',
-    attr: 'data-jq-attr',
-    forOf: 'data-jq-for',
-    if: 'data-jq-if',
-    switch: 'data-jq-switch',
-    case: 'data-jq-case',
-    default: 'data-jq-default',
+    comp: 'data-bind-comp',
+    tmp: 'data-bind-tmp',
+    text: 'data-bind-text',
+    click: 'data-bind-click',
+    dblclick: 'data-bind-dblclick',
+    blur: 'data-bind-blur',
+    focus: 'data-bind-focus',
+    hover: 'data-bind-hover',
+    change: 'data-bind-change',
+    submit: 'data-bind-submit',
+    model: 'data-bind-model',
+    show: 'data-bind-show',
+    css: 'data-bind-css',
+    attr: 'data-bind-attr',
+    forOf: 'data-bind-for',
+    if: 'data-bind-if',
+    switch: 'data-bind-switch',
+    case: 'data-bind-case',
+    default: 'data-bind-default',
 };
 const serverRenderedAttr = 'data-server-rendered';
 const dataIndexAttr = 'data-index';
@@ -28,13 +28,6 @@ const commentPrefix = {
     default: 'data-default_',
 };
 const commentSuffix = '_end';
-
-// global setting of underscore template inteprolate default token
-const templateSettings = {
-    evaluate: /<%([\s\S]+?)%>/g,
-    interpolate: /\{\{=(.+?)\}\}/g,
-    escape: /\{\{(.+?)\}\}/g,
-};
 
 const bindingDataReference = {
     rootDataKey: '$root',
@@ -62,7 +55,6 @@ const constants = {
 export {
     bindingAttrs,
     dataIndexAttr,
-    templateSettings,
     serverRenderedAttr,
     commentPrefix,
     commentSuffix,

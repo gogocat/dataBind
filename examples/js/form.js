@@ -51,6 +51,13 @@
         updateView(opt) {
             this.APP.render(opt);
         }
+        getInputAttr(index) {
+            const personalDetail = this.personalDetails[index];
+            return {
+                id: personalDetail.inputName,
+                name: personalDetail.inputName,
+            };
+        }
     }
 
     // use new instance of FormComponentVewModel and overwrite personalDetails
@@ -75,7 +82,7 @@
     // start binding on DOM ready
 
     // main formApp
-    const formApp = dataBind.init(document.querySelector('[data-jq-comp="formApp"]'), formAppViewModel);
+    const formApp = dataBind.init(document.querySelector('[data-bind-comp="formApp"]'), formAppViewModel);
     formApp.render().then(function() {
         // for debug
         console.log(formApp);
@@ -83,7 +90,7 @@
     });
 
     // formComponentA
-    const formComponentA = dataBind.init(document.querySelector('[data-jq-comp="formComponentA"]'), new FormComponentVewModel());
+    const formComponentA = dataBind.init(document.querySelector('[data-bind-comp="formComponentA"]'), new FormComponentVewModel());
 
     formComponentA.render().then(function() {
         // for debug
@@ -92,7 +99,7 @@
     });
 
     // formComponentB
-    const formComponentB = dataBind.init(document.querySelector('[data-jq-comp="formComponentB"]'), formComponentBViewModel);
+    const formComponentB = dataBind.init(document.querySelector('[data-bind-comp="formComponentB"]'), formComponentBViewModel);
 
     formComponentB.render().then(function() {
         // for debug
