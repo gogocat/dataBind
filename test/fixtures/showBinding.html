@@ -1,4 +1,4 @@
-<section data-jq-comp="show-component">
+<section data-bind-comp="show-component">
     <style>
         #heading4 {
             display: flex;
@@ -8,21 +8,21 @@
             display: none;
         }
     </style>
-    <h1 id="heading" data-jq-text="heading"></h1>
+    <h1 id="heading" data-bind-text="heading"></h1>
 
-    <h2 id="heading2" data-jq-show="displayHeading2">heading2</h2>
-    <h2 id="heading2-invert" data-jq-show="!displayHeading2">heading2-invert should display as opposit heading2 status</h2>
+    <h2 id="heading2" data-bind-show="displayHeading2">heading2</h2>
+    <h2 id="heading2-invert" data-bind-show="!displayHeading2">heading2-invert should display as opposit heading2 status</h2>
 
-    <h2 id="heading3" data-jq-show="displayHeadingFn($data)">heading3</h2>
-    <h2 id="heading3-invert" data-jq-show="!displayHeadingFn($data)">heading3-invert should display as opposit heading3 status</h2>
+    <h2 id="heading3" data-bind-show="displayHeadingFn($data)">heading3</h2>
+    <h2 id="heading3-invert" data-bind-show="!displayHeadingFn($data)">heading3-invert should display as opposit heading3 status</h2>
 
-    <h2 id="heading4" data-jq-show="displayHeading4">heading4 should respect css rule</h2>
+    <h2 id="heading4" data-bind-show="displayHeading4">heading4 should respect css rule</h2>
 
-    <h2 id="heading5" data-jq-show="displayHeading5" style="display:inline">heading5 should respect inline style</h2>
+    <h2 id="heading5" data-bind-show="displayHeading5" style="display:inline">heading5 should respect inline style</h2>
 
-    <span id="heading6" data-jq-show="displayHeading6" style="display:none">heading6 should display tag default style</span>
+    <span id="heading6" data-bind-show="displayHeading6" style="display:none">heading6 should display tag default style</span>
 
-    <h3 id="heading7" data-jq-show="displayHeading7">heading7 should display as block</h3>
+    <h3 id="heading7" data-bind-show="displayHeading7">heading7 should display as block</h3>
 
-    <h3 id="heading8" data-jq-show="somethingNotDefined">heading8 should not show as propperty undefined in viewModel</h3>
+    <h3 id="heading8" data-bind-show="somethingNotDefined">heading8 should not show as propperty undefined in viewModel</h3>
 </section>

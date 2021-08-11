@@ -40,7 +40,7 @@
             el[k] = $(v);
         });
 
-        compMessageDialog = dataBind.init($('[data-jq-comp="message-dialog-component"]')[0], viewModel);
+        compMessageDialog = dataBind.init($('[data-bind-comp="message-dialog-component"]')[0], viewModel);
         compMessageDialog.render().then(function(comp) {
             const self = comp;
             compMessageDialog.subscribe('TRIGGER-MESSAGE-DIALOG', self.viewModel.onTriggerSelectedAds);

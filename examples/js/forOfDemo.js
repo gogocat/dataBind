@@ -93,7 +93,7 @@
     // start binding on DOM ready
 
     // formComponentC - test for-of binding
-    const forOfComponent = dataBind.init(document.querySelector('[data-jq-comp="forOfComponent"]'), forOfComponentViewModel);
+    const forOfComponent = dataBind.init(document.querySelector('[data-bind-comp="forOfComponent"]'), forOfComponentViewModel);
     forOfComponent.render().then(function() {
         // for debug
         window.forOfComponent = forOfComponent;

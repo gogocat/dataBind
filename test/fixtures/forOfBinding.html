@@ -1,50 +1,68 @@
 <div class="container">
     <h5>For of binding complex demo</h5>
-    <div class="container search-result" data-jq-comp="search-results-component">
-        <h4 id="searchResultTitle" class="text-center section-title" data-jq-text="searchResultTitle"></h4>
-        <div id="search-result-columns" class="card-columns" data-jq-tmp="{id: 'searchResultItem', data: 'searchResults'}">
+    <div class="container search-result" data-bind-comp="search-results-component">
+        <h4 id="searchResultTitle" class="text-center section-title" data-bind-text="searchResultTitle"></h4>
+        <div id="search-result-columns" class="card-columns" data-bind-tmp="{id: 'searchResultItem', data: 'searchResults'}">
         </div>
     </div>
 </div>
 
 <!-- searchResultItem test with deep nested templates -->
 <template id="searchResultItem">
-    <div class="card result-item" data-jq-for="result in searchResults" data-jq-css="result.highlightCss">
-        <img class="card-img-top result-item__img" data-jq-attr="$root.getResultItemAttr($index)">
-        <div class="card-body" data-jq-tmp="{id: 'searchResultItemBody', data: 'result'}"></div>
-        <div data-jq-tmp="{id: 'searchResultItemFooter', data: 'result'}"></div>
+    <div class="card result-item" data-bind-for="result in searchResults" data-bind-css="result.highlightCss">
+        <img class="card-img-top result-item__img" data-bind-attr="$root.getResultItemAttr($index)">
+        <div class="card-body" data-bind-tmp="{id: 'searchResultItemBody', data: 'result'}"></div>
+        <div data-bind-tmp="{id: 'searchResultItemFooter', data: 'result'}"></div>
     </div>
 </template>
 
 <template id="searchResultItemBody">
-    <h4 class="card-title">{{data.title}}</h4>
-    <p class="card-text">{{data.description}}</p>
-    <small class="bodyIndex">searchResultItemBody index: {{data.$index}}</small>
+    <h4 class="card-title" data-bind-text="$data.title"></h4>
+    <p class="card-text" data-bind-text="$data.description"></p>
+    <small class="bodyIndex">searchResultItemBody index: <span data-bind-text="$index"></span></small>
 </template>
 
 <template id="searchResultItemFooter">
     <div class="card-footer result-item__footer">
-        <small class="footerIndex">searchResultItemFooter index: {{data.$index}}</small>
+        <small class="footerIndex">searchResultItemFooter index: <span data-bind-text="$index"></span></small>
         <div class="result-item__icon-checkbox-wrap">
-            <input class="result-item__icon result-item__icon-checkbox" type="checkbox" id="{{data.id}}" name="{{data.id}}" data-jq-model="$data.selected"
-                data-jq-change="$root.onAdMessageCheck($index)">
-            <label for="{{data.id}}" class="oi result-item__icon-checkbox-label" data-glyph="task" aria-label="Message this seller"></label>
+            <input 
+                class="result-item__icon result-item__icon-checkbox" 
+                type="checkbox" 
+                id="{{data.id}}" 
+                name="{{data.id}}" 
+                data-bind-model="$data.selected"
+                data-bind-change="$root.onAdMessageCheck($index)"
+            >
+            <label 
+                for="{{data.id}}" 
+                class="oi result-item__icon-checkbox-label" 
+                data-glyph="task" 
+                aria-label="Message this seller"
+            ></label>
         </div>
         <div class="form-group">
             <label for="exampleFormControlSelect-{{data.$index}}">Example select</label>
-            <select class="form-control" id="exampleFormControlSelect-{{data.$index}}">
+            <select 
+                class="form-control" 
+                id="exampleFormControlSelect-{{data.$index}}"
+            >
                 <option>---- Please select ----</option>
-                <option data-jq-for="option of result.options" data-jq-text="option.text" data-jq-attr="$root.setResultOptionAttr($data)"></option>
+                <option 
+                    data-bind-for="option of result.options" 
+                    data-bind-text="option.text" 
+                    data-bind-attr="$root.setResultOptionAttr($data)"
+                ></option>
             </select>
         </div>
-        <span data-jq-tmp="{id: 'searchResultItemBookMark', data: 'result'}"></span>
+        <span data-bind-tmp="{id: 'searchResultItemBookMark', data: 'result'}"></span>
     </div>
 </template>
 
 <template id="searchResultItemBookMark">
     <div>
-        <small class="bookMarkIndex">searchResultItemBookMark index: {{data.$index}}</small>
+        <small class="bookMarkIndex">searchResultItemBookMark index: <span data-bind-text="$index"></span></small>
     </div>
-    <span class="oi result-item__icon" data-glyph="bookmark" data-jq-css="result.bookmarkedCss" data-jq-click="$root.onAdBookmarkClick($index)"></span>
-    <span class="oi result-item__icon" data-glyph="thumb-up">{{data.numLikes}}</span>
+    <span class="oi result-item__icon" data-glyph="bookmark" data-bind-css="result.bookmarkedCss" data-bind-click="$root.onAdBookmarkClick($index)"></span>
+    <span class="oi result-item__icon" data-glyph="thumb-up" data-bind-text="$data.numLikes"></span>
 </template>

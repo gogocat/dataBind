@@ -1,4 +1,4 @@
-describe('Given [data-jq-comp="show-component"] inited', () => {
+describe('Given [data-bind-comp="show-component"] inited', () => {
     const namespace = {};
     const isVisible = function(el) {
         return el.offsetHeight > 0;
@@ -26,7 +26,7 @@ describe('Given [data-jq-comp="show-component"] inited', () => {
             },
         };
 
-        namespace.myComponent = dataBind.init(document.querySelector('[data-jq-comp="show-component"]'), namespace.viewModel);
+        namespace.myComponent = dataBind.init(document.querySelector('[data-bind-comp="show-component"]'), namespace.viewModel);
 
         namespace.myComponent.render();
     });
@@ -40,7 +40,7 @@ describe('Given [data-jq-comp="show-component"] inited', () => {
         }
     });
 
-    it('Then [data-jq-comp="myComponent"] should have render', (done) => {
+    it('Then [data-bind-comp="myComponent"] should have render', (done) => {
         setTimeout(() => {
             expect(document.getElementById('heading').textContent).toBe(namespace.viewModel.heading);
             done();

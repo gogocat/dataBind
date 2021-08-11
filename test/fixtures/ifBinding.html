@@ -1,19 +1,19 @@
-<section data-jq-comp="if-component">
+<section data-bind-comp="if-component">
     <div id="beforeBlock">before</div>
-    <div id="intro" class="container" data-jq-if="renderIntro">
-        <h1 id="intro-heading" data-jq-text="heading"></h1>
-        <p id="intro-description" data-jq-text="description"></p>
+    <div id="intro" class="container" data-bind-if="renderIntro">
+        <h1 id="intro-heading" data-bind-text="heading"></h1>
+        <p id="intro-description" data-bind-text="description"></p>
     </div>
-    <div id="story" class="container" data-jq-if="!renderIntro" data-jq-tmp="{id: 'storyIntro', data: 'story'}"></div>
+    <div id="story" class="container" data-bind-if="!renderIntro" data-bind-tmp="{id: 'storyIntro', data: 'story'}"></div>
     <span id="afterBlock">after</span>
-    <div id="testPropFn" data-jq-if="viewModelPropFn($data)">Should render this</div>
-    <div id="testUnDefiniedProp" data-jq-if="undefinedViewModelPropFn($data)">Should not render this</div>
-    <div id="NotTestUnDefiniedProp" data-jq-if="!undefinedViewModelPropFn">Should render this</div>
+    <div id="testPropFn" data-bind-if="viewModelPropFn($data)">Should render this</div>
+    <div id="testUnDefiniedProp" data-bind-if="undefinedViewModelPropFn($data)">Should not render this</div>
+    <div id="NotTestUnDefiniedProp" data-bind-if="!undefinedViewModelPropFn">Should render this</div>
 </section>
 
 <template id="storyIntro">
-    <h1 id="storyIntroHeading" data-jq-text="story.title"></h1>
-    <p id="storyDescription" data-jq-text="story.description"></p>
-    <p id="stroyPrice">Price: <span data-jq-if="!story.price">N/A</span></p>
-    <a id="storyLink" data-jq-attr="setStroylinkAttr" data-jq-click="onStoryClick">click here</a>
+    <h1 id="storyIntroHeading" data-bind-text="story.title"></h1>
+    <p id="storyDescription" data-bind-text="story.description"></p>
+    <p id="stroyPrice">Price: <span data-bind-if="!story.price">N/A</span></p>
+    <a id="storyLink" data-bind-attr="setStroylinkAttr" data-bind-click="onStoryClick">click here</a>
 </template>

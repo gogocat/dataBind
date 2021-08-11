@@ -1,4 +1,4 @@
-describe('Given [data-jq-comp="temp-component"] inited', () => {
+describe('Given [data-bind-comp="temp-component"] inited', () => {
     const namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
@@ -9,7 +9,7 @@ describe('Given [data-jq-comp="temp-component"] inited', () => {
         namespace.finishTemplateRender = 0;
 
         namespace.viewModel = {
-            heading: 'Test data-jq-temp binding',
+            heading: 'Test data-bind-temp binding',
             description: 'This is template binding that also support underscore syntax',
             content: 'test text',
             contentNest1: {
@@ -29,7 +29,7 @@ describe('Given [data-jq-comp="temp-component"] inited', () => {
             },
         };
 
-        namespace.myComponent = dataBind.init(document.querySelector('[data-jq-comp="temp-component"]'), namespace.viewModel);
+        namespace.myComponent = dataBind.init(document.querySelector('[data-bind-comp="temp-component"]'), namespace.viewModel);
 
         namespace.myComponent.render();
     });
@@ -43,7 +43,7 @@ describe('Given [data-jq-comp="temp-component"] inited', () => {
         }
     });
 
-    it('Then [data-jq-comp="temp-component"] should have render', (done) => {
+    it('Then [data-bind-comp="temp-component"] should have render', (done) => {
         setTimeout(() => {
             expect(document.getElementById('heading').textContent).toBe(namespace.viewModel.heading);
             expect(namespace.finishTemplateRender).toBe(1);
@@ -51,7 +51,7 @@ describe('Given [data-jq-comp="temp-component"] inited', () => {
         }, 200);
     });
 
-    it('Should render undercore template without setting data', (done) => {
+    it('Should render template1 with viewModel data', (done) => {
         setTimeout(() => {
             const viewModel = namespace.viewModel;
             const $compSection = document.getElementById('compSection');

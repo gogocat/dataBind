@@ -13,7 +13,7 @@
     };
 
     // start binding on DOM ready
-    const templateComponent = dataBind.init(document.querySelector('[data-jq-comp="temp-component"]'), viewModel);
+    const templateComponent = dataBind.init(document.querySelector('[data-bind-comp="temp-component"]'), viewModel);
     templateComponent.render().then(() => {
         // for debug
         console.log(templateComponent);

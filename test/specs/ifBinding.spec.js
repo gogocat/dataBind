@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-describe('Given [data-jq-comp="if-component"] inited', () => {
+describe('Given [data-bind-comp="if-component"] inited', () => {
     const namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
@@ -39,7 +39,7 @@ describe('Given [data-jq-comp="if-component"] inited', () => {
             },
         };
 
-        namespace.myIfComponent = dataBind.init(document.querySelector('[data-jq-comp="if-component"]'), namespace.viewModel);
+        namespace.myIfComponent = dataBind.init(document.querySelector('[data-bind-comp="if-component"]'), namespace.viewModel);
 
         namespace.myIfComponent.render();
 
@@ -56,7 +56,7 @@ describe('Given [data-jq-comp="if-component"] inited', () => {
         }
     });
 
-    it('Then [data-jq-comp="myIfComponent"] should have render', (done) => {
+    it('Then [data-bind-comp="myIfComponent"] should have render', (done) => {
         setTimeout(() => {
             expect($('#intro-heading').text()).toBe(namespace.viewModel.heading);
             expect($('#intro-description').text()).toBe(namespace.viewModel.description);

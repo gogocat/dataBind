@@ -1,4 +1,4 @@
-describe('When nested data-jq-comp initised', () => {
+describe('When nested data-bind-comp initised', () => {
     const namespace = {};
 
     jasmine.getFixtures().fixturesPath = 'test';
@@ -26,14 +26,14 @@ describe('When nested data-jq-comp initised', () => {
             description: 'slibing child component description',
         };
 
-        const parentComponent = dataBind.init(document.querySelector('[data-jq-comp="parent-component"]'), namespace.parentComponentVM);
-        const childComponent = dataBind.init(document.querySelector('[data-jq-comp="child-component"]'), namespace.childComponentVM);
+        const parentComponent = dataBind.init(document.querySelector('[data-bind-comp="parent-component"]'), namespace.parentComponentVM);
+        const childComponent = dataBind.init(document.querySelector('[data-bind-comp="child-component"]'), namespace.childComponentVM);
         const grandChildComponent = dataBind.init(
-            document.querySelector('[data-jq-comp="grand-child-component"]'),
+            document.querySelector('[data-bind-comp="grand-child-component"]'),
             namespace.grandChildComponentVM,
         );
         const slibingChildComponent = dataBind.init(
-            document.querySelector('[data-jq-comp="slibing-child-component"]'),
+            document.querySelector('[data-bind-comp="slibing-child-component"]'),
             namespace.slibingChildComponentVM,
         );
 

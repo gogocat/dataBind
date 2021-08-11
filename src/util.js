@@ -1,8 +1,5 @@
 import * as config from './config';
 
-// require to use lodash
-_ = window._ || {};
-
 const hasIsArray = Array.isArray;
 
 const REGEX = {
@@ -122,6 +119,21 @@ const generateElementCache = (bindingAttrs) => {
     return elementCache;
 };
 
+
+// simplified version of Lodash _.get
+const _get = function get(obj, path, def) {
+    function everyFunc(step) {
+        return !(step && (obj = obj[step]) === undefined);
+    }
+    const fullPath = path
+        .replace(/\[/g, '.')
+        .replace(/]/g, '')
+        .split('.')
+        .filter(Boolean);
+
+    return fullPath.every(everyFunc) ? obj : def;
+};
+
 /**
  * getViewModelValue
  * @description walk a object by provided string path. eg 'a.b.c'
@@ -130,7 +142,29 @@ const generateElementCache = (bindingAttrs) => {
  * @return {object}
  */
 const getViewModelValue = (viewModel, prop) => {
-    return _.get(viewModel, prop);
+    return _get(viewModel, prop);
+};
+
+// simplified version of Lodash _.set
+// https://stackoverflow.com/questions/54733539/javascript-implementation-of-lodash-set-method
+const _set = (obj, path, value) => {
+    if (Object(obj) !== obj) return obj; // When obj is not an object
+    // If not yet an array, get the keys from the string-path
+    if (!Array.isArray(path)) path = path.toString().match(/[^.[\]]+/g) || [];
+
+    // Iterate all of them except the last one
+    path.slice(0, -1).reduce((a, c, i) =>
+        Object(a[c]) === a[c] ? // Does the key exist and is its value an object?
+        // Yes: then follow that path
+            a[c] :
+        // No: create the key. Is the next key a potential array-index?
+            a[c] = Math.abs(path[i+1])>>0 === +path[i+1] ?
+                [] : // Yes: assign a new array object
+                {}, // No: assign a new plain object
+    obj)[path[path.length-1]] = value; // Finally assign the value to the last key
+
+    // Return the top-level object to allow chaining
+    return obj;
 };
 
 /**
@@ -142,7 +176,7 @@ const getViewModelValue = (viewModel, prop) => {
  * @return {call} underscore set
  */
 const setViewModelValue = (obj, prop, value) => {
-    return _.set(obj, prop, value);
+    return _set(obj, prop, value);
 };
 
 const getViewModelPropValue = (viewModel, bindingCache) => {

@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-describe('Given [data-jq-comp="switch-component"] inited', () => {
+describe('Given [data-bind-comp="switch-component"] inited', () => {
     const namespace = {};
 
     // stories data
@@ -68,7 +68,7 @@ describe('Given [data-jq-comp="switch-component"] inited', () => {
             },
         };
 
-        namespace.mySwitchComponent = dataBind.init(document.querySelector('[data-jq-comp="switch-component"]'), namespace.viewModel);
+        namespace.mySwitchComponent = dataBind.init(document.querySelector('[data-bind-comp="switch-component"]'), namespace.viewModel);
 
         namespace.mySwitchComponent.render();
     });
@@ -82,7 +82,7 @@ describe('Given [data-jq-comp="switch-component"] inited', () => {
         }
     });
 
-    it('Then [data-jq-comp="mySwitchComponent"] should have render', (done) => {
+    it('Then [data-bind-comp="mySwitchComponent"] should have render', (done) => {
         setTimeout(() => {
             expect(document.getElementById('switch-component-heading').textContent).toBe(namespace.viewModel.heading);
             done();

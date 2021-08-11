@@ -50,7 +50,7 @@
         },
         onBlurEditTask: function(e, $el, index) {
             const oldValue = this.tasks[index].taskTitle;
-            const newValue = _.escape($el.value.trim());
+            const newValue = $el.value.trim();
             let isChanged = false;
 
             if (oldValue !== newValue) {

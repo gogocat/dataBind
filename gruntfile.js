@@ -29,7 +29,7 @@ module.exports = function(grunt) {
             host: 'http://localhost:8887',
             specs: './test/specs/*.spec.js',
             styles: './test/css/reporter.css',
-            vendor: ['./vendors/lodash.custom.min.js', './vendors/jquery-3.2.1.min.js', './vendors/jasmine-jquery.js'],
+            vendor: ['./vendors/jquery-3.2.1.min.js', './vendors/jasmine-jquery.js'],
             helpers: ['./test/helpers/testHelper.js'],
         },
 

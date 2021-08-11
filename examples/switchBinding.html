@@ -13,44 +13,44 @@
 
     <body>
         <div class="container">
-            <section data-jq-comp="myComponent">
+            <section data-bind-comp="myComponent">
                 <div class="text-center">
-                    <h1 class="display-4" data-jq-text="title"></h1>
-                    <p data-jq-text="description"></p>
-                    <select class="form-control" data-jq-change="onSelectedStory">
+                    <h1 class="display-4" data-bind-text="title"></h1>
+                    <p data-bind-text="description"></p>
+                    <select class="form-control" data-bind-change="onSelectedStory">
                         <option value="0">---- Please select a story ----</option>
                         <option
-                            data-jq-for="story of $root.storyOptions"
-                            data-jq-text="story.title"
-                            data-jq-attr="$root.setStoryOptionAttr($data)"
+                            data-bind-for="story of $root.storyOptions"
+                            data-bind-text="story.title"
+                            data-bind-attr="$root.setStoryOptionAttr($data)"
                         ></option>
                     </select>
                 </div>
                 <hr />
-                <div data-jq-switch="selectedStory">
-                    <h3 data-jq-text="heading"></h3>
+                <div data-bind-switch="selectedStory">
+                    <h3 data-bind-text="heading"></h3>
                     <div
-                        data-jq-case="s1"
+                        data-bind-case="s1"
                         class="mt-3 card box-shadow"
-                        data-jq-tmp="{id: 'compStoryDetailTemplate', data: '$root'}"
+                        data-bind-tmp="{id: 'compStoryDetailTemplate', data: '$root'}"
                     >
                         <h2>Case 1</h2>
                     </div>
                     <div
-                        data-jq-case="s2"
+                        data-bind-case="s2"
                         class="mt-3 card box-shadow"
-                        data-jq-tmp="{id: 'compStoryDetailTemplate', data: '$root'}"
+                        data-bind-tmp="{id: 'compStoryDetailTemplate', data: '$root'}"
                     >
                         <h2>Case 2</h2>
                     </div>
                     <div
-                        data-jq-case="s3"
+                        data-bind-case="s3"
                         class="mt-3 card box-shadow"
-                        data-jq-tmp="{id: 'compStoryDetailTemplate', data: '$root'}"
+                        data-bind-tmp="{id: 'compStoryDetailTemplate', data: '$root'}"
                     >
                         <h2>Case 3</h2>
                     </div>
-                    <div data-jq-default="">
+                    <div data-bind-default="">
                         <p>No story found...</p>
                     </div>
                 </div>
@@ -59,15 +59,14 @@
 
         <template id="compStoryDetailTemplate">
             <div class="card-header">
-                <h4 class="font-weight-normal" data-jq-text="story.title"></h4>
+                <h4 class="font-weight-normal" data-bind-text="story.title"></h4>
             </div>
             <div class="card-body d-flex align-items-start">
-                <img class="mr-4" data-jq-if="story.pic" data-jq-attr="setStoryImgAttr" />
-                <p class="" data-jq-text="story.description"></p>
+                <img class="mr-4" data-bind-if="story.pic" data-bind-attr="setStoryImgAttr" />
+                <p class="" data-bind-text="story.description"></p>
             </div>
         </template>
 
-        <script src="../vendors/lodash.custom.min.js"></script>
         <script src="../dist/js/dataBind.min.js"></script>
         <script src="js/switchBindingDemo.js"></script>
     </body>

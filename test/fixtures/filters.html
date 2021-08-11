@@ -1,13 +1,13 @@
-<section data-jq-comp="filter-component">
-    <div id="intro" class="container" data-jq-if="renderIntro | once">
-        <h1 id="intro-heading" data-jq-text="heading"></h1>
-        <p id="intro-description" data-jq-text="description"></p>
+<section data-bind-comp="filter-component">
+    <div id="intro" class="container" data-bind-if="renderIntro | once">
+        <h1 id="intro-heading" data-bind-text="heading"></h1>
+        <p id="intro-description" data-bind-text="description"></p>
     </div>
-    <div id="story" class="container" data-jq-if="!renderIntro | once" data-jq-tmp="{id: 'storyIntro', data: 'story'}"></div>
+    <div id="story" class="container" data-bind-if="!renderIntro | once" data-bind-tmp="{id: 'storyIntro', data: 'story'}"></div>
 </section>
 
 <template id="storyIntro">
-    <h1 id="storyIntroHeading" data-jq-text="story.title"></h1>
-    <p id="storyDescription" data-jq-text="story.description"></p>
-    <p>Price: <span id="stroyPrice" data-jq-text="story.price | $root.toDiscount | $root.addGst"></span></p>
+    <h1 id="storyIntroHeading" data-bind-text="story.title"></h1>
+    <p id="storyDescription" data-bind-text="story.description"></p>
+    <p>Price: <span id="stroyPrice" data-bind-text="story.price | $root.toDiscount | $root.addGst"></span></p>
 </template>

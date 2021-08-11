@@ -1,4 +1,4 @@
-describe('Given [data-jq-comp="attr-component"] inited', () => {
+describe('Given [data-bind-comp="attr-component"] inited', () => {
     const namespace = {};
     const testAttr2Obj = {
         id: 'newId',
@@ -24,7 +24,7 @@ describe('Given [data-jq-comp="attr-component"] inited', () => {
             },
         };
 
-        namespace.myAttrComponent = dataBind.init(document.querySelector('[data-jq-comp="attr-component"]'), namespace.viewModel);
+        namespace.myAttrComponent = dataBind.init(document.querySelector('[data-bind-comp="attr-component"]'), namespace.viewModel);
 
         namespace.myAttrComponent.render();
     });
@@ -38,7 +38,7 @@ describe('Given [data-jq-comp="attr-component"] inited', () => {
         }
     });
 
-    it('Then [data-jq-comp="myAttrComponent"] should have render', (done) => {
+    it('Then [data-bind-comp="myAttrComponent"] should have render', (done) => {
         setTimeout(() => {
             const $testAttr1 = document.getElementById('testAttr1');
             expect($testAttr1.textContent).toBe(namespace.viewModel.heading);

@@ -154,7 +154,7 @@
     // start binding on DOM ready
 
     // debug
-    const searchResultsComponent = dataBind.init(document.querySelector('[data-jq-comp="search-results-component"]'), viewModel);
+    const searchResultsComponent = dataBind.init(document.querySelector('[data-bind-comp="search-results-component"]'), viewModel);
 
     searchResultsComponent.render().then(function() {
         // for debug

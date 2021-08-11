@@ -9,28 +9,17 @@ import {
 let $domFragment = null;
 let $templateRoot = null;
 let nestTemplatesCount = 0;
-const templateCache = {};
 
 /**
- * compileTemplate
- * @description compile underscore template and store in templateCache
+ * getTemplateString
+ * @description get Template tag innerHTML string
  * @param {string} id
- * @param {object} templateData
  * @return {string} rendered html string
  */
-const compileTemplate = (id, templateData = null) => {
-    let templateString;
-    let templateElement;
+const getTemplateString = (id) => {
+    const templateElement = document.getElementById(id);
 
-    if (!templateCache[id]) {
-        templateElement = document.getElementById(id);
-        templateString = templateElement ? templateElement.innerHTML : '';
-        templateCache[id] = _.template(templateString, {
-            variable: 'data',
-        });
-    }
-
-    return templateCache[id](templateData);
+    return templateElement ? templateElement.innerHTML : '';
 };
 
 /**
@@ -74,7 +63,7 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
 
     $templateRoot = $templateRoot || $element;
 
-    const htmlString = compileTemplate(settings.id, viewData);
+    const htmlString = getTemplateString(settings.id);
 
     const htmlFragment = createHtmlFragment(htmlString);
 

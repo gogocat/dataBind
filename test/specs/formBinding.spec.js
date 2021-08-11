@@ -74,7 +74,7 @@ describe('Given form-component initised', () => {
 
     beforeEach(() => {
         loadFixtures('./fixtures/formBindings.html');
-        namespace.formComponentApp = dataBind.init(document.querySelector('[data-jq-comp="form-component"]'), formComponentVM);
+        namespace.formComponentApp = dataBind.init(document.querySelector('[data-bind-comp="form-component"]'), formComponentVM);
         namespace.formComponentApp.render();
     });
 
@@ -260,7 +260,7 @@ describe('Given form-component initised', () => {
 
     describe('Element with attribute binding', () => {
         it('should display attribute from viewModel', (done) => {
-            const $el = $('[data-jq-attr="testAttr"]');
+            const $el = $('[data-bind-attr="testAttr"]');
             let attrObj = {};
             setTimeout(() => {
                 attrObj = getElementAttributesObj($el);
@@ -272,7 +272,7 @@ describe('Given form-component initised', () => {
         });
 
         it('should update attribute according to viewModel', (done) => {
-            const $el = $('[data-jq-attr="testAttr"]');
+            const $el = $('[data-bind-attr="testAttr"]');
             let attrObj = {};
             formComponentVM.testAttr = {
                 id: '8888',

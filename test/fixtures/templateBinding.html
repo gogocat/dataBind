@@ -1,28 +1,46 @@
-<section id="compSection" data-jq-comp="temp-component" data-jq-tmp="{id:'underscore'}">
-</section>
+<section 
+    id="compSection" 
+    data-bind-comp="temp-component" 
+    data-bind-tmp="{id:'template1'}"
+></section>
 
-<template id="underscore">
-    <h1 id="heading" class="display-4">{{data.heading}}</h1>
-    <p id="description">{{data.description}}</p>
-    <p id="content" data-jq-text="content"></p>
-    <div id="contentNest1" data-jq-tmp="{id:'nest', data: 'contentNest1'}">
-    </div>
+<template id="template1">
+    <h1 
+        id="heading" 
+        class="display-4"
+        data-bind-text="heading"
+    ></h1>
+    <p 
+        id="description" 
+        data-bind-text="description"
+    ></p>
+    <p 
+        id="content" 
+        data-bind-text="content"
+    ></p>
+    <div 
+        id="contentNest1" 
+        data-bind-tmp="{id:'nest', data: 'contentNest1'}"
+    ></div>
 </template>
 
 <template id="nest">
-    <p id="contentNest1Info" data-jq-text="contentNest1.info"></p>
-    <div id="nestPrepend" data-jq-tmp="{id:'nestPrepend', data: 'contentNest2', prepend: true}">
+    <p 
+        id="contentNest1Info" 
+        data-bind-text="contentNest1.info"
+    ></p>
+    <div id="nestPrepend" data-bind-tmp="{id:'nestPrepend', data: 'contentNest2', prepend: true}">
         <h3 id="nestPrependHeading">Nested template prepend content</h3>
     </div>
-    <div id="nestAppend" data-jq-tmp="{id:'nestAppend', data: 'contentNest3', append: true}">
+    <div id="nestAppend" data-bind-tmp="{id:'nestAppend', data: 'contentNest3', append: true}">
         <h3 id="nestAppendHeading">Nested template append content</h3>
     </div>
 </template>
 
 <template id="nestPrepend">
-    <p id="contentNest2Info" data-jq-text="contentNest2.info"></p>
+    <p id="contentNest2Info" data-bind-text="contentNest2.info"></p>
 </template>
 
 <template id="nestAppend">
-    <p id="contentNest3Info" data-jq-text="contentNest3.info"></p>
+    <p id="contentNest3Info" data-bind-text="contentNest3.info"></p>
 </template>

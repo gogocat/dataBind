@@ -12,42 +12,65 @@
     </head>
 
     <body>
-        <section data-jq-comp="formApp" data-jq-tmp="{id:'formIntro', data:'intro', prepend: true}">
+        <section 
+            data-bind-comp="formApp" 
+            data-bind-tmp="{id:'formIntro', data:'intro', prepend: true}"
+        >
             <div class="container">
                 <h5>formComponentA new instance of FormComponentVewModel</h5>
-                <div data-jq-comp="formComponentA" data-jq-tmp="{id:'formItems', data:'personalDetails'}"></div>
+                <div 
+                    data-bind-comp="formComponentA" 
+                    data-bind-for="item of personalDetails" 
+                    data-bind-tmp="{id:'formItems', data:'$root.personalDetails'}"
+                ></div>
+
                 <h5>formComponentB new instance of FormComponentVewModel</h5>
-                <div data-jq-comp="formComponentB" data-jq-tmp="{id:'formItems', data:'personalDetails'}"></div>
-                <div data-jq-attr="attrTest">
+                <div 
+                    data-bind-comp="formComponentB"
+                    data-bind-for="item of personalDetails"
+                    data-bind-tmp="{id:'formItems', data:'$root.personalDetails'}"
+                ></div>
+                <div data-bind-attr="attrTest">
                     This is attribute binding test!
                 </div>
             </div>
         </section>
 
-        <script id="formIntro" type="text/html">
+        <template id="formIntro">
             <div class="jumbotron">
                 <div class="container">
-                    <h1 class="display-3" data-jq-text="intro.title"></h1>
-                    <p data-jq-text="description">{{data.description}}</p>
+                    <h1 class="display-3" data-bind-text="intro.title"></h1>
+                    <p data-bind-text="intro.description"></p>
                     <p>
-                        <a class="btn btn-primary btn-lg" href="#" role="button" data-jq-click="onBtnClick" data-jq-text="intro.btnText"></a>
+                        <a 
+                            class="btn btn-primary btn-lg" 
+                            href="#" 
+                            role="button" 
+                            data-bind-click="onBtnClick" 
+                            data-bind-text="intro.btnText"
+                        ></a>
                     </p>
                 </div>
             </div>
-        </script>
+        </template>
 
-        <script id="formItems" type="text/html">
-            <%  _.each(data, function(formItem, index) {  %>
-                <div class="form-row" data-jq-show="personalDetails[{{index}}].show">
-                    <div class="col-8">
-                        <label for="name" data-jq-css="personalDetails[{{index}}].updatedCss" data-jq-text="personalDetails[{{index}}].label"></label>
-                        <input id="{{formItem.inputName}}" name="{{formItem.inputName}}" type="text" class="form-control" value="" data-jq-model="personalDetails[{{index}}].value" data-jq-change="onInputChange" required>
-                    </div>
+        <template id="formItems">
+            <div class="form-row" data-bind-show="item.show">
+                <div class="col-8">
+                    <label for="name" data-bind-css="item.updatedCss" data-bind-text="item.label"></label>
+                    <input 
+                        type="text"
+                        class="form-control" 
+                        value="" 
+                        data-bind-attr="$root.getInputAttr($index)"
+                        data-bind-model="item.value" 
+                        data-bind-change="$root.onInputChange" 
+                        required
+                    >
                 </div>
-                <% }); %>
-        </script>
+            </div>
+        </template>
 
-        <script src="../vendors/lodash.custom.min.js"></script>
         <script src="../dist/js/dataBind.min.js"></script>
         <script src="js/form.js"></script>
     </body>

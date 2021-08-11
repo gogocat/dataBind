@@ -1,22 +1,21 @@
-import 'promise-polyfill/src/polyfill';
 import * as config from './config';
 import {extend} from './util';
 import {Binder} from './binder';
 
+const isSupportPromise = typeof window['Promise'] === 'function';
+
 let bindingAttrs = config.bindingAttrs;
-let templateSettings = config.templateSettings;
 
 const use = (settings = {}) => {
     if (settings.bindingAttrs) {
         bindingAttrs = extend({}, settings.bindingAttrs);
     }
-    if (settings.templateSettings) {
-        templateSettings = extend({}, settings.templateSettings);
-    }
 };
 
 const init = ($rootElement, viewModel = null) => {
-    _.templateSettings = templateSettings;
+    if (!isSupportPromise) {
+        return console.warn('Browser not support Promise');
+    }
     return new Binder($rootElement, viewModel, bindingAttrs);
 };
 
