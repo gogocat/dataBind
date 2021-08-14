@@ -1,9 +1,6 @@
 ![GitHub release](https://img.shields.io/github/release/gogocat/dataBind.svg)
-
 ![coverage](https://img.shields.io/badge/coverage-70%25-green.svg?cacheSeconds=2592000)
-
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e754785d29d946bf9a0ab7146869caec)](https://www.codacy.com/app/gogocat/dataBind?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gogocat/dataBind&amp;utm_campaign=Badge_Grade)
-
 ![GitHub](https://img.shields.io/github/license/gogocat/dataBind.svg)
 
   
@@ -65,16 +62,11 @@ Then just call `render` to start render to the page.
 
 ```html
 
-<section  data-bind-comp="simpleComponent">
-
-<div>
-
-<h5  data-bind-text="heading"></h5>
-
-<p  data-bind-text="description"></p>
-
-</div>
-
+<section data-bind-comp="simpleComponent">
+    <div>
+        <h5 data-bind-text="heading"></h5>
+        <p data-bind-text="description"></p>
+    </div>
 </section>
 
 ```
@@ -83,35 +75,25 @@ Then just call `render` to start render to the page.
 
 ```javascript
 
-  
-
-const  simpleComponentViewModel = {
-
-heading:  'Test heading',
-
-description:  'This is my test description',
-
+const simpleComponentViewModel = {
+    heading: 'Test heading',
+    description: 'This is my test description',
 };
 
-  
-
 // init data bind with view
+const simpleComponent = dataBind.init(
+    document.querySelector('[data-bind-comp="simpleComponent"]'),
+    simpleComponentViewModel
+);
 
-const  simpleComponent = dataBind.init(document.querySelector('[data-bind-comp="simpleComponent"]'), simpleComponentViewModel);
-
-  
 
 // trigger render and log after render
-
-simpleComponent.render().then(function() {
-
-// for debug
-
-console.log(simpleComponent);
-
-});
-
-  
+simpleComponent
+    .render()
+    .then(function() {
+        // for debug
+        console.log(simpleComponent);
+    });
 
 ```
 
@@ -120,8 +102,6 @@ To make change, just update the data in viewModel and then call `render()`.
 ```javascript
 
 simpleComponentViewModel.heading='new heading';
-
-  
 
 simpleComponent.render();
 
@@ -143,7 +123,7 @@ The binding can also pass-in parameters.
 
 ```html
 
-<h5  data-bind-text="heading($data)"></h5>
+<h5 data-bind-text="heading($data)"></h5>
 
 ```
 
@@ -171,22 +151,21 @@ For more advance example. Please check [**examples/bootstrap.html**](https://gog
 ...
 
 // DOM ready bind viewModel with target DOM element
-
-const  simpleComponent = dataBind.init(document.querySelector('[data-bind-comp="simpleComponent"]'), simpleComponentViewModel);
+const simpleComponent = dataBind.init(
+    document.querySelector('[data-bind-comp="simpleComponent"]'),
+    simpleComponentViewModel
+);
 
   
 
 // trigger render, then console log for debug
+simpleComponent
+    .render()
+    .then(function(ctx) {
+        // for debug
+         console.log(simpleComponent === ctx);
+    });
 
-simpleComponent.render().then(function(ctx) {
-
-// for debug
-
-console.log(simpleComponent === ctx);
-
-});
-
-...
 
 ```
 
@@ -221,39 +200,22 @@ For edge case; pass an optional setting object when calling `render` to control 
 ```javascript
 
 simpleComponent.render({
-
-templateBinding:  true,
-
-textBinding:  true,
-
-cssBinding:  true,
-
-ifBinding:  true,
-
-showBinding:  true,
-
-modelBinding:  true,
-
-attrBinding:  true,
-
-forOfBinding:  true,
-
-switchBinding:  true,
-
-changeBinding:  true,
-
-clickBinding:  true,
-
-dblclickBinding:  true,
-
-blurBinding:  true,
-
-focusBinding:  true,
-
-hoverBinding:  true,
-
-submitBinding:  true,
-
+    templateBinding: true,
+    textBinding: true,
+    cssBinding: true,
+    ifBinding: true,
+    showBinding: true,
+    modelBinding: true,
+    attrBinding: true,
+    forOfBinding: true,
+    switchBinding: true,
+    changeBinding: true,
+    clickBinding: true,
+    dblclickBinding: true,
+    blurBinding: true,
+    focusBinding: true,
+    hoverBinding: true,
+    submitBinding: true,
 });
 
 ```
@@ -265,59 +227,38 @@ submitBinding:  true,
 // global dataBind settings
 
 dataBind.use({
-
-bindingAttrs: {
-
-comp:  'data-xy-comp',
-
-tmp:  'data-xy-tmp',
-
-text:  'data-xy-text',
-
-click:  'data-xy-click',
-
-dblclick:  'data-xy-dblclick',
-
-blur:  'data-xy-blur',
-
-focus:  'data-xy-focus',
-
-hover:  'data-xy-hover',
-
-change:  'data-xy-change',
-
-submit:  'data-xy-submit',
-
-model:  'data-xy-model',
-
-show:  'data-xy-show',
-
-css:  'data-xy-css',
-
-attr:  'data-xy-attr',
-
-forOf:  'data-xy-for',
-
-if:  'data-xy-if',
-
-switch:  'data-xy-switch',
-
-case:  'data-xy-case',
-
-default:  'data-xy-default'
-
-},
-
+    bindingAttrs: {
+        comp: 'data-xy-comp',
+        tmp: 'data-xy-tmp',
+        text: 'data-xy-text',
+        click: 'data-xy-click',
+        dblclick: 'data-xy-dblclick',
+        blur: 'data-xy-blur',
+        focus: 'data-xy-focus',
+        hover: 'data-xy-hover',
+        change: 'data-xy-change',
+        submit: 'data-xy-submit',
+        model: 'data-xy-model',
+        show: 'data-xy-show',
+        css: 'data-xy-css',
+        attr: 'data-xy-attr',
+        forOf: 'data-xy-for',
+        if: 'data-xy-if',
+        switch: 'data-xy-switch',
+        case: 'data-xy-case',
+        default: 'data-xy-default'
+    },
 });
 
   
 
 // init
-
-const  simpleComponent = dataBind.init(document.querySelector('[data-bind-comp="simpleComponent"]'), simpleComponentViewModel);
+const simpleComponent = dataBind.init(
+    document.querySelector('[data-bind-comp="simpleComponent"]'),
+    simpleComponentViewModel
+);
 
 // render
-
 simpleComponent.render();
 
 ```
@@ -336,16 +277,14 @@ The following bindings produce visual changes
 
 ```html
 
-<section  data-bind-comp="simpleComponent"  data-bind-tmp="{id: 'exampleTemplate', data: '$root'}">
+<section  
+  data-bind-comp="simpleComponent"  
+  data-bind-tmp="{id: 'exampleTemplate', data: '$root'}"
+></section>
 
-</section>
-
-  
 
 <template  id="exampleTemplate">
-
-<h1  data-bind-text="heading"></h1>
-
+	<h1  data-bind-text="heading"></h1>
 </template>
 
 ```
@@ -362,8 +301,6 @@ If there a 3rd option as `append: true` or `prepend: true`, the content will the
 ```html
 
 <h1  data-bind-text="heading"></h1>
-
-  
 
 <h1  data-bind-text="fullName | uppercase"></h1>
 
@@ -390,16 +327,16 @@ The attribute `data-bind-css` is refernce to the viewModel's property '**mycCss*
 ### if binding
 
 ```html
-
+// conditional render the H1 element
 <h1  data-bind-if="myCondition">
-
-<span>Hello</span>
-
+	<span>Hello</span>
 </h1>
 
-  
-
-<div  data-bind-if="!myCondition"  data-bind-tmp="{id: 'someTemplateId', data: 'someData'}"></div>
+// conditditional render the DIV element and its template binding
+<div  
+  data-bind-if="!myCondition"  
+  data-bind-tmp="{id: 'someTemplateId', data: 'someData'}"
+></div>
 
 ```
 
@@ -422,11 +359,9 @@ With negate expression(second example above), when the expression `!myCondition`
 ### show binding
 
 ```html
-
+// conditional display the H1 element
 <h1  data-bind-show="isShow">
-
-<span>Hello</span>
-
+	<span>Hello</span>
 </h1>
 
 ```
@@ -439,13 +374,14 @@ The attribute `data-bind-show` is refernce to the viewModel's property '**isShow
 
 ```html
 
-<input  id="userName"  name="userName"  type="text"
-
-data-bind-model="personalDetails.userName"
-
-data-bind-change="onInputChange"
-
-required>
+<input 
+  id="userName"  
+  name="userName"  
+  type="text"
+  data-bind-model="personalDetails.userName"
+  data-bind-change="onInputChange"
+  required
+>
 
 ```
 
@@ -480,25 +416,14 @@ For two-way data binding; use together with `data-bind-change`. It will update t
 <img  data-bind-attr="getImgAttr">
 
   
-
 // js
-
-let viewModel = {
-
-getImgAttr: function(oldAttrObj, $el) {
-
-return {
-
-src:  '/someImage.png',
-
-alt:  'some image',
-
-};
-
-}
-
-}
-
+const viewModel = {
+    getImgAttr: function(oldAttrObj, $el) {
+        return {
+            src: '/someImage.png',
+            alt: 'some image',
+        };
+    }
 };
 
 ```
@@ -519,24 +444,25 @@ Please see the `<select>` elements in this [example](https://gogocat.github.io/d
 
 ```javascript
 
-<p  data-bind-for="result of results"  data-bind-text="result.content"></p>
-
+<p  
+  data-bind-for="result of results"  
+  data-bind-text="result.content"
+></p>
   
 
 // js
-
-let  viewModel = {
-
-results: [
-
-{content:  '1'},
-
-{content:  '2'},
-
-{content:  '3'}
-
-]
-
+const viewModel = {
+    results: [
+        {
+            content: '1'
+        },
+        {
+            content: '2'
+        },
+        {
+            content: '3'
+        }
+    ]
 };
 
 ```
@@ -550,13 +476,9 @@ The result will looks like this:
 ```html
 
 <!--data-forOf_result_of_results-->
-
 <p  data-bind-text="result.content">1</p>
-
 <p  data-bind-text="result.content">2</p>
-
 <p  data-bind-text="result.content">3</p>
-
 <!--data-forOf_result_of_results_end-->
 
 ```
@@ -570,41 +492,24 @@ The result will looks like this:
 ```javascript
 
 <div  data-bind-switch="selectedStory">
-
-<div  data-bind-case="s1">
-
-<h2>Case 1</h2>
-
+    <div  data-bind-case="s1">
+        <h2>Case 1</h2>
+    </div>
+    <div  data-bind-case="s2">
+        <h2>Case 2</h2>
+    </div>
+    <div  data-bind-case="s3">
+        <h2>Case 3</h2>
+    </div>
+    <div  data-bind-default="">
+        <p>No story found...</p>
+    </div>
 </div>
 
-<div  data-bind-case="s2">
-
-<h2>Case 2</h2>
-
-</div>
-
-<div  data-bind-case="s3">
-
-<h2>Case 3</h2>
-
-</div>
-
-<div  data-bind-default="">
-
-<p>No story found...</p>
-
-</div>
-
-</div>
-
-  
 
 // js
-
-let  viewModel = {
-
-selectedStory:  's1'
-
+const viewModel = {
+    selectedStory: 's1'
 };
 
 ```
@@ -622,13 +527,9 @@ In this example the result will looks like this, since selectedStory` match `dat
 ```html
 
 <div  data-bind-switch="selectedStory">
-
-<div  data-bind-case="s1">
-
-<h2>Case 1</h2>
-
-</div>
-
+    <div  data-bind-case="s1">
+        <h2>Case 1</h2>
+    </div>
 </div>
 
 ```
@@ -647,26 +548,20 @@ The following binding produce interactivities
 
 ```javascript
 
-<input  id="new-todo"  type="text"
+<input  
+    id="new-todo"  
+    type="text"
+    data-bind-change="onAddTask"
+    placeholder="What needs to be done?"
+    autofocus
+>
 
-data-bind-change="onAddTask"
-
-placeholder="What needs to be done?"
-
-autofocus>
-
-  
 
 // js
-
-let viewModel = {
-
-onAddTask: function(e, $el, newValue, oldValue) {
-
-// do something...
-
-},
-
+const viewModel = {
+    onAddTask: function(e, $el, newValue, oldValue) {
+        // do something...
+    },
 }
 
 ```
@@ -684,53 +579,38 @@ For 2 way binding, please use Model binding together. Which does data flow from 
 ```javascript
 
 <div  data-bind-comp="todoComponent">
-
-<input  id="new-todo"  type="text"
-
-data-bind-change="onAddTask"
-
-data-bind-model="currentTask"
-
-placeholder="What needs to be done?"
-
-autofocus>
-
+    <input  
+        id="new-todo"  
+        type="text"
+        data-bind-change="onAddTask"
+        data-bind-model="currentTask"
+        placeholder="What needs to be done?"
+        autofocus
+    >
 </div>
 
+
 // js
-
-  
-
 const viewModel = {
-
-currentTask = '',
-
-onAddTask: function(e, $el, newValue, oldValue) {
-
-e.preventDefault();
-
-this.currentTask = newValue;
-
-// re-render
-
-this.APP.render();
-
+    currentTask = '',
+    onAddTask: function(e, $el, newValue, oldValue) {
+        e.preventDefault();
+        this.currentTask = newValue;
+        // re-render
+        this.APP.render();
+    }
 }
 
-}
-
-  
-  
 
 // init data bind with view
-
-const toDoApp = dataBind.init(document.querySelector('[data-bind-comp="todoComponent"]'), viewModel);
+const toDoApp = dataBind.init(
+    document.querySelector('[data-bind-comp="todoComponent"]'),
+    viewModel
+);
 
 // trigger render
-
 toDoApp.render();
 
-  
 
 ```
 
@@ -746,22 +626,19 @@ In this example, we update `currentTask` data whenever `onAddTask` get called(on
 
 ```javascript
 
-<button  id="clear-completed"  data-bind-click="onClearAllCompleted">
-
-Clear completed
-
+<button
+    id="clear-completed"
+    data-bind-click="onClearAllCompleted"
+>
+    Clear completed
 </button>
 
+
 // js
-
-let  viewModel = {
-
-onClearAllCompleted:  function(e, $el) {
-
-// do something...
-
-}
-
+const viewModel = {
+    onClearAllCompleted: function(e, $el) {
+        // do something...
+    }
 }
 
 ```
@@ -774,22 +651,18 @@ onClearAllCompleted:  function(e, $el) {
 
 ```javascript
 
-<button  id="clear-completed"  data-bind-dblclick="onDoubleClicked">
-
-Clear completed
-
+<button  
+    id="clear-completed"  
+    data-bind-dblclick="onDoubleClicked"
+>
+    Clear completed
 </button>
 
 // js
-
-let  viewModel = {
-
-onDoubleClicked:  function(e, $el) {
-
-// do something...
-
-}
-
+const viewModel = {
+    onDoubleClicked: function(e, $el) {
+        // do something...
+    }
 }
 
 ```
@@ -805,15 +678,10 @@ onDoubleClicked:  function(e, $el) {
 <input  name="firstName"  type="text"  data-bind-blur="onBlur">
 
 // js
-
 const viewModel = {
-
-onBlur: function(e, $el) {
-
-// do something...
-
-}
-
+    onBlur: function(e, $el) {
+        // do something...
+    }
 }
 
 ```
@@ -829,15 +697,10 @@ onBlur: function(e, $el) {
 <input  name="firstName"  type="text"  data-bind-focus="onFocus">
 
 // js
-
 const viewModel = {
-
-onFocus: function(e, $el) {
-
-// do something...
-
-}
-
+    onFocus: function(e, $el) {
+        // do something...
+    }
 }
 
 ```
@@ -853,25 +716,15 @@ onFocus: function(e, $el) {
   
 
 // js
-
-const  viewModel = {
-
-onHover:{
-
-in:  function(e, $el) {
-
-// do something when mouse in
-
-},
-
-out:  function(e, $el) {
-
-// do something when mouse out
-
-}
-
-}
-
+const viewModel = {
+    onHover: {
+        in: function(e, $el) {
+            // do something when mouse in
+        },
+        out: function(e, $el) {
+            // do something when mouse out
+        }
+    }
 }
 
 ```
@@ -893,15 +746,10 @@ out:  function(e, $el) {
   
 
 // js
-
-const  viewModel = {
-
-onSubmit:  function(e, $el, formData) {
-
-// do something...
-
-}
-
+const viewModel = {
+    onSubmit: function(e, $el, formData) {
+        // do something...
+    }
 }
 
 ```
@@ -919,31 +767,18 @@ onSubmit:  function(e, $el, formData) {
   
 
 // js
-
-const  viewModel = {
-
-gstRate:  1.1,
-
-discountRate:  10,
-
-story: {
-
-price:  100
-
-},
-
-toDiscount:  function(value) {
-
-return  Number(value) * this.discountRate;
-
-},
-
-addGst:  function(value) {
-
-return  Number(value) * this.gstRate;
-
-},
-
+const viewModel = {
+    gstRate: 1.1,
+    discountRate: 10,
+    story: {
+        price: 100
+    },
+    toDiscount: function(value) {
+        return Number(value) * this.discountRate;
+    },
+    addGst: function(value) {
+        return Number(value) * this.gstRate;
+    },
 }
 
 ```
@@ -959,63 +794,35 @@ Filter is a convenient way to carry a value and run through series of functions.
 ```javascript
 
 <div  data-bind-for="question of questions">
-
-<label  data-bind-text="question.title"
-
-data-bind-attr="getQuestionLabelAttr($data, $index)"
-
-data-bind-css="$root.labelCss"
-
->
-
-</label>
-
-<input  type="text"  data-bind-attr="getQuestionInputAttr($data, $index)">
-
+    <label
+        data-bind-text="question.title"
+        data-bind-attr="getQuestionLabelAttr($data, $index)"
+        data-bind-css="$root.labelCss"
+        >
+    </label>
+    <input type="text" data-bind-attr="getQuestionInputAttr($data, $index)">
 </div>
 
   
 
 // js
-
 const viewModel = {
-
-labelCss: 'form-label',
-
-questions: [
-
-{
-
-title:  'How are you?',
-
-fieldName:  'howAreYou'
-
-}
-
-],
-
-getQuestionLabelAttr: function(data, index, oldAttr, $el) {
-
-return {
-
-'for':  `${data.fieldName}-${index}`
-
-};
-
-},
-
-getQuestionInputAttr: function(data, index, oldAttr, $el) {
-
-return {
-
-'name':  `${data.fieldName}-${index}`
-
-'id': `${data.fieldName}-${index}`
-
-};
-
-},
-
+    labelCss: 'form-label',
+    questions: [{
+        title: 'How are you?',
+        fieldName: 'howAreYou',
+    }],
+    getQuestionLabelAttr: function(data, index, oldAttr, $el) {
+        return {
+            'for': `${data.fieldName}-${index}`,
+        };
+    },
+    getQuestionInputAttr: function(data, index, oldAttr, $el) {
+        return {
+            'name': `${data.fieldName}-${index}`,
+            'id': `${data.fieldName}-${index}`,
+        };
+    },
 }
 
 ```
@@ -1031,19 +838,14 @@ When using `data-bind-for` binding, `$data` is refer to the current data in the 
 ```javascript
 
 <div  data-bind-if="renderIntro | once">
-
-<h1>Introduction</h1>
-
+    <h1>Introduction</h1>
 </div>
 
   
 
 // js
-
-let  viewModel = {
-
-renderIntro:  false
-
+const viewModel = {
+    renderIntro: false
 }
 
 ```
@@ -1058,15 +860,17 @@ dataBind use pub/sub pattern to cross comminicate between components. In the [**
 
 ```javascript
 
-const  compSearchBar = dataBind.init(document.querySelector('[data-bind-comp="search-bar"]'), viewModel);
+const compSearchBar = dataBind.init(
+    document.querySelector('[data-bind-comp="search-bar"]'),
+    viewModel
+);
 
-compSearchBar.render().then(function(comp) {
-
-let  self = comp;
-
-compSearchBar.subscribe('SEARCH-COMPLETED', self.viewModel.onSearchCompleted);
-
-});
+compSearchBar
+    .render()
+    .then(function(comp) {
+        let self = comp;
+        compSearchBar.subscribe('SEARCH-COMPLETED', self.viewModel.onSearchCompleted);
+    });
 
   
 
@@ -1113,9 +917,7 @@ dataBind respect any server sider rendering technology. Just mark the component 
 ```html
 
 <div  data-bind-comp="search-bar"  data-server-rendered>
-
-...
-
+    ...
 </div>
 
 ```
