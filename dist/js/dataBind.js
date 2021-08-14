@@ -7,8 +7,11 @@
  * 
  */
 
-(function () {
-    'use strict';
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+    typeof define === 'function' && define.amd ? define(factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.dataBind = factory());
+}(this, (function () { 'use strict';
 
     const bindingAttrs$1 = {
       comp: 'data-bind-comp',
@@ -2544,13 +2547,14 @@
       }
 
       return new Binder($rootElement, viewModel, bindingAttrs);
-    }; // expose to global
-
-
-    window.dataBind = {
-      use: use,
-      init: init,
-      version: '@version@'
     };
 
-}());
+    var index = {
+      use: use,
+      init: init,
+      version: '1.10.0'
+    };
+
+    return index;
+
+})));
