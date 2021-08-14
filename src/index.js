@@ -19,8 +19,7 @@ const init = ($rootElement, viewModel = null) => {
     return new Binder($rootElement, viewModel, bindingAttrs);
 };
 
-// expose to global
-window.dataBind = {
+export default {
     use: use,
     init: init,
     version: '@version@',

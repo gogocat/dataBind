@@ -1,8 +1,8 @@
 {
-    "name": "dataBind",
+    "name": "@gogocat/data-bind",
     "version": "1.10.0",
-    "description": "Simple MV* framework work with jQuery and underscore template",
-    "main": "index.js",
+    "description": "dataBind is a small and fast MVVM tool for building front-end web",
+    "main": "dist/js/dataBind.js",
     "scripts": {
         "test": "grunt test --force",
         "build": "rollup -c && gulp compress",
@@ -14,9 +14,9 @@
         "url": "git+https://github.com/gogocat/dataBind.git"
     },
     "keywords": [
-        "jquery",
-        "data",
-        "binding"
+        "frontend",
+        "data bind",
+        "javascript"
     ],
     "author": "Adam Chow",
     "license": "MIT",
@@ -47,6 +47,7 @@
         "grunt-template-jasmine-istanbul": "^0.5.0",
         "gulp": "^4.0.2",
         "gulp-rename": "^2.0.0",
+        "gulp-replace": "^1.1.3",
         "gulp-sourcemaps": "^3.0.0",
         "gulp-uglify-es": "^3.0.0",
         "jasmine-core": "^3.8.0",

@@ -9,7 +9,8 @@ export default {
     input: 'src/index.js',
     output: {
         file: 'dist/js/dataBind.js',
-        format: 'iife', // immediately-invoked function expression — suitable for <script> tags
+        format: 'umd', // Browser + Node.js
+        name: 'dataBind',
         sourcemap: false,
     },
     plugins: [
