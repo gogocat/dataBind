@@ -65,7 +65,7 @@ const populateBindingCache = ({node, attrObj, bindingCache, type}) => {
         const paramList = getFunctionParameterList(cacheData.dataKey);
         if (paramList) {
             cacheData.parameters = paramList;
-            cacheData.dataKey = cacheData.dataKey.replace(REGEX.FUNCTIONPARAM, '').trim();
+            cacheData.dataKey = cacheData.dataKey.replace(REGEX.FUNCTION_PARAM, '').trim();
         }
         // store parent array reference to cacheData
         cacheData[constants.PARENT_REF] = bindingCache[type];

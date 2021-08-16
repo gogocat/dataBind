@@ -19,7 +19,7 @@ gulp.task('versioning', function(cb) {
 });
 
 // uglify
-gulp.task('compress', gulp.series('versioning'), function(cb) {
+gulp.task('compress', function(cb) {
     return gulp
         .src(`${distJsPath}${bundledFile}`)
         .pipe(rename({extname: '.min.js'}))
@@ -28,3 +28,5 @@ gulp.task('compress', gulp.series('versioning'), function(cb) {
         .pipe(sourcemaps.write(''))
         .pipe(gulp.dest(distJsPath));
 });
+
+gulp.task('default', gulp.series('versioning', 'compress'));

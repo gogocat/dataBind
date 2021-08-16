@@ -5,7 +5,7 @@
     "main": "dist/js/dataBind.js",
     "scripts": {
         "test": "grunt test --force",
-        "build": "rollup -c && gulp compress",
+        "build": "rollup -c && gulp",
         "watch": "rollup -c -w",
         "lint": "eslint src/**/*.js --fix"
     },

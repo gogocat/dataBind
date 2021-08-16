@@ -22,8 +22,8 @@ const forOfBinding = (cache, viewModel, bindingAttrs) => {
             return;
         }
         // replace mess spaces with single space
-        cache.dataKey = cache.dataKey.replace(REGEX.WHITESPACES, ' ');
-        const forExpMatch = dataKey.match(REGEX.FOROF);
+        cache.dataKey = cache.dataKey.replace(REGEX.WHITE_SPACES, ' ');
+        const forExpMatch = dataKey.match(REGEX.FOR_OF);
 
         if (!forExpMatch) {
             return;
