@@ -20,7 +20,7 @@ const subscribeEvent = (instance = null, eventName = '', fn, isOnce = false) => 
     let subscriber;
     let isSubscribed = false;
 
-    eventName = eventName.replace(util.REGEX.WHITESPACES, '');
+    eventName = eventName.replace(util.REGEX.WHITE_SPACES, '');
     EVENTS[eventName] = EVENTS[eventName] || [];
     // check if already subscribed and update callback fn
     isSubscribed = EVENTS[eventName].some((subscriber) => {
@@ -52,7 +52,7 @@ const unsubscribeEvent = (compId = '', eventName = '') => {
     let subscribersLength = 0;
     let subscriber;
 
-    eventName = eventName.replace(util.REGEX.WHITESPACES, '');
+    eventName = eventName.replace(util.REGEX.WHITE_SPACES, '');
 
     if (EVENTS[eventName]) {
         subscribersLength = EVENTS[eventName].length;
@@ -89,7 +89,7 @@ const publishEvent = (eventName = '', ...args) => {
         return;
     }
 
-    eventName = eventName.replace(util.REGEX.WHITESPACES, '');
+    eventName = eventName.replace(util.REGEX.WHITE_SPACES, '');
 
     EVENTS[eventName].forEach((subscriber) => {
         Object.keys(subscriber).forEach((compId) => {

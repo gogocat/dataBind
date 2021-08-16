@@ -3,12 +3,13 @@ import * as config from './config';
 const hasIsArray = Array.isArray;
 
 const REGEX = {
-    FUNCTIONPARAM: /\((.*?)\)/,
-    WHITESPACES: /\s+/g,
-    FOROF: /(.*?)\s+(?:in|of)\s+(.*)/,
-    PIPE: /\|/,
+    BAD_TAGS: /<(script|del)(?=[\s>])[\w\W]*?<\/\1\s*>/ig,
+    FOR_OF: /(.*?)\s+(?:in|of)\s+(.*)/,
+    FUNCTION_PARAM: /\((.*?)\)/,
     HTML_TAG: /^[\s]*<([a-z][^\/\s>]+)/i,
-    BAG_TAGS: /<(script|del)(?=[\s>])[\w\W]*?<\/\1\s*>/ig,
+    OBJECT_LITERAL: /^\{.+\}$/,
+    PIPE: /\|/,
+    WHITE_SPACES: /\s+/g,
 };
 
 const IS_SUPPORT_TEMPLATE = 'content' in document.createElement('template');
@@ -53,6 +54,10 @@ const isPlainObject = (obj) => {
     return true;
 };
 
+const isObjectLiteralString = (str = '') => {
+    return REGEX.OBJECT_LITERAL.test(str);
+};
+
 const isEmptyObject = (obj) => {
     if (isJsObject(obj)) {
         return Object.getOwnPropertyNames(obj).length === 0;
@@ -69,7 +74,7 @@ function getFirstHtmlStringTag(htmlString) {
 }
 
 function removeBadTags(htmlString = '') {
-    return htmlString.replace(REGEX.BAG_TAGS, '');
+    return htmlString.replace(REGEX.BAD_TAGS, '');
 }
 
 function createHtmlFragment(htmlString) {
@@ -192,7 +197,7 @@ const getViewModelPropValue = (viewModel, bindingCache) => {
 
     if (typeof ret === 'function') {
         const viewModelContext = resolveViewModelContext(viewModel, dataKey);
-        const oldViewModelProValue = bindingCache.elementData ? bindingCache.elementData.viewModelProValue : null;
+        const oldViewModelProValue = bindingCache.elementData ? bindingCache.elementData.viewModelPropValue : null;
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
         // let args = [oldViewModelProValue, bindingCache.el].concat(paramList);
         const args = paramList.concat([oldViewModelProValue, bindingCache.el]);
@@ -280,7 +285,7 @@ const getFunctionParameterList = (str) => {
     if (!str || str.length > config.maxDatakeyLength) {
         return;
     }
-    let paramlist = str.match(REGEX.FUNCTIONPARAM);
+    let paramlist = str.match(REGEX.FUNCTION_PARAM);
 
     if (paramlist && paramlist[1]) {
         paramlist = paramlist[1].split(',');
@@ -595,6 +600,7 @@ export {
     isEmptyObject,
     isJsObject,
     isPlainObject,
+    isObjectLiteralString,
     parseStringToJson,
     removeElement,
     resolveParamList,

@@ -14,7 +14,7 @@ const setCommentPrefix = (bindingData) => {
         return bindingData;
     }
     let commentPrefix = '';
-    const dataKeyMarker = bindingData.dataKey ? bindingData.dataKey.replace(util.REGEX.WHITESPACES, '_') : '';
+    const dataKeyMarker = bindingData.dataKey ? bindingData.dataKey.replace(util.REGEX.WHITE_SPACES, '_') : '';
 
     switch (bindingData.type) {
     case config.bindingAttrs.forOf:
