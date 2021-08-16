@@ -55,7 +55,7 @@
       init: 'INIT'
     }; // maximum string length before running regex
 
-    const maxDatakeyLength = 50;
+    const maxDatakeyLength = 250;
     const constants = {
       filters: {
         ONCE: 'once'
@@ -71,7 +71,8 @@
       HTML_TAG: /^[\s]*<([a-z][^\/\s>]+)/i,
       OBJECT_LITERAL: /^\{.+\}$/,
       PIPE: /\|/,
-      WHITE_SPACES: /\s+/g
+      WHITE_SPACES: /\s+/g,
+      LINE_BREAKS_TABS: /(\r\n|\n|\r|\t)/gm
     };
     const IS_SUPPORT_TEMPLATE = ('content' in document.createElement('template'));
     const WRAP_MAP = {
@@ -110,6 +111,11 @@
 
 
       return true;
+    }; // test if string contains '{...}'. string must not contains tab, line breaks
+
+
+    const isObjectLiteralString = (str = '') => {
+      return REGEX.OBJECT_LITERAL.test(str);
     };
 
     const isEmptyObject = obj => {
@@ -600,6 +606,33 @@
       }
 
       return console.log(message);
+    };
+    /**
+     * parseBindingObjectString
+     * @description parse bining object string to object with value always stringify
+     * @param {string} str - eg '{ id: $data.id, name: $data.name }'
+     * @return {object} - eg { id: '$data.id', name: '$data.name'}
+     */
+
+
+    const parseBindingObjectString = (str = '') => {
+      let objectLiteralString = str.trim();
+      const ret = {};
+
+      if (!REGEX.OBJECT_LITERAL.test(str)) {
+        return null;
+      } // clearn up line breaks and remove first { character
+
+
+      objectLiteralString = objectLiteralString.replace(REGEX.LINE_BREAKS_TABS, '').substring(1); // remove last } character
+
+      objectLiteralString = objectLiteralString.substring(0, objectLiteralString.length - 1);
+      objectLiteralString.split(',').forEach(keyVal => {
+        const prop = keyVal.split(':');
+        const key = prop[0].trim();
+        ret[key] = `${prop[1]}`.trim();
+      });
+      return ret;
     };
 
     let $domFragment = null;
@@ -1113,51 +1146,82 @@
      */
 
     const attrBinding = (cache, viewModel, bindingAttrs) => {
-      const dataKey = cache.dataKey;
-
-      if (!dataKey) {
+      if (!cache.dataKey) {
         return;
-      }
+      } // check if Object Literal String style dataKey
 
-      cache.elementData = cache.elementData || {};
-      cache.elementData.viewModelProValue = cache.elementData.viewModelProValue || {};
-      const oldAttrObj = cache.elementData.viewModelProValue;
-      const vmAttrObj = getViewModelPropValue(viewModel, cache);
+
+      const isObjLiteralStr = isObjectLiteralString(cache.dataKey);
+      let vmAttrObj = {}; // populate cache.elementData if not exits
+
+      cache.elementData = cache.elementData || {}; // parse object literal like dataKey eg. { id: $data.id, name: $data.id }
+
+      if (isObjLiteralStr) {
+        // parse parse object literal string to object
+        vmAttrObj = parseBindingObjectString(cache.dataKey); // populate each value from viewModel
+
+        each(vmAttrObj, (key, value) => {
+          // resolve value from viewModel including $data and $root
+          // from viewModel.$data or viewModel.$root
+          vmAttrObj[key] = getViewModelPropValue(viewModel, {
+            dataKey: key
+          });
+        });
+      } else {
+        // resolve from viewModel
+        vmAttrObj = getViewModelPropValue(viewModel, cache);
+      } // vmAttrObj must be a plain object
+
 
       if (!isPlainObject(vmAttrObj)) {
         return;
-      } // reject if nothing changed
+      } // check and set default cache.elementData.viewModelPropValue
 
 
-      if (JSON.stringify(oldAttrObj) === JSON.stringify(vmAttrObj)) {
+      cache.elementData.viewModelPropValue = cache.elementData.viewModelPropValue || {}; // reject if nothing changed by comparing cache.elementData.viewModelPropValue (previous render) vs vmAttrObj(current render)
+
+      if (JSON.stringify(cache.elementData.viewModelPropValue) === JSON.stringify(vmAttrObj)) {
         return;
-      } // reset old data and update it
+      } // reset cache.elementData.viewModelPropValue
 
 
-      cache.elementData.viewModelProValue = {};
+      cache.elementData.viewModelPropValue = {};
+      const oldAttrObj = cache.elementData.viewModelPropValue;
 
       if (isEmptyObject(oldAttrObj)) {
         each(vmAttrObj, (key, value) => {
-          cache.el.setAttribute(key, value); // populate with vmAttrObj data
+          if (typeof value !== 'undefined') {
+            cache.el.setAttribute(key, value); // populate cache.elementData.viewModelPropValue for future comparison
 
-          cache.elementData.viewModelProValue[key] = value;
-        });
-      } else {
-        each(oldAttrObj, (key, value) => {
-          if (typeof vmAttrObj[key] === 'undefined') {
-            // remove attribute if not present in current vm
-            cache.el.removeAttribute(key);
+            if (!isObjLiteralStr) {
+              cache.elementData.viewModelPropValue[key] = value;
+            }
           }
         });
+      } else {
+        // loop oldAttrObj, remove attribute not present in current vmAttrObj
+        each(oldAttrObj, (key, value) => {
+          if (typeof vmAttrObj[key] === 'undefined') {
+            cache.el.removeAttribute(key);
+          }
+        }); // loop vmAttrObj, set attribute not present in oldAttrObj
+
         each(vmAttrObj, (key, value) => {
-          if (oldAttrObj[key] !== vmAttrObj[key]) {
-            // update attribute if value changed
-            cache.el.setAttribute(key, vmAttrObj[key]);
-          } // populate with vmAttrObj data
+          if (typeof value !== 'undefined') {
+            if (oldAttrObj[key] !== vmAttrObj[key]) {
+              cache.el.setAttribute(key, vmAttrObj[key]); // populate cache.elementData.viewModelPropValue for future comparison
 
-
-          cache.elementData.viewModelProValue[key] = value;
+              if (!isObjLiteralStr) {
+                cache.elementData.viewModelPropValue[key] = value;
+              }
+            }
+          }
         });
+      } // for Object Literal only
+
+
+      if (isObjLiteralStr) {
+        cache.elementData.viewModelPropValue = extend({}, vmAttrObj);
       }
     };
 
@@ -1218,7 +1282,12 @@
 
       if (bindingAttrsMap && bindingAttrsMap[type] && typeof attrObj[type] !== 'undefined') {
         bindingCache[type] = bindingCache[type] || [];
-        attrValue = attrObj[type].trim();
+        attrValue = attrObj[type] || '';
+
+        if (attrValue) {
+          attrValue = attrValue.replace(REGEX.LINE_BREAKS_TABS, '').replace(REGEX.WHITE_SPACES, ' ').trim();
+        }
+
         cacheData = {
           el: node,
           dataKey: attrValue
@@ -1531,6 +1600,17 @@
 
       return insertRenderedElements(bindingData, fragment);
     };
+    /**
+     * createIterationViewModel
+     * @description
+     * create an virtual viewModel for render binding while in loop iteration
+     * $data is the current data in the loop eg. data in array
+     * $root is point to top level viewModel
+     * $index is the current loop index
+     * @param {*} param0
+     * @return {object} virtual viewModel
+     */
+
 
     const createIterationViewModel = ({
       bindingData,
@@ -1922,6 +2002,110 @@
       return caseData;
     }
 
+    const createEventBinding = ({
+      cache = {},
+      forceRender = false,
+      type = '',
+      viewModel = {}
+    }) => {
+      const handlerName = cache.dataKey;
+      let paramList = cache.parameters;
+      let viewModelContext;
+      const APP = viewModel.APP || viewModel.$root.APP;
+
+      if (!type || !handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
+        return;
+      }
+
+      const handlerFn = getViewModelValue(viewModel, handlerName);
+
+      if (typeof handlerFn === 'function') {
+        viewModelContext = resolveViewModelContext(viewModel, handlerName);
+        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
+
+        const handlerWrap = e => {
+          let formData;
+          let args = [];
+
+          if (type === 'submit') {
+            formData = getFormData(e.currentTarget);
+            args = [e, e.currentTarget, formData].concat(paramList);
+          } else {
+            args = [e, e.currentTarget].concat(paramList);
+          }
+
+          handlerFn.apply(viewModelContext, args);
+        };
+
+        cache.el.removeEventListener(type, handlerWrap, false);
+        cache.el.addEventListener(type, handlerWrap, false);
+      }
+    };
+
+    /**
+     * createBindingOption
+     * @param {string} condition
+     * @param {object} opt
+     * @description
+     * generate binding update option object by condition
+     * @return {object} updateOption
+     */
+
+    function createBindingOption(condition = '', opt = {}) {
+      const visualBindingOptions = {
+        templateBinding: false,
+        textBinding: true,
+        cssBinding: true,
+        ifBinding: true,
+        showBinding: true,
+        modelBinding: true,
+        attrBinding: true,
+        forOfBinding: true,
+        switchBinding: true
+      };
+      const eventsBindingOptions = {
+        changeBinding: true,
+        clickBinding: true,
+        dblclickBinding: true,
+        blurBinding: true,
+        focusBinding: true,
+        hoverBinding: true,
+        submitBinding: true
+      }; // this is visualBindingOptions but everything false
+      // concrete declear for performance purpose
+
+      const serverRenderedOptions = {
+        templateBinding: false,
+        textBinding: false,
+        cssBinding: false,
+        ifBinding: false,
+        showBinding: false,
+        modelBinding: false,
+        attrBinding: false,
+        forOfBinding: false,
+        switchBinding: false
+      };
+      let updateOption = {};
+
+      switch (condition) {
+        case bindingUpdateConditions.serverRendered:
+          updateOption = extend({}, eventsBindingOptions, serverRenderedOptions, opt);
+          break;
+
+        case bindingUpdateConditions.init:
+          // flag templateBinding to true to render tempalte(s)
+          opt.templateBinding = true;
+          updateOption = extend({}, visualBindingOptions, eventsBindingOptions, opt);
+          break;
+
+        default:
+          // when called again only update visualBinding options
+          updateOption = extend({}, visualBindingOptions, opt);
+      }
+
+      return updateOption;
+    }
+
     /**
      *  pubSub
      * @description use jQuery object as pubSub
@@ -2046,8 +2230,12 @@
         this.render = debounceRaf(this.render, this);
         this.isServerRendered = this.$rootElement.getAttribute(serverRenderedAttr) !== null; // inject instance into viewModel
 
-        this.viewModel.APP = this;
-        this.viewModel.$root = this.viewModel;
+        this.viewModel.APP = this; // add $root pointer to viewModel so binding can be refer as $root.something
+
+        this.viewModel.$root = this.viewModel; // 1st step
+        // parsView walk the DOM and create binding cache that holds each element's binding details
+        // this binding cache is like AST for render and update
+
         this.parseView(); // for jquery user set viewModel referece to $rootElement for easy debug
         // otherwise use Expando to attach viewModel to $rootElement
 
@@ -2138,24 +2326,20 @@
         } // create postProcessQueue before start rendering
 
 
-        this.postProcessQueue = []; // render and apply binding to template(s)
+        this.postProcessQueue = [];
+        const renderBindingOption = {
+          ctx: this,
+          elementCache: this.elementCache,
+          updateOption: updateOption,
+          bindingAttrs: this.bindingAttrs,
+          viewModel: this.viewModel
+        }; // always render template binding first
+        // render and apply binding to template(s)
         // this is an share function therefore passing 'this' context
 
-        renderTemplatesBinding({
-          ctx: this,
-          elementCache: this.elementCache,
-          updateOption: updateOption,
-          bindingAttrs: this.bindingAttrs,
-          viewModel: this.viewModel
-        }); // apply bindings to rest of the DOM
+        renderTemplatesBinding(renderBindingOption); // apply bindings to rest of the DOM
 
-        Binder.applyBinding({
-          ctx: this,
-          elementCache: this.elementCache,
-          updateOption: updateOption,
-          bindingAttrs: this.bindingAttrs,
-          viewModel: this.viewModel
-        }); // trigger postProcess
+        Binder.applyBinding(renderBindingOption); // trigger postProcess
 
         Binder.postProcess(this.postProcessQueue); // clear postProcessQueue
 
@@ -2395,76 +2579,13 @@
       return true;
     };
     /**
-     * createBindingOption
-     * @param {string} condition
-     * @param {object} opt
-     * @description
-     * generate binding update option object by condition
-     * @return {object} updateOption
-     */
-
-
-    const createBindingOption = (condition = '', opt = {}) => {
-      const visualBindingOptions = {
-        templateBinding: false,
-        textBinding: true,
-        cssBinding: true,
-        ifBinding: true,
-        showBinding: true,
-        modelBinding: true,
-        attrBinding: true,
-        forOfBinding: true,
-        switchBinding: true
-      };
-      const eventsBindingOptions = {
-        changeBinding: true,
-        clickBinding: true,
-        dblclickBinding: true,
-        blurBinding: true,
-        focusBinding: true,
-        hoverBinding: true,
-        submitBinding: true
-      }; // this is visualBindingOptions but everything false
-      // concrete declear for performance purpose
-
-      const serverRenderedOptions = {
-        templateBinding: false,
-        textBinding: false,
-        cssBinding: false,
-        ifBinding: false,
-        showBinding: false,
-        modelBinding: false,
-        attrBinding: false,
-        forOfBinding: false,
-        switchBinding: false
-      };
-      let updateOption = {};
-
-      switch (condition) {
-        case bindingUpdateConditions.serverRendered:
-          updateOption = extend({}, eventsBindingOptions, serverRenderedOptions, opt);
-          break;
-
-        case bindingUpdateConditions.init:
-          // flag templateBinding to true to render tempalte(s)
-          opt.templateBinding = true;
-          updateOption = extend({}, visualBindingOptions, eventsBindingOptions, opt);
-          break;
-
-        default:
-          // when called again only update visualBinding options
-          updateOption = extend({}, visualBindingOptions, opt);
-      }
-
-      return updateOption;
-    };
-    /**
      * renderIteration
      * @param {object} opt
      * @description
      * render element's binding by supplied elementCache
      * This function is desidned for FoOf, If, switch bindings
      */
+
 
     const renderIteration = ({
       elementCache,
@@ -2491,46 +2612,6 @@
         bindingAttrs: bindingAttrs,
         viewModel: iterationVm
       });
-    };
-
-    const createEventBinding = ({
-      cache = {},
-      forceRender = false,
-      type = '',
-      viewModel = {}
-    }) => {
-      const handlerName = cache.dataKey;
-      let paramList = cache.parameters;
-      let viewModelContext;
-      const APP = viewModel.APP || viewModel.$root.APP;
-
-      if (!type || !handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
-        return;
-      }
-
-      const handlerFn = getViewModelValue(viewModel, handlerName);
-
-      if (typeof handlerFn === 'function') {
-        viewModelContext = resolveViewModelContext(viewModel, handlerName);
-        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-
-        const handlerWrap = e => {
-          let formData;
-          let args = [];
-
-          if (type === 'submit') {
-            formData = getFormData(e.currentTarget);
-            args = [e, e.currentTarget, formData].concat(paramList);
-          } else {
-            args = [e, e.currentTarget].concat(paramList);
-          }
-
-          handlerFn.apply(viewModelContext, args);
-        };
-
-        cache.el.removeEventListener(type, handlerWrap, false);
-        cache.el.addEventListener(type, handlerWrap, false);
-      }
     };
 
     const isSupportPromise = typeof window['Promise'] === 'function';

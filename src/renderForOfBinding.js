@@ -87,6 +87,16 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}) => {
     return insertRenderedElements(bindingData, fragment);
 };
 
+/**
+ * createIterationViewModel
+ * @description
+ * create an virtual viewModel for render binding while in loop iteration
+ * $data is the current data in the loop eg. data in array
+ * $root is point to top level viewModel
+ * $index is the current loop index
+ * @param {*} param0
+ * @return {object} virtual viewModel
+ */
 const createIterationViewModel = ({bindingData, viewModel, iterationData, keys, index}) => {
     const iterationVm = {};
     iterationVm[bindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];

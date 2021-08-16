@@ -50,7 +50,12 @@ const populateBindingCache = ({node, attrObj, bindingCache, type}) => {
 
     if (bindingAttrsMap && bindingAttrsMap[type] && typeof attrObj[type] !== 'undefined') {
         bindingCache[type] = bindingCache[type] || [];
-        attrValue = attrObj[type].trim();
+        attrValue = attrObj[type] || '';
+
+        if (attrValue) {
+            attrValue = attrValue.replace(REGEX.LINE_BREAKS_TABS, '').replace(REGEX.WHITE_SPACES, ' ').trim();
+        }
+
         cacheData = {
             el: node,
             dataKey: attrValue,

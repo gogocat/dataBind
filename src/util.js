@@ -10,6 +10,7 @@ const REGEX = {
     OBJECT_LITERAL: /^\{.+\}$/,
     PIPE: /\|/,
     WHITE_SPACES: /\s+/g,
+    LINE_BREAKS_TABS: /(\r\n|\n|\r|\t)/gm,
 };
 
 const IS_SUPPORT_TEMPLATE = 'content' in document.createElement('template');
@@ -54,6 +55,7 @@ const isPlainObject = (obj) => {
     return true;
 };
 
+// test if string contains '{...}'. string must not contains tab, line breaks
 const isObjectLiteralString = (str = '') => {
     return REGEX.OBJECT_LITERAL.test(str);
 };
@@ -578,6 +580,37 @@ const throwErrorMessage = (err = null, errorMessage = '') => {
     return console.log(message);
 };
 
+/**
+ * parseBindingObjectString
+ * @description parse bining object string to object with value always stringify
+ * @param {string} str - eg '{ id: $data.id, name: $data.name }'
+ * @return {object} - eg { id: '$data.id', name: '$data.name'}
+ */
+const parseBindingObjectString = (str = '') => {
+    let objectLiteralString = str.trim();
+    const ret = {};
+
+    if (!REGEX.OBJECT_LITERAL.test(str)) {
+        return null;
+    }
+
+    // clearn up line breaks and remove first { character
+    objectLiteralString = objectLiteralString
+        .replace(REGEX.LINE_BREAKS_TABS, '')
+        .substring(1);
+
+    // remove last } character
+    objectLiteralString = objectLiteralString.substring(0, objectLiteralString.length - 1);
+
+    objectLiteralString.split(',').forEach((keyVal)=> {
+        const prop = keyVal.split(':');
+        const key = prop[0].trim();
+        ret[key] = `${prop[1]}`.trim();
+    });
+
+    return ret;
+};
+
 export {
     REGEX,
     arrayRemoveMatch,
@@ -602,6 +635,7 @@ export {
     isPlainObject,
     isObjectLiteralString,
     parseStringToJson,
+    parseBindingObjectString,
     removeElement,
     resolveParamList,
     resolveViewModelContext,
