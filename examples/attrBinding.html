@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" data-framework="dataBind">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>dataBind Demo | attribute binding</title>
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="bootstrap/css/open-iconic.css" />
+    </head>
+
+    <body>
+        <div class="container">
+            <section data-bind-comp="attr-component">
+                <div 
+                    data-bind-attr="{
+                        id: $root.id,
+                        style: width 500px,
+                        ref: objectLiteralRef
+                    }" 
+                    data-bind-text="heading"
+                    id="testAttr1" 
+                    ref="someRef" 
+                    class="test" 
+                ></div>
+                <div 
+                    data-bind-attr="attrObj" 
+                    data-bind-text="heading"
+                    id="testAttr1" 
+                    ref="someRef" 
+                    class="test" 
+                ></div>
+                <div 
+                    data-bind-attr="attrFn($data)" 
+                    data-bind-text="heading"
+                    id="testAttr2" 
+                    ref="someRef" 
+                    class="test" 
+                ></div>
+            </section>
+        </div>
+
+        <script src="../dist/js/dataBind.min.js"></script>
+        <script src="js/attrBindingDemo.js"></script>
+    </body>
+</html>

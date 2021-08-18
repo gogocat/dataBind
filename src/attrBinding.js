@@ -1,4 +1,12 @@
-import {getViewModelPropValue, isPlainObject, isEmptyObject, each} from './util';
+import {
+    extend,
+    getViewModelPropValue,
+    isPlainObject,
+    isEmptyObject,
+    isObjectLiteralString,
+    parseBindingObjectString,
+    each,
+} from './util';
 
 /**
  * attrBinding
@@ -8,53 +16,84 @@ import {getViewModelPropValue, isPlainObject, isEmptyObject, each} from './util'
  * @param {object} viewModel
  * @param {object} bindingAttrs
  */
-const attrBinding = (cache, viewModel, bindingAttrs) => {
-    const dataKey = cache.dataKey;
-
-    if (!dataKey) {
+const attrBinding = (cache = {}, viewModel) => {
+    if (!cache.dataKey) {
         return;
     }
+    // check if Object Literal String style dataKey
+    const isObjLiteralStr = isObjectLiteralString(cache.dataKey);
 
-    cache.elementData = cache.elementData || {};
-    cache.elementData.viewModelProValue = cache.elementData.viewModelProValue || {};
+    // resolve vmAttrObj, when Object Literal String style if will be object without resolve each value
+    // otherwise, resolve value from viewModel
+    const vmAttrObj = isObjLiteralStr ? parseBindingObjectString(cache.dataKey) : getViewModelPropValue(viewModel, cache);
 
-    const oldAttrObj = cache.elementData.viewModelProValue;
-    const vmAttrObj = getViewModelPropValue(viewModel, cache);
-
+    // vmAttrObj must be a plain object
     if (!isPlainObject(vmAttrObj)) {
         return;
     }
 
-    // reject if nothing changed
-    if (JSON.stringify(oldAttrObj) === JSON.stringify(vmAttrObj)) {
+    // populate cache.elementData if not exits
+    // check and set default cache.elementData.viewModelPropValue
+    cache.elementData = cache.elementData || {};
+    cache.elementData.viewModelPropValue = cache.elementData.viewModelPropValue || {};
+
+    // start diff comparison
+    // reject if nothing changed by comparing
+    // cache.elementData.viewModelPropValue (previous render) vs vmAttrObj(current render)
+    if (JSON.stringify(cache.elementData.viewModelPropValue) === JSON.stringify(vmAttrObj)) {
         return;
     }
 
-    // reset old data and update it
-    cache.elementData.viewModelProValue = {};
+    if (isObjLiteralStr) {
+        // resolve each value in vmAttrObj
+        each(vmAttrObj, (key, value)=> {
+            // resolve value from viewModel including $data and $root
+            // from viewModel.$data or viewModel.$root
+            vmAttrObj[key] = getViewModelPropValue(viewModel, {dataKey: value});
+        });
+    }
 
+    // shortcut for reading cache.elementData.viewModelPropValue
+    const oldAttrObj = cache.elementData.viewModelPropValue;
+
+    // start set element attribute - oldAttrObj is empty meaning no previous render
     if (isEmptyObject(oldAttrObj)) {
         each(vmAttrObj, (key, value)=> {
-            cache.el.setAttribute(key, value);
-            // populate with vmAttrObj data
-            cache.elementData.viewModelProValue[key] = value;
+            if (typeof value !== 'undefined') {
+                cache.el.setAttribute(key, value);
+                // populate cache.elementData.viewModelPropValue for future comparison
+                if (!isObjLiteralStr) {
+                    cache.elementData.viewModelPropValue[key] = value;
+                }
+            }
         });
     } else {
+        // loop oldAttrObj, remove attribute not present in current vmAttrObj
         each(oldAttrObj, (key, value)=> {
             if (typeof vmAttrObj[key] === 'undefined') {
-                // remove attribute if not present in current vm
                 cache.el.removeAttribute(key);
             }
         });
 
+        // loop vmAttrObj, set attribute not present in oldAttrObj
         each(vmAttrObj, (key, value)=> {
-            if (oldAttrObj[key] !== vmAttrObj[key]) {
-                // update attribute if value changed
-                cache.el.setAttribute(key, vmAttrObj[key]);
+            if (typeof value !== 'undefined') {
+                if (oldAttrObj[key] !== vmAttrObj[key]) {
+                    cache.el.setAttribute(key, vmAttrObj[key]);
+                    // populate cache.elementData.viewModelPropValue for future comparison
+                    if (!isObjLiteralStr) {
+                        cache.elementData.viewModelPropValue[key] = value;
+                    }
+                }
             }
-            // populate with vmAttrObj data
-            cache.elementData.viewModelProValue[key] = value;
         });
+    }
+
+    // for object literal style binding
+    // set viewModelPropValue for future diff comaprison
+    // note: vmAttrObj is a not fully resolve object, each value is still string unresloved
+    if (isObjLiteralStr) {
+        cache.elementData.viewModelPropValue = extend({}, vmAttrObj);
     }
 };
 

@@ -2,10 +2,6 @@ import * as config from './config';
 import {
     debounceRaf,
     each,
-    extend,
-    getViewModelValue,
-    resolveViewModelContext,
-    resolveParamList,
     throwErrorMessage,
 } from './util';
 import renderTemplate from './renderTemplate';
@@ -20,6 +16,8 @@ import forOfBinding from './forOfBinding';
 import ifBinding from './ifBinding';
 import switchBinding from './switchBinding';
 import createBindingCache from './domWalker';
+import createEventBinding from './createEventBinding';
+import createBindingOption from './createBindingOption';
 import * as pubSub from './pubSub';
 
 let compIdIndex = 0;
@@ -47,8 +45,12 @@ class Binder {
         // inject instance into viewModel
         this.viewModel.APP = this;
 
+        // add $root pointer to viewModel so binding can be refer as $root.something
         this.viewModel.$root = this.viewModel;
 
+        // 1st step
+        // parsView walk the DOM and create binding cache that holds each element's binding details
+        // this binding cache is like AST for render and update
         this.parseView();
 
         // for jquery user set viewModel referece to $rootElement for easy debug
@@ -121,6 +123,7 @@ class Binder {
 
     render(opt = {}) {
         let updateOption = {};
+
         if (!this.initRendered) {
             // only update eventsBinding if server rendered
             if (this.isServerRendered) {
@@ -137,24 +140,21 @@ class Binder {
         // create postProcessQueue before start rendering
         this.postProcessQueue = [];
 
+        const renderBindingOption = {
+            ctx: this,
+            elementCache: this.elementCache,
+            updateOption: updateOption,
+            bindingAttrs: this.bindingAttrs,
+            viewModel: this.viewModel,
+        };
+
+        // always render template binding first
         // render and apply binding to template(s)
         // this is an share function therefore passing 'this' context
-        renderTemplatesBinding({
-            ctx: this,
-            elementCache: this.elementCache,
-            updateOption: updateOption,
-            bindingAttrs: this.bindingAttrs,
-            viewModel: this.viewModel,
-        });
+        renderTemplatesBinding(renderBindingOption);
 
         // apply bindings to rest of the DOM
-        Binder.applyBinding({
-            ctx: this,
-            elementCache: this.elementCache,
-            updateOption: updateOption,
-            bindingAttrs: this.bindingAttrs,
-            viewModel: this.viewModel,
-        });
+        Binder.applyBinding(renderBindingOption);
 
         // trigger postProcess
         Binder.postProcess(this.postProcessQueue);
@@ -382,68 +382,7 @@ const renderTemplatesBinding = ({ctx, elementCache, updateOption, bindingAttrs, 
     return true;
 };
 
-/**
- * createBindingOption
- * @param {string} condition
- * @param {object} opt
- * @description
- * generate binding update option object by condition
- * @return {object} updateOption
- */
-const createBindingOption = (condition = '', opt = {}) => {
-    const visualBindingOptions = {
-        templateBinding: false,
-        textBinding: true,
-        cssBinding: true,
-        ifBinding: true,
-        showBinding: true,
-        modelBinding: true,
-        attrBinding: true,
-        forOfBinding: true,
-        switchBinding: true,
-    };
-    const eventsBindingOptions = {
-        changeBinding: true,
-        clickBinding: true,
-        dblclickBinding: true,
-        blurBinding: true,
-        focusBinding: true,
-        hoverBinding: true,
-        submitBinding: true,
-    };
-    // this is visualBindingOptions but everything false
-    // concrete declear for performance purpose
-    const serverRenderedOptions = {
-        templateBinding: false,
-        textBinding: false,
-        cssBinding: false,
-        ifBinding: false,
-        showBinding: false,
-        modelBinding: false,
-        attrBinding: false,
-        forOfBinding: false,
-        switchBinding: false,
-    };
-    let updateOption = {};
 
-    switch (condition) {
-    case config.bindingUpdateConditions.serverRendered:
-        updateOption = extend({}, eventsBindingOptions, serverRenderedOptions, opt);
-        break;
-    case config.bindingUpdateConditions.init:
-        // flag templateBinding to true to render tempalte(s)
-        opt.templateBinding = true;
-        updateOption = extend({}, visualBindingOptions, eventsBindingOptions, opt);
-        break;
-    default:
-        // when called again only update visualBinding options
-        updateOption = extend({}, visualBindingOptions, opt);
-    }
-
-    return updateOption;
-};
-
-import {getFormData} from './util';
 /**
  * renderIteration
  * @param {object} opt
@@ -476,48 +415,8 @@ const renderIteration = ({elementCache, iterationVm, bindingAttrs, isRegenerate}
     });
 };
 
-const createEventBinding = ({
-    cache = {},
-    forceRender = false,
-    type = '',
-    viewModel = {},
-}) => {
-    const handlerName = cache.dataKey;
-    let paramList = cache.parameters;
-    let viewModelContext;
-    const APP = viewModel.APP || viewModel.$root.APP;
-
-    if (!type || !handlerName || (!forceRender && !APP.$rootElement.contains(cache.el))) {
-        return;
-    }
-
-    const handlerFn = getViewModelValue(viewModel, handlerName);
-
-    if (typeof handlerFn === 'function') {
-        viewModelContext = resolveViewModelContext(viewModel, handlerName);
-        paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-
-        const handlerWrap = (e) => {
-            let formData;
-            let args = [];
-            if (type === 'submit') {
-                formData = getFormData(e.currentTarget);
-                args = [e, e.currentTarget, formData].concat(paramList);
-            } else {
-                args = [e, e.currentTarget].concat(paramList);
-            }
-            handlerFn.apply(viewModelContext, args);
-        };
-
-        cache.el.removeEventListener(type, handlerWrap, false);
-        cache.el.addEventListener(type, handlerWrap, false);
-    }
-};
-
 export {
     Binder,
-    createEventBinding,
-    createBindingOption,
     renderTemplatesBinding,
     renderIteration,
 };

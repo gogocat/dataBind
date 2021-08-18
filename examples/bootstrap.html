@@ -551,7 +551,10 @@
             >
                 <img 
                     data-bind-if="result.image"
-                    data-bind-attr="$root.getImgAttr($data)"
+                    data-bind-attr="{
+                        src: $data.image,
+                        alt: $data.title
+                    }"
                     class="card-img-top result-item__img" 
                 >
                 <div 
@@ -573,7 +576,10 @@
                     <input 
                         class="result-item__icon result-item__icon-checkbox"
                         type="checkbox" 
-                        data-bind-attr="$root.getMessageCheckBoxAttr($data)"
+                        data-bind-attr="{
+                            id: $data.id,
+                            name: $data.id,
+                        }"
                         data-bind-model="$data.selected" 
                         data-bind-change="$root.onAdMessageCheck"
                     >

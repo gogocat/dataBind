@@ -43,7 +43,7 @@ const bindingUpdateConditions = {
 };
 
 // maximum string length before running regex
-const maxDatakeyLength = 50;
+const maxDatakeyLength = 250;
 
 const constants = {
     filters: {
