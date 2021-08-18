@@ -602,10 +602,14 @@ const parseBindingObjectString = (str = '') => {
     // remove last } character
     objectLiteralString = objectLiteralString.substring(0, objectLiteralString.length - 1);
 
-    objectLiteralString.split(',').forEach((keyVal)=> {
-        const prop = keyVal.split(':');
-        const key = prop[0].trim();
-        ret[key] = `${prop[1]}`.trim();
+    objectLiteralString.split(',').forEach((item) => {
+        const keyVal = item.trim();
+        // ignore if last empty item - eg split last comma in object literal
+        if (keyVal) {
+            const prop = keyVal.split(':');
+            const key = prop[0].trim();
+            ret[key] = `${prop[1]}`.trim();
+        }
     });
 
     return ret;

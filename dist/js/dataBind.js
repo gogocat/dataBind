@@ -1,6 +1,6 @@
 /**
  * @gogocat/data-bind
- * version 1.10.0
+ * version 1.11.0
  * By Adam Chow
  * link https://gogocat.github.io/dataBind/
  * license MIT
@@ -627,10 +627,14 @@
       objectLiteralString = objectLiteralString.replace(REGEX.LINE_BREAKS_TABS, '').substring(1); // remove last } character
 
       objectLiteralString = objectLiteralString.substring(0, objectLiteralString.length - 1);
-      objectLiteralString.split(',').forEach(keyVal => {
-        const prop = keyVal.split(':');
-        const key = prop[0].trim();
-        ret[key] = `${prop[1]}`.trim();
+      objectLiteralString.split(',').forEach(item => {
+        const keyVal = item.trim(); // ignore if last empty item - eg split last comma in object literal
+
+        if (keyVal) {
+          const prop = keyVal.split(':');
+          const key = prop[0].trim();
+          ret[key] = `${prop[1]}`.trim();
+        }
       });
       return ret;
     };
@@ -1145,48 +1149,45 @@
      * @param {object} bindingAttrs
      */
 
-    const attrBinding = (cache, viewModel, bindingAttrs) => {
+    const attrBinding = (cache = {}, viewModel) => {
       if (!cache.dataKey) {
         return;
       } // check if Object Literal String style dataKey
 
 
-      const isObjLiteralStr = isObjectLiteralString(cache.dataKey);
-      let vmAttrObj = {}; // populate cache.elementData if not exits
+      const isObjLiteralStr = isObjectLiteralString(cache.dataKey); // resolve vmAttrObj, when Object Literal String style if will be object without resolve each value
+      // otherwise, resolve value from viewModel
 
-      cache.elementData = cache.elementData || {}; // parse object literal like dataKey eg. { id: $data.id, name: $data.id }
+      const vmAttrObj = isObjLiteralStr ? parseBindingObjectString(cache.dataKey) : getViewModelPropValue(viewModel, cache); // vmAttrObj must be a plain object
+
+      if (!isPlainObject(vmAttrObj)) {
+        return;
+      } // populate cache.elementData if not exits
+      // check and set default cache.elementData.viewModelPropValue
+
+
+      cache.elementData = cache.elementData || {};
+      cache.elementData.viewModelPropValue = cache.elementData.viewModelPropValue || {}; // start diff comparison
+      // reject if nothing changed by comparing
+      // cache.elementData.viewModelPropValue (previous render) vs vmAttrObj(current render)
+
+      if (JSON.stringify(cache.elementData.viewModelPropValue) === JSON.stringify(vmAttrObj)) {
+        return;
+      }
 
       if (isObjLiteralStr) {
-        // parse parse object literal string to object
-        vmAttrObj = parseBindingObjectString(cache.dataKey); // populate each value from viewModel
-
+        // resolve each value in vmAttrObj
         each(vmAttrObj, (key, value) => {
           // resolve value from viewModel including $data and $root
           // from viewModel.$data or viewModel.$root
           vmAttrObj[key] = getViewModelPropValue(viewModel, {
-            dataKey: key
+            dataKey: value
           });
         });
-      } else {
-        // resolve from viewModel
-        vmAttrObj = getViewModelPropValue(viewModel, cache);
-      } // vmAttrObj must be a plain object
+      } // shortcut for reading cache.elementData.viewModelPropValue
 
 
-      if (!isPlainObject(vmAttrObj)) {
-        return;
-      } // check and set default cache.elementData.viewModelPropValue
-
-
-      cache.elementData.viewModelPropValue = cache.elementData.viewModelPropValue || {}; // reject if nothing changed by comparing cache.elementData.viewModelPropValue (previous render) vs vmAttrObj(current render)
-
-      if (JSON.stringify(cache.elementData.viewModelPropValue) === JSON.stringify(vmAttrObj)) {
-        return;
-      } // reset cache.elementData.viewModelPropValue
-
-
-      cache.elementData.viewModelPropValue = {};
-      const oldAttrObj = cache.elementData.viewModelPropValue;
+      const oldAttrObj = cache.elementData.viewModelPropValue; // start set element attribute - oldAttrObj is empty meaning no previous render
 
       if (isEmptyObject(oldAttrObj)) {
         each(vmAttrObj, (key, value) => {
@@ -1217,7 +1218,9 @@
             }
           }
         });
-      } // for Object Literal only
+      } // for object literal style binding
+      // set viewModelPropValue for future diff comaprison
+      // note: vmAttrObj is a not fully resolve object, each value is still string unresloved
 
 
       if (isObjLiteralStr) {
@@ -2634,7 +2637,7 @@
     var index = {
       use: use,
       init: init,
-      version: '1.10.0'
+      version: '1.11.0'
     };
 
     return index;

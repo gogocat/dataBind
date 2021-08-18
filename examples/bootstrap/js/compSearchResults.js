@@ -57,12 +57,6 @@
                     self.logError(jqXHR, textStatus, errorThrown);
                 });
         },
-        getImgAttr: function(data) {
-            return {
-                src: data.image || '',
-                alt: data.title || '',
-            };
-        },
         getMessageCheckBoxAttr: function(data) {
             return {
                 id: data.id,

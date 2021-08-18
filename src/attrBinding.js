@@ -16,51 +16,47 @@ import {
  * @param {object} viewModel
  * @param {object} bindingAttrs
  */
-const attrBinding = (cache, viewModel, bindingAttrs) => {
+const attrBinding = (cache = {}, viewModel) => {
     if (!cache.dataKey) {
         return;
     }
     // check if Object Literal String style dataKey
     const isObjLiteralStr = isObjectLiteralString(cache.dataKey);
 
-    let vmAttrObj = {};
-
-    // populate cache.elementData if not exits
-    cache.elementData = cache.elementData || {};
-
-    // parse object literal like dataKey eg. { id: $data.id, name: $data.id }
-    if (isObjLiteralStr) {
-        // parse parse object literal string to object
-        vmAttrObj = parseBindingObjectString(cache.dataKey);
-        // populate each value from viewModel
-        each(vmAttrObj, (key, value)=> {
-            // resolve value from viewModel including $data and $root
-            // from viewModel.$data or viewModel.$root
-            vmAttrObj[key] = getViewModelPropValue(viewModel, {dataKey: key});
-        });
-    } else {
-        // resolve from viewModel
-        vmAttrObj = getViewModelPropValue(viewModel, cache);
-    }
+    // resolve vmAttrObj, when Object Literal String style if will be object without resolve each value
+    // otherwise, resolve value from viewModel
+    const vmAttrObj = isObjLiteralStr ? parseBindingObjectString(cache.dataKey) : getViewModelPropValue(viewModel, cache);
 
     // vmAttrObj must be a plain object
     if (!isPlainObject(vmAttrObj)) {
         return;
     }
 
+    // populate cache.elementData if not exits
     // check and set default cache.elementData.viewModelPropValue
+    cache.elementData = cache.elementData || {};
     cache.elementData.viewModelPropValue = cache.elementData.viewModelPropValue || {};
 
-    // reject if nothing changed by comparing cache.elementData.viewModelPropValue (previous render) vs vmAttrObj(current render)
+    // start diff comparison
+    // reject if nothing changed by comparing
+    // cache.elementData.viewModelPropValue (previous render) vs vmAttrObj(current render)
     if (JSON.stringify(cache.elementData.viewModelPropValue) === JSON.stringify(vmAttrObj)) {
         return;
     }
 
-    // reset cache.elementData.viewModelPropValue
-    cache.elementData.viewModelPropValue = {};
+    if (isObjLiteralStr) {
+        // resolve each value in vmAttrObj
+        each(vmAttrObj, (key, value)=> {
+            // resolve value from viewModel including $data and $root
+            // from viewModel.$data or viewModel.$root
+            vmAttrObj[key] = getViewModelPropValue(viewModel, {dataKey: value});
+        });
+    }
 
+    // shortcut for reading cache.elementData.viewModelPropValue
     const oldAttrObj = cache.elementData.viewModelPropValue;
 
+    // start set element attribute - oldAttrObj is empty meaning no previous render
     if (isEmptyObject(oldAttrObj)) {
         each(vmAttrObj, (key, value)=> {
             if (typeof value !== 'undefined') {
@@ -93,7 +89,9 @@ const attrBinding = (cache, viewModel, bindingAttrs) => {
         });
     }
 
-    // for Object Literal only
+    // for object literal style binding
+    // set viewModelPropValue for future diff comaprison
+    // note: vmAttrObj is a not fully resolve object, each value is still string unresloved
     if (isObjLiteralStr) {
         cache.elementData.viewModelPropValue = extend({}, vmAttrObj);
     }
