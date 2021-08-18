@@ -49,13 +49,15 @@
                     <input
                         class="result-item__icon result-item__icon-checkbox"
                         type="checkbox"
-                        id="{{ data.id }}"
-                        name="{{ data.id }}"
+                        data-bind-attr="{
+                            id: $data.id,
+                            name: $data.id
+                        }"
                         data-bind-model="$data.selected"
                         data-bind-change="$root.onAdMessageCheck($index)"
                     />
                     <label
-                        for="{{ data.id }}"
+                        data-bind-attr="{for: $data.id}"
                         class="oi result-item__icon-checkbox-label"
                         data-glyph="task"
                         aria-label="Message this seller"
