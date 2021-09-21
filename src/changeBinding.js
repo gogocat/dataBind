@@ -15,7 +15,13 @@ import _escape from './_escape';
  * @param {object} bindingAttrs
  * @param {boolean} forceRender
  */
-const changeBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+const changeBinding = ({
+    cache,
+    viewModel,
+    bindingAttrs,
+    forceRender,
+    type = 'change',
+}) => {
     const handlerName = cache.dataKey;
     let paramList = cache.parameters;
     const modelDataKey = cache.el.getAttribute(bindingAttrs.model);
@@ -49,8 +55,8 @@ const changeBinding = (cache, viewModel, bindingAttrs, forceRender) => {
         }
 
         // assing on change event
-        cache.el.removeEventListener('change', changeHandler, false);
-        cache.el.addEventListener('change', changeHandler, false);
+        cache.el.removeEventListener(type, changeHandler, false);
+        cache.el.addEventListener(type, changeHandler, false);
     }
 };
 

@@ -231,7 +231,13 @@ class Binder {
         // apply change binding
         if (updateOption.changeBinding && elementCache[bindingAttrs.change] && elementCache[bindingAttrs.change].length) {
             elementCache[bindingAttrs.change].forEach((cache) => {
-                changeBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+                changeBinding({
+                    bindingAttrs,
+                    cache,
+                    forceRender: updateOption.forceRender,
+                    type: 'change',
+                    viewModel,
+                });
             });
         }
 
@@ -299,6 +305,19 @@ class Binder {
         if (updateOption.hoverBinding && elementCache[bindingAttrs.hover] && elementCache[bindingAttrs.hover].length) {
             elementCache[bindingAttrs.hover].forEach((cache) => {
                 hoverBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+            });
+        }
+
+        // apply input binding - eg html range input
+        if (updateOption.inputBinding && elementCache[bindingAttrs.input] && elementCache[bindingAttrs.input].length) {
+            elementCache[bindingAttrs.input].forEach((cache) => {
+                changeBinding({
+                    bindingAttrs,
+                    cache,
+                    forceRender: updateOption.forceRender,
+                    type: 'input',
+                    viewModel,
+                });
             });
         }
     }

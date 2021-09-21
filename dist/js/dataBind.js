@@ -22,6 +22,7 @@
       blur: 'data-bind-blur',
       focus: 'data-bind-focus',
       hover: 'data-bind-hover',
+      input: 'data-bind-input',
       change: 'data-bind-change',
       submit: 'data-bind-submit',
       model: 'data-bind-model',
@@ -863,7 +864,13 @@
      * @param {boolean} forceRender
      */
 
-    const changeBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+    const changeBinding = ({
+      cache,
+      viewModel,
+      bindingAttrs,
+      forceRender,
+      type = 'change'
+    }) => {
       const handlerName = cache.dataKey;
       let paramList = cache.parameters;
       const modelDataKey = cache.el.getAttribute(bindingAttrs.model);
@@ -898,8 +905,8 @@
         } // assing on change event
 
 
-        cache.el.removeEventListener('change', changeHandler, false);
-        cache.el.addEventListener('change', changeHandler, false);
+        cache.el.removeEventListener(type, changeHandler, false);
+        cache.el.addEventListener(type, changeHandler, false);
       }
     };
 
@@ -2073,6 +2080,7 @@
         blurBinding: true,
         focusBinding: true,
         hoverBinding: true,
+        inputBinding: true,
         submitBinding: true
       }; // this is visualBindingOptions but everything false
       // concrete declear for performance purpose
@@ -2422,7 +2430,13 @@
 
         if (updateOption.changeBinding && elementCache[bindingAttrs.change] && elementCache[bindingAttrs.change].length) {
           elementCache[bindingAttrs.change].forEach(cache => {
-            changeBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+            changeBinding({
+              bindingAttrs,
+              cache,
+              forceRender: updateOption.forceRender,
+              type: 'change',
+              viewModel
+            });
           });
         } // apply submit binding
 
@@ -2490,6 +2504,19 @@
         if (updateOption.hoverBinding && elementCache[bindingAttrs.hover] && elementCache[bindingAttrs.hover].length) {
           elementCache[bindingAttrs.hover].forEach(cache => {
             hoverBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+          });
+        } // apply input binding - eg html range input
+
+
+        if (updateOption.inputBinding && elementCache[bindingAttrs.input] && elementCache[bindingAttrs.input].length) {
+          elementCache[bindingAttrs.input].forEach(cache => {
+            changeBinding({
+              bindingAttrs,
+              cache,
+              forceRender: updateOption.forceRender,
+              type: 'input',
+              viewModel
+            });
           });
         }
       }

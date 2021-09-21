@@ -7,6 +7,7 @@ const bindingAttrs = {
     blur: 'data-bind-blur',
     focus: 'data-bind-focus',
     hover: 'data-bind-hover',
+    input: 'data-bind-input',
     change: 'data-bind-change',
     submit: 'data-bind-submit',
     model: 'data-bind-model',

@@ -29,7 +29,15 @@
         </div>
         <div>
             <label for="testRange">Choose a range:</label>
-            <input id="testRange" type="range" min="0" max="5" step="1" data-bind-model="testRange" data-bind-change="onTestRangeChanged">
+            <input id="testRange" 
+                type="range" 
+                min="0" 
+                max="5" 
+                step="1" 
+                data-bind-model="testRange" 
+                data-bind-change="onTestRangeChanged"
+                data-bind-input="onTestRangeInputChange"
+            >
             <label id="testRangeLabel" data-bind-text="testRange"></label>
         </div>
         <div>

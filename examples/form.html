@@ -24,15 +24,18 @@
                     data-bind-tmp="{id:'formItems', data:'$root.personalDetails'}"
                 ></div>
 
-                <h5>formComponentB new instance of FormComponentVewModel</h5>
+                <h5 class="mt-5">formComponentB new instance of FormComponentVewModel</h5>
                 <div 
                     data-bind-comp="formComponentB"
                     data-bind-for="item of personalDetails"
                     data-bind-tmp="{id:'formItems', data:'$root.personalDetails'}"
                 ></div>
-                <div data-bind-attr="attrTest">
-                    This is attribute binding test!
-                </div>
+
+                <h5 class="mt-5">componentRangeInput</h5>
+                <div 
+                    data-bind-comp="componentRangeInput"
+                    data-bind-tmp="{id:'rangeInput'}"
+                ></div>
             </div>
         </section>
 
@@ -66,6 +69,19 @@
                         data-bind-model="item.value" 
                         data-bind-change="$root.onInputChange" 
                         required
+                    >
+                </div>
+            </div>
+        </template>
+
+        <template id="rangeInput">
+            <div class="form-row">
+                <div class="col-8">
+                    <label data-bind-text="range.value"></label>
+                    <input 
+                        data-bind-attr="getRangeAttr"
+                        data-bind-model="range.value" 
+                        data-bind-input="onInputChange" 
                     >
                 </div>
             </div>

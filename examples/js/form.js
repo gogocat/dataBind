@@ -10,10 +10,6 @@
             And finally a quick test of attribute binding 😎`,
             btnText: 'Fake button »',
         },
-        attrTest: {
-            class: 'show',
-            name: 'abc',
-        },
         onBtnClick: function(e, $el) {
             e.preventDefault();
             console.log('onBtnClick: ', $el);
@@ -62,6 +58,7 @@
 
     // use new instance of FormComponentVewModel and overwrite personalDetails
     const formComponentBViewModel = new FormComponentVewModel();
+
     formComponentBViewModel.personalDetails = [
         {
             show: true,
@@ -78,6 +75,32 @@
             updatedCss: 'updated',
         },
     ];
+
+
+    // componentRangeInput
+    const componentRangeInputViewModel = {
+        range: {
+            value: 50,
+        },
+        getRangeAttr: function() {
+            return {
+                type: 'range',
+                name: 'test-range',
+                id: 'test-range',
+                min: 0,
+                max: 100,
+                step: 1,
+            };
+        },
+        onInputChange: function(e, $el, newValue, oldValue) {
+            e.preventDefault();
+            this.range.value = newValue;
+            this.updateView();
+        },
+        updateView(opt) {
+            this.APP.render(opt);
+        },
+    };
 
     // start binding on DOM ready
 
@@ -105,5 +128,14 @@
         // for debug
         console.log(formComponentB);
         window.formComponentB = formComponentB;
+    });
+
+    // componentRangeInput
+    const componentRangeInput = dataBind.init(document.querySelector('[data-bind-comp="componentRangeInput"]'), componentRangeInputViewModel);
+
+    componentRangeInput.render().then(function() {
+        // for debug
+        console.log(componentRangeInput);
+        window.componentRangeInput = componentRangeInput;
     });
 })();
