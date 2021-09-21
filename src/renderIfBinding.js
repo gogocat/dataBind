@@ -1,5 +1,5 @@
 import {isEmptyObject} from './util';
-import {renderIteration} from './binder';
+import renderIteration from './renderIteration';
 import createBindingCache from './domWalker';
 import {commentSuffix} from './config';
 import {removeElemnetsByCommentWrap, insertRenderedElements} from './commentWrapper';
@@ -75,4 +75,7 @@ const removeIfBinding = (bindingData) => {
     }
 };
 
-export {renderIfBinding, removeIfBinding};
+export {
+    renderIfBinding,
+    removeIfBinding,
+};

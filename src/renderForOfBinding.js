@@ -9,7 +9,7 @@ import {
     isEmptyObject,
 } from './util';
 import createBindingCache from './domWalker';
-import {renderIteration} from './binder';
+import renderIteration from './renderIteration';
 import {
     wrapCommentAround,
     removeElemnetsByCommentWrap,
