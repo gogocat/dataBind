@@ -29,6 +29,7 @@ function createBindingOption(condition = '', opt = {}) {
         blurBinding: true,
         focusBinding: true,
         hoverBinding: true,
+        inputBinding: true,
         submitBinding: true,
     };
     // this is visualBindingOptions but everything false

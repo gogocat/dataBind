@@ -1,6 +1,6 @@
 import * as config from './config';
 import {extend} from './util';
-import {Binder} from './binder';
+import Binder from './binder';
 
 const isSupportPromise = typeof window['Promise'] === 'function';
 

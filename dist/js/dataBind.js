@@ -1,6 +1,6 @@
 /**
  * @gogocat/data-bind
- * version 1.11.0
+ * version 1.12.0
  * By Adam Chow
  * link https://gogocat.github.io/dataBind/
  * license MIT
@@ -22,6 +22,7 @@
       blur: 'data-bind-blur',
       focus: 'data-bind-focus',
       hover: 'data-bind-hover',
+      input: 'data-bind-input',
       change: 'data-bind-change',
       submit: 'data-bind-submit',
       model: 'data-bind-model',
@@ -639,120 +640,224 @@
       return ret;
     };
 
-    let $domFragment = null;
-    let $templateRoot = null;
-    let nestTemplatesCount = 0;
+    let bindingAttrsMap;
     /**
-     * getTemplateString
-     * @description get Template tag innerHTML string
-     * @param {string} id
-     * @return {string} rendered html string
+     * walkDOM
+     * @description by Douglas Crockford - walk each DOM node and calls provided callback function
+     * start walk from firstChild
+     * @param {object} node
+     * @param {function} func
      */
 
-    const getTemplateString = id => {
-      const templateElement = document.getElementById(id);
-      return templateElement ? templateElement.innerHTML : '';
+    const walkDOM = (node, func) => {
+      let parseChildNode = true;
+      node = node.firstElementChild;
+
+      while (node) {
+        parseChildNode = func(node);
+
+        if (parseChildNode) {
+          walkDOM(node, func);
+        }
+
+        node = node.nextElementSibling;
+      }
     };
-    /**
-     * renderTemplate
-     * @description
-     * get template setting from DOM attribute then call compileTemplate
-     * to render and append to target DOM
-     * @param {object} cache
-     * @param {object} viewModel
-     * @param {object} bindingAttrs
-     * @param {object} elementCache
-     */
 
-
-    const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
-      const settings = typeof cache.dataKey === 'string' ? parseStringToJson(cache.dataKey) : cache.dataKey;
-      let viewData = settings.data;
-      const isAppend = settings.append;
-      const isPrepend = settings.prepend;
-      let $currentElement;
-      cache.dataKey = settings;
-      viewData = typeof viewData === 'undefined' || viewData === '$root' ? viewModel : getViewModelPropValue(viewModel, {
-        dataKey: settings.data,
-        parameters: cache.parameters
+    const getAttributesObject = node => {
+      const ret = {};
+      Array.prototype.slice.call(node.attributes).forEach(item => {
+        ret[item.name] = item.value;
       });
-
-      if (!viewData) {
-        return;
-      }
-
-      const $element = cache.el;
-      const $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.getAttribute(dataIndexAttr);
-
-      if (typeof $index !== 'undefined') {
-        viewData.$index = $index;
-      }
-
-      $domFragment = $domFragment || document.createDocumentFragment();
-      $templateRoot = $templateRoot || $element;
-      const htmlString = getTemplateString(settings.id);
-      const htmlFragment = createHtmlFragment(htmlString); // append rendered html
-
-      if (!$domFragment.childNodes.length) {
-        // domFragment should be empty in first run
-        $currentElement = $domFragment; // copy of $domFragment for later find nested template check
-
-        $domFragment.appendChild(htmlFragment);
-      } else {
-        // during recursive run keep append to current fragment
-        $currentElement = $element; // reset to current nested template element
-
-        if (!isAppend && !isPrepend) {
-          $currentElement = emptyElement($currentElement);
-        }
-
-        if (isPrepend) {
-          $currentElement.insertBefore(htmlFragment, $currentElement.firstChild);
-        } else {
-          $currentElement.appendChild(htmlFragment);
-        }
-      } // check if there are nested template then recurisive render them
-
-
-      const $nestedTemplates = $currentElement.querySelectorAll('[' + bindingAttrs.tmp + ']');
-      const nestedTemplatesLength = $nestedTemplates.length;
-
-      if (nestedTemplatesLength) {
-        nestTemplatesCount += nestedTemplatesLength;
-
-        for (let i = 0; i < nestedTemplatesLength; i += 1) {
-          const thisTemplateCache = {
-            el: $nestedTemplates[i],
-            dataKey: $nestedTemplates[i].getAttribute(bindingAttrs.tmp)
-          };
-          elementCache[bindingAttrs.tmp].push(thisTemplateCache); // recursive template render
-
-          renderTemplate(thisTemplateCache, viewModel, bindingAttrs, elementCache);
-          nestTemplatesCount -= 1;
-        }
-      } // no more nested tempalted to render, start to append $domFragment into $templateRoot
-
-
-      if (nestTemplatesCount === 0) {
-        // append to DOM once
-        if (!isAppend && !isPrepend) {
-          $templateRoot = emptyElement($templateRoot);
-        }
-
-        if (isPrepend) {
-          $templateRoot.insertBefore($domFragment, $templateRoot.firstChild);
-        } else {
-          $templateRoot.appendChild($domFragment);
-        } // clear cached fragment
-
-
-        $domFragment = $templateRoot = null; // trigger callback if provided
-
-        if (typeof viewModel.afterTemplateRender === 'function') {
-          viewModel.afterTemplateRender(viewData);
-        }
-      }
+      return ret;
     };
+
+    const checkSkipChildParseBindings = (attrObj = {}, bindingAttrs) => {
+      return [bindingAttrs.forOf, bindingAttrs.if, bindingAttrs.case, bindingAttrs.default].filter(type => {
+        return typeof attrObj[type] !== 'undefined';
+      });
+    };
+
+    const rootSkipCheck = node => {
+      return node.tagName === 'SVG';
+    };
+
+    const defaultSkipCheck = (node, bindingAttrs) => {
+      return node.tagName === 'SVG' || node.hasAttribute(bindingAttrs.comp);
+    };
+
+    const populateBindingCache = ({
+      node,
+      attrObj,
+      bindingCache,
+      type
+    }) => {
+      let attrValue;
+      let cacheData;
+
+      if (bindingAttrsMap && bindingAttrsMap[type] && typeof attrObj[type] !== 'undefined') {
+        bindingCache[type] = bindingCache[type] || [];
+        attrValue = attrObj[type] || '';
+
+        if (attrValue) {
+          attrValue = attrValue.replace(REGEX.LINE_BREAKS_TABS, '').replace(REGEX.WHITE_SPACES, ' ').trim();
+        }
+
+        cacheData = {
+          el: node,
+          dataKey: attrValue
+        }; // populate cacheData.filters. update filterList first item as dataKey
+
+        cacheData = extractFilterList(cacheData); // populate cacheData.parameters
+        // for store function call parameters eg. '$index', '$root'
+        // useful with DOM for-loop template as reference to binding data
+
+        const paramList = getFunctionParameterList(cacheData.dataKey);
+
+        if (paramList) {
+          cacheData.parameters = paramList;
+          cacheData.dataKey = cacheData.dataKey.replace(REGEX.FUNCTION_PARAM, '').trim();
+        } // store parent array reference to cacheData
+
+
+        cacheData[constants.PARENT_REF] = bindingCache[type];
+        bindingCache[type].push(cacheData);
+      }
+
+      return bindingCache;
+    };
+
+    const createBindingCache = ({
+      rootNode = null,
+      bindingAttrs = {},
+      skipCheck,
+      isRenderedTemplate = false
+    }) => {
+      let bindingCache = {};
+
+      if (!rootNode instanceof window.Node) {
+        throw new TypeError('walkDOM: Expected a DOM node');
+      }
+
+      bindingAttrsMap = bindingAttrsMap || invertObj(bindingAttrs);
+
+      const parseNode = (node, skipNodeCheckFn = defaultSkipCheck) => {
+        let isSkipForOfChild = false;
+
+        if (node.nodeType !== 1 || !node.hasAttributes()) {
+          return true;
+        }
+
+        if (skipNodeCheckFn(node, bindingAttrs) || typeof skipCheck === 'function' && skipCheck(node)) {
+          return false;
+        } // when creating sub bindingCache if is for tmp binding
+        // skip same element that has forOf binding the  forOf is alredy parsed
+
+
+        const attrObj = getAttributesObject(node);
+        const hasSkipChildParseBindings = checkSkipChildParseBindings(attrObj, bindingAttrs);
+        let iterateList = [];
+
+        if (hasSkipChildParseBindings.length) {
+          isSkipForOfChild = true;
+          iterateList = hasSkipChildParseBindings;
+        } else if (isRenderedTemplate && attrObj[bindingAttrs.tmp]) {
+          // skip current node parse if was called by node has template binding and already rendered
+          return true;
+        } else {
+          iterateList = Object.keys(attrObj);
+        }
+
+        iterateList.forEach(key => {
+          // skip for switch case and default bining
+          if (key !== bindingAttrs.case && key !== bindingAttrs.default) {
+            bindingCache = populateBindingCache({
+              node: node,
+              attrObj: attrObj,
+              bindingCache: bindingCache,
+              type: key
+            });
+          }
+        }); // after cache forOf skip parse child nodes
+
+        if (isSkipForOfChild) {
+          return false;
+        }
+
+        return true;
+      };
+
+      if (parseNode(rootNode, rootSkipCheck)) {
+        walkDOM(rootNode, parseNode);
+      }
+
+      return bindingCache;
+    };
+
+    /**
+     * createBindingOption
+     * @param {string} condition
+     * @param {object} opt
+     * @description
+     * generate binding update option object by condition
+     * @return {object} updateOption
+     */
+
+    function createBindingOption(condition = '', opt = {}) {
+      const visualBindingOptions = {
+        templateBinding: false,
+        textBinding: true,
+        cssBinding: true,
+        ifBinding: true,
+        showBinding: true,
+        modelBinding: true,
+        attrBinding: true,
+        forOfBinding: true,
+        switchBinding: true
+      };
+      const eventsBindingOptions = {
+        changeBinding: true,
+        clickBinding: true,
+        dblclickBinding: true,
+        blurBinding: true,
+        focusBinding: true,
+        hoverBinding: true,
+        inputBinding: true,
+        submitBinding: true
+      }; // this is visualBindingOptions but everything false
+      // concrete declear for performance purpose
+
+      const serverRenderedOptions = {
+        templateBinding: false,
+        textBinding: false,
+        cssBinding: false,
+        ifBinding: false,
+        showBinding: false,
+        modelBinding: false,
+        attrBinding: false,
+        forOfBinding: false,
+        switchBinding: false
+      };
+      let updateOption = {};
+
+      switch (condition) {
+        case bindingUpdateConditions.serverRendered:
+          updateOption = extend({}, eventsBindingOptions, serverRenderedOptions, opt);
+          break;
+
+        case bindingUpdateConditions.init:
+          // flag templateBinding to true to render tempalte(s)
+          opt.templateBinding = true;
+          updateOption = extend({}, visualBindingOptions, eventsBindingOptions, opt);
+          break;
+
+        default:
+          // when called again only update visualBinding options
+          updateOption = extend({}, visualBindingOptions, opt);
+      }
+
+      return updateOption;
+    }
 
     /* eslint-disable no-invalid-this */
     /**
@@ -863,7 +968,13 @@
      * @param {boolean} forceRender
      */
 
-    const changeBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+    const changeBinding = ({
+      cache,
+      viewModel,
+      bindingAttrs,
+      forceRender,
+      type = 'change'
+    }) => {
       const handlerName = cache.dataKey;
       let paramList = cache.parameters;
       const modelDataKey = cache.el.getAttribute(bindingAttrs.model);
@@ -898,8 +1009,8 @@
         } // assing on change event
 
 
-        cache.el.removeEventListener('change', changeHandler, false);
-        cache.el.addEventListener('change', changeHandler, false);
+        cache.el.removeEventListener(type, changeHandler, false);
+        cache.el.addEventListener(type, changeHandler, false);
       }
     };
 
@@ -1228,158 +1339,199 @@
       }
     };
 
-    let bindingAttrsMap;
+    let $domFragment = null;
+    let $templateRoot = null;
+    let nestTemplatesCount = 0;
     /**
-     * walkDOM
-     * @description by Douglas Crockford - walk each DOM node and calls provided callback function
-     * start walk from firstChild
-     * @param {object} node
-     * @param {function} func
+     * getTemplateString
+     * @description get Template tag innerHTML string
+     * @param {string} id
+     * @return {string} rendered html string
      */
 
-    const walkDOM = (node, func) => {
-      let parseChildNode = true;
-      node = node.firstElementChild;
-
-      while (node) {
-        parseChildNode = func(node);
-
-        if (parseChildNode) {
-          walkDOM(node, func);
-        }
-
-        node = node.nextElementSibling;
-      }
+    const getTemplateString = id => {
+      const templateElement = document.getElementById(id);
+      return templateElement ? templateElement.innerHTML : '';
     };
+    /**
+     * renderTemplate
+     * @description
+     * get template setting from DOM attribute then call compileTemplate
+     * to render and append to target DOM
+     * @param {object} cache
+     * @param {object} viewModel
+     * @param {object} bindingAttrs
+     * @param {object} elementCache
+     */
 
-    const getAttributesObject = node => {
-      const ret = {};
-      Array.prototype.slice.call(node.attributes).forEach(item => {
-        ret[item.name] = item.value;
+
+    const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
+      const settings = typeof cache.dataKey === 'string' ? parseStringToJson(cache.dataKey) : cache.dataKey;
+      let viewData = settings.data;
+      const isAppend = settings.append;
+      const isPrepend = settings.prepend;
+      let $currentElement;
+      cache.dataKey = settings;
+      viewData = typeof viewData === 'undefined' || viewData === '$root' ? viewModel : getViewModelPropValue(viewModel, {
+        dataKey: settings.data,
+        parameters: cache.parameters
       });
-      return ret;
-    };
 
-    const checkSkipChildParseBindings = (attrObj = {}, bindingAttrs) => {
-      return [bindingAttrs.forOf, bindingAttrs.if, bindingAttrs.case, bindingAttrs.default].filter(type => {
-        return typeof attrObj[type] !== 'undefined';
-      });
-    };
-
-    const rootSkipCheck = node => {
-      return node.tagName === 'SVG';
-    };
-
-    const defaultSkipCheck = (node, bindingAttrs) => {
-      return node.tagName === 'SVG' || node.hasAttribute(bindingAttrs.comp);
-    };
-
-    const populateBindingCache = ({
-      node,
-      attrObj,
-      bindingCache,
-      type
-    }) => {
-      let attrValue;
-      let cacheData;
-
-      if (bindingAttrsMap && bindingAttrsMap[type] && typeof attrObj[type] !== 'undefined') {
-        bindingCache[type] = bindingCache[type] || [];
-        attrValue = attrObj[type] || '';
-
-        if (attrValue) {
-          attrValue = attrValue.replace(REGEX.LINE_BREAKS_TABS, '').replace(REGEX.WHITE_SPACES, ' ').trim();
-        }
-
-        cacheData = {
-          el: node,
-          dataKey: attrValue
-        }; // populate cacheData.filters. update filterList first item as dataKey
-
-        cacheData = extractFilterList(cacheData); // populate cacheData.parameters
-        // for store function call parameters eg. '$index', '$root'
-        // useful with DOM for-loop template as reference to binding data
-
-        const paramList = getFunctionParameterList(cacheData.dataKey);
-
-        if (paramList) {
-          cacheData.parameters = paramList;
-          cacheData.dataKey = cacheData.dataKey.replace(REGEX.FUNCTION_PARAM, '').trim();
-        } // store parent array reference to cacheData
-
-
-        cacheData[constants.PARENT_REF] = bindingCache[type];
-        bindingCache[type].push(cacheData);
+      if (!viewData) {
+        return;
       }
 
-      return bindingCache;
-    };
+      const $element = cache.el;
+      const $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.getAttribute(dataIndexAttr);
 
-    const createBindingCache = ({
-      rootNode = null,
-      bindingAttrs = {},
-      skipCheck,
-      isRenderedTemplate = false
-    }) => {
-      let bindingCache = {};
-
-      if (!rootNode instanceof window.Node) {
-        throw new TypeError('walkDOM: Expected a DOM node');
+      if (typeof $index !== 'undefined') {
+        viewData.$index = $index;
       }
 
-      bindingAttrsMap = bindingAttrsMap || invertObj(bindingAttrs);
+      $domFragment = $domFragment || document.createDocumentFragment();
+      $templateRoot = $templateRoot || $element;
+      const htmlString = getTemplateString(settings.id);
+      const htmlFragment = createHtmlFragment(htmlString); // append rendered html
 
-      const parseNode = (node, skipNodeCheckFn = defaultSkipCheck) => {
-        let isSkipForOfChild = false;
+      if (!$domFragment.childNodes.length) {
+        // domFragment should be empty in first run
+        $currentElement = $domFragment; // copy of $domFragment for later find nested template check
 
-        if (node.nodeType !== 1 || !node.hasAttributes()) {
-          return true;
+        $domFragment.appendChild(htmlFragment);
+      } else {
+        // during recursive run keep append to current fragment
+        $currentElement = $element; // reset to current nested template element
+
+        if (!isAppend && !isPrepend) {
+          $currentElement = emptyElement($currentElement);
         }
 
-        if (skipNodeCheckFn(node, bindingAttrs) || typeof skipCheck === 'function' && skipCheck(node)) {
-          return false;
-        } // when creating sub bindingCache if is for tmp binding
-        // skip same element that has forOf binding the  forOf is alredy parsed
-
-
-        const attrObj = getAttributesObject(node);
-        const hasSkipChildParseBindings = checkSkipChildParseBindings(attrObj, bindingAttrs);
-        let iterateList = [];
-
-        if (hasSkipChildParseBindings.length) {
-          isSkipForOfChild = true;
-          iterateList = hasSkipChildParseBindings;
-        } else if (isRenderedTemplate && attrObj[bindingAttrs.tmp]) {
-          // skip current node parse if was called by node has template binding and already rendered
-          return true;
+        if (isPrepend) {
+          $currentElement.insertBefore(htmlFragment, $currentElement.firstChild);
         } else {
-          iterateList = Object.keys(attrObj);
+          $currentElement.appendChild(htmlFragment);
+        }
+      } // check if there are nested template then recurisive render them
+
+
+      const $nestedTemplates = $currentElement.querySelectorAll('[' + bindingAttrs.tmp + ']');
+      const nestedTemplatesLength = $nestedTemplates.length;
+
+      if (nestedTemplatesLength) {
+        nestTemplatesCount += nestedTemplatesLength;
+
+        for (let i = 0; i < nestedTemplatesLength; i += 1) {
+          const thisTemplateCache = {
+            el: $nestedTemplates[i],
+            dataKey: $nestedTemplates[i].getAttribute(bindingAttrs.tmp)
+          };
+          elementCache[bindingAttrs.tmp].push(thisTemplateCache); // recursive template render
+
+          renderTemplate(thisTemplateCache, viewModel, bindingAttrs, elementCache);
+          nestTemplatesCount -= 1;
+        }
+      } // no more nested tempalted to render, start to append $domFragment into $templateRoot
+
+
+      if (nestTemplatesCount === 0) {
+        // append to DOM once
+        if (!isAppend && !isPrepend) {
+          $templateRoot = emptyElement($templateRoot);
         }
 
-        iterateList.forEach(key => {
-          // skip for switch case and default bining
-          if (key !== bindingAttrs.case && key !== bindingAttrs.default) {
-            bindingCache = populateBindingCache({
-              node: node,
-              attrObj: attrObj,
-              bindingCache: bindingCache,
-              type: key
-            });
-          }
-        }); // after cache forOf skip parse child nodes
+        if (isPrepend) {
+          $templateRoot.insertBefore($domFragment, $templateRoot.firstChild);
+        } else {
+          $templateRoot.appendChild($domFragment);
+        } // clear cached fragment
 
-        if (isSkipForOfChild) {
-          return false;
+
+        $domFragment = $templateRoot = null; // trigger callback if provided
+
+        if (typeof viewModel.afterTemplateRender === 'function') {
+          viewModel.afterTemplateRender(viewData);
         }
+      }
+    };
 
-        return true;
-      };
+    const renderTemplatesBinding = ({
+      ctx,
+      elementCache,
+      updateOption,
+      bindingAttrs,
+      viewModel
+    }) => {
+      if (!elementCache || !bindingAttrs) {
+        return false;
+      } // render and apply binding to template(s) and forOf DOM
 
-      if (parseNode(rootNode, rootSkipCheck)) {
-        walkDOM(rootNode, parseNode);
+
+      if (elementCache[bindingAttrs.tmp] && elementCache[bindingAttrs.tmp].length) {
+        // when re-render call with {templateBinding: true}
+        // template and nested templates
+        if (updateOption.templateBinding) {
+          // overwrite updateOption with 'init' bindingUpdateConditions
+          updateOption = createBindingOption(bindingUpdateConditions.init);
+          elementCache[bindingAttrs.tmp].forEach($element => {
+            renderTemplate($element, viewModel, bindingAttrs, elementCache);
+          }); // update cache after all template(s) rendered
+
+          ctx.updateElementCache({
+            templateCache: true,
+            elementCache: elementCache,
+            isRenderedTemplates: true
+          });
+        } // enforce render even element is not in DOM tree
+
+
+        updateOption.forceRender = true; // apply bindings to rendered templates element
+
+        elementCache[bindingAttrs.tmp].forEach(cache => {
+          applyBinding({
+            elementCache: cache.bindingCache,
+            updateOption: updateOption,
+            bindingAttrs: bindingAttrs,
+            viewModel: viewModel
+          });
+        });
       }
 
-      return bindingCache;
+      return true;
+    };
+
+    /**
+     * renderIteration
+     * @param {object} opt
+     * @description
+     * render element's binding by supplied elementCache
+     * This function is desidned for FoOf, If, switch bindings
+     */
+
+    const renderIteration = ({
+      elementCache,
+      iterationVm,
+      bindingAttrs,
+      isRegenerate
+    }) => {
+      const bindingUpdateOption = isRegenerate ? createBindingOption(bindingUpdateConditions.init) : createBindingOption(); // enforce render even element is not in DOM tree
+
+      bindingUpdateOption.forceRender = true; // render and apply binding to template(s)
+      // this is an share function therefore passing current APP 'this' context
+      // viewModel is a dynamic generated iterationVm
+
+      renderTemplatesBinding({
+        ctx: iterationVm.$root ? iterationVm.$root.APP : iterationVm.APP,
+        elementCache: elementCache,
+        updateOption: bindingUpdateOption,
+        bindingAttrs: bindingAttrs,
+        viewModel: iterationVm
+      });
+      applyBinding({
+        elementCache: elementCache,
+        updateOption: bindingUpdateOption,
+        bindingAttrs: bindingAttrs,
+        viewModel: iterationVm
+      });
     };
 
     /* eslint-disable no-invalid-this */
@@ -2045,68 +2197,182 @@
       }
     };
 
-    /**
-     * createBindingOption
-     * @param {string} condition
-     * @param {object} opt
-     * @description
-     * generate binding update option object by condition
-     * @return {object} updateOption
-     */
+    function applyBinding({
+      ctx,
+      elementCache,
+      updateOption,
+      bindingAttrs,
+      viewModel
+    }) {
+      if (!elementCache || !updateOption) {
+        return;
+      } // the follow binding should be in order for better efficiency
+      // apply forOf Binding
 
-    function createBindingOption(condition = '', opt = {}) {
-      const visualBindingOptions = {
-        templateBinding: false,
-        textBinding: true,
-        cssBinding: true,
-        ifBinding: true,
-        showBinding: true,
-        modelBinding: true,
-        attrBinding: true,
-        forOfBinding: true,
-        switchBinding: true
-      };
-      const eventsBindingOptions = {
-        changeBinding: true,
-        clickBinding: true,
-        dblclickBinding: true,
-        blurBinding: true,
-        focusBinding: true,
-        hoverBinding: true,
-        submitBinding: true
-      }; // this is visualBindingOptions but everything false
-      // concrete declear for performance purpose
 
-      const serverRenderedOptions = {
-        templateBinding: false,
-        textBinding: false,
-        cssBinding: false,
-        ifBinding: false,
-        showBinding: false,
-        modelBinding: false,
-        attrBinding: false,
-        forOfBinding: false,
-        switchBinding: false
-      };
-      let updateOption = {};
+      if (updateOption.forOfBinding && elementCache[bindingAttrs.forOf] && elementCache[bindingAttrs.forOf].length) {
+        elementCache[bindingAttrs.forOf].forEach(cache => {
+          forOfBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+        });
+      } // apply attr Binding
 
-      switch (condition) {
-        case bindingUpdateConditions.serverRendered:
-          updateOption = extend({}, eventsBindingOptions, serverRenderedOptions, opt);
-          break;
 
-        case bindingUpdateConditions.init:
-          // flag templateBinding to true to render tempalte(s)
-          opt.templateBinding = true;
-          updateOption = extend({}, visualBindingOptions, eventsBindingOptions, opt);
-          break;
+      if (updateOption.attrBinding && elementCache[bindingAttrs.attr] && elementCache[bindingAttrs.attr].length) {
+        elementCache[bindingAttrs.attr].forEach(cache => {
+          attrBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+        });
+      } // apply if Binding
 
-        default:
-          // when called again only update visualBinding options
-          updateOption = extend({}, visualBindingOptions, opt);
+
+      if (updateOption.ifBinding && elementCache[bindingAttrs.if] && elementCache[bindingAttrs.if].length) {
+        elementCache[bindingAttrs.if].forEach(cache => {
+          ifBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+        });
+      } // apply show Binding
+
+
+      if (updateOption.showBinding && elementCache[bindingAttrs.show] && elementCache[bindingAttrs.show].length) {
+        elementCache[bindingAttrs.show].forEach(cache => {
+          showBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+        });
+      } // apply switch Binding
+
+
+      if (updateOption.switchBinding && elementCache[bindingAttrs.switch] && elementCache[bindingAttrs.switch].length) {
+        elementCache[bindingAttrs.switch].forEach(cache => {
+          switchBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+        });
+      } // apply text binding
+
+
+      if (updateOption.textBinding && elementCache[bindingAttrs.text] && elementCache[bindingAttrs.text].length) {
+        elementCache[bindingAttrs.text].forEach(cache => {
+          textBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+        });
+      } // apply cssBinding
+
+
+      if (updateOption.cssBinding && elementCache[bindingAttrs.css] && elementCache[bindingAttrs.css].length) {
+        elementCache[bindingAttrs.css].forEach(cache => {
+          cssBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+        });
+      } // apply model binding
+
+
+      if (updateOption.modelBinding && elementCache[bindingAttrs.model] && elementCache[bindingAttrs.model].length) {
+        elementCache[bindingAttrs.model].forEach(cache => {
+          modelBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+        });
+      } // apply change binding
+
+
+      if (updateOption.changeBinding && elementCache[bindingAttrs.change] && elementCache[bindingAttrs.change].length) {
+        elementCache[bindingAttrs.change].forEach(cache => {
+          changeBinding({
+            bindingAttrs,
+            cache,
+            forceRender: updateOption.forceRender,
+            type: 'change',
+            viewModel
+          });
+        });
+      } // apply submit binding
+
+
+      if (updateOption.submitBinding && elementCache[bindingAttrs.submit] && elementCache[bindingAttrs.submit].length) {
+        elementCache[bindingAttrs.submit].forEach(cache => {
+          createEventBinding({
+            cache,
+            forceRender: updateOption.forceRender,
+            type: 'submit',
+            viewModel
+          });
+        });
+      } // apply click binding
+
+
+      if (updateOption.clickBinding && elementCache[bindingAttrs.click] && elementCache[bindingAttrs.click].length) {
+        elementCache[bindingAttrs.click].forEach(cache => {
+          createEventBinding({
+            cache,
+            forceRender: updateOption.forceRender,
+            type: 'click',
+            viewModel
+          });
+        });
+      } // apply double click binding
+
+
+      if (updateOption.dblclickBinding && elementCache[bindingAttrs.dblclick] && elementCache[bindingAttrs.dblclick].length) {
+        elementCache[bindingAttrs.dblclick].forEach(cache => {
+          createEventBinding({
+            cache,
+            forceRender: updateOption.forceRender,
+            type: 'dblclick',
+            viewModel
+          });
+        });
+      } // apply blur binding
+
+
+      if (updateOption.blurBinding && elementCache[bindingAttrs.blur] && elementCache[bindingAttrs.blur].length) {
+        elementCache[bindingAttrs.blur].forEach(cache => {
+          createEventBinding({
+            cache,
+            forceRender: updateOption.forceRender,
+            type: 'blur',
+            viewModel
+          });
+        });
+      } // apply focus binding
+
+
+      if (updateOption.focusBinding && elementCache[bindingAttrs.focus] && elementCache[bindingAttrs.focus].length) {
+        elementCache[bindingAttrs.focus].forEach(cache => {
+          createEventBinding({
+            cache,
+            forceRender: updateOption.forceRender,
+            type: 'focus',
+            viewModel
+          });
+        });
+      } // apply hover binding
+
+
+      if (updateOption.hoverBinding && elementCache[bindingAttrs.hover] && elementCache[bindingAttrs.hover].length) {
+        elementCache[bindingAttrs.hover].forEach(cache => {
+          hoverBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
+        });
+      } // apply input binding - eg html range input
+
+
+      if (updateOption.inputBinding && elementCache[bindingAttrs.input] && elementCache[bindingAttrs.input].length) {
+        elementCache[bindingAttrs.input].forEach(cache => {
+          changeBinding({
+            bindingAttrs,
+            cache,
+            forceRender: updateOption.forceRender,
+            type: 'input',
+            viewModel
+          });
+        });
+      }
+    }
+
+    function postProcess(tasks) {
+      if (!tasks || !tasks.length) {
+        return;
       }
 
-      return updateOption;
+      each(tasks, (index, task) => {
+        if (typeof task === 'function') {
+          try {
+            task();
+          } catch (err) {
+            throwErrorMessage(err, 'Error postProcess: ' + String(task));
+          }
+        }
+      });
     }
 
     /**
@@ -2342,172 +2608,13 @@
 
         renderTemplatesBinding(renderBindingOption); // apply bindings to rest of the DOM
 
-        Binder.applyBinding(renderBindingOption); // trigger postProcess
+        applyBinding(renderBindingOption); // trigger postProcess
 
-        Binder.postProcess(this.postProcessQueue); // clear postProcessQueue
+        postProcess(this.postProcessQueue); // clear postProcessQueue
 
         this.postProcessQueue.length = 0;
         delete this.postProcessQueue;
         this.initRendered = true;
-      }
-
-      static applyBinding({
-        ctx,
-        elementCache,
-        updateOption,
-        bindingAttrs,
-        viewModel
-      }) {
-        if (!elementCache || !updateOption) {
-          return;
-        } // the follow binding should be in order for better efficiency
-        // apply forOf Binding
-
-
-        if (updateOption.forOfBinding && elementCache[bindingAttrs.forOf] && elementCache[bindingAttrs.forOf].length) {
-          elementCache[bindingAttrs.forOf].forEach(cache => {
-            forOfBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
-          });
-        } // apply attr Binding
-
-
-        if (updateOption.attrBinding && elementCache[bindingAttrs.attr] && elementCache[bindingAttrs.attr].length) {
-          elementCache[bindingAttrs.attr].forEach(cache => {
-            attrBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
-          });
-        } // apply if Binding
-
-
-        if (updateOption.ifBinding && elementCache[bindingAttrs.if] && elementCache[bindingAttrs.if].length) {
-          elementCache[bindingAttrs.if].forEach(cache => {
-            ifBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
-          });
-        } // apply show Binding
-
-
-        if (updateOption.showBinding && elementCache[bindingAttrs.show] && elementCache[bindingAttrs.show].length) {
-          elementCache[bindingAttrs.show].forEach(cache => {
-            showBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
-          });
-        } // apply switch Binding
-
-
-        if (updateOption.switchBinding && elementCache[bindingAttrs.switch] && elementCache[bindingAttrs.switch].length) {
-          elementCache[bindingAttrs.switch].forEach(cache => {
-            switchBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
-          });
-        } // apply text binding
-
-
-        if (updateOption.textBinding && elementCache[bindingAttrs.text] && elementCache[bindingAttrs.text].length) {
-          elementCache[bindingAttrs.text].forEach(cache => {
-            textBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
-          });
-        } // apply cssBinding
-
-
-        if (updateOption.cssBinding && elementCache[bindingAttrs.css] && elementCache[bindingAttrs.css].length) {
-          elementCache[bindingAttrs.css].forEach(cache => {
-            cssBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
-          });
-        } // apply model binding
-
-
-        if (updateOption.modelBinding && elementCache[bindingAttrs.model] && elementCache[bindingAttrs.model].length) {
-          elementCache[bindingAttrs.model].forEach(cache => {
-            modelBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
-          });
-        } // apply change binding
-
-
-        if (updateOption.changeBinding && elementCache[bindingAttrs.change] && elementCache[bindingAttrs.change].length) {
-          elementCache[bindingAttrs.change].forEach(cache => {
-            changeBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
-          });
-        } // apply submit binding
-
-
-        if (updateOption.submitBinding && elementCache[bindingAttrs.submit] && elementCache[bindingAttrs.submit].length) {
-          elementCache[bindingAttrs.submit].forEach(cache => {
-            createEventBinding({
-              cache,
-              forceRender: updateOption.forceRender,
-              type: 'submit',
-              viewModel
-            });
-          });
-        } // apply click binding
-
-
-        if (updateOption.clickBinding && elementCache[bindingAttrs.click] && elementCache[bindingAttrs.click].length) {
-          elementCache[bindingAttrs.click].forEach(cache => {
-            createEventBinding({
-              cache,
-              forceRender: updateOption.forceRender,
-              type: 'click',
-              viewModel
-            });
-          });
-        } // apply double click binding
-
-
-        if (updateOption.dblclickBinding && elementCache[bindingAttrs.dblclick] && elementCache[bindingAttrs.dblclick].length) {
-          elementCache[bindingAttrs.dblclick].forEach(cache => {
-            createEventBinding({
-              cache,
-              forceRender: updateOption.forceRender,
-              type: 'dblclick',
-              viewModel
-            });
-          });
-        } // apply blur binding
-
-
-        if (updateOption.blurBinding && elementCache[bindingAttrs.blur] && elementCache[bindingAttrs.blur].length) {
-          elementCache[bindingAttrs.blur].forEach(cache => {
-            createEventBinding({
-              cache,
-              forceRender: updateOption.forceRender,
-              type: 'blur',
-              viewModel
-            });
-          });
-        } // apply focus binding
-
-
-        if (updateOption.focusBinding && elementCache[bindingAttrs.focus] && elementCache[bindingAttrs.focus].length) {
-          elementCache[bindingAttrs.focus].forEach(cache => {
-            createEventBinding({
-              cache,
-              forceRender: updateOption.forceRender,
-              type: 'focus',
-              viewModel
-            });
-          });
-        } // apply hover binding
-
-
-        if (updateOption.hoverBinding && elementCache[bindingAttrs.hover] && elementCache[bindingAttrs.hover].length) {
-          elementCache[bindingAttrs.hover].forEach(cache => {
-            hoverBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
-          });
-        }
-      }
-
-      static postProcess(tasks) {
-        if (!tasks || !tasks.length) {
-          return;
-        }
-
-        each(tasks, (index, task) => {
-          if (typeof task === 'function') {
-            try {
-              task();
-            } catch (err) {
-              throwErrorMessage(err, 'Error postProcess: ' + String(task));
-            }
-          }
-        });
       }
 
       subscribe(eventName = '', fn) {
@@ -2537,86 +2644,6 @@
 
     }
 
-    const renderTemplatesBinding = ({
-      ctx,
-      elementCache,
-      updateOption,
-      bindingAttrs,
-      viewModel
-    }) => {
-      if (!elementCache || !bindingAttrs) {
-        return false;
-      } // render and apply binding to template(s) and forOf DOM
-
-
-      if (elementCache[bindingAttrs.tmp] && elementCache[bindingAttrs.tmp].length) {
-        // when re-render call with {templateBinding: true}
-        // template and nested templates
-        if (updateOption.templateBinding) {
-          // overwrite updateOption with 'init' bindingUpdateConditions
-          updateOption = createBindingOption(bindingUpdateConditions.init);
-          elementCache[bindingAttrs.tmp].forEach($element => {
-            renderTemplate($element, viewModel, bindingAttrs, elementCache);
-          }); // update cache after all template(s) rendered
-
-          ctx.updateElementCache({
-            templateCache: true,
-            elementCache: elementCache,
-            isRenderedTemplates: true
-          });
-        } // enforce render even element is not in DOM tree
-
-
-        updateOption.forceRender = true; // apply bindings to rendered templates element
-
-        elementCache[bindingAttrs.tmp].forEach(cache => {
-          Binder.applyBinding({
-            elementCache: cache.bindingCache,
-            updateOption: updateOption,
-            bindingAttrs: bindingAttrs,
-            viewModel: viewModel
-          });
-        });
-      }
-
-      return true;
-    };
-    /**
-     * renderIteration
-     * @param {object} opt
-     * @description
-     * render element's binding by supplied elementCache
-     * This function is desidned for FoOf, If, switch bindings
-     */
-
-
-    const renderIteration = ({
-      elementCache,
-      iterationVm,
-      bindingAttrs,
-      isRegenerate
-    }) => {
-      const bindingUpdateOption = isRegenerate ? createBindingOption(bindingUpdateConditions.init) : createBindingOption(); // enforce render even element is not in DOM tree
-
-      bindingUpdateOption.forceRender = true; // render and apply binding to template(s)
-      // this is an share function therefore passing current APP 'this' context
-      // viewModel is a dynamic generated iterationVm
-
-      renderTemplatesBinding({
-        ctx: iterationVm.$root ? iterationVm.$root.APP : iterationVm.APP,
-        elementCache: elementCache,
-        updateOption: bindingUpdateOption,
-        bindingAttrs: bindingAttrs,
-        viewModel: iterationVm
-      });
-      Binder.applyBinding({
-        elementCache: elementCache,
-        updateOption: bindingUpdateOption,
-        bindingAttrs: bindingAttrs,
-        viewModel: iterationVm
-      });
-    };
-
     const isSupportPromise = typeof window['Promise'] === 'function';
     let bindingAttrs = bindingAttrs$1;
 
@@ -2637,7 +2664,7 @@
     var index = {
       use: use,
       init: init,
-      version: '1.11.0'
+      version: '1.12.0'
     };
 
     return index;

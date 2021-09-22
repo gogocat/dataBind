@@ -47,6 +47,10 @@ describe('Given form-component initised', () => {
             expect(newValue).not.toBe(oldValue);
             this.updateView();
         },
+        onTestRangeInputChange: function(e, $element, newValue, oldValue) {
+            expect(newValue).not.toBe(oldValue);
+            this.updateView();
+        },
         onMessageChanged: function(e, $element, newValue, oldValue) {
             expect(newValue).not.toBe(oldValue);
             this.updateView();
@@ -202,6 +206,26 @@ describe('Given form-component initised', () => {
             const evt = document.createEvent('HTMLEvents');
 
             evt.initEvent('change', true, true);
+            $testRange.value = newTestRange;
+            $testRange.dispatchEvent(evt);
+
+            // defer to check after asyn render
+            setTimeout(() => {
+                expect(formComponentVM.testRange).toBe(newTestRange);
+                expect($('#testRangeLabel').text()).toBe(newTestRange);
+                done();
+            }, 100);
+        }, 100);
+    });
+
+    it('When #testRange range input trigger onInput changed then viewModel should have updated', (done) => {
+        const newTestRange = '2';
+
+        setTimeout(() => {
+            const $testRange = document.getElementById('testRange');
+            const evt = document.createEvent('HTMLEvents');
+
+            evt.initEvent('input', true, true);
             $testRange.value = newTestRange;
             $testRange.dispatchEvent(evt);
 

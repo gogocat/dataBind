@@ -104,4 +104,10 @@ const publishEvent = (eventName = '', ...args) => {
     });
 };
 
-export {subscribeEvent, subscribeEventOnce, unsubscribeEvent, unsubscribeAllEvent, publishEvent};
+export {
+    subscribeEvent,
+    subscribeEventOnce,
+    unsubscribeEvent,
+    unsubscribeAllEvent,
+    publishEvent,
+};
