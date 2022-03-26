@@ -1,5 +1,4 @@
 import babel from '@rollup/plugin-babel';
-import {eslint} from 'rollup-plugin-eslint';
 import banner from 'rollup-plugin-banner';
 
 // eslint-disable-next-line no-unused-vars
@@ -16,24 +15,11 @@ export default {
     plugins: [
         banner(
             '<%= pkg.name %>\n' +
-                'version <%= pkg.version %>\n' +
-                'By <%= pkg.author %>\n' +
-                'link <%= pkg.homepage %>\n' +
-                'license <%= pkg.license %>\n',
+            'version <%= pkg.version %>\n' +
+            'By <%= pkg.author %>\n' +
+            'link <%= pkg.homepage %>\n' +
+            'license <%= pkg.license %>\n',
         ),
-        eslint({
-            parser: 'babel-eslint',
-            parserOptions: {
-                ecmaVersion: 6,
-                ecmaFeatures: {
-                    modules: true,
-                },
-            },
-            rules: {
-                quotes: [1, 'single'],
-                semi: [1],
-            },
-        }),
         babel({
             babelHelpers: 'bundled',
         }),
