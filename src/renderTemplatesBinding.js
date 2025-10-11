@@ -1,5 +1,5 @@
 import {bindingUpdateConditions} from './config';
-import applyBinding from './applyBindingExport';
+import * as applyBindingModule from './applyBinding.js';
 import createBindingOption from './createBindingOption';
 import renderTemplate from './renderTemplate';
 
@@ -15,6 +15,8 @@ const renderTemplatesBinding = ({ctx, elementCache, updateOption, bindingAttrs, 
             // overwrite updateOption with 'init' bindingUpdateConditions
             updateOption = createBindingOption(bindingUpdateConditions.init);
 
+            // forEach is correct here - nested templates are added to array but rendered recursively
+            // We don't want the loop to re-render templates that were already rendered via recursion
             elementCache[bindingAttrs.tmp].forEach(($element) => {
                 renderTemplate($element, viewModel, bindingAttrs, elementCache);
             });
@@ -29,14 +31,17 @@ const renderTemplatesBinding = ({ctx, elementCache, updateOption, bindingAttrs, 
         updateOption.forceRender = true;
 
         // apply bindings to rendered templates element
-        elementCache[bindingAttrs.tmp].forEach((cache) => {
-            applyBinding({
-                elementCache: cache.bindingCache,
+        // Use namespace import to access the function at runtime,
+        // which breaks the circular dependency during module initialization
+        // Use for loop to handle templates added during rendering
+        for (let i = 0; i < elementCache[bindingAttrs.tmp].length; i++) {
+            applyBindingModule.default({
+                elementCache: elementCache[bindingAttrs.tmp][i].bindingCache,
                 updateOption: updateOption,
                 bindingAttrs: bindingAttrs,
                 viewModel: viewModel,
             });
-        });
+        }
     }
     return true;
 };

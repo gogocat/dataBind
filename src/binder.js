@@ -87,7 +87,9 @@ class Binder {
         // walk from first rendered template node to create/update child bindingCache
         if (opt.allCache || opt.templateCache) {
             if (elementCache[this.bindingAttrs.tmp] && elementCache[this.bindingAttrs.tmp].length) {
-                elementCache[this.bindingAttrs.tmp].forEach((cache) => {
+                // Use for loop to handle templates added during rendering
+                for (let i = 0; i < elementCache[this.bindingAttrs.tmp].length; i++) {
+                    const cache = elementCache[this.bindingAttrs.tmp][i];
                     // set skipCheck as skipForOfParseFn whenever an node has
                     // both template and forOf bindings
                     // then the template bindingCache should be an empty object
@@ -103,7 +105,7 @@ class Binder {
                         skipCheck: skipForOfParseFn,
                         isRenderedTemplate: opt.isRenderedTemplates,
                     });
-                });
+                }
             }
         }
     }

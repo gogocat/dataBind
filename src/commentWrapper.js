@@ -1,4 +1,4 @@
-/* eslint-disable no-invalid-this */
+ 
 import * as config from './config';
 import * as util from './util';
 

@@ -206,7 +206,7 @@ const getViewModelPropValue = (viewModel, bindingCache) => {
         ret = ret.apply(viewModelContext, args);
     }
 
-    ret = isInvertBoolean ? !Boolean(ret) : ret;
+    ret = isInvertBoolean ? !ret : ret;
 
     // call through fitlers to get final value
     ret = filtersViewModelPropValue({
@@ -355,7 +355,7 @@ const debounceRaf = (fn, ctx = null) => {
 
         // return decorated fn
         return function() {
-            /* eslint-disable prefer-rest-params */
+             
             const args = Array.from ? Array.from(arguments) : Array.prototype.slice.call(arguments);
 
             window.cancelAnimationFrame(rafId);

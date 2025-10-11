@@ -1,7 +1,8 @@
 import {bindingUpdateConditions} from './config';
-import applyBinding from './applyBindingExport';
 import createBindingOption from './createBindingOption';
 import renderTemplatesBinding from './renderTemplatesBinding';
+import * as applyBindingModule from './applyBinding.js';
+
 /**
  * renderIteration
  * @param {object} opt
@@ -26,7 +27,9 @@ const renderIteration = ({elementCache, iterationVm, bindingAttrs, isRegenerate}
         viewModel: iterationVm,
     });
 
-    applyBinding({
+    // Use namespace import to access the function at runtime,
+    // which breaks the circular dependency during module initialization
+    applyBindingModule.default({
         elementCache: elementCache,
         updateOption: bindingUpdateOption,
         bindingAttrs: bindingAttrs,

@@ -1,10 +1,13 @@
-/* eslint-disable max-len */
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { waitFor } from '@testing-library/dom';
+
+ 
 describe('Given dataBindBootstrp initised', () => {
     const namespace = {};
     const converResultsData = function(data) {
         ret = [];
         data.forEach(function(item, index) {
-            const newItem = $.extend({}, item);
+            const newItem = Object.assign({}, item);
             if (newItem.bookmarked) {
                 newItem.bookmarkedCss = 'active';
             }
@@ -16,9 +19,7 @@ describe('Given dataBindBootstrp initised', () => {
         return ret;
     };
 
-    jasmine.getFixtures().fixturesPath = 'test';
-
-    beforeEach(() => {
+    beforeEach(async () => {
         const searchUrl = '/test/mocks/searchResult.json';
         // var featureAdsResultUrl = '/test/mocks/featureAdsResult.json';
         const el = {
@@ -27,11 +28,14 @@ describe('Given dataBindBootstrp initised', () => {
             messageTextArea: '#message',
         };
 
-        loadFixtures('./fixtures/dataBindBootstrap.html');
+        loadFixture('test/fixtures/dataBindBootstrap.html');
 
-        $.each(el, function(k, v) {
-            el[k] = $(v);
-        });
+        for (const k in el) {
+            if (Object.prototype.hasOwnProperty.call(el, k)) {
+                const v = el[k];
+                el[k] = document.querySelector(v);
+            }
+        }
 
         namespace.searchBarComponentVM = {
             searchWord: '',
@@ -40,19 +44,19 @@ describe('Given dataBindBootstrp initised', () => {
             onSearchWordChange: function(e, $el, newValue, oldValue) {
                 console.log('onSearchWordChange');
                 expect(typeof e.preventDefault).toBe('function');
-                expect($el instanceof jQuery).toBe(true);
+                expect($el instanceof HTMLElement || $el instanceof Element).toBe(true);
                 expect(newValue).not.toBe(oldValue);
             },
             onSearchLocationChange: function(e, $el, newValue, oldValue) {
                 expect(typeof e.preventDefault).toBe('function');
-                expect($el instanceof jQuery).toBe(true);
+                expect($el instanceof HTMLElement || $el instanceof Element).toBe(true);
                 expect(newValue).not.toBe(oldValue);
             },
             onSearchSubmit: function(e, $form, formData) {
                 e.preventDefault();
-                expect($form instanceof jQuery).toBe(true);
-                expect($form[0].tagName).toBe('FORM');
-                expect($.isPlainObject(formData)).toBe(true);
+                expect($form instanceof HTMLElement || $form instanceof Element).toBe(true);
+                expect($form.tagName).toBe('FORM');
+                expect(typeof formData === 'object' && formData !== null).toBe(true);
 
                 // TODO: may be test publish even elsewhere
                 formData.searchWord = formData.searchWord.trim();
@@ -146,7 +150,7 @@ describe('Given dataBindBootstrp initised', () => {
             onAdBookmarkClick: function(e, $el) {
                 const activeCss = 'active';
                 const isActivated = $el.hasClass(activeCss);
-                const resultIndex = $el.attr('data-index');
+                const resultIndex = $el.getAttribute('data-index');
 
                 this.searchResults[resultIndex].bookmarked = !isActivated;
                 this.searchResults[resultIndex].bookmarkedCss = isActivated ? '' : 'active';
@@ -198,8 +202,13 @@ describe('Given dataBindBootstrp initised', () => {
             },
         };
 
+        // vitest spies - set up BEFORE render so they intercept the event handlers
+        vi.spyOn(namespace.searchBarComponentVM, 'onSearchWordChange');
+        vi.spyOn(namespace.searchBarComponentVM, 'onSearchLocationChange');
+        // vi.spyOn(namespace.searchBarComponentVM, 'onSearchSubmit');
+
         namespace.searchBarComponent = dataBind.init(document.querySelector('[data-bind-comp="search-bar"]'), namespace.searchBarComponentVM);
-        namespace.searchBarComponent.render().then(function(ctx) {
+        await namespace.searchBarComponent.render().then(function(ctx) {
             const self = ctx;
             namespace.searchBarComponent.subscribe('SEARCH-COMPLETED', self.viewModel.onSearchCompleted);
         });
@@ -208,7 +217,7 @@ describe('Given dataBindBootstrp initised', () => {
             document.querySelector('[data-bind-comp="search-results-component"]'),
             namespace.searchResultsComponentVM,
         );
-        namespace.searchResultsComponent
+        await namespace.searchResultsComponent
             .render() // overwrite default server rendered option
             .then(function(ctx) {
                 const self = ctx;
@@ -220,94 +229,102 @@ describe('Given dataBindBootstrp initised', () => {
             document.querySelector('[data-bind-comp="message-dialog-component"]'),
             namespace.messageDialogComponentVM,
         );
-        namespace.messageDialogComponent.render().then(function(ctx) {
+        await namespace.messageDialogComponent.render().then(function(ctx) {
             const self = ctx;
             namespace.messageDialogComponent.subscribe('TRIGGER-MESSAGE-DIALOG', self.viewModel.onTriggerSelectedAds);
 
-            el.messageModal.on('shown.bs.modal', function() {
-                el.messageTextArea[0].defaultValue = self.viewModel.defaultMessageText;
-                el.messageTextArea.focus();
-            });
+            if (el.messageModal) {
+                el.messageModal.addEventListener('shown.bs.modal', function() {
+                    if (el.messageTextArea) {
+                        el.messageTextArea.defaultValue = self.viewModel.defaultMessageText;
+                        el.messageTextArea.focus();
+                    }
+                });
 
-            el.messageModal.on('hidden.bs.modal', function() {
-                el.messageTextArea[0].defaultValue = self.viewModel.defaultMessageText;
-                self.viewModel.sendingMessage = false;
-            });
+                el.messageModal.addEventListener('hidden.bs.modal', function() {
+                    if (el.messageTextArea) {
+                        el.messageTextArea.defaultValue = self.viewModel.defaultMessageText;
+                        self.viewModel.sendingMessage = false;
+                    }
+                });
+            }
         });
-
-        // jasmine spies
-        spyOn(namespace.searchBarComponentVM, 'onSearchWordChange');
-        spyOn(namespace.searchBarComponentVM, 'onSearchLocationChange');
-        // spyOn(namespace.searchBarComponentVM, 'onSearchSubmit');
     });
 
     afterEach(() => {
         // clean up all app/components
         for (const prop in namespace) {
-            if (namespace.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(namespace, prop)) {
                 delete namespace[prop];
             }
         }
+        vi.restoreAllMocks();
     });
 
-    it('Then [data-bind-comp="search-bar"] should has bond with namespace.searchBarComponentVM', (done) => {
-        const $searchBar = $('[data-bind-comp="search-bar"]');
-        const searchBarRoot = $searchBar[0]['$root'];
+    it('Then [data-bind-comp="search-bar"] should has bond with namespace.searchBarComponentVM', async () => {
+        const $searchBar = document.querySelector('[data-bind-comp="search-bar"]');
+        const searchBarRoot = $searchBar['$root'];
 
-        setTimeout(function() {
+        await waitFor(() => {
             expect(searchBarRoot).toBeDefined();
-            expect(searchBarRoot).toEqual(jasmine.objectContaining(namespace.searchBarComponentVM));
-            done();
+            expect(searchBarRoot).toEqual(expect.objectContaining(namespace.searchBarComponentVM));
         }, 200);
     });
 
-    it('When [data-bind-comp="search-bar"] was server rendered then show binding should not update element', (done) => {
-        setTimeout(function() {
+    it('When [data-bind-comp="search-bar"] was server rendered then show binding should not update element', async () => {
+        await waitFor(() => {
             expect(namespace.searchBarComponent.isServerRendered).toBe(true);
             expect(namespace.searchBarComponentVM.searching).toBe(false);
-            expect($('.spinner--search').is(':visible')).toBe(true);
-            done();
-        }, 300);
+            expect(document.querySelector('.spinner--search').style.display !== 'none').toBe(true);
+        }, { timeout: 500 });
     });
 
-    it('When change #searchWord input value to "Handyman" viewModel onSearchWordChange should have been called', (done) => {
+    it('When change #searchWord input value to "Handyman" viewModel onSearchWordChange should have been called', async () => {
         const newSearchWord = 'Handyman';
-        setTimeout(function() {
+
+        await waitFor(() => {
             const $searchInput = document.getElementById('searchWord');
-            const evt = document.createEvent('HTMLEvents');
-            evt.initEvent('change', true, true);
+            expect($searchInput).not.toBeNull();
+        }, { timeout: 500 });
 
-            $searchInput.value = newSearchWord;
-            $searchInput.dispatchEvent(evt);
+        const $searchInput = document.getElementById('searchWord');
+        const evt = document.createEvent('HTMLEvents');
+        evt.initEvent('change', true, true);
 
+        $searchInput.value = newSearchWord;
+        $searchInput.dispatchEvent(evt);
+
+        await waitFor(() => {
             expect(namespace.searchBarComponentVM.onSearchWordChange).toHaveBeenCalled();
             expect(namespace.searchBarComponentVM.searchWord).toEqual(newSearchWord);
-            namespace.searchBarComponentVM.onSearchWordChange.calls.reset();
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('When change #location input value to "Melbourne" viewModel onSearchLocationChange should have been called', (done) => {
+    it('When change #location input value to "Melbourne" viewModel onSearchLocationChange should have been called', async () => {
         const newLocation = 'Melbourne';
-        setTimeout(function() {
+
+        await waitFor(() => {
             const $locationInput = document.getElementById('location');
-            const evt = document.createEvent('HTMLEvents');
-            evt.initEvent('change', true, true);
+            expect($locationInput).not.toBeNull();
+        }, { timeout: 500 });
 
-            $locationInput.value = newLocation;
-            $locationInput.dispatchEvent(evt);
+        const $locationInput = document.getElementById('location');
+        const evt = document.createEvent('HTMLEvents');
+        evt.initEvent('change', true, true);
 
+        $locationInput.value = newLocation;
+        $locationInput.dispatchEvent(evt);
+
+        await waitFor(() => {
             expect(namespace.searchBarComponentVM.onSearchLocationChange).toHaveBeenCalled();
             expect(namespace.searchBarComponentVM.searchLocation).toEqual(newLocation);
-            namespace.searchBarComponentVM.onSearchLocationChange.calls.reset();
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('When [data-bind-comp="search-bar"] was server rendered "data-server-rendered" attribute should have removed', (done) => {
-        setTimeout(function() {
-            expect($('[data-bind-comp="search-bar"]').attr('data-server-rendered')).not.toBeDefined();
-            done();
-        }, 200);
+    it('When [data-bind-comp="search-bar"] was server rendered "data-server-rendered" attribute should have removed', async () => {
+        await waitFor(() => {
+            const searchBar = document.querySelector('[data-bind-comp="search-bar"]');
+            expect(searchBar.getAttribute('data-server-rendered')).toBeNull();
+        }, { timeout: 500 });
     });
 });

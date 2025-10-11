@@ -1,11 +1,12 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { waitFor } from '@testing-library/dom';
+
 /* eslint-disable max-len */
 describe('Given [data-bind-comp="filter-component"] inited', () => {
     const namespace = {};
 
-    jasmine.getFixtures().fixturesPath = 'test';
-
-    beforeEach(function(done) {
-        loadFixtures('./fixtures/filters.html');
+    beforeEach(async () => {
+        loadFixture('test/fixtures/filters.html');
 
         namespace.viewModel = {
             renderIntro: false,
@@ -32,13 +33,13 @@ describe('Given [data-bind-comp="filter-component"] inited', () => {
         };
 
         namespace.filterComponent = dataBind.init(document.querySelector('[data-bind-comp="filter-component"]'), namespace.viewModel);
-        namespace.filterComponent.render().then(() => done());
+        await namespace.filterComponent.render();
     });
 
     afterEach(() => {
         // clean up all app/components
         for (const prop in namespace) {
-            if (namespace.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(namespace, prop)) {
                 delete namespace[prop];
             }
         }
@@ -53,15 +54,14 @@ describe('Given [data-bind-comp="filter-component"] inited', () => {
         expect($story.firstElementChild).not.toBe(null);
     });
 
-    it('Should render intro but not story section after update viewModel', (done) => {
+    it('Should render intro but not story section after update viewModel', async () => {
         namespace.filterComponent.viewModel.renderIntro = true;
-        namespace.filterComponent.viewModel.updateView().then(() => {
-            const $intro = document.getElementById('intro');
-            const $story = document.getElementById('story');
-            expect($intro).toBe(null);
-            expect($story).toBe(null);
-            done();
-        });
+        await namespace.filterComponent.viewModel.updateView();
+
+        const $intro = document.getElementById('intro');
+        const $story = document.getElementById('story');
+        expect($intro).toBe(null);
+        expect($story).toBe(null);
     });
 
     it('Should render story and stroyPrice pass through filters | toDiscount | addGst', () => {

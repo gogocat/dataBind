@@ -1,0 +1,200 @@
+
+> @gogocat/data-bind@1.12.0 test
+> vitest run
+
+
+ RUN  v2.1.9 /Users/adamchow/My-workspace/dataBind
+
+ ❯ test/specs/switchBinding.spec.js (0 test)
+ ❯ test/specs/ifBinding.spec.js (0 test)
+ ❯ test/specs/nestedComponent.spec.js (0 test)
+ ❯ test/specs/templateBinding.spec.js (0 test)
+ ❯ test/specs/showBinding.spec.js (0 test)
+stderr | test/specs/forOfBinding.spec.js > When search-results-component with forOf binding inited > Then [data-bind-comp="search-results-component"] should have render
+error in rendering:  TypeError: __vite_ssr_import_1__.default is not a function
+    at /Users/adamchow/My-workspace/dataBind/src/renderTemplatesBinding.js:33:25
+    at Array.forEach (<anonymous>)
+    at Module.renderTemplatesBinding [as default] (/Users/adamchow/My-workspace/dataBind/src/renderTemplatesBinding.js:32:40)
+    at Binder.render (/Users/adamchow/My-workspace/dataBind/src/binder.js:141:31)
+    at Timeout._onTimeout (/Users/adamchow/My-workspace/dataBind/src/util.js:365:24)
+    at listOnTimeout (node:internal/timers:594:17)
+    at processTimers (node:internal/timers:529:7)
+
+ ✓ test/specs/attrBinding.spec.js (5 tests) 107ms
+ ❯ test/specs/dataBindBootstrap.spec.js (5 tests | 5 failed) 75ms
+   × Given dataBindBootstrp initised > Then [data-bind-comp="search-bar"] should has bond with namespace.searchBarComponentVM 44ms
+     → spyOn is not defined
+     → Cannot read properties of undefined (reading 'hasOwnProperty')
+   × Given dataBindBootstrp initised > When [data-bind-comp="search-bar"] was server rendered then show binding should not update element 8ms
+     → spyOn is not defined
+     → Cannot read properties of undefined (reading 'hasOwnProperty')
+   × Given dataBindBootstrp initised > When change #searchWord input value to "Handyman" viewModel onSearchWordChange should have been called 6ms
+     → spyOn is not defined
+     → Cannot read properties of undefined (reading 'hasOwnProperty')
+   × Given dataBindBootstrp initised > When change #location input value to "Melbourne" viewModel onSearchLocationChange should have been called 10ms
+     → spyOn is not defined
+     → Cannot read properties of undefined (reading 'hasOwnProperty')
+   × Given dataBindBootstrp initised > When [data-bind-comp="search-bar"] was server rendered "data-server-rendered" attribute should have removed 6ms
+     → spyOn is not defined
+     → Cannot read properties of undefined (reading 'hasOwnProperty')
+stderr | test/specs/dataBindBootstrap.spec.js
+error in rendering:  TypeError: __vite_ssr_import_1__.default is not a function
+    at /Users/adamchow/My-workspace/dataBind/src/renderTemplatesBinding.js:33:25
+    at Array.forEach (<anonymous>)
+    at Module.renderTemplatesBinding [as default] (/Users/adamchow/My-workspace/dataBind/src/renderTemplatesBinding.js:32:40)
+    at Binder.render (/Users/adamchow/My-workspace/dataBind/src/binder.js:141:31)
+    at Timeout._onTimeout (/Users/adamchow/My-workspace/dataBind/src/util.js:365:24)
+    at listOnTimeout (node:internal/timers:594:17)
+    at processTimers (node:internal/timers:529:7)
+error in rendering:  TypeError: __vite_ssr_import_1__.default is not a function
+    at /Users/adamchow/My-workspace/dataBind/src/renderTemplatesBinding.js:33:25
+    at Array.forEach (<anonymous>)
+    at Module.renderTemplatesBinding [as default] (/Users/adamchow/My-workspace/dataBind/src/renderTemplatesBinding.js:32:40)
+    at Binder.render (/Users/adamchow/My-workspace/dataBind/src/binder.js:141:31)
+    at Timeout._onTimeout (/Users/adamchow/My-workspace/dataBind/src/util.js:365:24)
+    at listOnTimeout (node:internal/timers:594:17)
+    at processTimers (node:internal/timers:529:7)
+error in rendering:  TypeError: __vite_ssr_import_1__.default is not a function
+    at /Users/adamchow/My-workspace/dataBind/src/renderTemplatesBinding.js:33:25
+    at Array.forEach (<anonymous>)
+    at Module.renderTemplatesBinding [as default] (/Users/adamchow/My-workspace/dataBind/src/renderTemplatesBinding.js:32:40)
+    at Binder.render (/Users/adamchow/My-workspace/dataBind/src/binder.js:141:31)
+    at Timeout._onTimeout (/Users/adamchow/My-workspace/dataBind/src/util.js:365:24)
+    at listOnTimeout (node:internal/timers:594:17)
+    at processTimers (node:internal/timers:529:7)
+
+stderr | Timeout._onTimeout (/Users/adamchow/My-workspace/dataBind/src/util.js:370:29)
+error in rendering:  TypeError: __vite_ssr_import_1__.default is not a function
+    at /Users/adamchow/My-workspace/dataBind/src/renderTemplatesBinding.js:33:25
+    at Array.forEach (<anonymous>)
+    at Module.renderTemplatesBinding [as default] (/Users/adamchow/My-workspace/dataBind/src/renderTemplatesBinding.js:32:40)
+    at Binder.render (/Users/adamchow/My-workspace/dataBind/src/binder.js:141:31)
+    at Timeout._onTimeout (/Users/adamchow/My-workspace/dataBind/src/util.js:365:24)
+    at listOnTimeout (node:internal/timers:594:17)
+    at processTimers (node:internal/timers:529:7)
+error in rendering:  TypeError: __vite_ssr_import_1__.default is not a function
+    at /Users/adamchow/My-workspace/dataBind/src/renderTemplatesBinding.js:33:25
+    at Array.forEach (<anonymous>)
+    at Module.renderTemplatesBinding [as default] (/Users/adamchow/My-workspace/dataBind/src/renderTemplatesBinding.js:32:40)
+    at Binder.render (/Users/adamchow/My-workspace/dataBind/src/binder.js:141:31)
+    at Timeout._onTimeout (/Users/adamchow/My-workspace/dataBind/src/util.js:365:24)
+    at listOnTimeout (node:internal/timers:594:17)
+    at processTimers (node:internal/timers:529:7)
+
+ ✓ test/specs/binder.spec.js (5 tests) 4ms
+ ❯ test/specs/filter.spec.js (3 tests | 3 failed) 18ms
+   × Given [data-bind-comp="filter-component"] inited > Then [data-bind-comp="filter-component"] should render story with once filter and not intro 15ms
+     → expected <div id="intro" …(2)>…(2)</div> to be null // Object.is equality
+     → Cannot read properties of undefined (reading 'hasOwnProperty')
+   × Given [data-bind-comp="filter-component"] inited > Should render intro but not story section after update viewModel 2ms
+     → Cannot read properties of undefined (reading 'hasOwnProperty')
+   × Given [data-bind-comp="filter-component"] inited > Should render story and stroyPrice pass through filters | toDiscount | addGst 1ms
+     → Cannot read properties of null (reading 'textContent')
+     → Cannot read properties of undefined (reading 'hasOwnProperty')
+ ❯ test/specs/blurBinding.spec.js (2 tests | 2 failed) 33ms
+   × Given [data-bind-comp="blur-component"] initised > should render heading defined in viewModel 30ms
+     → Cannot read properties of undefined (reading 'hasOwnProperty')
+   × Given [data-bind-comp="blur-component"] initised > should update "blurInput" value after onBlur 2ms
+     → Cannot read properties of undefined (reading 'hasOwnProperty')
+ ✓ test/specs/textBinding.spec.js (1 test) 25ms
+ ❯ test/specs/forOfBinding.spec.js (4 tests | 1 failed) 532ms
+   × When search-results-component with forOf binding inited > Then [data-bind-comp="search-results-component"] should have render 525ms
+     → expected '' to be 'Featured service providers' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"container"[39m
+    [36m>[39m
+      [0m
+    [0m
+      [36m<h5>[39m
+        [0mFor of binding complex demo[0m
+      [36m</h5>[39m
+      [0m
+    [0m
+      [36m<div[39m
+        [33mclass[39m=[32m"container search-result"[39m
+        [33mdata-bind-comp[39m=[32m"search-results-component"[39m
+      [36m>[39m
+        [0m
+        [0m
+        [36m<h4[39m
+          [33mclass[39m=[32m"text-center section-title"[39m
+          [33mdata-bind-text[39m=[32m"searchResultTitle"[39m
+          [33mid[39m=[32m"searchResultTitle"[39m
+        [36m/>[39m
+        [0m
+        [0m
+        [36m<div[39m
+          [33mclass[39m=[32m"card-columns"[39m
+          [33mdata-bind-tmp[39m=[32m"{id: 'searchResultItem', data: 'searchResults'}"[39m
+          [33mid[39m=[32m"search-result-columns"[39m
+        [36m>[39m
+          [0m
+    [0m
+          [36m<div[39m
+            [33mclass[39m=[32m"card result-item"[39m
+            [33mdata-bind-css[39m=[32m"result.highlightCss"[39m
+            [33mdata-bind-for[39m=[32m"result in searchResults"[39m
+          [36m>[39m
+            [0m
+        [0m
+            [36m<img[39m
+              [33mclass[39m=[32m"card-img-top result-item__img"[39m
+              [33mdata-bind-attr[39m=[32m"$root.getResultItemAttr($index)"[39m
+            [36m/>[39m
+            [0m
+        [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"card-body"[39m
+              [33mdata-bind-tmp[39m=[32m"{id: 'searchResultItemBody', data: 'result'}"[39m
+            [36m/>[39m
+            [0m
+        [0m
+            [36m<div[39m
+              [33mdata-bind-tmp[39m=[32m"{id: 'searchResultItemFooter', data: 'result'}"[39m
+            [36m/>[39m
+            [0m
+    [0m
+          [36m</div>[39m
+          [0m
+[0m
+        [36m</div>[39m
+        [0m
+    [0m
+      [36m</div>[39m
+      [0m
+[0m
+    [36m</div>[39m
+    [0m
+
+[0m
+    [0m
+[0m
+    [36m<template[39m
+      [33mid[39m=[32m"searchResultItem"[39m
+    [36m/>[39m
+    [0m
+
+[0m
+    [36m<template[39m
+      [33mid[39m=[32m"searchResultItemBody"[39m
+    [36m/>[39m
+    [0m
+
+[0m
+    [36m<template[39m
+      [33mid[39m=[32m"searchResultItemFooter"[39m
+    [36m/>[39m
+    [0m
+
+[0m
+    [36m<template[39m
+      [33mid[39m=[32m"searchResultItemBookMark"[39m
+    [36m/>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ test/specs/cssBinding.spec.js (3 tests | 3 failed) 543ms

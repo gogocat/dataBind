@@ -1,11 +1,12 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { waitFor } from '@testing-library/dom';
+
 describe('Given [data-bind-comp="blur-component"] initised', () => {
     const namespace = {};
     const testBlurValue = 'onBlur called';
 
-    jasmine.getFixtures().fixturesPath = 'test';
-
-    beforeEach(() => {
-        loadFixtures('./fixtures/blurBinding.html');
+        beforeEach(async () => {
+        loadFixture('test/fixtures/blurBinding.html');
 
         namespace.viewModel = {
             heading: 'blur component test',
@@ -21,37 +22,39 @@ describe('Given [data-bind-comp="blur-component"] initised', () => {
         };
 
         namespace.blurComponent = dataBind.init(document.querySelector('[data-bind-comp="blur-component"]'), namespace.viewModel);
-        namespace.blurComponent.render();
+        await namespace.blurComponent.render();
     });
 
     afterEach(() => {
         // clean up app
         // clean up all app/components
         for (const prop in namespace) {
-            if (namespace.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(namespace, prop)) {
                 delete namespace[prop];
             }
         }
     });
 
-    it('should render heading defined in viewModel', (done) => {
-        setTimeout(() => {
+    it('should render heading defined in viewModel', async () => {
+        await waitFor(() => {
             expect(document.getElementById('heading').textContent).toBe(namespace.viewModel.heading);
             expect(document.getElementById('blurInput').value).toBe(namespace.viewModel.myData);
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('should update "blurInput" value after onBlur', (done) => {
-        const $blurInput = document.getElementById('blurInput');
-        setTimeout(() => {
-            $blurInput.focus();
-            $blurInput.blur();
+    it('should update "blurInput" value after onBlur', async () => {
+        await waitFor(() => {
+            const $blurInput = document.getElementById('blurInput');
+            expect($blurInput).not.toBeNull();
+        }, { timeout: 500 });
 
-            setTimeout(() => {
-                expect($blurInput.value).toBe(testBlurValue);
-                done();
-            }, 200);
-        }, 200);
+        const $blurInput = document.getElementById('blurInput');
+
+        // Use the test helper to simulate blur event
+        simulateBlur($blurInput);
+
+        await waitFor(() => {
+            expect($blurInput.value).toBe(testBlurValue);
+        }, { timeout: 500 });
     });
 });

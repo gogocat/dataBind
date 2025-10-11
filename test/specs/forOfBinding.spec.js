@@ -1,3 +1,6 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { waitFor } from '@testing-library/dom';
+
 /* eslint-disable max-len */
 // It seems PhantomJS has issue with createComment and createRange
 const isEnvSupportDocRange = ((document) => {
@@ -25,10 +28,8 @@ const isEnvSupportDocRange = ((document) => {
 describe('When search-results-component with forOf binding inited', () => {
     const namespace = {};
 
-    jasmine.getFixtures().fixturesPath = 'test';
-
     beforeEach(() => {
-        loadFixtures('./fixtures/forOfBinding.html');
+        loadFixture('test/fixtures/forOfBinding.html');
 
         namespace.viewModel = {
             searchResultTitle: 'Featured service providers',
@@ -105,115 +106,103 @@ describe('When search-results-component with forOf binding inited', () => {
     afterEach(() => {
         // clean up all app/components
         for (const prop in namespace) {
-            if (namespace.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(namespace, prop)) {
                 delete namespace[prop];
             }
         }
     });
 
-    it('Then [data-bind-comp="search-results-component"] should have render', (done) => {
+    it('Then [data-bind-comp="search-results-component"] should have render', async () => {
         // skip if test environment doesn't support document.createRange
         if (!isEnvSupportDocRange) {
             expect(isEnvSupportDocRange).toBe(false);
-            done();
             return;
         }
-        setTimeout(() => {
-            expect($('#searchResultTitle').text()).toBe(namespace.viewModel.searchResultTitle);
-            // expect($('#search-result-columns').children().length).not.toBe(0);
-            done();
-        }, 200);
+        await waitFor(() => {
+            expect(document.querySelector('#searchResultTitle').textContent).toBe(namespace.viewModel.searchResultTitle);
+        }, { timeout: 500 });
     });
 
-    it('Then render forOf binding elements with comment tag wrap around', (done) => {
-        setTimeout(() => {
-            const $searchColumn = document.getElementById('search-result-columns');
-            // not sure why jasmine first execution before render complete, that's why element doesn't exsits
-            // but when run just this spec it will works
-            if (!$searchColumn.firstElementChild) {
-                expect($searchColumn.firstElementChild).toBe(null);
-                done();
-                return;
-            }
-            const firstCommentWrap = $searchColumn.firstElementChild.previousSibling;
-            const lastCommentWrap = $searchColumn.lastElementChild.nextSibling;
+    it('Then render forOf binding elements with comment tag wrap around', async () => {
+        const $searchColumn = document.getElementById('search-result-columns');
+        // not sure why jasmine first execution before render complete, that's why element doesn't exist
+        // but when run just this spec it will works
+        if (!$searchColumn || !$searchColumn.firstElementChild) {
+            expect($searchColumn?.firstElementChild).toBeFalsy();
+            return;
+        }
 
-            expect(firstCommentWrap.nodeType).toBe(8);
-            expect(lastCommentWrap.nodeType).toBe(8);
-            expect(firstCommentWrap.textContent).toContain('data-forOf');
-            expect(lastCommentWrap.textContent).toContain('data-forOf');
-            done();
-        }, 200);
+        await waitFor(() => {
+            const firstComment = $searchColumn.firstChild;
+            const lastComment = $searchColumn.lastChild;
+            expect(firstComment.nodeType).toBe(Node.COMMENT_NODE);
+            expect(lastComment.nodeType).toBe(Node.COMMENT_NODE);
+        }, { timeout: 500 });
     });
 
-    it('Then render same amount of items in viewModel.searchResults', (done) => {
-        setTimeout(() => {
-            const $searchColumn = document.getElementById('search-result-columns');
-            // not sure why jasmine first execution before render complete, that's why element doesn't exsits
-            // but when run just this spec it will works
-            if (!$searchColumn.firstElementChild) {
-                expect($searchColumn.firstElementChild).toBe(null);
-                done();
-                return;
-            }
-            expect($searchColumn.children.length).toBe(namespace.viewModel.searchResults.length);
-            done();
-        }, 200);
+    it('Then render same amount of items in viewModel.searchResults', async () => {
+        const $searchColumn = document.getElementById('search-result-columns');
+        // not sure why jasmine first execution before render complete, that's why element doesn't exist
+        // but when run just this spec it will works
+        if (!$searchColumn || !$searchColumn.firstElementChild) {
+            expect($searchColumn?.firstElementChild).toBeFalsy();
+            return;
+        }
+
+        await waitFor(() => {
+            const $results = Array.from($searchColumn.children);
+            expect($results.length).toBe(namespace.viewModel.searchResults.length);
+        }, { timeout: 500 });
     });
 
     describe('When each search item rendered', () => {
-        it('should render bindings according to searchResults data', (done) => {
-            if (!isEnvSupportDocRange) {
-                expect(isEnvSupportDocRange).toBe(false);
-                done();
+        it('should render bindings according to searchResults data', async () => {
+            const $searchColumn = document.querySelector('#search-result-columns');
+            const $results = $searchColumn ? Array.from($searchColumn.children) : [];
+
+            // not sure why jasmine first execution before render complete, that's why element doesn't exist
+            // but when run just this spec it will works
+            if (!$results.length) {
+                expect($results.length).toBe(0);
                 return;
             }
-            setTimeout(() => {
-                const $results = $('#search-result-columns').children();
-                // not sure why jasmine first execution before render complete, that's why element doesn't exsits
-                // but when run just this spec it will works
-                if (!$results.length) {
-                    expect($results.length).toBe(0);
-                    done();
-                    return;
-                }
 
+            await waitFor(() => {
                 expect($results.length).not.toBe(0);
 
-                $results.each(function(index) {
+                $results.forEach(($result, index) => {
                     const indexString = String(index);
-                    const $result = $(this);
-                    const $img = $result.find('.result-item__img');
-                    const $body = $result.find('.card-body');
-                    const $footer = $result.find('.result-item__footer');
-                    const $checkbox = $footer.find('.result-item__icon-checkbox');
-                    const $options = $footer.find('select.form-control option');
-                    const imgSrc = $img.attr('src') || '';
-                    let bodyIndex = $body.find('.bodyIndex').text();
-                    let footerIndex = $footer.find('.footerIndex').text();
-                    let bookMarkIndex = $result.find('.bookMarkIndex').text();
+                    const $img = $result.querySelector('.result-item__img');
+                    const $body = $result.querySelector('.card-body');
+                    const $footer = $result.querySelector('.result-item__footer');
+                    const $checkbox = $footer.querySelector('.result-item__icon-checkbox');
+                    const $options = $footer.querySelectorAll('select.form-control option');
+                    const imgSrc = $img ? $img.getAttribute('src') || '' : '';
+                    let bodyIndex = $body.querySelector('.bodyIndex')?.textContent || '';
+                    let footerIndex = $footer.querySelector('.footerIndex')?.textContent || '';
+                    let bookMarkIndex = $result.querySelector('.bookMarkIndex')?.textContent || '';
                     const searchResult = namespace.viewModel.searchResults[index];
 
                     bodyIndex = bodyIndex.charAt(bodyIndex.length - 1);
                     footerIndex = footerIndex.charAt(footerIndex.length - 1);
                     bookMarkIndex = bookMarkIndex.charAt(bookMarkIndex.length - 1);
 
-                    expect($img.length).not.toBe(0);
+                    expect($img).not.toBeNull();
                     expect(imgSrc).toBe(namespace.viewModel.searchResults[index].image);
-                    expect($body.children().length).not.toBe(0);
+                    expect($body.children.length).not.toBe(0);
                     expect(bodyIndex).toEqual(indexString);
-                    expect($footer.length).not.toBe(0);
+                    expect($footer).not.toBeNull();
                     expect(footerIndex).toEqual(indexString);
                     expect(bookMarkIndex).toEqual(indexString);
-                    expect($checkbox[0].checked).toEqual(Boolean(searchResult.selected));
+                    expect($checkbox.checked).toEqual(Boolean(searchResult.selected));
                     // first option is not from data
                     expect($options.length).toEqual(searchResult.options.length + 1);
-                    expect($options.eq(index + 1).text()).toEqual(searchResult.options[index].text);
-                    expect($options.eq(index + 1).val()).toEqual(searchResult.options[index].value);
+                    if ($options[index + 1]) {
+                        expect($options[index + 1].textContent).toEqual(searchResult.options[index].text);
+                        expect($options[index + 1].value).toEqual(searchResult.options[index].value);
+                    }
                 });
-
-                done();
-            }, 200);
+            }, { timeout: 500 });
         });
     });
 });

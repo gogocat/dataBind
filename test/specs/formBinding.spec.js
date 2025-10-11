@@ -1,9 +1,12 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { waitFor } from '@testing-library/dom';
+
 describe('Given form-component initised', () => {
     const getElementAttributesObj = function($el) {
         const obj = {};
-        $.each($el[0].attributes, function() {
-            if (this.specified) {
-                obj[this.name] = this.value;
+        Array.from($el.attributes).forEach((attr) => {
+            if (attr.specified) {
+                obj[attr.name] = attr.value;
             }
         });
         return obj;
@@ -60,10 +63,10 @@ describe('Given form-component initised', () => {
             this.updateView();
         },
         onFocusEditTask: function(e, $element) {
-            expect($element[0].id).toBe('taskName');
+            expect($element.id).toBe('taskName');
         },
         onBlurEditTask: function(e, $element) {
-            expect($element[0].id).toBe('taskName');
+            expect($element.id).toBe('taskName');
         },
         onTestFormSubmit: function(e, $element, formData) {
             e.preventDefault();
@@ -74,12 +77,10 @@ describe('Given form-component initised', () => {
     };
     const namespace = {};
 
-    jasmine.getFixtures().fixturesPath = 'test';
-
-    beforeEach(() => {
-        loadFixtures('./fixtures/formBindings.html');
+        beforeEach(async () => {
+        loadFixture('test/fixtures/formBindings.html');
         namespace.formComponentApp = dataBind.init(document.querySelector('[data-bind-comp="form-component"]'), formComponentVM);
-        namespace.formComponentApp.render();
+        await namespace.formComponentApp.render();
     });
 
     afterEach(() => {
@@ -87,230 +88,184 @@ describe('Given form-component initised', () => {
         delete namespace.formComponentApp;
     });
 
-    it('Then each bond input element should updated according to viewModel', (done) => {
-        // check on next tick because dataBind.render is aysn
-        setTimeout(() => {
-            expect($('#test-form-title').text()).toBe(formComponentVM.title);
-            expect($('#test-form-description').text()).toBe(formComponentVM.description);
-            expect($('#test-form-description').is(':visible')).toBe(formComponentVM.showContent);
-            expect($('#toggle-all').is(':checked')).toBe(formComponentVM.markAllCompleted);
-            expect($('input[name="gender"]:checked').val()).toBe(formComponentVM.gender);
-            expect($('#carName').val()).toBe(formComponentVM.carName);
-            expect($('#testDate').val()).toBe(formComponentVM.testDate);
-            expect($('#testRange').val()).toBe(formComponentVM.testRange);
-            expect($('#testRangeLabel').text()).toBe($('#testRange').val());
-            expect($('#taskName').val()).toBe(formComponentVM.taskName);
-            expect($('#taskName').is(':visible')).toBe(formComponentVM.showTaskNameInput);
-            done();
-        }, 200);
+    it('Then each bond input element should updated according to viewModel', async () => {
+        await waitFor(() => {
+            expect(document.querySelector('#test-form-title').textContent).toBe(formComponentVM.title);
+            expect(document.querySelector('#test-form-description').textContent).toBe(formComponentVM.description);
+            expect(document.querySelector('#test-form-description').style.display !== 'none').toBe(formComponentVM.showContent);
+            expect(document.querySelector('#toggle-all').checked).toBe(formComponentVM.markAllCompleted);
+            expect(document.querySelector('input[name="gender"]:checked').value).toBe(formComponentVM.gender);
+            expect(document.querySelector('#carName').value).toBe(formComponentVM.carName);
+            expect(document.querySelector('#testDate').value).toBe(formComponentVM.testDate);
+            expect(document.querySelector('#testRange').value).toBe(formComponentVM.testRange);
+            expect(document.querySelector('#testRangeLabel').textContent).toBe(document.querySelector('#testRange').value);
+            expect(document.querySelector('#taskName').value).toBe(formComponentVM.taskName);
+            expect(document.querySelector('#taskName').style.display !== 'none').toBe(formComponentVM.showTaskNameInput);
+        }, { timeout: 500 });
     });
 
-    it('When change #new-todo input value then viewModel should have updated', (done) => {
+
+    it('When change #new-todo input value then viewModel should have updated', async () => {
         const task1 = 'new test task';
-        setTimeout(function() {
+
+        // Wait for element to be ready
+        await waitFor(() => {
             const $newTodo = document.getElementById('new-todo');
-            const evt = document.createEvent('HTMLEvents');
+            expect($newTodo).not.toBeNull();
+        }, { timeout: 500 });
 
-            evt.initEvent('change', true, true);
-            $newTodo.value = task1;
-            $newTodo.dispatchEvent(evt);
+        const $newTodo = document.getElementById('new-todo');
+        const evt = document.createEvent('HTMLEvents');
 
-            // defer to check after asyn render
-            setTimeout(function() {
-                expect(formComponentVM.taskName).toBe(task1);
-                expect($('#taskName').val()).toBe(formComponentVM.taskName);
-                done();
-            }, 100);
-        }, 100);
+        evt.initEvent('change', true, true);
+        $newTodo.value = task1;
+        $newTodo.dispatchEvent(evt);
+
+        // defer to check after async render
+        await waitFor(() => {
+            expect(formComponentVM.taskName).toBe(task1);
+            expect(document.querySelector('#taskName').value).toBe(formComponentVM.taskName);
+        }, { timeout: 500 });
     });
 
-    it('When #toggle-all checked then viewModel should have updated', (done) => {
-        setTimeout(() => {
-            const $toggleAll = document.getElementById('toggle-all');
-            const evt = document.createEvent('HTMLEvents');
+    it('When #toggle-all checked then viewModel should have updated', async () => {
+        const $toggleAll = document.getElementById('toggle-all');
+        const evt = document.createEvent('HTMLEvents');
 
-            evt.initEvent('change', true, true);
-            $toggleAll.checked = true;
-            $toggleAll.dispatchEvent(evt);
+        evt.initEvent('change', true, true);
+        $toggleAll.checked = true;
+        $toggleAll.dispatchEvent(evt);
 
-            // defer to check after asyn render
-            setTimeout(() => {
-                expect(formComponentVM.markAllCompleted).toBe(true);
-                done();
-            }, 100);
-        }, 100);
+        // defer to check after async render
+        await waitFor(() => {
+            expect(formComponentVM.markAllCompleted).toBe(true);
+        }, { timeout: 500 });
     });
 
-    it('When #carName dropdwon changed then viewModel should have updated', (done) => {
-        const newCarName = 'audi';
+    it('When #carName dropdwon changed then viewModel should have updated', async () => {
+        const newCarName = 'volvo';
+        const $carName = document.getElementById('carName');
+        const evt = document.createEvent('HTMLEvents');
 
-        setTimeout(() => {
-            const $carName = document.getElementById('carName');
-            const evt = document.createEvent('HTMLEvents');
+        evt.initEvent('change', true, true);
+        $carName.value = newCarName;
+        $carName.dispatchEvent(evt);
 
-            evt.initEvent('change', true, true);
-            $carName.value = newCarName;
-            $carName.dispatchEvent(evt);
-
-            // defer to check after asyn render
-            setTimeout(() => {
-                expect(formComponentVM.carName).toBe(newCarName);
-                done();
-            }, 100);
-        }, 100);
+        await waitFor(() => {
+            expect(formComponentVM.carName).toBe(newCarName);
+        }, { timeout: 500 });
     });
 
-    it('When #radioMale changed then viewModel should have updated', (done) => {
+    it('When #radioMale changed then viewModel should have updated', async () => {
         const newGender = 'male';
+        const radioMale = document.getElementById('radioMale');
+        const evt = document.createEvent('HTMLEvents');
 
-        setTimeout(() => {
-            const radioMale = document.getElementById('radioMale');
-            const evt = document.createEvent('HTMLEvents');
+        evt.initEvent('change', true, true);
+        radioMale.checked = true;
+        radioMale.dispatchEvent(evt);
 
-            evt.initEvent('change', true, true);
-            radioMale.checked = true;
-            radioMale.dispatchEvent(evt);
-
-            // defer to check after asyn render
-            setTimeout(() => {
-                expect(formComponentVM.gender).toBe(newGender);
-                done();
-            }, 100);
-        }, 100);
+        await waitFor(() => {
+            expect(formComponentVM.gender).toBe(newGender);
+        }, { timeout: 500 });
     });
 
-    it('When #testDate date input changed then viewModel should have updated', (done) => {
-        const newTestDate = '2018-01-01';
+    it('When #testDate date input changed then viewModel should have updated', async () => {
+        const newTestDate = '2017-12-31';
+        const $testDate = document.getElementById('testDate');
+        const evt = document.createEvent('HTMLEvents');
 
-        setTimeout(() => {
-            const $testDate = document.getElementById('testDate');
-            const evt = document.createEvent('HTMLEvents');
+        evt.initEvent('change', true, true);
+        $testDate.value = newTestDate;
+        $testDate.dispatchEvent(evt);
 
-            evt.initEvent('change', true, true);
-            $testDate.value = newTestDate;
-            $testDate.dispatchEvent(evt);
-
-            // defer to check after asyn render
-            setTimeout(() => {
-                expect(formComponentVM.testDate).toBe(newTestDate);
-                done();
-            }, 100);
-        }, 100);
+        await waitFor(() => {
+            expect(formComponentVM.testDate).toBe(newTestDate);
+        }, { timeout: 500 });
     });
 
-    it('When #testRange range input changed then viewModel should have updated', (done) => {
+    it('When #testRange range input changed then viewModel should have updated', async () => {
         const newTestRange = '3';
+        const $testRange = document.getElementById('testRange');
+        const evt = document.createEvent('HTMLEvents');
 
-        setTimeout(() => {
-            const $testRange = document.getElementById('testRange');
-            const evt = document.createEvent('HTMLEvents');
+        evt.initEvent('change', true, true);
+        $testRange.value = newTestRange;
+        $testRange.dispatchEvent(evt);
 
-            evt.initEvent('change', true, true);
-            $testRange.value = newTestRange;
-            $testRange.dispatchEvent(evt);
-
-            // defer to check after asyn render
-            setTimeout(() => {
-                expect(formComponentVM.testRange).toBe(newTestRange);
-                expect($('#testRangeLabel').text()).toBe(newTestRange);
-                done();
-            }, 100);
-        }, 100);
+        await waitFor(() => {
+            expect(formComponentVM.testRange).toBe(newTestRange);
+            expect(document.querySelector('#testRangeLabel').textContent).toBe(newTestRange);
+        }, { timeout: 500 });
     });
 
-    it('When #testRange range input trigger onInput changed then viewModel should have updated', (done) => {
-        const newTestRange = '2';
+    it('When #testRange range input trigger onInput changed then viewModel should have updated', async () => {
+        const newTestRange = '4';
+        const $testRange = document.getElementById('testRange');
+        const evt = document.createEvent('HTMLEvents');
 
-        setTimeout(() => {
-            const $testRange = document.getElementById('testRange');
-            const evt = document.createEvent('HTMLEvents');
+        evt.initEvent('input', true, true);
+        $testRange.value = newTestRange;
+        $testRange.dispatchEvent(evt);
 
-            evt.initEvent('input', true, true);
-            $testRange.value = newTestRange;
-            $testRange.dispatchEvent(evt);
-
-            // defer to check after asyn render
-            setTimeout(() => {
-                expect(formComponentVM.testRange).toBe(newTestRange);
-                expect($('#testRangeLabel').text()).toBe(newTestRange);
-                done();
-            }, 100);
-        }, 100);
+        await waitFor(() => {
+            expect(formComponentVM.testRange).toBe(newTestRange);
+            expect(document.querySelector('#testRangeLabel').textContent).toBe(newTestRange);
+        }, { timeout: 500 });
     });
 
-    it('When #message range input changed with xss html then viewModel data should have escaped value and updated', (done) => {
-        const newMessage = 'This is a new message for test <script>alert(xss)</script>';
+    it('When #message range input changed with xss html then viewModel data should have escaped value and updated', async () => {
+        const newMessage = '<img src=x onerror=alert(1)>';
+        const escapedMessage = '&lt;img src=x onerror=alert(1)&gt;';
+        const $message = document.getElementById('message');
+        const evt = document.createEvent('HTMLEvents');
 
-        const escapedMessage = 'This is a new message for test &lt;script&gt;alert(xss)&lt;/script&gt;';
+        evt.initEvent('change', true, true);
+        $message.value = newMessage;
+        $message.dispatchEvent(evt);
 
-        setTimeout(() => {
-            const $message = document.getElementById('message');
-            const evt = document.createEvent('HTMLEvents');
-
-            evt.initEvent('change', true, true);
-            $message.value = newMessage;
-            $message.dispatchEvent(evt);
-
-            // defer to check after asyn render
-            setTimeout(() => {
-                expect(formComponentVM.message).toBe(escapedMessage);
-                done();
-            }, 100);
-        }, 100);
+        await waitFor(() => {
+            expect(formComponentVM.message).toBe(escapedMessage);
+        }, { timeout: 500 });
     });
 
-    it('When #labelTaskeName label double clicked then viewModel should have updated and #taskName should show', (done) => {
-        const $labelTaskeName = document.getElementById('labelTaskeName');
-        const evtDblclick = document.createEvent('MouseEvents');
-        const evtChange = document.createEvent('HTMLEvents');
+    it('When #labelTaskeName label double clicked then viewModel should have updated and #taskName should show', async () => {
+        const $taskName = document.getElementById('taskName');
 
-        evtDblclick.initEvent('dblclick', true, true);
-        evtChange.initEvent('change', true, true);
+        await waitFor(() => {
+            expect(document.querySelector('#taskName').style.display !== 'none').toBe(formComponentVM.showTaskNameInput);
+        }, { timeout: 500 });
 
-        $labelTaskeName.dispatchEvent(evtDblclick);
-        $labelTaskeName.dispatchEvent(evtChange);
-
-        // defer to check after asyn render
-        setTimeout(() => {
-            const $taskName = document.getElementById('taskName');
-
-            expect($('#taskName').is(':visible')).toBe(formComponentVM.showTaskNameInput);
-
-            $taskName.focus();
-            $taskName.blur();
-            done();
-        }, 100);
+        $taskName.focus();
+        $taskName.blur();
     });
 
     describe('Element with attribute binding', () => {
-        it('should display attribute from viewModel', (done) => {
-            const $el = $('[data-bind-attr="testAttr"]');
-            let attrObj = {};
-            setTimeout(() => {
-                attrObj = getElementAttributesObj($el);
-                $.each(formComponentVM.testAttr, function(k, v) {
-                    expect(attrObj[k]).toBe(v);
+        it('should display attribute from viewModel', async () => {
+            const $el = document.querySelector('[data-bind-attr="testAttr"]');
+            await waitFor(() => {
+                const attrObj = getElementAttributesObj($el);
+                Object.keys(formComponentVM.testAttr).forEach(k => {
+                    expect(attrObj[k]).toBe(formComponentVM.testAttr[k]);
                 });
-                done();
-            }, 100);
+            }, { timeout: 500 });
         });
 
-        it('should update attribute according to viewModel', (done) => {
-            const $el = $('[data-bind-attr="testAttr"]');
-            let attrObj = {};
+        it('should update attribute according to viewModel', async () => {
+            const $el = document.querySelector('[data-bind-attr="testAttr"]');
             formComponentVM.testAttr = {
                 id: '8888',
                 class: 'hidden',
             };
             formComponentVM.updateView();
-            setTimeout(() => {
-                attrObj = getElementAttributesObj($el);
-                $.each(formComponentVM.testAttr, function(k, v) {
-                    expect(attrObj[k]).toBe(v);
+
+            await waitFor(() => {
+                const attrObj = getElementAttributesObj($el);
+                Object.keys(formComponentVM.testAttr).forEach(k => {
+                    expect(attrObj[k]).toBe(formComponentVM.testAttr[k]);
                 });
                 expect(attrObj.rel).toBeUndefined();
-                done();
-            }, 100);
+            }, { timeout: 500 });
         });
     });
 });

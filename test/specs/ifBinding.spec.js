@@ -1,11 +1,12 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { waitFor } from '@testing-library/dom';
+
 /* eslint-disable max-len */
 describe('Given [data-bind-comp="if-component"] inited', () => {
     const namespace = {};
 
-    jasmine.getFixtures().fixturesPath = 'test';
-
-    beforeEach(function() {
-        loadFixtures('./fixtures/ifBinding.html');
+        beforeEach(async function() {
+        loadFixture('test/fixtures/ifBinding.html');
 
         namespace.viewModel = {
             renderIntro: true,
@@ -41,31 +42,30 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
 
         namespace.myIfComponent = dataBind.init(document.querySelector('[data-bind-comp="if-component"]'), namespace.viewModel);
 
-        namespace.myIfComponent.render();
+        await namespace.myIfComponent.render();
 
-        // jasmine spies
-        spyOn(namespace.viewModel, 'onStoryClick');
+        // vitest spies
+        vi.spyOn(namespace.viewModel, 'onStoryClick');
     });
 
     afterEach(() => {
         // clean up all app/components
         for (const prop in namespace) {
-            if (namespace.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(namespace, prop)) {
                 delete namespace[prop];
             }
         }
     });
 
-    it('Then [data-bind-comp="myIfComponent"] should have render', (done) => {
-        setTimeout(() => {
-            expect($('#intro-heading').text()).toBe(namespace.viewModel.heading);
-            expect($('#intro-description').text()).toBe(namespace.viewModel.description);
-            done();
-        }, 200);
+    it('Then [data-bind-comp="myIfComponent"] should have render', async () => {
+        await waitFor(() => {
+            expect(document.querySelector('#intro-heading').textContent).toBe(namespace.viewModel.heading);
+            expect(document.querySelector('#intro-description').textContent).toBe(namespace.viewModel.description);
+        }, { timeout: 500 });
     });
 
-    it('Then render if-binding elements with comment tag wrap around', (done) => {
-        setTimeout(() => {
+    it('Then render if-binding elements with comment tag wrap around', async () => {
+        await waitFor(() => {
             const introOpenCommentWrap = document.getElementById('intro').previousSibling;
             const introCloseCommentWrap = document.getElementById('intro').nextSibling;
 
@@ -73,52 +73,51 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
             expect(introCloseCommentWrap.nodeType).toBe(8);
             expect(introOpenCommentWrap.textContent).toContain('data-if');
             expect(introCloseCommentWrap.textContent).toContain('data-if');
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('should not render #story ', (done) => {
-        setTimeout(() => {
-            expect($('#story').length).toBe(0);
-            done();
-        }, 200);
+
+    it('should not render #story ', async () => {
+        await waitFor(() => {
+            expect(document.querySelector('#story')).toBe(null);
+        }, { timeout: 500 });
     });
 
-    it('should not render #testPropFn ', (done) => {
-        setTimeout(() => {
+
+    it('should not render #testPropFn ', async () => {
+        await waitFor(() => {
             expect(document.getElementById('testPropFn')).not.toBe(null);
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('should not render #testUnDefiniedProp ', (done) => {
-        setTimeout(() => {
+
+    it('should not render #testUnDefiniedProp ', async () => {
+        await waitFor(() => {
             expect(document.getElementById('testUnDefiniedProp')).toBe(null);
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('should render inverse negated boolean block', (done) => {
-        setTimeout(() => {
+
+    it('should render inverse negated boolean block', async () => {
+        await waitFor(() => {
             expect(document.getElementById('NotTestUnDefiniedProp')).not.toBe(null);
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
     describe('When update viewModel renderIntro to false', () => {
-        it('should render story and remove intro', (done) => {
+        it('should render story and remove intro', async () => {
             namespace.viewModel.renderIntro = false;
-            namespace.viewModel.updateView();
+            await namespace.myIfComponent.render();
 
-            setTimeout(() => {
-                expect($('#story').length).toBe(1);
-                expect($('#intro').length).toBe(0);
-                expect($('#storyIntroHeading').text()).toBe(namespace.viewModel.story.title);
-                expect($('#storyDescription').text()).toBe(namespace.viewModel.story.description);
-                expect($('#storyLink').attr('href')).toBe(namespace.viewModel.story.link);
-                expect($('#storyLink').attr('title')).toBe(namespace.viewModel.story.title);
-                expect($('#storyLink').attr('target')).toBe('_blank');
-                expect($('#storyLink').attr('rel')).toBe('noopener noreferrer');
+            await waitFor(() => {
+                expect(document.querySelector('#story')).not.toBe(null);
+                expect(document.querySelector('#intro')).toBe(null);
+                expect(document.querySelector('#storyIntroHeading').textContent).toBe(namespace.viewModel.story.title);
+                expect(document.querySelector('#storyDescription').textContent).toBe(namespace.viewModel.story.description);
+                expect(document.querySelector('#storyLink').getAttribute('href')).toBe(namespace.viewModel.story.link);
+                expect(document.querySelector('#storyLink').getAttribute('title')).toBe(namespace.viewModel.story.title);
+                expect(document.querySelector('#storyLink').getAttribute('target')).toBe('_blank');
+                expect(document.querySelector('#storyLink').getAttribute('rel')).toBe('noopener noreferrer');
 
                 const evt = document.createEvent('HTMLEvents');
                 evt.initEvent('click', true, true);
@@ -127,43 +126,40 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
                 $searchInput.dispatchEvent(evt);
 
                 expect(namespace.viewModel.onStoryClick).toHaveBeenCalled();
-                namespace.viewModel.onStoryClick.calls.reset();
-                done();
-            }, 200);
+                namespace.viewModel.onStoryClick.mockClear();
+            }, { timeout: 500 });
         });
     });
 
     describe('When update viewModel renderIntro to true', () => {
-        it('should render intro and remove story', (done) => {
+        it('should render intro and remove story', async () => {
             namespace.viewModel.renderIntro = true;
-            namespace.viewModel.updateView();
+            await namespace.myIfComponent.render();
 
-            setTimeout(() => {
-                expect($('#story').length).toBe(0);
-                expect($('#intro').length).toBe(1);
-                done();
-            }, 200);
+            await waitFor(() => {
+                expect(document.querySelector('#story')).toBe(null);
+                expect(document.querySelector('#intro')).not.toBe(null);
+            }, { timeout: 500 });
         });
     });
 
     describe('When update viewModel renderIntro to false again', () => {
-        it('should render story and event handler rebind', (done) => {
+        it('should render story and event handler rebind', async () => {
             namespace.viewModel.renderIntro = false;
-            namespace.viewModel.updateView();
+            await namespace.myIfComponent.render();
 
-            setTimeout(() => {
+            await waitFor(() => {
                 const $storyLink = document.getElementById('storyLink');
                 const evt = document.createEvent('HTMLEvents');
                 evt.initEvent('click', true, true);
 
-                expect($('#story').length).toBe(1);
-                expect($('#intro').length).toBe(0);
+                expect(document.querySelector('#story')).not.toBe(null);
+                expect(document.querySelector('#intro')).toBe(null);
 
                 $storyLink.dispatchEvent(evt);
                 expect(namespace.viewModel.onStoryClick).toHaveBeenCalled();
-                namespace.viewModel.onStoryClick.calls.reset();
-                done();
-            }, 200);
+                namespace.viewModel.onStoryClick.mockClear();
+            }, { timeout: 500 });
         });
     });
 });

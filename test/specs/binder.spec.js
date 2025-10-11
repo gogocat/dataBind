@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest';
+
 describe('Given dataBind lib loaded', () => {
     it('Then dataBind object exists', () => {
         expect(typeof dataBind).toBe('object');
@@ -14,14 +16,14 @@ describe('Given dataBind lib loaded', () => {
     it('Should throw error if mounting root element does not exits', () => {
         const viewModel = {};
 
-        expect(function() {
+        expect(() => {
             dataBind.init(document.getElementById('#xyz'), viewModel);
-        }).toThrowError();
+        }).toThrow();
     });
 
     it('Should throw error if viewModel does not exits', () => {
-        expect(function() {
-            testApp = dataBind.init(document.getElementById('#xyz'));
-        }).toThrowError();
+        expect(() => {
+            dataBind.init(document.getElementById('#xyz'));
+        }).toThrow();
     });
 });
