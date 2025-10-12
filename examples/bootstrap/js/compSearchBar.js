@@ -1,27 +1,19 @@
 // databing search-bar
 
-(function($, window) {
+(function(window) {
     let compSearchBar;
-    const getFormData = function($form) {
-        const sArray = $form.serializeArray();
-        const data = {};
-        sArray.map(function(n) {
-            data[n['name']] = n['value'];
-        });
 
-        return data;
-    };
     const viewModel = {
         searchWord: '',
         searchLocation: '',
         searching: false,
-        onSearchWordChange: function(e, $el, newValue, oldValue) {
+        onSearchWordChange: function(e, el, newValue, oldValue) {
             console.log('onSearchWordChange: ', ' newValue: ', newValue, ' oldValue: ', oldValue);
         },
-        onSearchLocationChange: function(e, $el, newValue, oldValue) {
+        onSearchLocationChange: function(e, el, newValue, oldValue) {
             console.log('onSearchWordChange: ', ' newValue: ', newValue, ' oldValue: ', oldValue);
         },
-        onSearchSubmit: function(e, $form, formData) {
+        onSearchSubmit: function(e, form, formData) {
             e.preventDefault();
 
             // simple validation
@@ -45,8 +37,9 @@
         },
     };
 
-    $(document).ready(function() {
-        compSearchBar = dataBind.init($('[data-bind-comp="search-bar"]')[0], viewModel);
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchBarElement = document.querySelector('[data-bind-comp="search-bar"]');
+        compSearchBar = dataBind.init(searchBarElement, viewModel);
         compSearchBar.render().then(function(comp) {
             const self = comp;
             compSearchBar.subscribe('SEARCH-COMPLETED', self.viewModel.onSearchCompleted);
@@ -57,4 +50,4 @@
             console.log('compSearchBar rendered', window.compSearchBar);
         });
     });
-})(jQuery, window);
+})(window);

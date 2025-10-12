@@ -1,16 +1,16 @@
 // databing compSearchResults
 
-(function($, window) {
+(function(window) {
     const isGithubPage = window.location.hostname === 'gogocat.github.io';
     const examplePath = isGithubPage ? 'https://gogocat.github.io/dataBind/examples/' : '/examples/';
     let compSearchResults;
     const searchUrl = `${examplePath}/bootstrap/js/searchResult.json`;
     const featureAdsResultUrl = `${examplePath}/bootstrap/js/featureAdsResult.json`;
-    const $searchResultColumns = $('#search-result-columns');
+    const searchResultColumns = document.getElementById('search-result-columns');
     const converResultsData = function(data) {
         ret = [];
         data.forEach(function(item, index) {
-            const newItem = $.extend({}, item);
+            const newItem = Object.assign({}, item);
             if (newItem.bookmarked) {
                 newItem.bookmarkedCss = 'active';
             }
@@ -40,8 +40,9 @@
 
             self.currentQuery = formData;
 
-            $.getJSON(searchUrl, self.currentQuery)
-                .done(function(data) {
+            fetch(searchUrl)
+                .then(response => response.json())
+                .then(function(data) {
                     // mock network delay
                     setTimeout(function() {
                         self.loading = false;
@@ -49,12 +50,12 @@
                         compSearchResults.publish('SEARCH-COMPLETED', data);
                     }, 1000);
                 })
-                .fail(function(jqXHR, textStatus, errorThrown) {
+                .catch(function(error) {
                     self.loading = false;
                     compSearchResults.publish('SEARCH-COMPLETED', {
-                        fail: errorThrown,
+                        fail: error,
                     });
-                    self.logError(jqXHR, textStatus, errorThrown);
+                    self.logError(error);
                 });
         },
         getMessageCheckBoxAttr: function(data) {
@@ -72,12 +73,12 @@
             let newResults = [];
 
             if (this.isNewSearch) {
-                $searchResultColumns.empty();
+                searchResultColumns.innerHTML = '';
                 this.searchResults.length = 0;
             }
             // first search result - remove current results (featured items)
             if (compSearchResults.isServerRendered && !this.replacedInitResults) {
-                // $searchResultColumns.empty();
+                // searchResultColumns.innerHTML = '';
                 this.searchResultTitle = 'Search results';
                 // this.searchResults.length = 0;
                 this.replacedInitResults = true;
@@ -109,22 +110,22 @@
             this.updateStatus();
             this.getSearchResults();
         },
-        onAdBookmarkClick: function(e, $el) {
+        onAdBookmarkClick: function(e, el) {
             const activeCss = 'active';
-            const isActivated = $el.classList.contains(activeCss);
-            const resultIndex = $el.getAttribute('data-index');
+            const isActivated = el.classList.contains(activeCss);
+            const resultIndex = el.getAttribute('data-index');
 
             this.searchResults[resultIndex].bookmarked = !isActivated;
             this.searchResults[resultIndex].bookmarkedCss = isActivated ? '' : 'active';
             this.updateStatus();
         },
-        onAdMessageCheck: function(e, $el, newValue, oldValue) {
-            console.log('onAdMessageCheck: ', $el, newValue, oldValue);
+        onAdMessageCheck: function(e, el, newValue, oldValue) {
+            console.log('onAdMessageCheck: ', el, newValue, oldValue);
             this.updateStatus();
         },
-        onMessageTriggerClick: function(e, $el) {
+        onMessageTriggerClick: function(e, el) {
             compSearchResults.publish('TRIGGER-MESSAGE-DIALOG', this.selectedResults);
-            console.log('onMessageTriggerClick: ', $el);
+            console.log('onMessageTriggerClick: ', el);
         },
         updateStatus: function(opt) {
             this.selectedResults = this.searchResults.filter(function(result, index) {
@@ -136,20 +137,23 @@
     };
 
     // get server rendered featureAdsResults then init compSearchResults
-    $.getJSON(featureAdsResultUrl).done(function(featureAdsResultData) {
-        viewModel.searchResults = converResultsData(featureAdsResultData);
+    fetch(featureAdsResultUrl)
+        .then(response => response.json())
+        .then(function(featureAdsResultData) {
+            viewModel.searchResults = converResultsData(featureAdsResultData);
 
-        compSearchResults = dataBind.init($('[data-bind-comp="search-results-component"]')[0], viewModel);
-        compSearchResults
-            .render() // overwrite default server rendered option
-            .then(function(comp) {
-                const self = comp;
-                // subscribe events
-                compSearchResults.subscribe('SEARCH-AD', self.viewModel.getSearchResults);
-                // for debug only
-                window.compSearchResultsViewModel = self.viewModel;
-                window.compSearchResults = compSearchResults;
-                console.log('compSearchResults rendered', window.compSearchResults);
-            });
-    });
-})(jQuery, window);
+            const searchResultsElement = document.querySelector('[data-bind-comp="search-results-component"]');
+            compSearchResults = dataBind.init(searchResultsElement, viewModel);
+            compSearchResults
+                .render() // overwrite default server rendered option
+                .then(function(comp) {
+                    const self = comp;
+                    // subscribe events
+                    compSearchResults.subscribe('SEARCH-AD', self.viewModel.getSearchResults);
+                    // for debug only
+                    window.compSearchResultsViewModel = self.viewModel;
+                    window.compSearchResults = compSearchResults;
+                    console.log('compSearchResults rendered', window.compSearchResults);
+                });
+        });
+})(window);

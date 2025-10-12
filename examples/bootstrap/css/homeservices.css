@@ -49,6 +49,7 @@ body {
   background-color: #bfb9a5;
   color: #fff;
   border-radius: 0;
+  padding: 1rem 0;
 }
 
 .section-title {
@@ -354,12 +355,6 @@ body {
   .container {
     max-width: 100%;
   }
-  .card-columns {
-    -webkit-column-count: 3;
-    column-count: 3;
-    -webkit-column-gap: 1.25rem;
-    column-gap: 1.25rem;
-  }
   .message-modal__content {
     align-self: center;
     width: 100%;
@@ -370,13 +365,6 @@ body {
 @media (min-width: 1200px) {
   .container {
     max-width: 1140px;
-  }
-}
-
-@media (min-width: 992px) {
-  .card-columns {
-    -webkit-column-count: 4;
-    column-count: 4;
   }
 }
 
