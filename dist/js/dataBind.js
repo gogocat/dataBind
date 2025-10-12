@@ -50,7 +50,6 @@ license MIT(function (global, factory) {
       serverRendered: 'SERVER-RENDERED',
       init: 'INIT'
     };
-
     // maximum string length before running regex
     const maxDatakeyLength = 250;
     const constants = {
@@ -101,24 +100,19 @@ license MIT(function (global, factory) {
       if (!isJsObject(obj)) {
         return false;
       }
-
       // If has modified constructor
       const ctor = obj.constructor;
       if (typeof ctor !== 'function') return false;
-
       // If has modified prototype
       const prot = ctor.prototype;
       if (isJsObject(prot) === false) return false;
-
       // If constructor does not have an Object-specific method
       if (prot.hasOwnProperty('isPrototypeOf') === false) {
         return false;
       }
-
       // Most likely a plain Object
       return true;
     };
-
     // test if string contains '{...}'. string must not contains tab, line breaks
     const isObjectLiteralString = (str = '') => {
       return REGEX.OBJECT_LITERAL.test(str);
@@ -159,12 +153,11 @@ license MIT(function (global, factory) {
       }
       queryContainer.insertAdjacentHTML('beforeend', `${wrap[1]}${htmlString}${wrap[2]}`);
       const query = queryContainer.querySelector(wrap[0]);
-      while (query.firstChild) {
+      while (query && query.firstChild) {
         fragment.appendChild(query.firstChild);
       }
       return fragment;
     }
-
     // simplified version of Lodash _.get
     const _get = function get(obj, path, def) {
       function everyFunc(step) {
@@ -173,7 +166,6 @@ license MIT(function (global, factory) {
       const fullPath = path.replace(/\[/g, '.').replace(/]/g, '').split('.').filter(Boolean);
       return fullPath.every(everyFunc) ? obj : def;
     };
-
     /**
      * getViewModelValue
      * @description walk a object by provided string path. eg 'a.b.c'
@@ -184,30 +176,26 @@ license MIT(function (global, factory) {
     const getViewModelValue = (viewModel, prop) => {
       return _get(viewModel, prop);
     };
-
     // simplified version of Lodash _.set
     // https://stackoverflow.com/questions/54733539/javascript-implementation-of-lodash-set-method
     const _set = (obj, path, value) => {
       if (Object(obj) !== obj) return obj; // When obj is not an object
       // If not yet an array, get the keys from the string-path
       if (!Array.isArray(path)) path = path.toString().match(/[^.[\]]+/g) || [];
-
       // Iterate all of them except the last one
       path.slice(0, -1).reduce((a, c, i) => Object(a[c]) === a[c] ?
       // Does the key exist and is its value an object?
       // Yes: then follow that path
       a[c] :
       // No: create the key. Is the next key a potential array-index?
-      a[c] = Math.abs(path[i + 1]) >> 0 === +path[i + 1] ? [] :
+      a[c] = Math.abs(Number(path[i + 1])) >> 0 === +path[i + 1] ? [] :
       // Yes: assign a new array object
       {},
       // No: assign a new plain object
       obj)[path[path.length - 1]] = value; // Finally assign the value to the last key
-
       // Return the top-level object to allow chaining
       return obj;
     };
-
     /**
      * setViewModelValue
      * @description populate viewModel object by path string
@@ -222,13 +210,13 @@ license MIT(function (global, factory) {
     const getViewModelPropValue = (viewModel, bindingCache) => {
       let dataKey = bindingCache.dataKey;
       let paramList = bindingCache.parameters;
-      const isInvertBoolean = dataKey.charAt(0) === '!';
-      if (isInvertBoolean) {
+      const isInvertBoolean = dataKey && dataKey.charAt(0) === '!';
+      if (isInvertBoolean && dataKey) {
         dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
       }
-      let ret = getViewModelValue(viewModel, dataKey);
+      let ret = dataKey ? getViewModelValue(viewModel, dataKey) : undefined;
       if (typeof ret === 'function') {
-        const viewModelContext = resolveViewModelContext(viewModel, dataKey);
+        const viewModelContext = resolveViewModelContext(viewModel, dataKey || '');
         const oldViewModelProValue = bindingCache.elementData ? bindingCache.elementData.viewModelPropValue : null;
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
         // let args = [oldViewModelProValue, bindingCache.el].concat(paramList);
@@ -236,7 +224,6 @@ license MIT(function (global, factory) {
         ret = ret.apply(viewModelContext, args);
       }
       ret = isInvertBoolean ? !ret : ret;
-
       // call through fitlers to get final value
       ret = filtersViewModelPropValue({
         value: ret,
@@ -269,7 +256,6 @@ license MIT(function (global, factory) {
       const ret = str.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":').replace(/'/g, '"');
       return JSON.parse(ret);
     };
-
     /**
      * arrayRemoveMatch
      * @description remove match items in fromArray out of toArray
@@ -284,7 +270,7 @@ license MIT(function (global, factory) {
     };
     const getFormData = $form => {
       const data = {};
-      if (!$form instanceof HTMLFormElement) {
+      if (!($form instanceof HTMLFormElement)) {
         return data;
       }
       const formData = new FormData($form);
@@ -300,7 +286,6 @@ license MIT(function (global, factory) {
       });
       return data;
     };
-
     /**
      * getFunctionParameterList
      * @description convert parameter string to arrary
@@ -312,14 +297,15 @@ license MIT(function (global, factory) {
       if (!str || str.length > maxDatakeyLength) {
         return;
       }
-      let paramlist = str.match(REGEX.FUNCTION_PARAM);
+      const paramlist = str.match(REGEX.FUNCTION_PARAM);
       if (paramlist && paramlist[1]) {
-        paramlist = paramlist[1].split(',');
-        paramlist.forEach(function (v, i) {
-          paramlist[i] = v.trim();
+        const params = paramlist[1].split(',');
+        params.forEach(function (v, i) {
+          params[i] = v.trim();
         });
+        return params;
       }
-      return paramlist;
+      return undefined;
     };
     const extractFilterList = cacheData => {
       if (!cacheData || !cacheData.dataKey || cacheData.dataKey.length > maxDatakeyLength) {
@@ -329,7 +315,7 @@ license MIT(function (global, factory) {
       let isOnceIndex;
       cacheData.dataKey = filterList[0].trim();
       if (filterList.length > 1) {
-        filterList.shift(0);
+        filterList.shift();
         filterList.forEach(function (v, i) {
           filterList[i] = v.trim();
           if (filterList[i] === constants.filters.ONCE) {
@@ -338,7 +324,7 @@ license MIT(function (global, factory) {
           }
         });
         // don't store filter 'once' - because it is internal logic not a property from viewModel
-        if (isOnceIndex >= 0) {
+        if (isOnceIndex !== undefined && isOnceIndex >= 0) {
           filterList.splice(isOnceIndex, 1);
         }
         cacheData.filters = filterList;
@@ -359,7 +345,6 @@ license MIT(function (global, factory) {
       });
       return dfObj;
     };
-
     /**
      * debounce
      * @description decorate a function to be debounce using requestAnimationFrame
@@ -371,7 +356,6 @@ license MIT(function (global, factory) {
       return function (fn, ctx) {
         let dfObj = createDeferredObj();
         let rafId = 0;
-
         // return decorated fn
         return function () {
           const args = Array.from ? Array.from(arguments) : Array.prototype.slice.call(arguments);
@@ -387,7 +371,6 @@ license MIT(function (global, factory) {
               console.error('error in rendering: ', err);
               dfObj.reject(err);
             }
-
             // reset dfObj - otherwise then callbacks will not be in execution order
             // example:
             // myApp.render().then(function(){console.log('ok1')});
@@ -401,7 +384,6 @@ license MIT(function (global, factory) {
         };
       }(fn, ctx);
     };
-
     /**
      * extend
      * @param {boolean} isDeepMerge
@@ -418,7 +400,7 @@ license MIT(function (global, factory) {
         return target;
       }
       if (!isDeepMerge) {
-        return _extends(target, ...sources);
+        return _extends(target, source, ...sources);
       }
       if (isMergebleObject(target) && isMergebleObject(source)) {
         Object.keys(source).forEach(key => {
@@ -426,7 +408,7 @@ license MIT(function (global, factory) {
             if (!target[key]) {
               target[key] = {};
             }
-            extend(target[key], source[key]);
+            extend(true, target[key], source[key]);
           } else {
             target[key] = source[key];
           }
@@ -466,7 +448,6 @@ license MIT(function (global, factory) {
     const isMergebleObject = item => {
       return isJsObject(item) && !isArray(item);
     };
-
     /**
      * cloneDomNode
      * @param {object} element
@@ -476,7 +457,6 @@ license MIT(function (global, factory) {
     const cloneDomNode = element => {
       return element.cloneNode(true);
     };
-
     /**
      * insertAfter
      * @param {object} parentNode
@@ -539,11 +519,11 @@ license MIT(function (global, factory) {
     const throwErrorMessage = (err = null, errorMessage = '') => {
       const message = err && err.message ? err.message : errorMessage;
       if (typeof console.error === 'function') {
-        return console.error(message);
+        console.error(message);
+        return;
       }
-      return console.log(message);
+      console.log(message);
     };
-
     /**
      * parseBindingObjectString
      * @description parse bining object string to object with value always stringify
@@ -556,10 +536,8 @@ license MIT(function (global, factory) {
       if (!REGEX.OBJECT_LITERAL.test(str)) {
         return null;
       }
-
       // clearn up line breaks and remove first { character
       objectLiteralString = objectLiteralString.replace(REGEX.LINE_BREAKS_TABS, '').substring(1);
-
       // remove last } character
       objectLiteralString = objectLiteralString.substring(0, objectLiteralString.length - 1);
       objectLiteralString.split(',').forEach(item => {
@@ -575,7 +553,6 @@ license MIT(function (global, factory) {
     };
 
     let bindingAttrsMap;
-
     /**
      * walkDOM
      * @description by Douglas Crockford - walk each DOM node and calls provided callback function
@@ -630,10 +607,8 @@ license MIT(function (global, factory) {
           el: node,
           dataKey: attrValue
         };
-
         // populate cacheData.filters. update filterList first item as dataKey
         cacheData = extractFilterList(cacheData);
-
         // populate cacheData.parameters
         // for store function call parameters eg. '$index', '$root'
         // useful with DOM for-loop template as reference to binding data
@@ -655,7 +630,7 @@ license MIT(function (global, factory) {
       isRenderedTemplate = false
     }) => {
       let bindingCache = {};
-      if (!rootNode instanceof window.Node) {
+      if (!(rootNode instanceof window.Node)) {
         throw new TypeError('walkDOM: Expected a DOM node');
       }
       bindingAttrsMap = bindingAttrsMap || invertObj(bindingAttrs);
@@ -667,7 +642,6 @@ license MIT(function (global, factory) {
         if (skipNodeCheckFn(node, bindingAttrs) || typeof skipCheck === 'function' && skipCheck(node)) {
           return false;
         }
-
         // when creating sub bindingCache if is for tmp binding
         // skip same element that has forOf binding the  forOf is alredy parsed
         const attrObj = getAttributesObject(node);
@@ -693,7 +667,6 @@ license MIT(function (global, factory) {
             });
           }
         });
-
         // after cache forOf skip parse child nodes
         if (isSkipForOfChild) {
           return false;
@@ -752,17 +725,17 @@ license MIT(function (global, factory) {
       let updateOption = {};
       switch (condition) {
         case bindingUpdateConditions.serverRendered:
-          updateOption = extend({}, eventsBindingOptions, serverRenderedOptions, opt);
+          updateOption = extend(false, {}, eventsBindingOptions, serverRenderedOptions, opt);
           break;
         case bindingUpdateConditions.init:
           // flag templateBinding to true to render tempalte(s)
           opt.templateBinding = true;
           opt.forceRender = true;
-          updateOption = extend({}, visualBindingOptions, eventsBindingOptions, opt);
+          updateOption = extend(false, {}, visualBindingOptions, eventsBindingOptions, opt);
           break;
         default:
           // when called again only update visualBinding options
-          updateOption = extend({}, visualBindingOptions, opt);
+          updateOption = extend(false, {}, visualBindingOptions, opt);
       }
       return updateOption;
     }
@@ -784,7 +757,6 @@ license MIT(function (global, factory) {
       let viewModelContext;
       const APP = viewModel.APP || viewModel.$root.APP;
       cache.elementData = cache.elementData || {};
-
       // TODO: check what is APP.$rootElement.contains(cache.el)
       if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
         return;
@@ -813,18 +785,15 @@ license MIT(function (global, factory) {
      * @description
      * https://github.com/lodash/lodash/blob/master/escape.js
      */
-
     function baseToString(value) {
       if (typeof value == 'string') {
         return value;
       }
       return value == null ? '' : `${value}`;
     }
-
     /** Used to match HTML entities and HTML characters. */
     const reUnescapedHtml = /[&<>"'`]/g;
     const reHasUnescapedHtml = RegExp(reUnescapedHtml.source);
-
     /** Used to map characters to HTML entities. */
     const htmlEscapes = {
       '&': '&amp;',
@@ -834,18 +803,16 @@ license MIT(function (global, factory) {
       '\'': '&#39;',
       '`': '&#96;'
     };
-
     /**
-       * escapeHtmlChar
-       * @description convert characters to HTML entities.
-       * @private
-       * @param {string} chr The matched character to escape.
-       * @return {string} Returns the escaped character.
-       */
+      * escapeHtmlChar
+      * @description convert characters to HTML entities.
+      * @private
+      * @param {string} chr The matched character to escape.
+      * @return {string} Returns the escaped character.
+      */
     function escapeHtmlChar(chr) {
       return htmlEscapes[chr];
     }
-
     /**
      * Converts the characters "&", "<", ">", '"', "'", and "\`", in `string` to
      * their corresponding HTML entities.
@@ -900,7 +867,6 @@ license MIT(function (global, factory) {
           handlerFn.apply(viewModelContext, args);
           oldValue = newValue;
         }
-
         // assing on change event
         cache.el.removeEventListener(type, changeHandler, false);
         cache.el.addEventListener(type, changeHandler, false);
@@ -930,7 +896,6 @@ license MIT(function (global, factory) {
         const inputName = $element.name;
         const $radioGroup = isRadio ? APP.$rootElement.querySelectorAll(`input[name="${inputName}"]`) : [];
         const oldValue = isCheckbox ? $element.checked : $element.value;
-
         // update element value
         if (newValue !== oldValue) {
           if (isCheckbox) {
@@ -963,7 +928,6 @@ license MIT(function (global, factory) {
     const textBinding = (cache, viewModel, bindingAttrs, forceRender) => {
       const dataKey = cache.dataKey;
       const APP = viewModel.APP || viewModel.$root.APP;
-
       // NOTE: this doesn't work for for-of, if and switch bindings because element was not in DOM
       if (!dataKey || !forceRender && !APP.$rootElement.contains(cache.el)) {
         return;
@@ -986,7 +950,7 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const showBinding = (cache, viewModel, bindingAttrs) => {
+    const showBinding = (cache, viewModel, bindingAttrs, forceRender) => {
       const dataKey = cache.dataKey;
       let currentInlineSytle = {};
       let currentInlineDisplaySytle = '';
@@ -996,7 +960,6 @@ license MIT(function (global, factory) {
       }
       cache.elementData = cache.elementData || {};
       const oldShowStatus = cache.elementData.viewModelPropValue;
-
       // store current element display default style once only
       if (typeof cache.elementData.displayStyle === 'undefined' || typeof cache.elementData.computedStyle === 'undefined') {
         currentInlineSytle = cache.el.style;
@@ -1013,11 +976,9 @@ license MIT(function (global, factory) {
         }
       }
       shouldShow = getViewModelPropValue(viewModel, cache);
-
       // treat undefined || null as false.
       // eg if property doesn't exsits in viewModel, it will treat as false to hide element
       shouldShow = Boolean(shouldShow);
-
       // reject if nothing changed
       if (oldShowStatus === shouldShow) {
         return;
@@ -1044,7 +1005,6 @@ license MIT(function (global, factory) {
           cache.el.style.setProperty('display', cache.elementData.displayStyle);
         }
       }
-
       // store new show status
       cache.elementData.viewModelPropValue = shouldShow;
     };
@@ -1093,7 +1053,6 @@ license MIT(function (global, factory) {
       if (oldCssList === newCssList) {
         return;
       }
-
       // get current css classes from element
       const domCssList = cache.el.classList;
       // clone domCssList as new array
@@ -1115,16 +1074,15 @@ license MIT(function (global, factory) {
         cssList = arrayRemoveMatch(cssList, oldCssList);
         cssList = cssList.concat(vmCssListArray);
       }
-
       // unique cssList array
       cssList = cssList.filter((v, i, a) => {
         return a.indexOf(v) === i;
       });
-      cssList = cssList.join(' ');
+      const cssListString = cssList.join(' ');
       // update element data
       cache.elementData.viewModelPropValue = newCssList;
       // replace all css classes
-      cache.el.setAttribute('class', cssList);
+      cache.el.setAttribute('class', cssListString);
     };
 
     /**
@@ -1135,27 +1093,23 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const attrBinding = (cache = {}, viewModel) => {
+    const attrBinding = (cache = {}, viewModel, bindingAttrs, forceRender) => {
       if (!cache.dataKey) {
         return;
       }
       // check if Object Literal String style dataKey
       const isObjLiteralStr = isObjectLiteralString(cache.dataKey);
-
       // resolve vmAttrObj, when Object Literal String style if will be object without resolve each value
       // otherwise, resolve value from viewModel
       const vmAttrObj = isObjLiteralStr ? parseBindingObjectString(cache.dataKey) : getViewModelPropValue(viewModel, cache);
-
       // vmAttrObj must be a plain object
       if (!isPlainObject(vmAttrObj)) {
         return;
       }
-
       // populate cache.elementData if not exits
       // check and set default cache.elementData.viewModelPropValue
       cache.elementData = cache.elementData || {};
       cache.elementData.viewModelPropValue = cache.elementData.viewModelPropValue || {};
-
       // start diff comparison
       // reject if nothing changed by comparing
       // cache.elementData.viewModelPropValue (previous render) vs vmAttrObj(current render)
@@ -1172,10 +1126,8 @@ license MIT(function (global, factory) {
           });
         });
       }
-
       // shortcut for reading cache.elementData.viewModelPropValue
       const oldAttrObj = cache.elementData.viewModelPropValue;
-
       // start set element attribute - oldAttrObj is empty meaning no previous render
       if (isEmptyObject(oldAttrObj)) {
         each(vmAttrObj, (key, value) => {
@@ -1194,7 +1146,6 @@ license MIT(function (global, factory) {
             cache.el.removeAttribute(key);
           }
         });
-
         // loop vmAttrObj, set attribute not present in oldAttrObj
         each(vmAttrObj, (key, value) => {
           if (typeof value !== 'undefined') {
@@ -1208,12 +1159,11 @@ license MIT(function (global, factory) {
           }
         });
       }
-
       // for object literal style binding
       // set viewModelPropValue for future diff comaprison
       // note: vmAttrObj is a not fully resolve object, each value is still string unresloved
       if (isObjLiteralStr) {
-        cache.elementData.viewModelPropValue = extend({}, vmAttrObj);
+        cache.elementData.viewModelPropValue = extend(false, {}, vmAttrObj);
       }
     };
 
@@ -1222,7 +1172,6 @@ license MIT(function (global, factory) {
     let $templateRootPrepend = false;
     let $templateRootAppend = false;
     let nestTemplatesCount = 0;
-
     /**
      * getTemplateString
      * @description get Template tag innerHTML string
@@ -1233,7 +1182,6 @@ license MIT(function (global, factory) {
       const templateElement = document.getElementById(id);
       return templateElement ? templateElement.innerHTML : '';
     };
-
     /**
      * renderTemplate
      * @description
@@ -1272,7 +1220,6 @@ license MIT(function (global, factory) {
       }
       const htmlString = getTemplateString(settings.id);
       const htmlFragment = createHtmlFragment(htmlString);
-
       // append rendered html
       if (!$domFragment.childNodes.length) {
         // domFragment should be empty in first run
@@ -1290,7 +1237,6 @@ license MIT(function (global, factory) {
           $currentElement.appendChild(htmlFragment);
         }
       }
-
       // check if there are nested template then recurisive render them
       const $nestedTemplates = $currentElement.querySelectorAll('[' + bindingAttrs.tmp + ']');
       const nestedTemplatesLength = $nestedTemplates.length;
@@ -1307,7 +1253,6 @@ license MIT(function (global, factory) {
           nestTemplatesCount -= 1;
         }
       }
-
       // no more nested tempalted to render, start to append $domFragment into $templateRoot
       if (nestTemplatesCount === 0) {
         // append to DOM once
@@ -1347,7 +1292,6 @@ license MIT(function (global, factory) {
         if (updateOption.templateBinding) {
           // overwrite updateOption with 'init' bindingUpdateConditions
           updateOption = createBindingOption(bindingUpdateConditions.init);
-
           // forEach is correct here - nested templates are added to array but rendered recursively
           // We don't want the loop to re-render templates that were already rendered via recursion
           elementCache[bindingAttrs.tmp].forEach($element => {
@@ -1362,7 +1306,6 @@ license MIT(function (global, factory) {
         }
         // enforce render even element is not in DOM tree
         updateOption.forceRender = true;
-
         // apply bindings to rendered templates element
         // Use namespace import to access the function at runtime,
         // which breaks the circular dependency during module initialization
@@ -1393,10 +1336,8 @@ license MIT(function (global, factory) {
       isRegenerate
     }) => {
       const bindingUpdateOption = isRegenerate ? createBindingOption(bindingUpdateConditions.init) : createBindingOption();
-
       // enforce render even element is not in DOM tree
       bindingUpdateOption.forceRender = true;
-
       // render and apply binding to template(s)
       // this is an share function therefore passing current APP 'this' context
       // viewModel is a dynamic generated iterationVm
@@ -1407,7 +1348,6 @@ license MIT(function (global, factory) {
         bindingAttrs: bindingAttrs,
         viewModel: iterationVm
       });
-
       // Use namespace import to access the function at runtime,
       // which breaks the circular dependency during module initialization
       applyBinding({
@@ -1447,7 +1387,6 @@ license MIT(function (global, factory) {
       bindingData.commentPrefix = commentPrefix$1 + dataKeyMarker;
       return bindingData;
     };
-
     /**
      * setDocRangeEndAfter
      * @param {object} node
@@ -1465,7 +1404,6 @@ license MIT(function (global, factory) {
       const startTextContent = bindingData.commentPrefix;
       const endTextContent = startTextContent + commentSuffix;
       node = node.nextSibling;
-
       // check last wrap comment node
       if (node) {
         if (node.nodeType === 8 && node.textContent === endTextContent) {
@@ -1474,7 +1412,6 @@ license MIT(function (global, factory) {
         setDocRangeEndAfter(node, bindingData);
       }
     };
-
     /**
      * wrapCommentAround
      * @param {object} bindingData
@@ -1506,7 +1443,6 @@ license MIT(function (global, factory) {
       }
       return node;
     };
-
     /**
      * removeElemnetsByCommentWrap
      * @param {object} bindingData
@@ -1559,7 +1495,6 @@ license MIT(function (global, factory) {
       let iterationDataLength;
       const iterationData = getViewModelPropValue(viewModel, bindingData.iterator);
       let isRegenerate = false;
-
       // check iterationData and set iterationDataLength
       if (isArray(iterationData)) {
         iterationDataLength = iterationData.length;
@@ -1570,13 +1505,11 @@ license MIT(function (global, factory) {
         // throw error but let script contince to run
         return throwErrorMessage(null, 'iterationData is not an plain object or array');
       }
-
       // flag as pared for-of logic with bindingData.type
       if (!bindingData.type) {
         bindingData.type = bindingAttrs$1.forOf;
         wrapCommentAround(bindingData, bindingData.el);
       }
-
       // assign forOf internal id to bindingData once
       if (typeof bindingData.iterationSize === 'undefined') {
         // store iterationDataLength
@@ -1610,15 +1543,12 @@ license MIT(function (global, factory) {
         });
         return;
       }
-
       // generate forOfBinding elements into fragment
       const fragment = generateForOfElements(bindingData, viewModel, bindingAttrs, iterationData, keys);
       removeElemnetsByCommentWrap(bindingData);
-
       // insert fragment content into DOM
       return insertRenderedElements(bindingData, fragment);
     };
-
     /**
      * createIterationViewModel
      * @description
@@ -1651,18 +1581,15 @@ license MIT(function (global, factory) {
       let iterationVm;
       let iterationBindingCache;
       let i = 0;
-
       // create or clear exisitng iterationBindingCache
       if (isArray(bindingData.iterationBindingCache)) {
         bindingData.iterationBindingCache.length = 0;
       } else {
         bindingData.iterationBindingCache = [];
       }
-
       // generate forOf and append to DOM
       for (i = 0; i < iterationDataLength; i += 1) {
         clonedItem = cloneDomNode(bindingData.el);
-
         // create bindingCache per iteration
         iterationBindingCache = createBindingCache({
           rootNode: clonedItem,
@@ -1698,7 +1625,7 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const forOfBinding = (cache, viewModel, bindingAttrs) => {
+    const forOfBinding = (cache, viewModel, bindingAttrs, forceRender) => {
       const dataKey = cache.dataKey;
       if (!dataKey || dataKey.length > maxDatakeyLength) {
         return;
@@ -1758,7 +1685,6 @@ license MIT(function (global, factory) {
       }
       const isDomRemoved = isTargetDomRemoved(bindingData);
       let rootElement = bindingData.el;
-
       // remove current old DOM.
       // TODO: try preserve DOM
       if (!isDomRemoved && !bindingData.isOnce) {
@@ -1766,7 +1692,6 @@ license MIT(function (global, factory) {
         // use fragment for create iterationBindingCache
         rootElement = bindingData.fragment.firstChild.cloneNode(true);
       }
-
       // walk clonedElement to create iterationBindingCache once
       if (!bindingData.iterationBindingCache || !bindingData.hasIterationBindingCache) {
         bindingData.iterationBindingCache = createBindingCache({
@@ -1774,7 +1699,6 @@ license MIT(function (global, factory) {
           bindingAttrs: bindingAttrs
         });
       }
-
       // only render if has iterationBindingCache
       // means has other dataBindings to be render
       if (!isEmptyObject(bindingData.iterationBindingCache)) {
@@ -1786,7 +1710,6 @@ license MIT(function (global, factory) {
           isRegenerate: true
         });
       }
-
       // insert to new rendered DOM
       // TODO: check unnecessary insertion when DOM is preserved
       insertRenderedElements(bindingData, rootElement);
@@ -1808,9 +1731,8 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const ifBinding = (cache, viewModel, bindingAttrs) => {
+    const ifBinding = (cache, viewModel, bindingAttrs, forceRender) => {
       const dataKey = cache.dataKey;
-
       // isOnce only return if there is no child bindings
       if (!dataKey || cache.isOnce && cache.hasIterationBindingCache === false) {
         return;
@@ -1820,13 +1742,11 @@ license MIT(function (global, factory) {
       const oldViewModelProValue = cache.elementData.viewModelPropValue;
       // getViewModelPropValue could be return undefined or null
       const viewModelPropValue = getViewModelPropValue(viewModel, cache) || false;
-
       // do nothing if viewModel value not changed and no child bindings
       if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
         return;
       }
       const shouldRender = Boolean(viewModelPropValue);
-
       // remove this cache from parent array
       if (!shouldRender && cache.isOnce && cache.el.parentNode) {
         removeElement(cache.el);
@@ -1837,10 +1757,8 @@ license MIT(function (global, factory) {
         });
         return;
       }
-
       // store new show status
       cache.elementData.viewModelPropValue = viewModelPropValue;
-
       // only create fragment once
       // wrap comment tag around
       // remove if attribute from original element to allow later dataBind parsing
@@ -1859,7 +1777,6 @@ license MIT(function (global, factory) {
           viewModel: viewModel,
           bindingAttrs: bindingAttrs
         });
-
         // if render once
         // remove this cache from parent array if no child caches
         if (cache.isOnce && !cache.hasIterationBindingCache) {
@@ -1894,7 +1811,7 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const switchBinding = (cache, viewModel, bindingAttrs) => {
+    const switchBinding = (cache, viewModel, bindingAttrs, forceRender) => {
       const dataKey = cache.dataKey;
       if (!dataKey) {
         return;
@@ -1905,7 +1822,6 @@ license MIT(function (global, factory) {
         return;
       }
       cache.elementData.viewModelPropValue = newExpression;
-
       // build switch cases if not yet defined
       if (!cache.cases) {
         const childrenElements = cache.el.children;
@@ -1953,7 +1869,6 @@ license MIT(function (global, factory) {
               viewModel: viewModel,
               bindingAttrs: bindingAttrs
             });
-
             // remove other elements
             removeUnmatchCases(cache.cases, j);
             break;
@@ -2029,65 +1944,55 @@ license MIT(function (global, factory) {
       if (!elementCache || !updateOption) {
         return;
       }
-
       // the follow binding should be in order for better efficiency
-
       // apply forOf Binding
       if (updateOption.forOfBinding && elementCache[bindingAttrs.forOf] && elementCache[bindingAttrs.forOf].length) {
         elementCache[bindingAttrs.forOf].forEach(cache => {
           forOfBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply attr Binding
       if (updateOption.attrBinding && elementCache[bindingAttrs.attr] && elementCache[bindingAttrs.attr].length) {
         elementCache[bindingAttrs.attr].forEach(cache => {
           attrBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply if Binding
       if (updateOption.ifBinding && elementCache[bindingAttrs.if] && elementCache[bindingAttrs.if].length) {
         elementCache[bindingAttrs.if].forEach(cache => {
           ifBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply show Binding
       if (updateOption.showBinding && elementCache[bindingAttrs.show] && elementCache[bindingAttrs.show].length) {
         elementCache[bindingAttrs.show].forEach(cache => {
           showBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply switch Binding
       if (updateOption.switchBinding && elementCache[bindingAttrs.switch] && elementCache[bindingAttrs.switch].length) {
         elementCache[bindingAttrs.switch].forEach(cache => {
           switchBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply text binding
       if (updateOption.textBinding && elementCache[bindingAttrs.text] && elementCache[bindingAttrs.text].length) {
         elementCache[bindingAttrs.text].forEach(cache => {
           textBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply cssBinding
       if (updateOption.cssBinding && elementCache[bindingAttrs.css] && elementCache[bindingAttrs.css].length) {
         elementCache[bindingAttrs.css].forEach(cache => {
           cssBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply model binding
       if (updateOption.modelBinding && elementCache[bindingAttrs.model] && elementCache[bindingAttrs.model].length) {
         elementCache[bindingAttrs.model].forEach(cache => {
           modelBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply change binding
       if (updateOption.changeBinding && elementCache[bindingAttrs.change] && elementCache[bindingAttrs.change].length) {
         elementCache[bindingAttrs.change].forEach(cache => {
@@ -2100,7 +2005,6 @@ license MIT(function (global, factory) {
           });
         });
       }
-
       // apply submit binding
       if (updateOption.submitBinding && elementCache[bindingAttrs.submit] && elementCache[bindingAttrs.submit].length) {
         elementCache[bindingAttrs.submit].forEach(cache => {
@@ -2112,7 +2016,6 @@ license MIT(function (global, factory) {
           });
         });
       }
-
       // apply click binding
       if (updateOption.clickBinding && elementCache[bindingAttrs.click] && elementCache[bindingAttrs.click].length) {
         elementCache[bindingAttrs.click].forEach(cache => {
@@ -2124,7 +2027,6 @@ license MIT(function (global, factory) {
           });
         });
       }
-
       // apply double click binding
       if (updateOption.dblclickBinding && elementCache[bindingAttrs.dblclick] && elementCache[bindingAttrs.dblclick].length) {
         elementCache[bindingAttrs.dblclick].forEach(cache => {
@@ -2136,7 +2038,6 @@ license MIT(function (global, factory) {
           });
         });
       }
-
       // apply blur binding
       if (updateOption.blurBinding && elementCache[bindingAttrs.blur] && elementCache[bindingAttrs.blur].length) {
         elementCache[bindingAttrs.blur].forEach(cache => {
@@ -2148,7 +2049,6 @@ license MIT(function (global, factory) {
           });
         });
       }
-
       // apply focus binding
       if (updateOption.focusBinding && elementCache[bindingAttrs.focus] && elementCache[bindingAttrs.focus].length) {
         elementCache[bindingAttrs.focus].forEach(cache => {
@@ -2160,14 +2060,12 @@ license MIT(function (global, factory) {
           });
         });
       }
-
       // apply hover binding
       if (updateOption.hoverBinding && elementCache[bindingAttrs.hover] && elementCache[bindingAttrs.hover].length) {
         elementCache[bindingAttrs.hover].forEach(cache => {
           hoverBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply input binding - eg html range input
       if (updateOption.inputBinding && elementCache[bindingAttrs.input] && elementCache[bindingAttrs.input].length) {
         elementCache[bindingAttrs.input].forEach(cache => {
@@ -2197,16 +2095,6 @@ license MIT(function (global, factory) {
       });
     }
 
-    /**
-     *  pubSub
-     * @description use jQuery object as pubSub
-     * @example EVENTS object strucure:
-     *  EVENTS = {
-            'EVENT-NAME': [{ 'comp-id': fn }],
-            'EVENT-NAME2': [{ 'comp-id': fn }]
-        };
-     */
-
     const EVENTS = {};
     const subscribeEvent = (instance = null, eventName = '', fn, isOnce = false) => {
       if (!instance || !instance.compId || !eventName || typeof fn !== 'function') {
@@ -2223,6 +2111,7 @@ license MIT(function (global, factory) {
           subscriber.isOnce = isOnce;
           return true;
         }
+        return false;
       });
       // push if not yet subscribe
       if (!isSubscribed) {
@@ -2254,11 +2143,10 @@ license MIT(function (global, factory) {
         }
       }
       // delete the event if no more subscriber
-      if (!EVENTS[eventName].length) {
+      if (EVENTS[eventName] && !EVENTS[eventName].length) {
         delete EVENTS[eventName];
       }
     };
-
     /**
      * unsubscribeAllEvent
      * @description unsubscribe all event by compId. eg when a component removed
@@ -2301,26 +2189,22 @@ license MIT(function (global, factory) {
         this.$rootElement = $rootElement;
         this.viewModel = viewModel;
         this.bindingAttrs = bindingAttrs;
-        this.render = debounceRaf(this.render, this);
         this.isServerRendered = this.$rootElement.getAttribute(serverRenderedAttr) !== null;
-
+        // Initialize render method with debounced version
+        this.render = debounceRaf(this._render.bind(this), this);
         // inject instance into viewModel
         this.viewModel.APP = this;
-
         // add $root pointer to viewModel so binding can be refer as $root.something
         this.viewModel.$root = this.viewModel;
-
         // 1st step
         // parsView walk the DOM and create binding cache that holds each element's binding details
         // this binding cache is like AST for render and update
         this.parseView();
-
         // for jquery user set viewModel referece to $rootElement for easy debug
         // otherwise use Expando to attach viewModel to $rootElement
         this.$rootElement[bindingDataReference.rootDataKey] = this.viewModel;
         return this;
       }
-
       /**
        * parseView
        * @description
@@ -2333,7 +2217,6 @@ license MIT(function (global, factory) {
           rootNode: this.$rootElement,
           bindingAttrs: this.bindingAttrs
         });
-
         // updateElementCache if server rendered on init
         if (this.isServerRendered && !this.initRendered) {
           this.updateElementCache({
@@ -2342,7 +2225,6 @@ license MIT(function (global, factory) {
         }
         return this;
       }
-
       /**
        * updateElementCache
        * @param {object} opt
@@ -2382,7 +2264,7 @@ license MIT(function (global, factory) {
           }
         }
       }
-      render(opt = {}) {
+      _render(opt = {}) {
         let updateOption = {};
         if (!this.initRendered) {
           // only update eventsBinding if server rendered
@@ -2396,7 +2278,6 @@ license MIT(function (global, factory) {
           // when called again only update visualBinding options
           updateOption = createBindingOption('', opt);
         }
-
         // create postProcessQueue before start rendering
         this.postProcessQueue = [];
         const renderBindingOption = {
@@ -2406,15 +2287,12 @@ license MIT(function (global, factory) {
           bindingAttrs: this.bindingAttrs,
           viewModel: this.viewModel
         };
-
         // always render template binding first
         // render and apply binding to template(s)
         // this is an share function therefore passing 'this' context
         renderTemplatesBinding(renderBindingOption);
-
         // apply bindings to rest of the DOM
         applyBinding(renderBindingOption);
-
         // trigger postProcess
         postProcess(this.postProcessQueue);
         // clear postProcessQueue
@@ -2448,7 +2326,7 @@ license MIT(function (global, factory) {
     let bindingAttrs = bindingAttrs$1;
     const use = (settings = {}) => {
       if (settings.bindingAttrs) {
-        bindingAttrs = extend({}, settings.bindingAttrs);
+        bindingAttrs = extend(false, {}, settings.bindingAttrs);
       }
     };
     const init = ($rootElement, viewModel = null) => {

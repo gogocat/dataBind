@@ -1,7 +1,7 @@
 import { afterEach } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import dataBind from '../../src/index.js';
+import dataBind from '../../src/index';
 
 /*
  * overwrite requestAnimationFrame to use setTimeout.

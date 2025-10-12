@@ -4,7 +4,7 @@ import { waitFor } from '@testing-library/dom';
 describe('Given [data-bind-comp="css-component"] inited', () => {
     const namespace = {};
 
-        beforeEach(() => {
+    beforeEach(() => {
         loadFixture('test/fixtures/cssBinding.html');
 
         namespace.viewModel = {

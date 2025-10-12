@@ -4,7 +4,7 @@ import { waitFor } from '@testing-library/dom';
 describe('Given [data-bind-comp="temp-component"] inited', () => {
     const namespace = {};
 
-        beforeEach(async function() {
+    beforeEach(async function() {
         loadFixture('test/fixtures/templateBinding.html');
 
         namespace.finishTemplateRender = 0;

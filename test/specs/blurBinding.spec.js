@@ -5,7 +5,7 @@ describe('Given [data-bind-comp="blur-component"] initised', () => {
     const namespace = {};
     const testBlurValue = 'onBlur called';
 
-        beforeEach(async () => {
+    beforeEach(async () => {
         loadFixture('test/fixtures/blurBinding.html');
 
         namespace.viewModel = {

@@ -27,7 +27,7 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
         },
     };
 
-        beforeEach(async () => {
+    beforeEach(async () => {
         loadFixture('test/fixtures/switchBinding.html');
 
         namespace.viewModel = {

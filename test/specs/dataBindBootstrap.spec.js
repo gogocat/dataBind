@@ -5,8 +5,8 @@ import { waitFor } from '@testing-library/dom';
 describe('Given dataBindBootstrp initised', () => {
     const namespace = {};
     const converResultsData = function(data) {
-        ret = [];
-        data.forEach(function(item, index) {
+        let ret = [];
+        data.forEach(function(item, _index) {
             const newItem = Object.assign({}, item);
             if (newItem.bookmarked) {
                 newItem.bookmarkedCss = 'active';
@@ -94,6 +94,8 @@ describe('Given dataBindBootstrp initised', () => {
 
                 self.currentQuery = formData;
 
+                // Note: $ is jQuery, used in test fixture
+                // eslint-disable-next-line no-undef
                 $.getJSON(searchUrl, self.currentQuery)
                     .done(function(data) {
                         // mock network delay
@@ -138,8 +140,8 @@ describe('Given dataBindBootstrp initised', () => {
                     templateBinding: true,
                 });
             },
-            logError: function() {
-                console.warn('search result error: ', ...rest);
+            logError: function(...args) {
+                console.warn('search result error: ', ...args);
             },
             onMoreResults: function() {
                 // get same mock result as example only
@@ -165,7 +167,7 @@ describe('Given dataBindBootstrp initised', () => {
                 console.log('onMessageTriggerClick: ', $el);
             },
             updateStatus: function(opt) {
-                this.selectedResults = this.searchResults.filter(function(result, index) {
+                this.selectedResults = this.searchResults.filter(function(result, _index) {
                     return result.selected;
                 });
                 this.messageTriggerCss = this.selectedResults.length ? 'show' : '';
@@ -191,7 +193,7 @@ describe('Given dataBindBootstrp initised', () => {
                 this.selectedAdData = selectedAdData;
                 this.numSelectedProviders = selectedAdData.length > 1 ? selectedAdData.length : '';
                 this.selectedProviders = selectedAdData.length > 1 ? 'advertisers ID: ' : 'advertiser ID:';
-                this.adIds = selectedAdData.map(function(item, index) {
+                this.adIds = selectedAdData.map(function(item, _index) {
                     return item.id;
                 });
                 this.selectedProviders += this.adIds.toString();

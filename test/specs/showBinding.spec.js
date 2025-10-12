@@ -8,7 +8,7 @@ describe('Given [data-bind-comp="show-component"] inited', () => {
         return el.style.display !== 'none';
     };
 
-        beforeEach(async function() {
+    beforeEach(async function() {
         loadFixture('test/fixtures/showBinding.html');
 
         namespace.viewModel = {

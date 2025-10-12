@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { waitFor } from '@testing-library/dom';
 
 /* eslint-disable max-len */
 describe('Given [data-bind-comp="if-component"] inited', () => {
     const namespace = {};
 
-        beforeEach(async function() {
+    beforeEach(async function() {
         loadFixture('test/fixtures/ifBinding.html');
 
         namespace.viewModel = {

@@ -77,7 +77,7 @@ describe('Given form-component initised', () => {
     };
     const namespace = {};
 
-        beforeEach(async () => {
+    beforeEach(async () => {
         loadFixture('test/fixtures/formBindings.html');
         namespace.formComponentApp = dataBind.init(document.querySelector('[data-bind-comp="form-component"]'), formComponentVM);
         await namespace.formComponentApp.render();

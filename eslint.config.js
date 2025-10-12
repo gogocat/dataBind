@@ -1,9 +1,12 @@
 import js from '@eslint/js';
 import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default [
     js.configs.recommended,
+    ...tseslint.configs.recommended,
     {
+        files: ['**/*.{js,mjs,cjs,ts}'],
         languageOptions: {
             ecmaVersion: 2022,
             sourceType: 'module',
@@ -32,7 +35,14 @@ export default [
             ],
             'quotes': ['warn', 'single'],
             'semi': ['warn', 'always'],
-            'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+            'no-unused-vars': 'off',
+            '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+            '@typescript-eslint/no-explicit-any': 'off',
+            '@typescript-eslint/no-this-alias': 'off',
+            '@typescript-eslint/no-unsafe-function-type': 'off',
+            'no-useless-escape': 'off',
+            'no-prototype-builtins': 'off',
+            'prefer-rest-params': 'off',
         },
     },
     {

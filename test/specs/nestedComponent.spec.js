@@ -4,7 +4,7 @@ import { waitFor } from '@testing-library/dom';
 describe('When nested data-bind-comp initised', () => {
     const namespace = {};
 
-        beforeEach(function() {
+    beforeEach(function() {
         loadFixture('test/fixtures/nestedComponents.html');
 
         namespace.parentComponentVM = {
@@ -55,7 +55,7 @@ describe('When nested data-bind-comp initised', () => {
 
     it('Then #parent-component-title and #parent-component-description should render according parentComponentVM', async () => {
         await waitFor(() => {
-expect(document.querySelector('#parent-component-title').textContent).toBe(namespace.parentComponentVM.title);
+            expect(document.querySelector('#parent-component-title').textContent).toBe(namespace.parentComponentVM.title);
             expect(document.querySelector('#parent-component-description').textContent).toBe(namespace.parentComponentVM.description);
         }, { timeout: 500 });
     });
@@ -63,7 +63,7 @@ expect(document.querySelector('#parent-component-title').textContent).toBe(names
 
     it('Then #child-component-title and #child-component-description should render according childComponentVM', async () => {
         await waitFor(() => {
-expect(document.querySelector('#child-component-title').textContent).toBe(namespace.childComponentVM.title);
+            expect(document.querySelector('#child-component-title').textContent).toBe(namespace.childComponentVM.title);
             expect(document.querySelector('#child-component-description').textContent).toBe(namespace.childComponentVM.description);
         }, { timeout: 500 });
     });
@@ -71,7 +71,7 @@ expect(document.querySelector('#child-component-title').textContent).toBe(namesp
 
     it('Then #grand-child-component-title and #grand-child-component-description should render according grandChildComponentVM', async () => {
         await waitFor(() => {
-expect(document.querySelector('#grand-child-component-title').textContent).toBe(namespace.grandChildComponentVM.title);
+            expect(document.querySelector('#grand-child-component-title').textContent).toBe(namespace.grandChildComponentVM.title);
             expect(document.querySelector('#grand-child-component-description').textContent).toBe(namespace.grandChildComponentVM.description);
         }, { timeout: 500 });
     });
