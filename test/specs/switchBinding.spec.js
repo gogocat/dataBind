@@ -1,3 +1,6 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { waitFor } from '@testing-library/dom';
+
 /* eslint-disable max-len */
 describe('Given [data-bind-comp="switch-component"] inited', () => {
     const namespace = {};
@@ -24,10 +27,8 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
         },
     };
 
-    jasmine.getFixtures().fixturesPath = 'test';
-
-    beforeEach(() => {
-        loadFixtures('./fixtures/switchBinding.html');
+        beforeEach(async () => {
+        loadFixture('test/fixtures/switchBinding.html');
 
         namespace.viewModel = {
             heading: 'This heading is inside switch binding',
@@ -70,27 +71,26 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
 
         namespace.mySwitchComponent = dataBind.init(document.querySelector('[data-bind-comp="switch-component"]'), namespace.viewModel);
 
-        namespace.mySwitchComponent.render();
+        await namespace.mySwitchComponent.render();
     });
 
     afterEach(() => {
         // clean up all app/components
         for (const prop in namespace) {
-            if (namespace.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(namespace, prop)) {
                 delete namespace[prop];
             }
         }
     });
 
-    it('Then [data-bind-comp="mySwitchComponent"] should have render', (done) => {
-        setTimeout(() => {
+    it('Then [data-bind-comp="mySwitchComponent"] should have render', async () => {
+        await waitFor(() => {
             expect(document.getElementById('switch-component-heading').textContent).toBe(namespace.viewModel.heading);
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('Should render only switch default case', (done) => {
-        setTimeout(() => {
+    it('Should render only switch default case', async () => {
+        await waitFor(() => {
             // check child non switch binding element still exists
             expect(document.getElementById('switch-component-heading').textContent).toBe(namespace.viewModel.heading);
 
@@ -98,14 +98,15 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
             expect(document.getElementById('case1')).toBe(null);
             expect(document.getElementById('case2')).toBe(null);
             expect(document.getElementById('case3')).toBe(null);
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('When selectedStory = s1 it then should render case1', (done) => {
-        namespace.viewModel.onSelectedStory('s1');
 
-        setTimeout(() => {
+    it('When selectedStory = s1 it then should render case1', async () => {
+        namespace.viewModel.onSelectedStory('s1');
+        await namespace.mySwitchComponent.render();
+
+        await waitFor(() => {
             const $case1 = document.getElementById('case1');
             const $storyTitle = $case1.querySelector('h4');
             const $storyImg = $case1.querySelector('img');
@@ -123,14 +124,15 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
             expect(document.getElementById('case2')).toBe(null);
             expect(document.getElementById('case3')).toBe(null);
             expect(document.getElementById('default-case')).toBe(null);
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('When selectedStory = s2 it then should render case2 without image', (done) => {
-        namespace.viewModel.onSelectedStory('s2');
 
-        setTimeout(() => {
+    it('When selectedStory = s2 it then should render case2 without image', async () => {
+        namespace.viewModel.onSelectedStory('s2');
+        await namespace.mySwitchComponent.render();
+
+        await waitFor(() => {
             const $case2 = document.getElementById('case2');
             const $storyTitle = $case2.querySelector('h4');
             const $storyDescription = $case2.querySelector('p');
@@ -146,14 +148,12 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
             expect(document.getElementById('case1')).toBe(null);
             expect(document.getElementById('case3')).toBe(null);
             expect(document.getElementById('default-case')).toBe(null);
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('When selectedStory non exists it then should render default case', (done) => {
-        namespace.viewModel.onSelectedStory('xyz');
 
-        setTimeout(() => {
+    it('When selectedStory non exists it then should render default case', async () => {
+        await waitFor(() => {
             const $defaultCase = document.getElementById('default-case');
             const $defaultCaseTextContent = $defaultCase.querySelector('p').textContent;
             const defatulCaseText = 'No story found...';
@@ -167,7 +167,6 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
             expect(document.getElementById('case1')).toBe(null);
             expect(document.getElementById('case2')).toBe(null);
             expect(document.getElementById('case3')).toBe(null);
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 });

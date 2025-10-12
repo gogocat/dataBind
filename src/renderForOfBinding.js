@@ -1,4 +1,4 @@
-/* eslint-disable no-invalid-this */
+ 
 import {bindingAttrs as configBindingAttrs, bindingDataReference} from './config';
 import {
     getViewModelPropValue,

@@ -1,10 +1,11 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { waitFor } from '@testing-library/dom';
+
 describe('Given [data-bind-comp="css-component"] inited', () => {
     const namespace = {};
 
-    jasmine.getFixtures().fixturesPath = 'test';
-
-    beforeEach(() => {
-        loadFixtures('./fixtures/cssBinding.html');
+        beforeEach(() => {
+        loadFixture('test/fixtures/cssBinding.html');
 
         namespace.viewModel = {
             heading: 'myCssComponent',
@@ -32,22 +33,21 @@ describe('Given [data-bind-comp="css-component"] inited', () => {
     afterEach(() => {
         // clean up all app/components
         for (const prop in namespace) {
-            if (namespace.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(namespace, prop)) {
                 delete namespace[prop];
             }
         }
     });
 
-    it('Then [data-bind-comp="myCssComponent"] should have render', (done) => {
-        setTimeout(() => {
+    it('Then [data-bind-comp="myCssComponent"] should have render', async () => {
+        await waitFor(() => {
             const $heading = document.getElementById('myCssComponentHeading');
             expect($heading.textContent).toBe(namespace.viewModel.heading);
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('should apply css bindings', (done) => {
-        setTimeout(() => {
+    it('should apply css bindings', async () => {
+        await waitFor(() => {
             const $testCssOne = document.getElementById('testCssOne');
             const testCssOneClassName = $testCssOne.className;
             const $testCssTwo = document.getElementById('testCssTwo');
@@ -55,25 +55,18 @@ describe('Given [data-bind-comp="css-component"] inited', () => {
 
             expect(testCssOneClassName).toBe('testCssOne a b c');
             expect(testCssTwoClassName).toBe('testCssTwo x y z e f');
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('should remove duplicated css', (done) => {
-        namespace.viewModel.testOneCss = {
-            a: true,
-            b: false,
-            c: true,
-            testCssOne: true,
-        };
+    it('should remove duplicated css', async () => {
+        namespace.viewModel.testOneCss.b = false;
         namespace.viewModel.updateView();
 
-        setTimeout(() => {
+        await waitFor(() => {
             const $testCssOne = document.getElementById('testCssOne');
             const testCssOneClassName = $testCssOne.className;
 
             expect(testCssOneClassName).toBe('testCssOne a c');
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 });

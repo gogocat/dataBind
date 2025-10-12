@@ -1,11 +1,12 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { waitFor } from '@testing-library/dom';
+
 describe('Given [data-bind-comp="text-component"] inited', () => {
     const namespace = {};
     const testContent2 = 'text-binding content';
 
-    jasmine.getFixtures().fixturesPath = 'test';
-
     beforeEach(() => {
-        loadFixtures('./fixtures/textBinding.html');
+        loadFixture('test/fixtures/textBinding.html');
 
         namespace.viewModel = {
             heading: 'my text-binding Component',
@@ -26,14 +27,14 @@ describe('Given [data-bind-comp="text-component"] inited', () => {
     afterEach(() => {
         // clean up all app/components
         for (const prop in namespace) {
-            if (namespace.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(namespace, prop)) {
                 delete namespace[prop];
             }
         }
     });
 
-    it('Then [data-bind-comp="myTextComponent"] should have render', (done) => {
-        setTimeout(() => {
+    it('Then [data-bind-comp="myTextComponent"] should have render', async () => {
+        await waitFor(() => {
             const $heading = document.getElementById('text-binding-heading');
             const $textBindingContent = document.getElementById('text-binding-content');
             const $textBindingContent2 = document.getElementById('text-binding-content2');
@@ -41,8 +42,6 @@ describe('Given [data-bind-comp="text-component"] inited', () => {
             expect($heading.textContent).toBe(namespace.viewModel.heading);
             expect($textBindingContent.textContent).toBe(namespace.viewModel.description);
             expect($textBindingContent2.textContent).toBe(testContent2);
-
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 });

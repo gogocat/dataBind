@@ -54,6 +54,7 @@ function createBindingOption(condition = '', opt = {}) {
     case bindingUpdateConditions.init:
         // flag templateBinding to true to render tempalte(s)
         opt.templateBinding = true;
+        opt.forceRender = true;
         updateOption = extend({}, visualBindingOptions, eventsBindingOptions, opt);
         break;
     default:

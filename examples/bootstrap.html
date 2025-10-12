@@ -5,9 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Bootstrap 4 dataBind Demo</title>
-        <!-- Bootstrap core CSS -->
-        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+        <title>Bootstrap 5 dataBind Demo</title>
+        <!-- Bootstrap 5 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
         <link rel="stylesheet" href="bootstrap/css/open-iconic.css" />
         <link rel="stylesheet" href="bootstrap/css/homeservices.css" />
     </head>
@@ -18,8 +18,8 @@
             <button
                 class="navbar-toggler"
                 type="button"
-                data-toggle="collapse"
-                data-target="#navbarsExampleDefault"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarsExampleDefault"
                 aria-controls="navbarsExampleDefault"
                 aria-expanded="false"
                 aria-label="Toggle navigation"
@@ -28,11 +28,11 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-                <ul class="navbar-nav mr-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item active">
                         <a class="nav-link" href="#"
                             >Home
-                            <span class="sr-only">(current)</span>
+                            <span class="visually-hidden">(current)</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -46,16 +46,16 @@
                             class="nav-link dropdown-toggle"
                             href="http://example.com"
                             id="dropdown01"
-                            data-toggle="dropdown"
+                            data-bs-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
                             >Dropdown</a
                         >
-                        <div class="dropdown-menu" aria-labelledby="dropdown01">
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                        </div>
+                        <ul class="dropdown-menu" aria-labelledby="dropdown01">
+                            <li><a class="dropdown-item" href="#">Action</a></li>
+                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        </ul>
                     </li>
                 </ul>
             </div>
@@ -74,8 +74,8 @@
         <div class="search-bar" data-bind-comp="search-bar" data-server-rendered>
             <div class="container">
                 <form id="search-form" data-bind-submit="onSearchSubmit">
-                    <div class="form-row">
-                        <div class="col-8" id="scrollable-dropdown-menu">
+                    <div class="row g-2">
+                        <div class="col-12 col-md-7 position-relative" id="scrollable-dropdown-menu">
                             <input
                                 id="searchWord"
                                 name="searchWord"
@@ -91,26 +91,28 @@
                             >
                             <span class="search-bar__focus-bar"></span>
                         </div>
-                        <div class="col-3 input-group">
-                            <span class="oi search-bar__map-marker" data-glyph="map-marker"></span>
-                            <input
-                                id="location"
-                                name="location"
-                                type="text"
-                                class="form-control"
-                                data-bind-model="searchLocation"
-                                data-bind-change="onSearchLocationChange"
-                                placeholder="Location"
-                                value="Sydney"
-                                aria-label="Location"
-                            />
+                        <div class="col-8 col-md-3 position-relative">
+                            <div class="d-flex">
+                                <span class="oi search-bar__map-marker" data-glyph="map-marker"></span>
+                                <input
+                                    id="location"
+                                    name="location"
+                                    type="text"
+                                    class="form-control"
+                                    data-bind-model="searchLocation"
+                                    data-bind-change="onSearchLocationChange"
+                                    placeholder="Location"
+                                    value="Sydney"
+                                    aria-label="Location"
+                                />
+                            </div>
                             <span class="search-bar__focus-bar"></span>
                         </div>
-                        <div class="col">
+                        <div class="col-4 col-md-2">
                             <button class="btn btn-success search-bar__btn" type="submit">
                                 <span class="spinner spinner--search" data-bind-show="searching"></span>
                                 <span data-bind-show="!searching">
-                                    <span class="sr-only">Search</span>
+                                    <span class="visually-hidden">Search</span>
                                     <span class="oi" data-glyph="magnifying-glass" aria-hidden="true"></span>
                                 </span>
                             </button>
@@ -127,315 +129,331 @@
 
             <div
                 id="search-result-columns"
-                class="card-columns"
+                class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3"
                 data-bind-tmp="{id: 'searchResultItem', data: '$root', append: true}"
             >
-                <div class="card result-item" data-index="0">
-                    <img class="card-img-top result-item__img" src="bootstrap/images/pic-home.jpg" alt="Card image" />
-                    <div class="card-body">
-                        <h4 class="card-title">Card title that wraps to a new line</h4>
-                        <p class="card-text">
-                            This is a longer card with supporting text below as a natural lead-in to additional content.
-                            This content is a little bit longer.
-                        </p>
-                    </div>
-                    <div class="card-footer result-item__footer">
-                        <div class="result-item__icon-checkbox-wrap">
-                            <input
-                                class="result-item__icon result-item__icon-checkbox"
-                                type="checkbox"
-                                id="adid0"
-                                name="adid0"
+                <div class="col">
+                    <div class="card result-item h-100" data-index="0">
+                        <img class="card-img-top result-item__img" src="bootstrap/images/pic-home.jpg" alt="Card image" />
+                        <div class="card-body">
+                            <h4 class="card-title">Card title that wraps to a new line</h4>
+                            <p class="card-text">
+                                This is a longer card with supporting text below as a natural lead-in to additional content.
+                                This content is a little bit longer.
+                            </p>
+                        </div>
+                        <div class="card-footer result-item__footer">
+                            <div class="result-item__icon-checkbox-wrap">
+                                <input
+                                    class="result-item__icon result-item__icon-checkbox"
+                                    type="checkbox"
+                                    id="adid0"
+                                    name="adid0"
+                                    data-index="0"
+                                    data-bind-model="searchResults[0].selected"
+                                    data-bind-change="onAdMessageCheck"
+                                />
+                                <label
+                                    for="adid0"
+                                    class="oi result-item__icon-checkbox-label"
+                                    data-glyph="task"
+                                    aria-label="Message this seller"
+                                ></label>
+                            </div>
+                            <span
+                                class="oi result-item__icon"
+                                data-glyph="bookmark"
+                                data-bind-css="searchResults[0].bookmarkedCss"
+                                data-bind-click="onAdBookmarkClick"
                                 data-index="0"
-                                data-bind-model="searchResults[0].selected"
-                                data-bind-change="onAdMessageCheck"
-                            />
-                            <label
-                                for="adid0"
-                                class="oi result-item__icon-checkbox-label"
-                                data-glyph="task"
-                                aria-label="Message this seller"
-                            ></label>
+                            ></span>
+                            <span class="oi result-item__icon" data-glyph="thumb-up">99</span>
                         </div>
-                        <span
-                            class="oi result-item__icon"
-                            data-glyph="bookmark"
-                            data-bind-css="searchResults[0].bookmarkedCss"
-                            data-bind-click="onAdBookmarkClick"
-                            data-index="0"
-                        ></span>
-                        <span class="oi result-item__icon" data-glyph="thumb-up">99</span>
                     </div>
                 </div>
 
-                <div class="card result-item" data-index="1">
-                    <div class="card-body">
-                        <h4 class="card-title">Card title</h4>
-                        <p class="card-text">
-                            This is a wider card with supporting text below as a natural lead-in to additional content.
-                            This card has even longer content than the first to show that equal height action.
-                        </p>
-                    </div>
-                    <div class="card-footer result-item__footer">
-                        <div class="result-item__icon-checkbox-wrap">
-                            <input
-                                class="result-item__icon result-item__icon-checkbox"
-                                type="checkbox"
-                                id="adid1"
-                                name="adid1"
+                <div class="col">
+                    <div class="card result-item h-100" data-index="1">
+                        <div class="card-body">
+                            <h4 class="card-title">Card title</h4>
+                            <p class="card-text">
+                                This is a wider card with supporting text below as a natural lead-in to additional content.
+                                This card has even longer content than the first to show that equal height action.
+                            </p>
+                        </div>
+                        <div class="card-footer result-item__footer">
+                            <div class="result-item__icon-checkbox-wrap">
+                                <input
+                                    class="result-item__icon result-item__icon-checkbox"
+                                    type="checkbox"
+                                    id="adid1"
+                                    name="adid1"
+                                    data-index="1"
+                                    data-bind-model="searchResults[1].selected"
+                                    data-bind-change="onAdMessageCheck"
+                                />
+                                <label
+                                    for="adid1"
+                                    class="oi result-item__icon-checkbox-label"
+                                    data-glyph="task"
+                                    aria-label="Message this seller"
+                                ></label>
+                            </div>
+                            <span
+                                class="oi result-item__icon"
+                                data-glyph="bookmark"
+                                data-bind-css="searchResults[1].bookmarkedCss"
+                                data-bind-click="onAdBookmarkClick"
                                 data-index="1"
-                                data-bind-model="searchResults[1].selected"
-                                data-bind-change="onAdMessageCheck"
-                            />
-                            <label
-                                for="adid1"
-                                class="oi result-item__icon-checkbox-label"
-                                data-glyph="task"
-                                aria-label="Message this seller"
-                            ></label>
+                            ></span>
+                            <span class="oi result-item__icon" data-glyph="thumb-up">9</span>
                         </div>
-                        <span
-                            class="oi result-item__icon"
-                            data-glyph="bookmark"
-                            data-bind-css="searchResults[1].bookmarkedCss"
-                            data-bind-click="onAdBookmarkClick"
-                            data-index="1"
-                        ></span>
-                        <span class="oi result-item__icon" data-glyph="thumb-up">9</span>
                     </div>
                 </div>
 
-                <div class="card result-item" data-index="2">
-                    <img class="card-img-top result-item__img" src="bootstrap/images/pic-deck.jpg" alt="Card image" />
-                    <div class="card-body">
-                        <h4 class="card-title">Card title</h4>
-                        <p class="card-text">
-                            This card has supporting text below as a natural lead-in to additional content.
-                        </p>
-                    </div>
-                    <div class="card-footer result-item__footer">
-                        <div class="result-item__icon-checkbox-wrap">
-                            <input
-                                class="result-item__icon result-item__icon-checkbox"
-                                type="checkbox"
-                                id="adid2"
-                                name="adid2"
+                <div class="col">
+                    <div class="card result-item h-100" data-index="2">
+                        <img class="card-img-top result-item__img" src="bootstrap/images/pic-deck.jpg" alt="Card image" />
+                        <div class="card-body">
+                            <h4 class="card-title">Card title</h4>
+                            <p class="card-text">
+                                This card has supporting text below as a natural lead-in to additional content.
+                            </p>
+                        </div>
+                        <div class="card-footer result-item__footer">
+                            <div class="result-item__icon-checkbox-wrap">
+                                <input
+                                    class="result-item__icon result-item__icon-checkbox"
+                                    type="checkbox"
+                                    id="adid2"
+                                    name="adid2"
+                                    data-index="2"
+                                    data-bind-model="searchResults[2].selected"
+                                    data-bind-change="onAdMessageCheck"
+                                />
+                                <label
+                                    for="adid2"
+                                    class="oi result-item__icon-checkbox-label"
+                                    data-glyph="task"
+                                    aria-label="Message this seller"
+                                ></label>
+                            </div>
+                            <span
+                                class="oi result-item__icon"
+                                data-glyph="bookmark"
+                                data-bind-css="searchResults[2].bookmarkedCss"
+                                data-bind-click="onAdBookmarkClick"
                                 data-index="2"
-                                data-bind-model="searchResults[2].selected"
-                                data-bind-change="onAdMessageCheck"
-                            />
-                            <label
-                                for="adid2"
-                                class="oi result-item__icon-checkbox-label"
-                                data-glyph="task"
-                                aria-label="Message this seller"
-                            ></label>
+                            ></span>
+                            <span class="oi result-item__icon" data-glyph="thumb-up">24</span>
                         </div>
-                        <span
-                            class="oi result-item__icon"
-                            data-glyph="bookmark"
-                            data-bind-css="searchResults[2].bookmarkedCss"
-                            data-bind-click="onAdBookmarkClick"
-                            data-index="2"
-                        ></span>
-                        <span class="oi result-item__icon" data-glyph="thumb-up">24</span>
                     </div>
                 </div>
 
-                <div class="card result-item result-item--highlight" data-index="3">
-                    <img
-                        class="card-img-top result-item__img"
-                        src="bootstrap/images/pic-carpenter.jpg"
-                        alt="Card image"
-                    />
-                    <div class="card-body">
-                        <h4 class="card-title">Card title</h4>
-                        <p class="card-text">
-                            This card has supporting text below as a natural lead-in to additional content.
-                        </p>
-                    </div>
-                    <div class="card-footer result-item__footer">
-                        <div class="result-item__icon-checkbox-wrap">
-                            <input
-                                class="result-item__icon result-item__icon-checkbox"
-                                type="checkbox"
-                                id="adid3"
-                                name="adid3"
+                <div class="col">
+                    <div class="card result-item result-item--highlight h-100" data-index="3">
+                        <img
+                            class="card-img-top result-item__img"
+                            src="bootstrap/images/pic-carpenter.jpg"
+                            alt="Card image"
+                        />
+                        <div class="card-body">
+                            <h4 class="card-title">Card title</h4>
+                            <p class="card-text">
+                                This card has supporting text below as a natural lead-in to additional content.
+                            </p>
+                        </div>
+                        <div class="card-footer result-item__footer">
+                            <div class="result-item__icon-checkbox-wrap">
+                                <input
+                                    class="result-item__icon result-item__icon-checkbox"
+                                    type="checkbox"
+                                    id="adid3"
+                                    name="adid3"
+                                    data-index="3"
+                                    data-bind-model="searchResults[3].selected"
+                                    data-bind-change="onAdMessageCheck"
+                                />
+                                <label
+                                    for="adid3"
+                                    class="oi result-item__icon-checkbox-label"
+                                    data-glyph="task"
+                                    aria-label="Message this seller"
+                                ></label>
+                            </div>
+                            <span
+                                class="oi result-item__icon"
+                                data-glyph="bookmark"
+                                data-bind-css="searchResults[3].bookmarkedCss"
+                                data-bind-click="onAdBookmarkClick"
                                 data-index="3"
-                                data-bind-model="searchResults[3].selected"
-                                data-bind-change="onAdMessageCheck"
-                            />
-                            <label
-                                for="adid3"
-                                class="oi result-item__icon-checkbox-label"
-                                data-glyph="task"
-                                aria-label="Message this seller"
-                            ></label>
+                            ></span>
+                            <span class="oi result-item__icon" data-glyph="thumb-up">8</span>
                         </div>
-                        <span
-                            class="oi result-item__icon"
-                            data-glyph="bookmark"
-                            data-bind-css="searchResults[3].bookmarkedCss"
-                            data-bind-click="onAdBookmarkClick"
-                            data-index="3"
-                        ></span>
-                        <span class="oi result-item__icon" data-glyph="thumb-up">8</span>
                     </div>
                 </div>
 
-                <div class="card result-item" data-index="4">
-                    <div class="card-body">
-                        <h4 class="card-title">Card title</h4>
-                        <p class="card-text">
-                            This card has supporting text below as a natural lead-in to additional content.
-                        </p>
-                    </div>
-                    <div class="card-footer result-item__footer">
-                        <div class="result-item__icon-checkbox-wrap">
-                            <input
-                                class="result-item__icon result-item__icon-checkbox"
-                                type="checkbox"
-                                id="adid4"
-                                name="adid4"
+                <div class="col">
+                    <div class="card result-item h-100" data-index="4">
+                        <div class="card-body">
+                            <h4 class="card-title">Card title</h4>
+                            <p class="card-text">
+                                This card has supporting text below as a natural lead-in to additional content.
+                            </p>
+                        </div>
+                        <div class="card-footer result-item__footer">
+                            <div class="result-item__icon-checkbox-wrap">
+                                <input
+                                    class="result-item__icon result-item__icon-checkbox"
+                                    type="checkbox"
+                                    id="adid4"
+                                    name="adid4"
+                                    data-index="4"
+                                    data-bind-model="searchResults[4].selected"
+                                    data-bind-change="onAdMessageCheck"
+                                />
+                                <label
+                                    for="adid4"
+                                    class="oi result-item__icon-checkbox-label"
+                                    data-glyph="task"
+                                    aria-label="Message this seller"
+                                ></label>
+                            </div>
+                            <span
+                                class="oi result-item__icon"
+                                data-glyph="bookmark"
+                                data-bind-css="searchResults[4].bookmarkedCss"
+                                data-bind-click="onAdBookmarkClick"
                                 data-index="4"
-                                data-bind-model="searchResults[4].selected"
-                                data-bind-change="onAdMessageCheck"
-                            />
-                            <label
-                                for="adid4"
-                                class="oi result-item__icon-checkbox-label"
-                                data-glyph="task"
-                                aria-label="Message this seller"
-                            ></label>
+                            ></span>
+                            <span class="oi result-item__icon" data-glyph="thumb-up">68</span>
                         </div>
-                        <span
-                            class="oi result-item__icon"
-                            data-glyph="bookmark"
-                            data-bind-css="searchResults[4].bookmarkedCss"
-                            data-bind-click="onAdBookmarkClick"
-                            data-index="4"
-                        ></span>
-                        <span class="oi result-item__icon" data-glyph="thumb-up">68</span>
                     </div>
                 </div>
 
-                <div class="card result-item" data-index="5">
-                    <img
-                        class="card-img-top result-item__img"
-                        src="bootstrap/images/pic-bathrooms.jpg"
-                        alt="Card image"
-                    />
-                    <div class="card-body">
-                        <h4 class="card-title">Card title that wraps to a new line</h4>
-                        <p class="card-text">
-                            This is a longer card with supporting text below as a natural lead-in to additional content.
-                            This content is a little bit longer.
-                        </p>
-                    </div>
-                    <div class="card-footer result-item__footer">
-                        <div class="result-item__icon-checkbox-wrap">
-                            <input
-                                class="result-item__icon result-item__icon-checkbox"
-                                type="checkbox"
-                                id="adid5"
-                                name="adid5"
+                <div class="col">
+                    <div class="card result-item h-100" data-index="5">
+                        <img
+                            class="card-img-top result-item__img"
+                            src="bootstrap/images/pic-bathrooms.jpg"
+                            alt="Card image"
+                        />
+                        <div class="card-body">
+                            <h4 class="card-title">Card title that wraps to a new line</h4>
+                            <p class="card-text">
+                                This is a longer card with supporting text below as a natural lead-in to additional content.
+                                This content is a little bit longer.
+                            </p>
+                        </div>
+                        <div class="card-footer result-item__footer">
+                            <div class="result-item__icon-checkbox-wrap">
+                                <input
+                                    class="result-item__icon result-item__icon-checkbox"
+                                    type="checkbox"
+                                    id="adid5"
+                                    name="adid5"
+                                    data-index="5"
+                                    data-bind-model="searchResults[5].selected"
+                                    data-bind-change="onAdMessageCheck"
+                                />
+                                <label
+                                    for="adid5"
+                                    class="oi result-item__icon-checkbox-label"
+                                    data-glyph="task"
+                                    aria-label="Message this seller"
+                                ></label>
+                            </div>
+                            <span
+                                class="oi result-item__icon active"
+                                data-glyph="bookmark"
+                                data-bind-css="searchResults[5].bookmarkedCss"
+                                data-bind-click="onAdBookmarkClick"
                                 data-index="5"
-                                data-bind-model="searchResults[5].selected"
-                                data-bind-change="onAdMessageCheck"
-                            />
-                            <label
-                                for="adid5"
-                                class="oi result-item__icon-checkbox-label"
-                                data-glyph="task"
-                                aria-label="Message this seller"
-                            ></label>
+                            ></span>
+                            <span class="oi result-item__icon" data-glyph="thumb-up">99+</span>
                         </div>
-                        <span
-                            class="oi result-item__icon active"
-                            data-glyph="bookmark"
-                            data-bind-css="searchResults[5].bookmarkedCss"
-                            data-bind-click="onAdBookmarkClick"
-                            data-index="5"
-                        ></span>
-                        <span class="oi result-item__icon" data-glyph="thumb-up">99+</span>
                     </div>
                 </div>
 
-                <div class="card result-item" data-index="6">
-                    <div class="card-body">
-                        <h4 class="card-title">Card title</h4>
-                        <p class="card-text">
-                            This is a wider card with supporting text below as a natural lead-in to additional content.
-                            This card has even longer content than the first to show that equal height action.
-                        </p>
-                    </div>
-                    <div class="card-footer result-item__footer">
-                        <div class="result-item__icon-checkbox-wrap">
-                            <input
-                                class="result-item__icon result-item__icon-checkbox"
-                                type="checkbox"
-                                id="adid6"
-                                name="adid6"
+                <div class="col">
+                    <div class="card result-item h-100" data-index="6">
+                        <div class="card-body">
+                            <h4 class="card-title">Card title</h4>
+                            <p class="card-text">
+                                This is a wider card with supporting text below as a natural lead-in to additional content.
+                                This card has even longer content than the first to show that equal height action.
+                            </p>
+                        </div>
+                        <div class="card-footer result-item__footer">
+                            <div class="result-item__icon-checkbox-wrap">
+                                <input
+                                    class="result-item__icon result-item__icon-checkbox"
+                                    type="checkbox"
+                                    id="adid6"
+                                    name="adid6"
+                                    data-index="6"
+                                    data-bind-model="searchResults[6].selected"
+                                    data-bind-change="onAdMessageCheck"
+                                />
+                                <label
+                                    for="adid6"
+                                    class="oi result-item__icon-checkbox-label"
+                                    data-glyph="task"
+                                    aria-label="Message this seller"
+                                ></label>
+                            </div>
+                            <span
+                                class="oi result-item__icon"
+                                data-glyph="bookmark"
+                                data-bind-css="searchResults[6].bookmarkedCss"
+                                data-bind-click="onAdBookmarkClick"
                                 data-index="6"
-                                data-bind-model="searchResults[6].selected"
-                                data-bind-change="onAdMessageCheck"
-                            />
-                            <label
-                                for="adid6"
-                                class="oi result-item__icon-checkbox-label"
-                                data-glyph="task"
-                                aria-label="Message this seller"
-                            ></label>
+                            ></span>
+                            <span class="oi result-item__icon" data-glyph="thumb-up">9</span>
                         </div>
-                        <span
-                            class="oi result-item__icon"
-                            data-glyph="bookmark"
-                            data-bind-css="searchResults[6].bookmarkedCss"
-                            data-bind-click="onAdBookmarkClick"
-                            data-index="6"
-                        ></span>
-                        <span class="oi result-item__icon" data-glyph="thumb-up">9</span>
                     </div>
                 </div>
 
-                <div class="card result-item" data-index="7">
-                    <img
-                        class="card-img-top result-item__img"
-                        src="bootstrap/images/pic-backyard.jpg"
-                        alt="Card image"
-                    />
-                    <div class="card-body">
-                        <h4 class="card-title">Card title</h4>
-                        <p class="card-text">
-                            This card has supporting text below as a natural lead-in to additional content.
-                        </p>
-                    </div>
-                    <div class="card-footer result-item__footer">
-                        <div class="result-item__icon-checkbox-wrap">
-                            <input
-                                class="result-item__icon result-item__icon-checkbox"
-                                type="checkbox"
-                                id="adid7"
-                                name="adid7"
-                                data-index="7"
-                                data-bind-model="searchResults[7].selected"
-                                data-bind-change="onAdMessageCheck"
-                            />
-                            <label
-                                for="adid7"
-                                class="oi result-item__icon-checkbox-label"
-                                data-glyph="task"
-                                aria-label="Message this seller"
-                            ></label>
+                <div class="col">
+                    <div class="card result-item h-100" data-index="7">
+                        <img
+                            class="card-img-top result-item__img"
+                            src="bootstrap/images/pic-backyard.jpg"
+                            alt="Card image"
+                        />
+                        <div class="card-body">
+                            <h4 class="card-title">Card title</h4>
+                            <p class="card-text">
+                                This card has supporting text below as a natural lead-in to additional content.
+                            </p>
                         </div>
-                        <span
-                            class="oi result-item__icon"
-                            data-glyph="bookmark"
-                            data-bind-css="searchResults[7].bookmarkedCss"
-                            data-bind-click="onAdBookmarkClick"
-                            data-index="7"
-                        ></span>
-                        <span class="oi result-item__icon" data-glyph="thumb-up">24</span>
+                        <div class="card-footer result-item__footer">
+                            <div class="result-item__icon-checkbox-wrap">
+                                <input
+                                    class="result-item__icon result-item__icon-checkbox"
+                                    type="checkbox"
+                                    id="adid7"
+                                    name="adid7"
+                                    data-index="7"
+                                    data-bind-model="searchResults[7].selected"
+                                    data-bind-change="onAdMessageCheck"
+                                />
+                                <label
+                                    for="adid7"
+                                    class="oi result-item__icon-checkbox-label"
+                                    data-glyph="task"
+                                    aria-label="Message this seller"
+                                ></label>
+                            </div>
+                            <span
+                                class="oi result-item__icon"
+                                data-glyph="bookmark"
+                                data-bind-css="searchResults[7].bookmarkedCss"
+                                data-bind-click="onAdBookmarkClick"
+                                data-index="7"
+                            ></span>
+                            <span class="oi result-item__icon" data-glyph="thumb-up">24</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -454,8 +472,8 @@
                 class="mass-message__trigger-wrap"
                 data-bind-css="messageTriggerCss"
                 data-bind-click="onMessageTriggerClick"
-                data-toggle="modal"
-                data-target="#message-modal"
+                data-bs-toggle="modal"
+                data-bs-target="#message-modal"
             >
                 <div class="mass-message__trigger">
                     <span class="oi mass-message__trigger-icon" data-glyph="pencil" aria-label="write message"></span>
@@ -483,9 +501,7 @@
                     <form id="formMessage" data-bind-submit="onMessageSubmit">
                         <div class="modal-header">
                             <h5 class="modal-title" id="exampleModalLabel">Send Message</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div data-bind-show="!sendingMessage">
@@ -525,7 +541,7 @@
                                 </p>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                     Close
                                 </button>
                                 <button
@@ -544,24 +560,26 @@
 
         <!-- searchResultItem test with deep nested templates -->
         <template id="searchResultItem">
-            <div 
-                class="card result-item" 
-                data-bind-css="$data.highlightCss"
-                data-bind-for="result of $root.searchResults"
-            >
-                <img 
-                    data-bind-if="result.image"
-                    data-bind-attr="{
-                        src: $data.image,
-                        alt: $data.title
-                    }"
-                    class="card-img-top result-item__img" 
+            <div class="col">
+                <div
+                    class="card result-item h-100"
+                    data-bind-css="$data.highlightCss"
+                    data-bind-for="result of $root.searchResults"
                 >
-                <div 
-                    class="card-body"
-                    data-bind-tmp="{id: 'searchResultItemBody', data: 'result'}"
-                ></div>
-                <div data-bind-tmp="{id: 'searchResultItemFooter', data: 'result'}" ></div>
+                    <img
+                        data-bind-if="result.image"
+                        data-bind-attr="{
+                            src: $data.image,
+                            alt: $data.title
+                        }"
+                        class="card-img-top result-item__img"
+                    >
+                    <div
+                        class="card-body"
+                        data-bind-tmp="{id: 'searchResultItemBody', data: 'result'}"
+                    ></div>
+                    <div data-bind-tmp="{id: 'searchResultItemFooter', data: 'result'}" ></div>
+                </div>
             </div>
         </template>
 
@@ -610,15 +628,8 @@
             ></span>
         </template>
 
-        <!-- bootstrap 4 JavaScript -->
-        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-        <script src="../vendors/jquery-3.2.1.min.js"></script>
-        <script src="bootstrap/js/popper.min.js"></script>
-        <script src="bootstrap/js/bootstrap.min.js"></script>
-
-        <!-- twitter typeahead JavaScript -->
-        <script src="bootstrap/js/typeahead.jquery.js"></script>
-        <script src="bootstrap/js/searchSuggestion.js"></script>
+        <!-- Bootstrap 5 JavaScript -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
         <!-- dataBind JavaScript -->
         <script src="../vendors/lodash.custom.min.js"></script>

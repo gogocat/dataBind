@@ -1,3 +1,6 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { waitFor } from '@testing-library/dom';
+
 describe('Given [data-bind-comp="attr-component"] inited', () => {
     const namespace = {};
     const testAttr2Obj = {
@@ -5,10 +8,8 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
         ref: 'newRef2',
     };
 
-    jasmine.getFixtures().fixturesPath = 'test';
-
     beforeEach(() => {
-        loadFixtures('./fixtures/attrBinding.html');
+        loadFixture('test/fixtures/attrBinding.html');
 
         namespace.viewModel = {
             heading: 'Test data-if-binding',
@@ -32,50 +33,48 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
     afterEach(() => {
         // clean up all app/components
         for (const prop in namespace) {
-            if (namespace.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(namespace, prop)) {
                 delete namespace[prop];
             }
         }
     });
 
-    it('Then [data-bind-comp="myAttrComponent"] should have render', (done) => {
-        setTimeout(() => {
+    it('Then [data-bind-comp="myAttrComponent"] should have render', async () => {
+        await waitFor(() => {
             const $testAttr1 = document.getElementById('testAttr1');
             expect($testAttr1.textContent).toBe(namespace.viewModel.heading);
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('Should update testAttr1 attributes', (done) => {
-        setTimeout(function() {
+    it('Should update testAttr1 attributes', async () => {
+        await waitFor(() => {
             const $testAttr1 = document.getElementById('testAttr1');
             expect($testAttr1.getAttribute('ref')).toBe(namespace.viewModel.attr1.ref);
             expect($testAttr1.getAttribute('style')).toBe(namespace.viewModel.attr1.style);
             // check existing attribute untouch
             expect($testAttr1.getAttribute('id')).toBe('testAttr1');
             expect($testAttr1.getAttribute('class')).toBe('test');
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('Should update testAttr2 attributes as viewModel function property', (done) => {
-        setTimeout(() => {
+    it('Should update testAttr2 attributes as viewModel function property', async () => {
+        await waitFor(() => {
             const $testAttr2 = document.getElementById(testAttr2Obj.id);
             expect($testAttr2.getAttribute('ref')).toBe(testAttr2Obj.ref);
             expect($testAttr2.getAttribute('id')).toBe(testAttr2Obj.id);
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('Should update attribute when viewModel updated', (done) => {
+    it('Should update attribute when viewModel updated', async () => {
         const updatedRef = 'updatedRef';
         const disabled = 'disabled';
+        namespace.viewModel.attr1 = {
+            ref: updatedRef,
+            disabled: disabled,
+            style: namespace.viewModel.attr1.style,
+        };
 
-        namespace.viewModel.attr1.ref = updatedRef;
-        namespace.viewModel.attr1.disabled = disabled;
-        namespace.myAttrComponent.render();
-
-        setTimeout(() => {
+        await waitFor(() => {
             const $testAttr1 = document.getElementById('testAttr1');
             expect($testAttr1.getAttribute('ref')).toBe(updatedRef);
             expect($testAttr1.getAttribute('disabled')).toBe(disabled);
@@ -83,24 +82,22 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
             // check existing attribute untouch
             expect($testAttr1.getAttribute('id')).toBe('testAttr1');
             expect($testAttr1.getAttribute('class')).toBe('test');
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 
-    it('Should remove attribute when viewModel updated', (done) => {
+    it('Should remove attribute when viewModel updated', async () => {
         const updatedRef2 = 'updatedRef2';
         namespace.viewModel.attr1 = {
             ref: updatedRef2,
         };
 
-        setTimeout(() => {
+        await waitFor(() => {
             const $testAttr1 = document.getElementById('testAttr1');
             expect($testAttr1.getAttribute('ref')).toBe(updatedRef2);
             expect($testAttr1.getAttribute('style')).toBe(null);
             // check existing attribute untouch
             expect($testAttr1.getAttribute('id')).toBe('testAttr1');
             expect($testAttr1.getAttribute('class')).toBe('test');
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 });

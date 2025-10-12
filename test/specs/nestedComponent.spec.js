@@ -1,10 +1,11 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { waitFor } from '@testing-library/dom';
+
 describe('When nested data-bind-comp initised', () => {
     const namespace = {};
 
-    jasmine.getFixtures().fixturesPath = 'test';
-
-    beforeEach(function() {
-        loadFixtures('./fixtures/nestedComponents.html');
+        beforeEach(function() {
+        loadFixture('test/fixtures/nestedComponents.html');
 
         namespace.parentComponentVM = {
             title: 'parent component title',
@@ -46,43 +47,42 @@ describe('When nested data-bind-comp initised', () => {
     afterEach(() => {
         // clean up all app/components
         for (const prop in namespace) {
-            if (namespace.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(namespace, prop)) {
                 delete namespace[prop];
             }
         }
     });
 
-    it('Then #parent-component-title and #parent-component-description should render according parentComponentVM', (done) => {
-        setTimeout(() => {
-            expect($('#parent-component-title').text()).toBe(namespace.parentComponentVM.title);
-            expect($('#parent-component-description').text()).toBe(namespace.parentComponentVM.description);
-            done();
-        }, 200);
+    it('Then #parent-component-title and #parent-component-description should render according parentComponentVM', async () => {
+        await waitFor(() => {
+expect(document.querySelector('#parent-component-title').textContent).toBe(namespace.parentComponentVM.title);
+            expect(document.querySelector('#parent-component-description').textContent).toBe(namespace.parentComponentVM.description);
+        }, { timeout: 500 });
     });
 
-    it('Then #child-component-title and #child-component-description should render according childComponentVM', (done) => {
-        setTimeout(() => {
-            expect($('#child-component-title').text()).toBe(namespace.childComponentVM.title);
-            expect($('#child-component-description').text()).toBe(namespace.childComponentVM.description);
-            done();
-        }, 200);
+
+    it('Then #child-component-title and #child-component-description should render according childComponentVM', async () => {
+        await waitFor(() => {
+expect(document.querySelector('#child-component-title').textContent).toBe(namespace.childComponentVM.title);
+            expect(document.querySelector('#child-component-description').textContent).toBe(namespace.childComponentVM.description);
+        }, { timeout: 500 });
     });
 
-    it('Then #grand-child-component-title and #grand-child-component-description should render according grandChildComponentVM', (done) => {
-        setTimeout(() => {
-            expect($('#grand-child-component-title').text()).toBe(namespace.grandChildComponentVM.title);
-            expect($('#grand-child-component-description').text()).toBe(namespace.grandChildComponentVM.description);
-            done();
-        }, 200);
+
+    it('Then #grand-child-component-title and #grand-child-component-description should render according grandChildComponentVM', async () => {
+        await waitFor(() => {
+expect(document.querySelector('#grand-child-component-title').textContent).toBe(namespace.grandChildComponentVM.title);
+            expect(document.querySelector('#grand-child-component-description').textContent).toBe(namespace.grandChildComponentVM.description);
+        }, { timeout: 500 });
     });
 
-    it('Then #slibing-child-component-title and #slibing-child-component-description should render according slibingChildComponentVM', (done) => {
-        setTimeout(() => {
-            expect($('#slibing-child-component-title').text()).toBe(namespace.slibingChildComponentVM.title);
-            expect($('#slibing-child-component-description').text()).toBe(
+
+    it('Then #slibing-child-component-title and #slibing-child-component-description should render according slibingChildComponentVM', async () => {
+        await waitFor(() => {
+            expect(document.querySelector('#slibing-child-component-title').textContent).toBe(namespace.slibingChildComponentVM.title);
+            expect(document.querySelector('#slibing-child-component-description').textContent).toBe(
                 namespace.slibingChildComponentVM.description,
             );
-            done();
-        }, 200);
+        }, { timeout: 500 });
     });
 });

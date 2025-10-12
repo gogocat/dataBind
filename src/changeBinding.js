@@ -1,4 +1,4 @@
-/* eslint-disable no-invalid-this */
+ 
 import {
     getViewModelValue,
     setViewModelValue,

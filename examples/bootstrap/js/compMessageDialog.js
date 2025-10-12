@@ -1,10 +1,10 @@
 // databing message-dialog-component
 
-(function($, window) {
+(function(window) {
     let compMessageDialog;
     const el = {
-        messageModal: '#message-modal',
-        messageTextArea: '#message',
+        messageModal: null,
+        messageTextArea: null,
     };
     const viewModel = {
         numSelectedProviders: '',
@@ -13,7 +13,7 @@
         selectedProviders: '',
         defaultMessageText: 'Hi,\nCould you please provide a quote for the following work:\n',
         sendingMessage: false,
-        onMessageSubmit: function(e, $el, formData) {
+        onMessageSubmit: function(e, formEl, formData) {
             e.preventDefault();
             formData.ids = this.adIds;
             this.sendingMessage = true;
@@ -35,23 +35,24 @@
         },
     };
 
-    $(document).ready(function() {
-        $.each(el, function(k, v) {
-            el[k] = $(v);
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        el.messageModal = document.getElementById('message-modal');
+        el.messageTextArea = document.getElementById('message');
 
-        compMessageDialog = dataBind.init($('[data-bind-comp="message-dialog-component"]')[0], viewModel);
+        const messageDialogElement = document.querySelector('[data-bind-comp="message-dialog-component"]');
+        compMessageDialog = dataBind.init(messageDialogElement, viewModel);
         compMessageDialog.render().then(function(comp) {
             const self = comp;
             compMessageDialog.subscribe('TRIGGER-MESSAGE-DIALOG', self.viewModel.onTriggerSelectedAds);
 
-            el.messageModal.on('shown.bs.modal', function() {
-                el.messageTextArea[0].defaultValue = self.viewModel.defaultMessageText;
+            // Bootstrap 5 modal events
+            el.messageModal.addEventListener('shown.bs.modal', function() {
+                el.messageTextArea.defaultValue = self.viewModel.defaultMessageText;
                 el.messageTextArea.focus();
             });
 
-            el.messageModal.on('hidden.bs.modal', function() {
-                el.messageTextArea[0].defaultValue = self.viewModel.defaultMessageText;
+            el.messageModal.addEventListener('hidden.bs.modal', function() {
+                el.messageTextArea.defaultValue = self.viewModel.defaultMessageText;
                 self.viewModel.sendingMessage = false;
             });
             // for debug only
@@ -60,4 +61,4 @@
             console.log('compMessageDialog rendered', window.compMessageDialog);
         });
     });
-})(jQuery, window);
+})(window);

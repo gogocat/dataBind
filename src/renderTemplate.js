@@ -8,6 +8,8 @@ import {
 
 let $domFragment = null;
 let $templateRoot = null;
+let $templateRootPrepend = false;
+let $templateRootAppend = false;
 let nestTemplatesCount = 0;
 
 /**
@@ -61,7 +63,12 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
 
     $domFragment = $domFragment || document.createDocumentFragment();
 
-    $templateRoot = $templateRoot || $element;
+    if (!$templateRoot) {
+        $templateRoot = $element;
+        // Store the prepend/append flags from the root template only
+        $templateRootPrepend = isPrepend;
+        $templateRootAppend = isAppend;
+    }
 
     const htmlString = getTemplateString(settings.id);
 
@@ -108,16 +115,18 @@ const renderTemplate = (cache, viewModel, bindingAttrs, elementCache) => {
     // no more nested tempalted to render, start to append $domFragment into $templateRoot
     if (nestTemplatesCount === 0) {
         // append to DOM once
-        if (!isAppend && !isPrepend) {
+        // Use the prepend/append flags from the root template, not the current nested template
+        if (!$templateRootAppend && !$templateRootPrepend) {
             $templateRoot = emptyElement($templateRoot);
         }
-        if (isPrepend) {
+        if ($templateRootPrepend) {
             $templateRoot.insertBefore($domFragment, $templateRoot.firstChild);
         } else {
             $templateRoot.appendChild($domFragment);
         }
-        // clear cached fragment
+        // clear cached fragment and flags
         $domFragment = $templateRoot = null;
+        $templateRootPrepend = $templateRootAppend = false;
         // trigger callback if provided
         if (typeof viewModel.afterTemplateRender === 'function') {
             viewModel.afterTemplateRender(viewData);
