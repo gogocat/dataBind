@@ -93,7 +93,7 @@ const renderTemplate = (cache: any, viewModel: any, bindingAttrs: any, elementCa
     }
 
     // check if there are nested template then recurisive render them
-    const $nestedTemplates = $currentElement.querySelectorAll('[' + bindingAttrs.tmp + ']');
+    const $nestedTemplates = $currentElement.querySelectorAll(`[${  bindingAttrs.tmp  }]`);
 
     const nestedTemplatesLength = $nestedTemplates.length;
 

@@ -57,19 +57,19 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}: any): void =
     }
 
     if (!isRegenerate) {
-        bindingData.iterationBindingCache.forEach(function(elementCache: any, i: number) {
+        bindingData.iterationBindingCache.forEach((elementCache: any, i: number) => {
             if (!isEmptyObject(elementCache)) {
                 const iterationVm = createIterationViewModel({
-                    bindingData: bindingData,
-                    viewModel: viewModel,
-                    iterationData: iterationData,
-                    keys: keys,
+                    bindingData,
+                    viewModel,
+                    iterationData,
+                    keys,
                     index: i,
                 });
                 renderIteration({
-                    elementCache: elementCache,
-                    iterationVm: iterationVm,
-                    bindingAttrs: bindingAttrs,
+                    elementCache,
+                    iterationVm,
+                    bindingAttrs,
                     isRegenerate: false,
                 });
             }
@@ -129,7 +129,7 @@ const generateForOfElements = (bindingData: any, viewModel: any, bindingAttrs: a
         // create bindingCache per iteration
         iterationBindingCache = createBindingCache({
             rootNode: clonedItem,
-            bindingAttrs: bindingAttrs,
+            bindingAttrs,
         });
 
         bindingData.iterationBindingCache.push(iterationBindingCache);
@@ -137,17 +137,17 @@ const generateForOfElements = (bindingData: any, viewModel: any, bindingAttrs: a
         if (!isEmptyObject(iterationBindingCache)) {
             // create an iterationVm match iterator alias
             iterationVm = createIterationViewModel({
-                bindingData: bindingData,
-                viewModel: viewModel,
-                iterationData: iterationData,
-                keys: keys,
+                bindingData,
+                viewModel,
+                iterationData,
+                keys,
                 index: i,
             });
 
             renderIteration({
                 elementCache: bindingData.iterationBindingCache[i],
-                iterationVm: iterationVm,
-                bindingAttrs: bindingAttrs,
+                iterationVm,
+                bindingAttrs,
                 isRegenerate: true,
             });
         }

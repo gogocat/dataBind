@@ -1,7 +1,7 @@
 import {getViewModelPropValue} from './util';
 import {createClonedElementCache, wrapCommentAround} from './commentWrapper';
 import {renderIfBinding, removeIfBinding} from './renderIfBinding';
-import type { BindingCache, ViewModel, BindingAttrs, CaseData } from './types';
+import type {BindingCache, ViewModel, BindingAttrs, CaseData} from './types';
 
 /**
  * switch-Binding
@@ -76,8 +76,8 @@ const switchBinding = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: 
                 // render element
                 renderIfBinding({
                     bindingData: cache.cases[j],
-                    viewModel: viewModel,
-                    bindingAttrs: bindingAttrs,
+                    viewModel,
+                    bindingAttrs,
                 });
 
                 // remove other elements

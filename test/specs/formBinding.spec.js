@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { waitFor } from '@testing-library/dom';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
+import {waitFor} from '@testing-library/dom';
 
 describe('Given form-component initised', () => {
-    const getElementAttributesObj = function($el) {
+    const getElementAttributesObj = function ($el) {
         const obj = {};
         Array.from($el.attributes).forEach((attr) => {
             if (attr.specified) {
@@ -29,49 +29,49 @@ describe('Given form-component initised', () => {
             rel: 'testRel',
             class: 'show',
         },
-        onAddTask: function(_e, _$element, newValue, _oldValue) {
+        onAddTask(_e, _$element, newValue, _oldValue) {
             this.taskName = newValue;
             this.updateView();
         },
-        onMarkAllCompleted: function(_e, _$element, _newValue, _oldValue) {
+        onMarkAllCompleted(_e, _$element, _newValue, _oldValue) {
             this.markAllCompleted = true;
             this.updateView();
         },
-        onSelected: function(e, $element, newValue, oldValue) {
+        onSelected(e, $element, newValue, oldValue) {
             expect(newValue).not.toBe(oldValue);
         },
-        onGenderChanged: function(e, $element, newValue, oldValue) {
+        onGenderChanged(e, $element, newValue, oldValue) {
             expect(newValue).not.toBe(oldValue);
         },
-        onTestDateChanged: function(e, $element, newValue, oldValue) {
+        onTestDateChanged(e, $element, newValue, oldValue) {
             expect(newValue).not.toBe(oldValue);
         },
-        onTestRangeChanged: function(e, $element, newValue, oldValue) {
-            expect(newValue).not.toBe(oldValue);
-            this.updateView();
-        },
-        onTestRangeInputChange: function(e, $element, newValue, oldValue) {
+        onTestRangeChanged(e, $element, newValue, oldValue) {
             expect(newValue).not.toBe(oldValue);
             this.updateView();
         },
-        onMessageChanged: function(e, $element, newValue, oldValue) {
+        onTestRangeInputChange(e, $element, newValue, oldValue) {
             expect(newValue).not.toBe(oldValue);
             this.updateView();
         },
-        onEditTask: function(_e, _$element) {
+        onMessageChanged(e, $element, newValue, oldValue) {
+            expect(newValue).not.toBe(oldValue);
+            this.updateView();
+        },
+        onEditTask(_e, _$element) {
             this.showTaskNameInput = true;
             this.updateView();
         },
-        onFocusEditTask: function(e, $element) {
+        onFocusEditTask(e, $element) {
             expect($element.id).toBe('taskName');
         },
-        onBlurEditTask: function(e, $element) {
+        onBlurEditTask(e, $element) {
             expect($element.id).toBe('taskName');
         },
-        onTestFormSubmit: function(e, _$element, _formData) {
+        onTestFormSubmit(e, _$element, _formData) {
             e.preventDefault();
         },
-        updateView: function() {
+        updateView() {
             namespace.formComponentApp.render();
         },
     };
@@ -101,7 +101,7 @@ describe('Given form-component initised', () => {
             expect(document.querySelector('#testRangeLabel').textContent).toBe(document.querySelector('#testRange').value);
             expect(document.querySelector('#taskName').value).toBe(formComponentVM.taskName);
             expect(document.querySelector('#taskName').style.display !== 'none').toBe(formComponentVM.showTaskNameInput);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
@@ -112,7 +112,7 @@ describe('Given form-component initised', () => {
         await waitFor(() => {
             const $newTodo = document.getElementById('new-todo');
             expect($newTodo).not.toBeNull();
-        }, { timeout: 500 });
+        }, {timeout: 500});
 
         const $newTodo = document.getElementById('new-todo');
         const evt = document.createEvent('HTMLEvents');
@@ -125,7 +125,7 @@ describe('Given form-component initised', () => {
         await waitFor(() => {
             expect(formComponentVM.taskName).toBe(task1);
             expect(document.querySelector('#taskName').value).toBe(formComponentVM.taskName);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('When #toggle-all checked then viewModel should have updated', async () => {
@@ -139,7 +139,7 @@ describe('Given form-component initised', () => {
         // defer to check after async render
         await waitFor(() => {
             expect(formComponentVM.markAllCompleted).toBe(true);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('When #carName dropdwon changed then viewModel should have updated', async () => {
@@ -153,7 +153,7 @@ describe('Given form-component initised', () => {
 
         await waitFor(() => {
             expect(formComponentVM.carName).toBe(newCarName);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('When #radioMale changed then viewModel should have updated', async () => {
@@ -167,7 +167,7 @@ describe('Given form-component initised', () => {
 
         await waitFor(() => {
             expect(formComponentVM.gender).toBe(newGender);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('When #testDate date input changed then viewModel should have updated', async () => {
@@ -181,7 +181,7 @@ describe('Given form-component initised', () => {
 
         await waitFor(() => {
             expect(formComponentVM.testDate).toBe(newTestDate);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('When #testRange range input changed then viewModel should have updated', async () => {
@@ -196,7 +196,7 @@ describe('Given form-component initised', () => {
         await waitFor(() => {
             expect(formComponentVM.testRange).toBe(newTestRange);
             expect(document.querySelector('#testRangeLabel').textContent).toBe(newTestRange);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('When #testRange range input trigger onInput changed then viewModel should have updated', async () => {
@@ -211,7 +211,7 @@ describe('Given form-component initised', () => {
         await waitFor(() => {
             expect(formComponentVM.testRange).toBe(newTestRange);
             expect(document.querySelector('#testRangeLabel').textContent).toBe(newTestRange);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('When #message range input changed with xss html then viewModel data should have escaped value and updated', async () => {
@@ -226,7 +226,7 @@ describe('Given form-component initised', () => {
 
         await waitFor(() => {
             expect(formComponentVM.message).toBe(escapedMessage);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('When #labelTaskeName label double clicked then viewModel should have updated and #taskName should show', async () => {
@@ -234,7 +234,7 @@ describe('Given form-component initised', () => {
 
         await waitFor(() => {
             expect(document.querySelector('#taskName').style.display !== 'none').toBe(formComponentVM.showTaskNameInput);
-        }, { timeout: 500 });
+        }, {timeout: 500});
 
         $taskName.focus();
         $taskName.blur();
@@ -248,7 +248,7 @@ describe('Given form-component initised', () => {
                 Object.keys(formComponentVM.testAttr).forEach(k => {
                     expect(attrObj[k]).toBe(formComponentVM.testAttr[k]);
                 });
-            }, { timeout: 500 });
+            }, {timeout: 500});
         });
 
         it('should update attribute according to viewModel', async () => {
@@ -265,7 +265,7 @@ describe('Given form-component initised', () => {
                     expect(attrObj[k]).toBe(formComponentVM.testAttr[k]);
                 });
                 expect(attrObj.rel).toBeUndefined();
-            }, { timeout: 500 });
+            }, {timeout: 500});
         });
     });
 });

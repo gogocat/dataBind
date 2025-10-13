@@ -20,7 +20,7 @@ const init = ($rootElement: any, viewModel: any = null): any => {
 };
 
 export default {
-    use: use,
-    init: init,
+    use,
+    init,
     version: '@version@',
 };

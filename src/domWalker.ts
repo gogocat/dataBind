@@ -118,9 +118,9 @@ const createBindingCache = ({rootNode = null, bindingAttrs = {} as any, skipChec
             // skip for switch case and default bining
             if (key !== bindingAttrs.case && key !== bindingAttrs.default) {
                 bindingCache = populateBindingCache({
-                    node: node,
-                    attrObj: attrObj,
-                    bindingCache: bindingCache,
+                    node,
+                    attrObj,
+                    bindingCache,
                     type: key,
                 });
             }

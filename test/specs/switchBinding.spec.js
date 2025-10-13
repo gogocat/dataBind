@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { waitFor } from '@testing-library/dom';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
+import {waitFor} from '@testing-library/dom';
 
-/* eslint-disable max-len */
+
 describe('Given [data-bind-comp="switch-component"] inited', () => {
     const namespace = {};
 
@@ -39,7 +39,7 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
                 {title: 'The Ugly Duckling', value: 's2'},
                 {title: 'The Giving Tree', value: 's3'},
             ],
-            onSelectedStory: function(newValue) {
+            onSelectedStory(newValue) {
                 const id = newValue;
 
                 if (storiesData[id] && id !== this.selectedStory) {
@@ -51,7 +51,7 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
                 }
                 this.updateView();
             },
-            setStoryImgAttr: function() {
+            setStoryImgAttr() {
                 const picPath = this.story.pic || '';
                 const ret = {
                     alt: this.story.title,
@@ -86,7 +86,7 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
     it('Then [data-bind-comp="mySwitchComponent"] should have render', async () => {
         await waitFor(() => {
             expect(document.getElementById('switch-component-heading').textContent).toBe(namespace.viewModel.heading);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('Should render only switch default case', async () => {
@@ -98,7 +98,7 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
             expect(document.getElementById('case1')).toBe(null);
             expect(document.getElementById('case2')).toBe(null);
             expect(document.getElementById('case3')).toBe(null);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
@@ -124,7 +124,7 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
             expect(document.getElementById('case2')).toBe(null);
             expect(document.getElementById('case3')).toBe(null);
             expect(document.getElementById('default-case')).toBe(null);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
@@ -148,7 +148,7 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
             expect(document.getElementById('case1')).toBe(null);
             expect(document.getElementById('case3')).toBe(null);
             expect(document.getElementById('default-case')).toBe(null);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
@@ -167,6 +167,6 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
             expect(document.getElementById('case1')).toBe(null);
             expect(document.getElementById('case2')).toBe(null);
             expect(document.getElementById('case3')).toBe(null);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 });

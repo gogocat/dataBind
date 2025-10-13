@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { waitFor } from '@testing-library/dom';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
+import {waitFor} from '@testing-library/dom';
 
 describe('Given [data-bind-comp="temp-component"] inited', () => {
     const namespace = {};
 
-    beforeEach(async function() {
+    beforeEach(async () => {
         loadFixture('test/fixtures/templateBinding.html');
 
         namespace.finishTemplateRender = 0;
@@ -22,10 +22,10 @@ describe('Given [data-bind-comp="temp-component"] inited', () => {
             contentNest3: {
                 info: 'Nested content 3',
             },
-            afterTemplateRender: function() {
+            afterTemplateRender() {
                 namespace.finishTemplateRender += 1;
             },
-            updateView: function(opt) {
+            updateView(opt) {
                 this.APP.render(opt);
             },
         };
@@ -50,7 +50,7 @@ describe('Given [data-bind-comp="temp-component"] inited', () => {
             // afterTemplateRender is called once per template completion
             // With nested templates now working, it's called multiple times
             expect(namespace.finishTemplateRender).toBeGreaterThan(0);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('Should render template1 with viewModel data', async () => {
@@ -67,7 +67,7 @@ describe('Given [data-bind-comp="temp-component"] inited', () => {
             expect($description.textContent).toBe(viewModel.description);
             expect($content.textContent).toBe(viewModel.content);
             expect($contentNest1.children.length).not.toBe(0);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
@@ -84,7 +84,7 @@ describe('Given [data-bind-comp="temp-component"] inited', () => {
             expect($contentNest1Info.textContent).toBe(viewModel.contentNest1.info);
             expect($nestPrepend.children.length).toBeGreaterThan(1);
             expect($nestAppend.children.length).toBeGreaterThan(1);
-        }, { timeout: 2000 });
+        }, {timeout: 2000});
     });
 
 
@@ -100,7 +100,7 @@ describe('Given [data-bind-comp="temp-component"] inited', () => {
             expect($nestPrependHeading).not.toBe(null);
             expect($nestPrependHeading.previousElementSibling).toBe($contentNest2Info);
             expect($contentNest2Info.textContent).toBe(viewModel.contentNest2.info);
-        }, { timeout: 2000 });
+        }, {timeout: 2000});
     });
 
 
@@ -116,6 +116,6 @@ describe('Given [data-bind-comp="temp-component"] inited', () => {
             expect($nestAppendHeading).not.toBe(null);
             expect($nestAppendHeading.nextElementSibling).toBe($contentNest3Info);
             expect($contentNest3Info.textContent).toBe(viewModel.contentNest3.info);
-        }, { timeout: 2000 });
+        }, {timeout: 2000});
     });
 });

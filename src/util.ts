@@ -1,5 +1,5 @@
 import * as config from './config';
-import type { ViewModel, BindingCache, ElementCache, DeferredObj, WrapMap } from './types';
+import type {ViewModel, BindingCache, ElementCache, DeferredObj, WrapMap} from './types';
 
 const hasIsArray = Array.isArray;
 
@@ -128,18 +128,46 @@ export const generateElementCache = (bindingAttrs: any): ElementCache => {
 };
 
 
-// simplified version of Lodash _.get
+/**
+ * List of dangerous property names that should not be accessed
+ * to prevent prototype pollution attacks
+ */
+const DANGEROUS_PROPS = ['__proto__', 'constructor', 'prototype'];
+
+/**
+ * Check if a property name is safe to access
+ */
+function isSafeProperty(prop: string): boolean {
+    return !DANGEROUS_PROPS.includes(prop);
+}
+
+// simplified version of Lodash _.get with prototype pollution protection
 const _get = function get(obj: any, path: string, def?: any): any {
-    function everyFunc(step: string): boolean {
-        return !(step && (obj = obj[step]) === undefined);
-    }
     const fullPath = path
         .replace(/\[/g, '.')
         .replace(/]/g, '')
         .split('.')
         .filter(Boolean);
 
-    return fullPath.every(everyFunc) ? obj : def;
+    let current = obj;
+    for (const step of fullPath) {
+        // Prevent access to dangerous properties
+        if (!step || !isSafeProperty(step)) {
+            return def;
+        }
+
+        if (current == null) {
+            return def;
+        }
+
+        current = current[step];
+
+        if (current === undefined) {
+            return def;
+        }
+    }
+
+    return current;
 };
 
 /**
@@ -153,23 +181,50 @@ export const getViewModelValue = (viewModel: ViewModel, prop: string): any => {
     return _get(viewModel, prop);
 };
 
-// simplified version of Lodash _.set
+// simplified version of Lodash _.set with prototype pollution protection
 // https://stackoverflow.com/questions/54733539/javascript-implementation-of-lodash-set-method
 const _set = (obj: any, path: string | string[], value: any): any => {
     if (Object(obj) !== obj) return obj; // When obj is not an object
+
     // If not yet an array, get the keys from the string-path
-    if (!Array.isArray(path)) path = path.toString().match(/[^.[\]]+/g) || [];
+    let pathArray: string[];
+    if (!Array.isArray(path)) {
+        pathArray = path.toString().match(/[^.[\]]+/g) || [];
+    } else {
+        pathArray = path;
+    }
+
+    // Check all keys in path for dangerous properties
+    for (const key of pathArray) {
+        if (!isSafeProperty(key)) {
+            console.warn(`Blocked attempt to set dangerous property: ${key}`);
+            return obj;
+        }
+    }
 
     // Iterate all of them except the last one
-    path.slice(0, -1).reduce((a, c, i) =>
-        Object(a[c]) === a[c] ? // Does the key exist and is its value an object?
-        // Yes: then follow that path
-            a[c] :
-        // No: create the key. Is the next key a potential array-index?
-            a[c] = Math.abs(Number(path[i+1]))>>0 === +path[i+1] ?
-                [] : // Yes: assign a new array object
-                {}, // No: assign a new plain object
-    obj)[path[path.length-1]] = value; // Finally assign the value to the last key
+    const lastKey = pathArray[pathArray.length - 1];
+    const target = pathArray.slice(0, -1).reduce((a, c, i) => {
+        // Prevent setting dangerous properties
+        if (!isSafeProperty(c)) {
+            return a;
+        }
+
+        if (Object(a[c]) === a[c]) {
+            // Key exists and is an object, follow that path
+            return a[c];
+        }
+
+        // Create the key. Is the next key a potential array-index?
+        const nextKey = pathArray[i + 1];
+        a[c] = Math.abs(Number(nextKey)) >> 0 === +nextKey ? [] : {};
+        return a[c];
+    }, obj);
+
+    // Set the final value only if the key is safe
+    if (isSafeProperty(lastKey)) {
+        target[lastKey] = value;
+    }
 
     // Return the top-level object to allow chaining
     return obj;
@@ -212,8 +267,8 @@ export const getViewModelPropValue = (viewModel: ViewModel, bindingCache: Bindin
     // call through fitlers to get final value
     ret = filtersViewModelPropValue({
         value: ret,
-        viewModel: viewModel,
-        bindingCache: bindingCache,
+        viewModel,
+        bindingCache,
     });
 
     return ret;
@@ -264,7 +319,7 @@ export const getFormData = ($form: HTMLFormElement): Record<string, any> => {
     const formData = new FormData($form);
 
     formData.forEach((value, key) => {
-        if (!Object.prototype.hasOwnProperty.call( Object, key ) ) {
+        if (!Object.prototype.hasOwnProperty.call(Object, key)) {
             data[key] = value;
             return;
         }
@@ -292,7 +347,7 @@ export const getFunctionParameterList = (str: string): string[] | undefined => {
 
     if (paramlist && paramlist[1]) {
         const params = paramlist[1].split(',');
-        params.forEach(function(v, i) {
+        params.forEach((v, i) => {
             params[i] = v.trim();
         });
         return params;
@@ -309,7 +364,7 @@ export const extractFilterList = (cacheData: any): any => {
     cacheData.dataKey = filterList[0].trim();
     if (filterList.length > 1) {
         filterList.shift();
-        filterList.forEach(function(v, i) {
+        filterList.forEach((v, i) => {
             filterList[i] = v.trim();
             if (filterList[i] === config.constants.filters.ONCE) {
                 cacheData.isOnce = true;
@@ -326,8 +381,12 @@ export const extractFilterList = (cacheData: any): any => {
 };
 
 export const invertObj = (sourceObj: Record<string, any>): Record<string, any> => {
-    return Object.keys(sourceObj).reduce(function(obj: Record<string, any>, key: string) {
-        obj[sourceObj[key]] = key;
+    return Object.keys(sourceObj).reduce((obj: Record<string, any>, key: string) => {
+        const invertedKey = sourceObj[key];
+        // Prevent prototype pollution by checking if the inverted key is safe
+        if (typeof invertedKey === 'string' && isSafeProperty(invertedKey)) {
+            obj[invertedKey] = key;
+        }
         return obj;
     }, {});
 };
@@ -351,12 +410,12 @@ export const createDeferredObj = (): DeferredObj => {
  * @return {function}
  */
 export const debounceRaf = (fn: Function, ctx: any = null): Function => {
-    return (function(fn: Function, ctx: any) {
+    return (function (fn: Function, ctx: any) {
         let dfObj = createDeferredObj();
         let rafId = 0;
 
         // return decorated fn
-        return function() {
+        return function () {
 
             const args = Array.from ? Array.from(arguments) : Array.prototype.slice.call(arguments);
 

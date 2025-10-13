@@ -13,7 +13,7 @@ export default function postProcess(tasks: Function[]): void {
             try {
                 task();
             } catch (err) {
-                throwErrorMessage(err, 'Error postProcess: ' + String(task));
+                throwErrorMessage(err, `Error postProcess: ${  String(task)}`);
             }
         }
     });

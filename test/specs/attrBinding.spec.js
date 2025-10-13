@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { waitFor } from '@testing-library/dom';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
+import {waitFor} from '@testing-library/dom';
 
 describe('Given [data-bind-comp="attr-component"] inited', () => {
     const namespace = {};
@@ -17,10 +17,10 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
                 style: 'width:300px',
                 ref: 'newRef',
             },
-            attr2: function(_$data) {
+            attr2(_$data) {
                 return testAttr2Obj;
             },
-            updateView: function(opt) {
+            updateView(opt) {
                 this.APP.render(opt);
             },
         };
@@ -43,7 +43,7 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
         await waitFor(() => {
             const $testAttr1 = document.getElementById('testAttr1');
             expect($testAttr1.textContent).toBe(namespace.viewModel.heading);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('Should update testAttr1 attributes', async () => {
@@ -54,7 +54,7 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
             // check existing attribute untouch
             expect($testAttr1.getAttribute('id')).toBe('testAttr1');
             expect($testAttr1.getAttribute('class')).toBe('test');
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('Should update testAttr2 attributes as viewModel function property', async () => {
@@ -62,7 +62,7 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
             const $testAttr2 = document.getElementById(testAttr2Obj.id);
             expect($testAttr2.getAttribute('ref')).toBe(testAttr2Obj.ref);
             expect($testAttr2.getAttribute('id')).toBe(testAttr2Obj.id);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('Should update attribute when viewModel updated', async () => {
@@ -70,7 +70,7 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
         const disabled = 'disabled';
         namespace.viewModel.attr1 = {
             ref: updatedRef,
-            disabled: disabled,
+            disabled,
             style: namespace.viewModel.attr1.style,
         };
 
@@ -82,7 +82,7 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
             // check existing attribute untouch
             expect($testAttr1.getAttribute('id')).toBe('testAttr1');
             expect($testAttr1.getAttribute('class')).toBe('test');
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('Should remove attribute when viewModel updated', async () => {
@@ -98,6 +98,6 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
             // check existing attribute untouch
             expect($testAttr1.getAttribute('id')).toBe('testAttr1');
             expect($testAttr1.getAttribute('class')).toBe('test');
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 });

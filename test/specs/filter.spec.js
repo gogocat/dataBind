@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
 
-/* eslint-disable max-len */
+
 describe('Given [data-bind-comp="filter-component"] inited', () => {
     const namespace = {};
 
@@ -20,13 +20,13 @@ describe('Given [data-bind-comp="filter-component"] inited', () => {
                 link: 'https://www.google.com.au/search?q=Hansel+and+Gretel',
                 price: 100,
             },
-            toDiscount: function(value) {
+            toDiscount(value) {
                 return Number(value) * this.discountRate;
             },
-            addGst: function(value) {
+            addGst(value) {
                 return Number(value) * this.gstRate;
             },
-            updateView: function(opt) {
+            updateView(opt) {
                 return this.APP.render(opt);
             },
         };

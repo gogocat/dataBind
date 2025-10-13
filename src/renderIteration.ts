@@ -21,9 +21,9 @@ const renderIteration = ({elementCache, iterationVm, bindingAttrs, isRegenerate}
     // viewModel is a dynamic generated iterationVm
     renderTemplatesBinding({
         ctx: iterationVm.$root ? iterationVm.$root.APP : iterationVm.APP,
-        elementCache: elementCache,
+        elementCache,
         updateOption: bindingUpdateOption,
-        bindingAttrs: bindingAttrs,
+        bindingAttrs,
         viewModel: iterationVm,
     });
 
@@ -31,9 +31,9 @@ const renderIteration = ({elementCache, iterationVm, bindingAttrs, isRegenerate}
     // which breaks the circular dependency during module initialization
     applyBindingModule.default({
         ctx: iterationVm.$root ? iterationVm.$root.APP : iterationVm.APP,
-        elementCache: elementCache,
+        elementCache,
         updateOption: bindingUpdateOption,
-        bindingAttrs: bindingAttrs,
+        bindingAttrs,
         viewModel: iterationVm,
     });
 };

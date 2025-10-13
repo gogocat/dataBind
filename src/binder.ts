@@ -143,7 +143,7 @@ class Binder {
         const renderBindingOption = {
             ctx: this,
             elementCache: this.elementCache,
-            updateOption: updateOption,
+            updateOption,
             bindingAttrs: this.bindingAttrs,
             viewModel: this.viewModel,
         };

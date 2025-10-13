@@ -1,7 +1,7 @@
 import {maxDatakeyLength} from './config';
 import {REGEX} from './util';
 import renderForOfBinding from './renderForOfBinding';
-import type { BindingCache, ViewModel, BindingAttrs } from './types';
+import type {BindingCache, ViewModel, BindingAttrs} from './types';
 
 /**
  * forOfBinding
@@ -43,8 +43,8 @@ const forOfBinding = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: B
 
     renderForOfBinding({
         bindingData: cache,
-        viewModel: viewModel,
-        bindingAttrs: bindingAttrs,
+        viewModel,
+        bindingAttrs,
     });
 };
 

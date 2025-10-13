@@ -2,7 +2,7 @@ import {bindingAttrs as configBindingAttrs, constants} from './config';
 import {getViewModelPropValue, removeElement} from './util';
 import {createClonedElementCache, wrapCommentAround} from './commentWrapper';
 import {renderIfBinding, removeIfBinding} from './renderIfBinding';
-import type { BindingCache, ViewModel, BindingAttrs } from './types';
+import type {BindingCache, ViewModel, BindingAttrs} from './types';
 
 /**
  * if-Binding
@@ -39,8 +39,8 @@ const ifBinding = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: Bind
         removeElement(cache.el);
         // delete cache.fragment;
         removeBindingInQueue({
-            viewModel: viewModel,
-            cache: cache,
+            viewModel,
+            cache,
         });
         return;
     }
@@ -64,8 +64,8 @@ const ifBinding = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: Bind
         // render element
         renderIfBinding({
             bindingData: cache,
-            viewModel: viewModel,
-            bindingAttrs: bindingAttrs,
+            viewModel,
+            bindingAttrs,
         });
 
         // if render once
@@ -73,8 +73,8 @@ const ifBinding = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: Bind
         if (cache.isOnce && !cache.hasIterationBindingCache) {
             // delete cache.fragment;
             removeBindingInQueue({
-                viewModel: viewModel,
-                cache: cache,
+                viewModel,
+                cache,
             });
         }
     }

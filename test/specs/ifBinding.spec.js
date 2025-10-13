@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { waitFor } from '@testing-library/dom';
+import {describe, it, expect, beforeEach, afterEach, vi} from 'vitest';
+import {waitFor} from '@testing-library/dom';
 
-/* eslint-disable max-len */
+
 describe('Given [data-bind-comp="if-component"] inited', () => {
     const namespace = {};
 
-    beforeEach(async function() {
+    beforeEach(async () => {
         loadFixture('test/fixtures/ifBinding.html');
 
         namespace.viewModel = {
@@ -18,13 +18,13 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
                     '"Hansel and Gretel" (also known as Hansel and Grettel, Hansel and Grethel, or Little Brother and Little Sister) is a well-known fairy tale of German origin.',
                 link: 'https://www.google.com.au/search?q=Hansel+and+Gretel',
             },
-            viewModelPropFn: function($data) {
+            viewModelPropFn($data) {
                 return typeof $data.viewModelPropFn === 'function';
             },
-            undefinedViewModelPropFn: function(_$data) {
+            undefinedViewModelPropFn(_$data) {
                 return;
             },
-            setStroylinkAttr: function(_$data) {
+            setStroylinkAttr(_$data) {
                 return {
                     href: this.story.link,
                     title: this.story.title,
@@ -32,10 +32,10 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
                     rel: 'noopener noreferrer',
                 };
             },
-            onStoryClick: function(e, _$el) {
+            onStoryClick(e, _$el) {
                 e.preventDefault();
             },
-            updateView: function(opt) {
+            updateView(opt) {
                 this.APP.render(opt);
             },
         };
@@ -61,7 +61,7 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
         await waitFor(() => {
             expect(document.querySelector('#intro-heading').textContent).toBe(namespace.viewModel.heading);
             expect(document.querySelector('#intro-description').textContent).toBe(namespace.viewModel.description);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('Then render if-binding elements with comment tag wrap around', async () => {
@@ -73,35 +73,35 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
             expect(introCloseCommentWrap.nodeType).toBe(8);
             expect(introOpenCommentWrap.textContent).toContain('data-if');
             expect(introCloseCommentWrap.textContent).toContain('data-if');
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
     it('should not render #story ', async () => {
         await waitFor(() => {
             expect(document.querySelector('#story')).toBe(null);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
     it('should not render #testPropFn ', async () => {
         await waitFor(() => {
             expect(document.getElementById('testPropFn')).not.toBe(null);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
     it('should not render #testUnDefiniedProp ', async () => {
         await waitFor(() => {
             expect(document.getElementById('testUnDefiniedProp')).toBe(null);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
     it('should render inverse negated boolean block', async () => {
         await waitFor(() => {
             expect(document.getElementById('NotTestUnDefiniedProp')).not.toBe(null);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     describe('When update viewModel renderIntro to false', () => {
@@ -127,7 +127,7 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
 
                 expect(namespace.viewModel.onStoryClick).toHaveBeenCalled();
                 namespace.viewModel.onStoryClick.mockClear();
-            }, { timeout: 500 });
+            }, {timeout: 500});
         });
     });
 
@@ -139,7 +139,7 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
             await waitFor(() => {
                 expect(document.querySelector('#story')).toBe(null);
                 expect(document.querySelector('#intro')).not.toBe(null);
-            }, { timeout: 500 });
+            }, {timeout: 500});
         });
     });
 
@@ -159,7 +159,7 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
                 $storyLink.dispatchEvent(evt);
                 expect(namespace.viewModel.onStoryClick).toHaveBeenCalled();
                 namespace.viewModel.onStoryClick.mockClear();
-            }, { timeout: 500 });
+            }, {timeout: 500});
         });
     });
 });

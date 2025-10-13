@@ -23,7 +23,7 @@ const renderTemplatesBinding = ({ctx, elementCache, updateOption, bindingAttrs, 
             // update cache after all template(s) rendered
             ctx.updateElementCache({
                 templateCache: true,
-                elementCache: elementCache,
+                elementCache,
                 isRenderedTemplates: true,
             });
         }
@@ -36,11 +36,11 @@ const renderTemplatesBinding = ({ctx, elementCache, updateOption, bindingAttrs, 
         // Use for loop to handle templates added during rendering
         for (let i = 0; i < elementCache[bindingAttrs.tmp].length; i++) {
             applyBindingModule.default({
-                ctx: ctx,
+                ctx,
                 elementCache: elementCache[bindingAttrs.tmp][i].bindingCache,
-                updateOption: updateOption,
-                bindingAttrs: bindingAttrs,
-                viewModel: viewModel,
+                updateOption,
+                bindingAttrs,
+                viewModel,
             });
         }
     }

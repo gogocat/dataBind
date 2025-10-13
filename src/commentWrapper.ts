@@ -17,18 +17,18 @@ const setCommentPrefix = (bindingData: any): any => {
     const dataKeyMarker = bindingData.dataKey ? bindingData.dataKey.replace(util.REGEX.WHITE_SPACES, '_') : '';
 
     switch (bindingData.type) {
-    case config.bindingAttrs.forOf:
-        commentPrefix = config.commentPrefix.forOf;
-        break;
-    case config.bindingAttrs.if:
-        commentPrefix = config.commentPrefix.if;
-        break;
-    case config.bindingAttrs.case:
-        commentPrefix = config.commentPrefix.case;
-        break;
-    case config.bindingAttrs.default:
-        commentPrefix = config.commentPrefix.default;
-        break;
+        case config.bindingAttrs.forOf:
+            commentPrefix = config.commentPrefix.forOf;
+            break;
+        case config.bindingAttrs.if:
+            commentPrefix = config.commentPrefix.if;
+            break;
+        case config.bindingAttrs.case:
+            commentPrefix = config.commentPrefix.case;
+            break;
+        case config.bindingAttrs.default:
+            commentPrefix = config.commentPrefix.default;
+            break;
     }
     bindingData.commentPrefix = commentPrefix + dataKeyMarker;
     return bindingData;

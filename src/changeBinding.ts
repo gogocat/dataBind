@@ -6,6 +6,43 @@ import {
     resolveParamList,
 } from './util';
 import _escape from './_escape';
+import type {BindingCache, ViewModel, BindingAttrs} from './types';
+
+/**
+ * Create change handler
+ */
+function createChangeHandler(
+    viewModel: ViewModel,
+    modelDataKey: string | null,
+    paramList: unknown[],
+    handlerFn: Function,
+    viewModelContext: ViewModel,
+): EventListener {
+    let oldValue: unknown = '';
+    let newValue: unknown = '';
+
+    return function changeHandler(this: HTMLInputElement, e: Event) {
+        const $this = this;
+        const isCheckbox = $this.type === 'checkbox';
+        newValue = isCheckbox ? $this.checked : _escape($this.value);
+        // set data to viewModel
+        if (modelDataKey) {
+            oldValue = getViewModelValue(viewModel, modelDataKey);
+            setViewModelValue(viewModel, modelDataKey, newValue);
+        }
+        const args = [e, e.currentTarget, newValue, oldValue].concat(paramList as any[]);
+        handlerFn.apply(viewModelContext, args);
+        oldValue = newValue;
+    };
+}
+
+interface ChangeBindingParams {
+    cache: BindingCache;
+    viewModel: ViewModel;
+    bindingAttrs: BindingAttrs;
+    forceRender: boolean;
+    type?: string;
+}
 
 /**
  * changeBinding
@@ -21,16 +58,15 @@ const changeBinding = ({
     bindingAttrs,
     forceRender,
     type = 'change',
-}: any): void => {
+}: ChangeBindingParams): void => {
     const handlerName = cache.dataKey;
     let paramList = cache.parameters;
     const modelDataKey = cache.el.getAttribute(bindingAttrs.model);
-    let newValue: any = '';
-    let oldValue: any = '';
-    let viewModelContext: any;
-    const APP = viewModel.APP || viewModel.$root.APP;
+    let viewModelContext: ViewModel;
+    const APP = viewModel.APP || viewModel.$root?.APP;
+    const rootElement = APP?.$rootElement as HTMLElement | undefined;
 
-    if (!handlerName || (!forceRender && !APP.$rootElement.contains(cache.el))) {
+    if (!handlerName || (!forceRender && rootElement && !rootElement.contains(cache.el))) {
         return;
     }
 
@@ -40,21 +76,15 @@ const changeBinding = ({
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
 
-        function changeHandler(e: any) {
-            const $this = this as any;
-            const isCheckbox = $this.type === 'checkbox';
-            newValue = isCheckbox ? $this.checked : _escape($this.value);
-            // set data to viewModel
-            if (modelDataKey) {
-                oldValue = getViewModelValue(viewModel, modelDataKey);
-                setViewModelValue(viewModel, modelDataKey, newValue);
-            }
-            const args = [e, e.currentTarget, newValue, oldValue].concat(paramList);
-            handlerFn.apply(viewModelContext, args);
-            oldValue = newValue;
-        }
+        const changeHandler = createChangeHandler(
+            viewModel,
+            modelDataKey,
+            paramList,
+            handlerFn,
+            viewModelContext,
+        );
 
-        // assing on change event
+        // assign on change event
         cache.el.removeEventListener(type, changeHandler, false);
         cache.el.addEventListener(type, changeHandler, false);
     }

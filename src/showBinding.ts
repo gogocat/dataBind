@@ -1,5 +1,5 @@
 import {getViewModelPropValue} from './util';
-import type { BindingCache, ViewModel, BindingAttrs } from './types';
+import type {BindingCache, ViewModel, BindingAttrs} from './types';
 
 /**
  * showBinding

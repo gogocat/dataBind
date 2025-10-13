@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { waitFor } from '@testing-library/dom';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
+import {waitFor} from '@testing-library/dom';
 
-/* eslint-disable max-len */
+
 // It seems PhantomJS has issue with createComment and createRange
 const isEnvSupportDocRange = ((document) => {
     let docRange;
@@ -69,7 +69,7 @@ describe('When search-results-component with forOf binding inited', () => {
                     options: [{text: '7', value: '7'}, {text: '8', value: '8'}, {text: '9', value: '9'}],
                 },
             ],
-            getResultItemAttr: function(index, _oldAttrObj, _$el) {
+            getResultItemAttr(index, _oldAttrObj, _$el) {
                 const self = this;
                 if (self.searchResults[index].image) {
                     return {
@@ -78,7 +78,7 @@ describe('When search-results-component with forOf binding inited', () => {
                     };
                 }
             },
-            setResultOptionAttr: function($data, _oldAttrObj, _$el) {
+            setResultOptionAttr($data, _oldAttrObj, _$el) {
                 if ($data && $data.value) {
                     // todo: the index here is the outter loop index
                     return {
@@ -86,10 +86,10 @@ describe('When search-results-component with forOf binding inited', () => {
                     };
                 }
             },
-            onAdMessageCheck: function(e, $el, newValue, oldValue, index) {
+            onAdMessageCheck(e, $el, newValue, oldValue, index) {
                 console.log('onAdMessageCheck: ', $el, newValue, oldValue, index);
             },
-            onAdBookmarkClick: function(e, $el, index) {
+            onAdBookmarkClick(e, $el, index) {
                 e.preventDefault();
                 console.log('onAdBookmarkClick: ', $el, index);
             },
@@ -120,7 +120,7 @@ describe('When search-results-component with forOf binding inited', () => {
         }
         await waitFor(() => {
             expect(document.querySelector('#searchResultTitle').textContent).toBe(namespace.viewModel.searchResultTitle);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('Then render forOf binding elements with comment tag wrap around', async () => {
@@ -137,7 +137,7 @@ describe('When search-results-component with forOf binding inited', () => {
             const lastComment = $searchColumn.lastChild;
             expect(firstComment.nodeType).toBe(Node.COMMENT_NODE);
             expect(lastComment.nodeType).toBe(Node.COMMENT_NODE);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('Then render same amount of items in viewModel.searchResults', async () => {
@@ -152,7 +152,7 @@ describe('When search-results-component with forOf binding inited', () => {
         await waitFor(() => {
             const $results = Array.from($searchColumn.children);
             expect($results.length).toBe(namespace.viewModel.searchResults.length);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     describe('When each search item rendered', () => {
@@ -202,7 +202,7 @@ describe('When search-results-component with forOf binding inited', () => {
                         expect($options[index + 1].value).toEqual(searchResult.options[index].value);
                     }
                 });
-            }, { timeout: 500 });
+            }, {timeout: 500});
         });
     });
 });

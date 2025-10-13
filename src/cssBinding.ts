@@ -64,7 +64,7 @@ const cssBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender: 
     }
 
     if (isViewDataObject) {
-        each(vmCssListObj, function(k: any, v: any) {
+        each(vmCssListObj, (k: any, v: any) => {
             const i = cssList.indexOf(k);
             if (v === true) {
                 cssList.push(k);

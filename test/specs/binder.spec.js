@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import {describe, it, expect} from 'vitest';
 
 describe('Given dataBind lib loaded', () => {
     it('Then dataBind object exists', () => {

@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { waitFor } from '@testing-library/dom';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
+import {waitFor} from '@testing-library/dom';
 
 describe('Given [data-bind-comp="text-component"] inited', () => {
     const namespace = {};
@@ -11,10 +11,10 @@ describe('Given [data-bind-comp="text-component"] inited', () => {
         namespace.viewModel = {
             heading: 'my text-binding Component',
             description: 'test description',
-            getTextContent: function() {
+            getTextContent() {
                 return testContent2;
             },
-            updateView: function(opt) {
+            updateView(opt) {
                 this.APP.render(opt);
             },
         };
@@ -42,6 +42,6 @@ describe('Given [data-bind-comp="text-component"] inited', () => {
             expect($heading.textContent).toBe(namespace.viewModel.heading);
             expect($textBindingContent.textContent).toBe(namespace.viewModel.description);
             expect($textBindingContent2.textContent).toBe(testContent2);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 });

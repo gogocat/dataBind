@@ -1,20 +1,20 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { waitFor } from '@testing-library/dom';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
+import {waitFor} from '@testing-library/dom';
 
 describe('Given [data-bind-comp="show-component"] inited', () => {
     const namespace = {};
-    const isVisible = function(el) {
+    const isVisible = function (el) {
         // In jsdom, offsetHeight is always 0, so check display style instead
         return el.style.display !== 'none';
     };
 
-    beforeEach(async function() {
+    beforeEach(async () => {
         loadFixture('test/fixtures/showBinding.html');
 
         namespace.viewModel = {
             heading: 'Test data-show-binding',
             displayHeading2: true,
-            displayHeadingFn: function($data) {
+            displayHeadingFn($data) {
                 // test $data is refer to this viewModel;
                 return typeof $data.displayHeadingFn === 'function';
             },
@@ -23,7 +23,7 @@ describe('Given [data-bind-comp="show-component"] inited', () => {
             displayHeading6: true,
             displayHeading7: true,
 
-            updateView: function(opt) {
+            updateView(opt) {
                 this.APP.render(opt);
             },
         };
@@ -45,7 +45,7 @@ describe('Given [data-bind-comp="show-component"] inited', () => {
     it('Then [data-bind-comp="myComponent"] should have render', async () => {
         await waitFor(() => {
             expect(document.getElementById('heading').textContent).toBe(namespace.viewModel.heading);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('Should show or hide headings as defined in viewModel', async () => {
@@ -82,7 +82,7 @@ describe('Given [data-bind-comp="show-component"] inited', () => {
 
             expect($heading7.style.display).toBe('block');
             expect(isVisible($heading7)).toBe(namespace.viewModel.displayHeading7);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
@@ -94,7 +94,7 @@ describe('Given [data-bind-comp="show-component"] inited', () => {
             const $heading2 = document.getElementById('heading2');
             expect($heading2.style.display).toBe('none');
             expect(isVisible($heading2)).toBe(namespace.viewModel.displayHeading2);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
@@ -111,7 +111,7 @@ describe('Given [data-bind-comp="show-component"] inited', () => {
 
             expect($heading2Invert.style.display).toBe('');
             expect(isVisible($heading2Invert)).toBe(!namespace.viewModel.displayHeading2);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
@@ -124,7 +124,7 @@ describe('Given [data-bind-comp="show-component"] inited', () => {
             const $heading4 = document.getElementById('heading4');
             expect($heading4.style.display).toBe('none');
             expect(isVisible($heading4)).toBe(false);
-        }, { timeout: 500 });
+        }, {timeout: 500});
 
         // Then show it again
         namespace.viewModel.displayHeading4 = true;
@@ -134,7 +134,7 @@ describe('Given [data-bind-comp="show-component"] inited', () => {
             const $heading4 = document.getElementById('heading4');
             expect($heading4.style.display).toBe('');
             expect(isVisible($heading4)).toBe(true);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('Should not show heading8 as property is not defined in viewModel', async () => {
@@ -143,6 +143,6 @@ describe('Given [data-bind-comp="show-component"] inited', () => {
 
             expect($heading8.style.display).toBe('none');
             expect(isVisible($heading8)).toBe(false);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 });

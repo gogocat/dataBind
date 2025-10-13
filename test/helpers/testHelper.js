@@ -1,6 +1,6 @@
-import { afterEach } from 'vitest';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import {afterEach} from 'vitest';
+import {readFileSync} from 'fs';
+import {resolve} from 'path';
 import dataBind from '../../src/index';
 
 /*
@@ -28,16 +28,16 @@ global.loadFixture = (fixturePath) => {
 // Helper functions for tests to replace jQuery
 global.simulateInput = (element, value) => {
     element.value = value;
-    element.dispatchEvent(new Event('input', { bubbles: true }));
-    element.dispatchEvent(new Event('change', { bubbles: true }));
+    element.dispatchEvent(new Event('input', {bubbles: true}));
+    element.dispatchEvent(new Event('change', {bubbles: true}));
 };
 
 global.simulateClick = (element) => {
-    element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    element.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
 };
 
 global.simulateBlur = (element) => {
-    element.dispatchEvent(new FocusEvent('blur', { bubbles: true }));
+    element.dispatchEvent(new FocusEvent('blur', {bubbles: true}));
 };
 
 // Helper to clean up DOM after each test

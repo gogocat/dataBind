@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { waitFor } from '@testing-library/dom';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
+import {waitFor} from '@testing-library/dom';
 
 describe('When nested data-bind-comp initised', () => {
     const namespace = {};
 
-    beforeEach(function() {
+    beforeEach(() => {
         loadFixture('test/fixtures/nestedComponents.html');
 
         namespace.parentComponentVM = {
@@ -57,7 +57,7 @@ describe('When nested data-bind-comp initised', () => {
         await waitFor(() => {
             expect(document.querySelector('#parent-component-title').textContent).toBe(namespace.parentComponentVM.title);
             expect(document.querySelector('#parent-component-description').textContent).toBe(namespace.parentComponentVM.description);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
@@ -65,7 +65,7 @@ describe('When nested data-bind-comp initised', () => {
         await waitFor(() => {
             expect(document.querySelector('#child-component-title').textContent).toBe(namespace.childComponentVM.title);
             expect(document.querySelector('#child-component-description').textContent).toBe(namespace.childComponentVM.description);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
@@ -73,7 +73,7 @@ describe('When nested data-bind-comp initised', () => {
         await waitFor(() => {
             expect(document.querySelector('#grand-child-component-title').textContent).toBe(namespace.grandChildComponentVM.title);
             expect(document.querySelector('#grand-child-component-description').textContent).toBe(namespace.grandChildComponentVM.description);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
 
@@ -83,6 +83,6 @@ describe('When nested data-bind-comp initised', () => {
             expect(document.querySelector('#slibing-child-component-description').textContent).toBe(
                 namespace.slibingChildComponentVM.description,
             );
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 });

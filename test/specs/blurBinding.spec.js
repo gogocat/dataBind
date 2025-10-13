@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { waitFor } from '@testing-library/dom';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
+import {waitFor} from '@testing-library/dom';
 
 describe('Given [data-bind-comp="blur-component"] initised', () => {
     const namespace = {};
@@ -11,12 +11,12 @@ describe('Given [data-bind-comp="blur-component"] initised', () => {
         namespace.viewModel = {
             heading: 'blur component test',
             myData: 'blur component',
-            onFocusFn: function(_e, _$element) {},
-            onBlurFn: function(_e, _$element) {
+            onFocusFn(_e, _$element) {},
+            onBlurFn(_e, _$element) {
                 this.myData = testBlurValue;
                 this.updateView();
             },
-            updateView: function(opt) {
+            updateView(opt) {
                 this.APP.render(opt);
             },
         };
@@ -39,14 +39,14 @@ describe('Given [data-bind-comp="blur-component"] initised', () => {
         await waitFor(() => {
             expect(document.getElementById('heading').textContent).toBe(namespace.viewModel.heading);
             expect(document.getElementById('blurInput').value).toBe(namespace.viewModel.myData);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 
     it('should update "blurInput" value after onBlur', async () => {
         await waitFor(() => {
             const $blurInput = document.getElementById('blurInput');
             expect($blurInput).not.toBeNull();
-        }, { timeout: 500 });
+        }, {timeout: 500});
 
         const $blurInput = document.getElementById('blurInput');
 
@@ -55,6 +55,6 @@ describe('Given [data-bind-comp="blur-component"] initised', () => {
 
         await waitFor(() => {
             expect($blurInput.value).toBe(testBlurValue);
-        }, { timeout: 500 });
+        }, {timeout: 500});
     });
 });

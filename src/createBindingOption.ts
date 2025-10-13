@@ -71,18 +71,18 @@ function createBindingOption(condition: string = '', opt: BindingOption = {}): B
     let updateOption: BindingOption = {};
 
     switch (condition) {
-    case bindingUpdateConditions.serverRendered:
-        updateOption = extend(false, {}, eventsBindingOptions, serverRenderedOptions, opt);
-        break;
-    case bindingUpdateConditions.init:
+        case bindingUpdateConditions.serverRendered:
+            updateOption = extend(false, {}, eventsBindingOptions, serverRenderedOptions, opt);
+            break;
+        case bindingUpdateConditions.init:
         // flag templateBinding to true to render tempalte(s)
-        opt.templateBinding = true;
-        opt.forceRender = true;
-        updateOption = extend(false, {}, visualBindingOptions, eventsBindingOptions, opt);
-        break;
-    default:
+            opt.templateBinding = true;
+            opt.forceRender = true;
+            updateOption = extend(false, {}, visualBindingOptions, eventsBindingOptions, opt);
+            break;
+        default:
         // when called again only update visualBinding options
-        updateOption = extend(false, {}, visualBindingOptions, opt);
+            updateOption = extend(false, {}, visualBindingOptions, opt);
     }
 
     return updateOption;

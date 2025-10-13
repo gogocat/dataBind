@@ -9,7 +9,7 @@ import forOfBinding from './forOfBinding'; // depends renderForOfBinding -> this
 import ifBinding from './ifBinding';
 import switchBinding from './switchBinding';
 import createEventBinding from './createEventBinding';
-import type { ElementCache, UpdateOption, BindingAttrs, ViewModel, BindingCache } from './types';
+import type {ElementCache, UpdateOption, BindingAttrs, ViewModel, BindingCache} from './types';
 
 interface ApplyBindingParams {
     ctx: unknown;
