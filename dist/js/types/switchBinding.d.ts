@@ -1,3 +1,4 @@
+import type { BindingCache, ViewModel, BindingAttrs } from './types';
 /**
  * switch-Binding
  * @description
@@ -7,6 +8,6 @@
  * @param {object} viewModel
  * @param {object} bindingAttrs
  */
-declare const switchBinding: (cache: any, viewModel: any, bindingAttrs: any, forceRender?: any) => void;
+declare const switchBinding: (cache: BindingCache, viewModel: ViewModel, bindingAttrs: BindingAttrs, _forceRender?: boolean) => void;
 export default switchBinding;
 //# sourceMappingURL=switchBinding.d.ts.map

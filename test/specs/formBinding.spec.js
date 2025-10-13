@@ -29,11 +29,11 @@ describe('Given form-component initised', () => {
             rel: 'testRel',
             class: 'show',
         },
-        onAddTask: function(e, $element, newValue, oldValue) {
+        onAddTask: function(_e, _$element, newValue, _oldValue) {
             this.taskName = newValue;
             this.updateView();
         },
-        onMarkAllCompleted: function(e, $element, newValue, oldValue) {
+        onMarkAllCompleted: function(_e, _$element, _newValue, _oldValue) {
             this.markAllCompleted = true;
             this.updateView();
         },
@@ -58,7 +58,7 @@ describe('Given form-component initised', () => {
             expect(newValue).not.toBe(oldValue);
             this.updateView();
         },
-        onEditTask: function(e, $element) {
+        onEditTask: function(_e, _$element) {
             this.showTaskNameInput = true;
             this.updateView();
         },
@@ -68,7 +68,7 @@ describe('Given form-component initised', () => {
         onBlurEditTask: function(e, $element) {
             expect($element.id).toBe('taskName');
         },
-        onTestFormSubmit: function(e, $element, formData) {
+        onTestFormSubmit: function(e, _$element, _formData) {
             e.preventDefault();
         },
         updateView: function() {

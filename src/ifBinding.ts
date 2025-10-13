@@ -2,6 +2,7 @@ import {bindingAttrs as configBindingAttrs, constants} from './config';
 import {getViewModelPropValue, removeElement} from './util';
 import {createClonedElementCache, wrapCommentAround} from './commentWrapper';
 import {renderIfBinding, removeIfBinding} from './renderIfBinding';
+import type { BindingCache, ViewModel, BindingAttrs } from './types';
 
 /**
  * if-Binding
@@ -11,7 +12,7 @@ import {renderIfBinding, removeIfBinding} from './renderIfBinding';
  * @param {object} viewModel
  * @param {object} bindingAttrs
  */
-const ifBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender?: any): void => {
+const ifBinding = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: BindingAttrs, _forceRender?: boolean): void => {
     const dataKey = cache.dataKey;
 
     // isOnce only return if there is no child bindings
@@ -79,13 +80,14 @@ const ifBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender?: 
     }
 };
 
-const removeBindingInQueue = ({viewModel, cache}: any): boolean => {
+const removeBindingInQueue = ({viewModel, cache}: {viewModel: ViewModel; cache: BindingCache}): boolean => {
     let ret = false;
-    if (viewModel.APP.postProcessQueue) {
+    if (viewModel.APP?.postProcessQueue) {
+        const parentRef = cache[constants.PARENT_REF] as BindingCache[];
         viewModel.APP.postProcessQueue.push(
-            ((cache: any, index: any) => () => {
-                cache[constants.PARENT_REF].splice(index, 1);
-            })(cache, cache[constants.PARENT_REF].indexOf(cache)),
+            ((cache: BindingCache, index: number) => () => {
+                parentRef.splice(index, 1);
+            })(cache, parentRef.indexOf(cache)),
         );
         ret = true;
     }

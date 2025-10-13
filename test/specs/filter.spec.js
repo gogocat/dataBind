@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { waitFor } from '@testing-library/dom';
 
 /* eslint-disable max-len */
 describe('Given [data-bind-comp="filter-component"] inited', () => {

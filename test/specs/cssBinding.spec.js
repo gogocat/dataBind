@@ -14,7 +14,7 @@ describe('Given [data-bind-comp="css-component"] inited', () => {
                 b: true,
                 c: true,
             },
-            getTestTwoCss: function($data, oldValue, el) {
+            getTestTwoCss: function(_$data, _oldValue, _el) {
                 return {
                     e: true,
                     f: true,

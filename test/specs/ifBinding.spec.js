@@ -21,10 +21,10 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
             viewModelPropFn: function($data) {
                 return typeof $data.viewModelPropFn === 'function';
             },
-            undefinedViewModelPropFn: function($data) {
+            undefinedViewModelPropFn: function(_$data) {
                 return;
             },
-            setStroylinkAttr: function($data) {
+            setStroylinkAttr: function(_$data) {
                 return {
                     href: this.story.link,
                     title: this.story.title,
@@ -32,7 +32,7 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
                     rel: 'noopener noreferrer',
                 };
             },
-            onStoryClick: function(e, $el) {
+            onStoryClick: function(e, _$el) {
                 e.preventDefault();
             },
             updateView: function(opt) {

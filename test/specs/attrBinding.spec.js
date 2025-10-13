@@ -17,7 +17,7 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
                 style: 'width:300px',
                 ref: 'newRef',
             },
-            attr2: function($data) {
+            attr2: function(_$data) {
                 return testAttr2Obj;
             },
             updateView: function(opt) {

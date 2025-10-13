@@ -11,8 +11,8 @@ describe('Given [data-bind-comp="blur-component"] initised', () => {
         namespace.viewModel = {
             heading: 'blur component test',
             myData: 'blur component',
-            onFocusFn: function(e, $element) {},
-            onBlurFn: function(e, $element) {
+            onFocusFn: function(_e, _$element) {},
+            onBlurFn: function(_e, _$element) {
                 this.myData = testBlurValue;
                 this.updateView();
             },

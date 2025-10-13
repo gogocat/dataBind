@@ -19,7 +19,7 @@ const isEnvSupportDocRange = ((document) => {
         if (commentNode.nodeType !== 8 || commentNode.textContent !== commentText) {
             return (ret = false);
         }
-    } catch (err) {
+    } catch {
         return (ret = false);
     }
     return ret;
@@ -69,7 +69,7 @@ describe('When search-results-component with forOf binding inited', () => {
                     options: [{text: '7', value: '7'}, {text: '8', value: '8'}, {text: '9', value: '9'}],
                 },
             ],
-            getResultItemAttr: function(index, oldAttrObj, $el) {
+            getResultItemAttr: function(index, _oldAttrObj, _$el) {
                 const self = this;
                 if (self.searchResults[index].image) {
                     return {
@@ -78,7 +78,7 @@ describe('When search-results-component with forOf binding inited', () => {
                     };
                 }
             },
-            setResultOptionAttr: function($data, oldAttrObj, $el) {
+            setResultOptionAttr: function($data, _oldAttrObj, _$el) {
                 if ($data && $data.value) {
                     // todo: the index here is the outter loop index
                     return {

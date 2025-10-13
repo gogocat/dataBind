@@ -1,6 +1,8 @@
 import {getViewModelPropValue} from './util';
 import {createClonedElementCache, wrapCommentAround} from './commentWrapper';
 import {renderIfBinding, removeIfBinding} from './renderIfBinding';
+import type { BindingCache, ViewModel, BindingAttrs, CaseData } from './types';
+
 /**
  * switch-Binding
  * @description
@@ -10,7 +12,7 @@ import {renderIfBinding, removeIfBinding} from './renderIfBinding';
  * @param {object} viewModel
  * @param {object} bindingAttrs
  */
-const switchBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender?: any): void => {
+const switchBinding = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: BindingAttrs, _forceRender?: boolean): void => {
     const dataKey = cache.dataKey;
 
     if (!dataKey) {
@@ -35,11 +37,12 @@ const switchBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRende
         }
         cache.cases = [];
         for (let i = 0, elementLength = childrenElements.length; i < elementLength; i += 1) {
-            let caseData: any = null;
-            if (childrenElements[i].hasAttribute(bindingAttrs.case)) {
-                caseData = createCaseData(childrenElements[i], bindingAttrs.case);
-            } else if (childrenElements[i].hasAttribute(bindingAttrs.default)) {
-                caseData = createCaseData(childrenElements[i], bindingAttrs.default);
+            let caseData: CaseData | null = null;
+            const childElement = childrenElements[i] as HTMLElement;
+            if (childElement.hasAttribute(bindingAttrs.case)) {
+                caseData = createCaseData(childElement, bindingAttrs.case);
+            } else if (childElement.hasAttribute(bindingAttrs.default)) {
+                caseData = createCaseData(childElement, bindingAttrs.default);
                 caseData.isDefault = true;
             }
             // create fragment by clone node
@@ -62,7 +65,7 @@ const switchBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRende
         let hasMatch = false;
         // do switch operation - reuse if binding logic
         for (let j = 0, casesLength = cache.cases.length; j < casesLength; j += 1) {
-            let newCaseValue: any;
+            let newCaseValue: unknown;
             if (cache.cases[j].dataKey) {
                 // set back to dataKey if nothing found in viewModel
                 newCaseValue = getViewModelPropValue(viewModel, cache.cases[j]) || cache.cases[j].dataKey;
@@ -89,8 +92,8 @@ const switchBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRende
     }
 };
 
-function removeUnmatchCases(cases: any[], matchedIndex?: number): void {
-    cases.forEach((caseData: any, index: number) => {
+function removeUnmatchCases(cases: CaseData[], matchedIndex?: number): void {
+    cases.forEach((caseData: CaseData, index: number) => {
         if (index !== matchedIndex || typeof matchedIndex === 'undefined') {
             removeIfBinding(caseData);
             // remove cache.IterationBindingCache to prevent memory leak
@@ -102,8 +105,8 @@ function removeUnmatchCases(cases: any[], matchedIndex?: number): void {
     });
 }
 
-function createCaseData(node: any, attrName: string): any {
-    const caseData = {
+function createCaseData(node: HTMLElement, attrName: string): CaseData {
+    const caseData: CaseData = {
         el: node,
         dataKey: node.getAttribute(attrName),
         type: attrName,

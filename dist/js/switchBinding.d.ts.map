@@ -1,1 +1,1 @@
-{"version":3,"file":"switchBinding.d.ts","sourceRoot":"","sources":["../../src/switchBinding.ts"],"names":[],"mappings":"AAGA;;;;;;;;GAQG;AACH,QAAA,MAAM,aAAa,GAAI,OAAO,GAAG,EAAE,WAAW,GAAG,EAAE,cAAc,GAAG,EAAE,cAAc,GAAG,KAAG,IA6EzF,CAAC;AAwBF,eAAe,aAAa,CAAC"}
+{"version":3,"file":"switchBinding.d.ts","sourceRoot":"","sources":["../../src/switchBinding.ts"],"names":[],"mappings":"AAGA,OAAO,KAAK,EAAE,YAAY,EAAE,SAAS,EAAE,YAAY,EAAY,MAAM,SAAS,CAAC;AAE/E;;;;;;;;GAQG;AACH,QAAA,MAAM,aAAa,GAAI,OAAO,YAAY,EAAE,WAAW,SAAS,EAAE,cAAc,YAAY,EAAE,eAAe,OAAO,KAAG,IA8EtH,CAAC;AAwBF,eAAe,aAAa,CAAC"}

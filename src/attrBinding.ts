@@ -16,7 +16,7 @@ import {
  * @param {object} viewModel
  * @param {object} bindingAttrs
  */
-const attrBinding = (cache: any = {}, viewModel: any, bindingAttrs?: any, forceRender?: any): void => {
+const attrBinding = (cache: any = {}, viewModel: any, _bindingAttrs?: any, _forceRender?: any): void => {
     if (!cache.dataKey) {
         return;
     }
@@ -69,7 +69,7 @@ const attrBinding = (cache: any = {}, viewModel: any, bindingAttrs?: any, forceR
         });
     } else {
         // loop oldAttrObj, remove attribute not present in current vmAttrObj
-        each(oldAttrObj, (key: any, value: any) => {
+        each(oldAttrObj, (key: any, _value: any) => {
             if (typeof vmAttrObj[key] === 'undefined') {
                 cache.el.removeAttribute(key);
             }

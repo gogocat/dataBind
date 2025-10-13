@@ -1,1 +1,1 @@
-{"version":3,"file":"ifBinding.d.ts","sourceRoot":"","sources":["../../src/ifBinding.ts"],"names":[],"mappings":"AAKA;;;;;;;GAOG;AACH,QAAA,MAAM,SAAS,GAAI,OAAO,GAAG,EAAE,WAAW,GAAG,EAAE,cAAc,GAAG,EAAE,cAAc,GAAG,KAAG,IAkErF,CAAC;AAeF,eAAe,SAAS,CAAC"}
+{"version":3,"file":"ifBinding.d.ts","sourceRoot":"","sources":["../../src/ifBinding.ts"],"names":[],"mappings":"AAIA,OAAO,KAAK,EAAE,YAAY,EAAE,SAAS,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAErE;;;;;;;GAOG;AACH,QAAA,MAAM,SAAS,GAAI,OAAO,YAAY,EAAE,WAAW,SAAS,EAAE,cAAc,YAAY,EAAE,eAAe,OAAO,KAAG,IAkElH,CAAC;AAgBF,eAAe,SAAS,CAAC"}

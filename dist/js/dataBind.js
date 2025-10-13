@@ -264,7 +264,7 @@ license MIT(function (global, factory) {
      * @return {boolean}
      */
     const arrayRemoveMatch = (toArray, frommArray) => {
-      return toArray.filter((value, index) => {
+      return toArray.filter((value, _index) => {
         return frommArray.indexOf(value) < 0;
       });
     };
@@ -950,7 +950,7 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const showBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+    const showBinding = (cache, viewModel, _bindingAttrs, _forceRender) => {
       const dataKey = cache.dataKey;
       let currentInlineSytle = {};
       let currentInlineDisplaySytle = '';
@@ -1093,7 +1093,7 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const attrBinding = (cache = {}, viewModel, bindingAttrs, forceRender) => {
+    const attrBinding = (cache = {}, viewModel, _bindingAttrs, _forceRender) => {
       if (!cache.dataKey) {
         return;
       }
@@ -1141,7 +1141,7 @@ license MIT(function (global, factory) {
         });
       } else {
         // loop oldAttrObj, remove attribute not present in current vmAttrObj
-        each(oldAttrObj, (key, value) => {
+        each(oldAttrObj, (key, _value) => {
           if (typeof vmAttrObj[key] === 'undefined') {
             cache.el.removeAttribute(key);
           }
@@ -1312,6 +1312,7 @@ license MIT(function (global, factory) {
         // Use for loop to handle templates added during rendering
         for (let i = 0; i < elementCache[bindingAttrs.tmp].length; i++) {
           applyBinding({
+            ctx: ctx,
             elementCache: elementCache[bindingAttrs.tmp][i].bindingCache,
             updateOption: updateOption,
             bindingAttrs: bindingAttrs,
@@ -1351,6 +1352,7 @@ license MIT(function (global, factory) {
       // Use namespace import to access the function at runtime,
       // which breaks the circular dependency during module initialization
       applyBinding({
+        ctx: iterationVm.$root ? iterationVm.$root.APP : iterationVm.APP,
         elementCache: elementCache,
         updateOption: bindingUpdateOption,
         bindingAttrs: bindingAttrs,
@@ -1625,7 +1627,7 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const forOfBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+    const forOfBinding = (cache, viewModel, bindingAttrs, _forceRender) => {
       const dataKey = cache.dataKey;
       if (!dataKey || dataKey.length > maxDatakeyLength) {
         return;
@@ -1731,7 +1733,7 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const ifBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+    const ifBinding = (cache, viewModel, bindingAttrs, _forceRender) => {
       const dataKey = cache.dataKey;
       // isOnce only return if there is no child bindings
       if (!dataKey || cache.isOnce && cache.hasIterationBindingCache === false) {
@@ -1792,11 +1794,13 @@ license MIT(function (global, factory) {
       viewModel,
       cache
     }) => {
+      var _a;
       let ret = false;
-      if (viewModel.APP.postProcessQueue) {
+      if ((_a = viewModel.APP) === null || _a === void 0 ? void 0 : _a.postProcessQueue) {
+        const parentRef = cache[constants.PARENT_REF];
         viewModel.APP.postProcessQueue.push(((cache, index) => () => {
-          cache[constants.PARENT_REF].splice(index, 1);
-        })(cache, cache[constants.PARENT_REF].indexOf(cache)));
+          parentRef.splice(index, 1);
+        })(cache, parentRef.indexOf(cache)));
         ret = true;
       }
       return ret;
@@ -1811,7 +1815,7 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const switchBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+    const switchBinding = (cache, viewModel, bindingAttrs, _forceRender) => {
       const dataKey = cache.dataKey;
       if (!dataKey) {
         return;
@@ -1831,10 +1835,11 @@ license MIT(function (global, factory) {
         cache.cases = [];
         for (let i = 0, elementLength = childrenElements.length; i < elementLength; i += 1) {
           let caseData = null;
-          if (childrenElements[i].hasAttribute(bindingAttrs.case)) {
-            caseData = createCaseData(childrenElements[i], bindingAttrs.case);
-          } else if (childrenElements[i].hasAttribute(bindingAttrs.default)) {
-            caseData = createCaseData(childrenElements[i], bindingAttrs.default);
+          const childElement = childrenElements[i];
+          if (childElement.hasAttribute(bindingAttrs.case)) {
+            caseData = createCaseData(childElement, bindingAttrs.case);
+          } else if (childElement.hasAttribute(bindingAttrs.default)) {
+            caseData = createCaseData(childElement, bindingAttrs.default);
             caseData.isDefault = true;
           }
           // create fragment by clone node
@@ -1935,7 +1940,7 @@ license MIT(function (global, factory) {
     };
 
     function applyBinding({
-      ctx,
+      ctx: _ctx,
       elementCache,
       updateOption,
       bindingAttrs,

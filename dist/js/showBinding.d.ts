@@ -1,3 +1,4 @@
+import type { BindingCache, ViewModel, BindingAttrs } from './types';
 /**
  * showBinding
  * @description
@@ -7,6 +8,6 @@
  * @param {object} viewModel
  * @param {object} bindingAttrs
  */
-declare const showBinding: (cache: any, viewModel: any, bindingAttrs: any, forceRender?: any) => void;
+declare const showBinding: (cache: BindingCache, viewModel: ViewModel, _bindingAttrs: BindingAttrs, _forceRender?: boolean) => void;
 export default showBinding;
 //# sourceMappingURL=showBinding.d.ts.map

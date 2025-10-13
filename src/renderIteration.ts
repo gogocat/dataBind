@@ -30,6 +30,7 @@ const renderIteration = ({elementCache, iterationVm, bindingAttrs, isRegenerate}
     // Use namespace import to access the function at runtime,
     // which breaks the circular dependency during module initialization
     applyBindingModule.default({
+        ctx: iterationVm.$root ? iterationVm.$root.APP : iterationVm.APP,
         elementCache: elementCache,
         updateOption: bindingUpdateOption,
         bindingAttrs: bindingAttrs,

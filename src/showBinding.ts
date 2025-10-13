@@ -1,4 +1,5 @@
 import {getViewModelPropValue} from './util';
+import type { BindingCache, ViewModel, BindingAttrs } from './types';
 
 /**
  * showBinding
@@ -9,9 +10,9 @@ import {getViewModelPropValue} from './util';
  * @param {object} viewModel
  * @param {object} bindingAttrs
  */
-const showBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender?: any): void => {
+const showBinding = (cache: BindingCache, viewModel: ViewModel, _bindingAttrs: BindingAttrs, _forceRender?: boolean): void => {
     const dataKey = cache.dataKey;
-    let currentInlineSytle: any = {};
+    let currentInlineSytle: CSSStyleDeclaration | Record<string, never> = {};
     let currentInlineDisplaySytle = '';
     let shouldShow = true;
 

@@ -1,6 +1,7 @@
 import {maxDatakeyLength} from './config';
 import {REGEX} from './util';
 import renderForOfBinding from './renderForOfBinding';
+import type { BindingCache, ViewModel, BindingAttrs } from './types';
 
 /**
  * forOfBinding
@@ -10,7 +11,7 @@ import renderForOfBinding from './renderForOfBinding';
  * @param {object} viewModel
  * @param {object} bindingAttrs
  */
-const forOfBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender?: any): void => {
+const forOfBinding = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: BindingAttrs, _forceRender?: boolean): void => {
     const dataKey = cache.dataKey;
 
     if (!dataKey || dataKey.length > maxDatakeyLength) {

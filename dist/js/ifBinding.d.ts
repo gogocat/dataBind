@@ -1,3 +1,4 @@
+import type { BindingCache, ViewModel, BindingAttrs } from './types';
 /**
  * if-Binding
  * @description
@@ -6,6 +7,6 @@
  * @param {object} viewModel
  * @param {object} bindingAttrs
  */
-declare const ifBinding: (cache: any, viewModel: any, bindingAttrs: any, forceRender?: any) => void;
+declare const ifBinding: (cache: BindingCache, viewModel: ViewModel, bindingAttrs: BindingAttrs, _forceRender?: boolean) => void;
 export default ifBinding;
 //# sourceMappingURL=ifBinding.d.ts.map

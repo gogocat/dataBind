@@ -1,3 +1,4 @@
+import type { BindingCache, ViewModel, BindingAttrs } from './types';
 /**
  * forOfBinding
  * @description
@@ -6,6 +7,6 @@
  * @param {object} viewModel
  * @param {object} bindingAttrs
  */
-declare const forOfBinding: (cache: any, viewModel: any, bindingAttrs: any, forceRender?: any) => void;
+declare const forOfBinding: (cache: BindingCache, viewModel: ViewModel, bindingAttrs: BindingAttrs, _forceRender?: boolean) => void;
 export default forOfBinding;
 //# sourceMappingURL=forOfBinding.d.ts.map

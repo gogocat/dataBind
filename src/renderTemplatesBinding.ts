@@ -36,6 +36,7 @@ const renderTemplatesBinding = ({ctx, elementCache, updateOption, bindingAttrs, 
         // Use for loop to handle templates added during rendering
         for (let i = 0; i < elementCache[bindingAttrs.tmp].length; i++) {
             applyBindingModule.default({
+                ctx: ctx,
                 elementCache: elementCache[bindingAttrs.tmp][i].bindingCache,
                 updateOption: updateOption,
                 bindingAttrs: bindingAttrs,

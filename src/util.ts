@@ -249,7 +249,7 @@ export const parseStringToJson = (str: string): any => {
  * @return {boolean}
  */
 export const arrayRemoveMatch = (toArray: any[], frommArray: any[]): any[] => {
-    return toArray.filter((value, index) => {
+    return toArray.filter((value, _index) => {
         return frommArray.indexOf(value) < 0;
     });
 };
@@ -532,9 +532,9 @@ export const resolveViewModelContext = (viewModel: ViewModel, datakey: string): 
     const bindingDataContext = datakey.split('.');
     if (bindingDataContext.length > 1) {
         if (bindingDataContext[0] === config.bindingDataReference.rootDataKey) {
-            ret = viewModel[config.bindingDataReference.rootDataKey] || viewModel;
+            ret = (viewModel[config.bindingDataReference.rootDataKey] as ViewModel) || viewModel;
         } else if (bindingDataContext[0] === config.bindingDataReference.currentData) {
-            ret = viewModel[config.bindingDataReference.currentData] || viewModel;
+            ret = (viewModel[config.bindingDataReference.currentData] as ViewModel) || viewModel;
         }
     }
     return ret;
