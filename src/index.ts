@@ -1,7 +1,7 @@
 import * as config from './config';
 import {extend} from './util';
 import Binder from './binder';
-import type {PlainObject, ViewModel} from './types';
+import type {PlainObject, ViewModel, BindingAttrs} from './types';
 
 const isSupportPromise = typeof window['Promise'] === 'function';
 
@@ -17,7 +17,7 @@ const init = ($rootElement: HTMLElement, viewModel: ViewModel | null = null): Bi
     if (!isSupportPromise) {
         return console.warn('Browser not support Promise');
     }
-    return new Binder($rootElement, viewModel, bindingAttrs as unknown as import('./types').BindingAttrs);
+    return new Binder($rootElement, viewModel, bindingAttrs as unknown as BindingAttrs);
 };
 
 export default {

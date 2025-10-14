@@ -2,7 +2,7 @@ import {bindingUpdateConditions} from './config';
 import * as applyBindingModule from './applyBinding';
 import createBindingOption from './createBindingOption';
 import renderTemplate from './renderTemplate';
-import type {ElementCache, ViewModel, BindingAttrs} from './types';
+import type {ElementCache, ViewModel, BindingAttrs, BindingCache} from './types';
 import type {BindingOption} from './createBindingOption';
 
 interface BinderContext {
@@ -41,7 +41,7 @@ const renderTemplatesBinding = ({
             // forEach is correct here - nested templates are added to array but rendered recursively
             // We don't want the loop to re-render templates that were already rendered via recursion
             elementCache[bindingAttrs.tmp].forEach(($element: unknown) => {
-                renderTemplate($element as import('./types').BindingCache, viewModel, bindingAttrs, elementCache);
+                renderTemplate($element as BindingCache, viewModel, bindingAttrs, elementCache);
             });
             // update cache after all template(s) rendered
             ctx.updateElementCache({

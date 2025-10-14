@@ -3,7 +3,7 @@ import renderIteration from './renderIteration';
 import createBindingCache from './domWalker';
 import {commentSuffix} from './config';
 import {removeElemnetsByCommentWrap, insertRenderedElements} from './commentWrapper';
-import type {BindingCache, ViewModel, BindingAttrs} from './types';
+import type {BindingCache, ViewModel, BindingAttrs, ElementCache} from './types';
 
 interface RenderIfBindingParams {
     bindingData: BindingCache;
@@ -75,7 +75,7 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}: RenderIfBinding
     // walk clonedElement to create iterationBindingCache once
     if (!bindingData.iterationBindingCache || !bindingData.hasIterationBindingCache) {
         bindingData.iterationBindingCache = createBindingCache({
-            rootNode: rootElement,
+            rootNode: rootElement as HTMLElement,
             bindingAttrs,
         });
     }
@@ -85,7 +85,7 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}: RenderIfBinding
     if (!isEmptyObject(bindingData.iterationBindingCache)) {
         bindingData.hasIterationBindingCache = true;
         renderIteration({
-            elementCache: bindingData.iterationBindingCache,
+            elementCache: bindingData.iterationBindingCache as ElementCache,
             iterationVm: viewModel,
             bindingAttrs,
             isRegenerate: true,
@@ -94,7 +94,7 @@ const renderIfBinding = ({bindingData, viewModel, bindingAttrs}: RenderIfBinding
 
     // insert to new rendered DOM
     // TODO: check unnecessary insertion when DOM is preserved
-    insertRenderedElements(bindingData, rootElement);
+    insertRenderedElements(bindingData, rootElement as DocumentFragment);
 };
 
 export {
