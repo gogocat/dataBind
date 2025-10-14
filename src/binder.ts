@@ -6,21 +6,23 @@ import applyBinding from './applyBinding';
 import renderTemplatesBinding from './renderTemplatesBinding';
 import postProcess from './postProcess';
 import * as pubSub from './pubSub';
+import type {ViewModel, ElementCache, UpdateOption, BindingAttrs} from './types';
 
 let compIdIndex = 0;
 
 class Binder {
+    [key: string]: unknown;
     initRendered: boolean;
     compId: number;
-    $rootElement: any;
-    viewModel: any;
-    bindingAttrs: any;
+    $rootElement: HTMLElement;
+    viewModel: ViewModel;
+    bindingAttrs: BindingAttrs;
     isServerRendered: boolean;
-    elementCache: any;
-    postProcessQueue: any[];
-    render: (opt?: any) => void;
+    elementCache: ElementCache;
+    postProcessQueue: Array<() => void>;
+    render: (opt?: UpdateOption) => void;
 
-    constructor($rootElement: any, viewModel: any, bindingAttrs: any) {
+    constructor($rootElement: HTMLElement, viewModel: ViewModel, bindingAttrs: BindingAttrs) {
         if (!$rootElement || $rootElement.nodeType !== 1 || viewModel === null || typeof viewModel !== 'object') {
             throw new TypeError('$rootElement or viewModel is invalid');
         }
@@ -38,7 +40,7 @@ class Binder {
         this.isServerRendered = this.$rootElement.getAttribute(config.serverRenderedAttr) !== null;
 
         // Initialize render method with debounced version
-        this.render = debounceRaf(this._render.bind(this), this) as any;
+        this.render = debounceRaf(this._render.bind(this), this) as (opt?: UpdateOption) => void;
 
         // inject instance into viewModel
         this.viewModel.APP = this;
@@ -85,7 +87,7 @@ class Binder {
      * @param {object} opt
      * @description call createBindingCache to parse view and generate bindingCache
      */
-    updateElementCache(opt: any = {}): void {
+    updateElementCache(opt: {allCache?: boolean; templateCache?: boolean; elementCache?: ElementCache; isRenderedTemplates?: boolean} = {}): void {
         const elementCache = opt.elementCache || this.elementCache;
 
         if (opt.allCache) {
@@ -104,7 +106,7 @@ class Binder {
                     // set skipCheck as skipForOfParseFn whenever an node has
                     // both template and forOf bindings
                     // then the template bindingCache should be an empty object
-                    let skipForOfParseFn: any = null;
+                    let skipForOfParseFn: (() => boolean) | null = null;
                     if (cache.el.hasAttribute(this.bindingAttrs.forOf)) {
                         skipForOfParseFn = (): boolean => {
                             return true;
@@ -121,8 +123,8 @@ class Binder {
         }
     }
 
-    _render(opt: any = {}): void {
-        let updateOption: any = {};
+    _render(opt: UpdateOption = {}): void {
+        let updateOption: UpdateOption = {};
 
         if (!this.initRendered) {
             // only update eventsBinding if server rendered
@@ -165,12 +167,12 @@ class Binder {
         this.initRendered = true;
     }
 
-    subscribe(eventName: string = '', fn: any): this {
+    subscribe(eventName: string = '', fn: (...args: unknown[]) => void): this {
         pubSub.subscribeEvent(this, eventName, fn);
         return this;
     }
 
-    subscribeOnce(eventName: string = '', fn: any): this {
+    subscribeOnce(eventName: string = '', fn: (...args: unknown[]) => void): this {
         pubSub.subscribeEventOnce(this, eventName, fn);
         return this;
     }
@@ -185,7 +187,7 @@ class Binder {
         return this;
     }
 
-    publish(eventName: string = '', ...args: any[]): this {
+    publish(eventName: string = '', ...args: unknown[]): this {
         pubSub.publishEvent(eventName, ...args);
         return this;
     }

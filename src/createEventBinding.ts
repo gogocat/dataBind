@@ -20,9 +20,9 @@ function createEventHandlerWrapper(
         let args: unknown[] = [];
         if (type === 'submit') {
             formData = getFormData(e.currentTarget as HTMLFormElement);
-            args = [e, e.currentTarget, formData].concat(paramList as any[]);
+            args = [e, e.currentTarget, formData, ...paramList];
         } else {
-            args = [e, e.currentTarget].concat(paramList as any[]);
+            args = [e, e.currentTarget, ...paramList];
         }
         handlerFn.apply(viewModelContext, args);
     };

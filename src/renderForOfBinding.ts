@@ -15,14 +15,19 @@ import {
     removeElemnetsByCommentWrap,
     insertRenderedElements,
 } from './commentWrapper';
+import type {ViewModel, BindingCache, BindingAttrs, ElementCache} from './types';
 
-const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}: any): void => {
+const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}: {
+    bindingData: BindingCache;
+    viewModel: ViewModel;
+    bindingAttrs: BindingAttrs;
+}): void => {
     if (!bindingData || !viewModel || !bindingAttrs) {
         return;
     }
-    let keys: any;
+    let keys: string[] | undefined;
     let iterationDataLength: number;
-    const iterationData = getViewModelPropValue(viewModel, bindingData.iterator);
+    const iterationData = getViewModelPropValue(viewModel, bindingData);
     let isRegenerate = false;
 
     // check iterationData and set iterationDataLength
@@ -57,7 +62,7 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}: any): void =
     }
 
     if (!isRegenerate) {
-        bindingData.iterationBindingCache.forEach((elementCache: any, i: number) => {
+        (bindingData.iterationBindingCache as ElementCache[])?.forEach((elementCache: ElementCache, i: number) => {
             if (!isEmptyObject(elementCache)) {
                 const iterationVm = createIterationViewModel({
                     bindingData,
@@ -97,27 +102,42 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}: any): void =
  * @param {*} param0
  * @return {object} virtual viewModel
  */
-const createIterationViewModel = ({bindingData, viewModel, iterationData, keys, index}: any): any => {
-    const iterationVm: any = {};
-    iterationVm[bindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
+const createIterationViewModel = ({bindingData, viewModel, iterationData, keys, index}: {
+    bindingData: BindingCache;
+    viewModel: ViewModel;
+    iterationData: unknown;
+    keys: string[] | undefined;
+    index: number;
+}): ViewModel => {
+    const iterationVm: ViewModel = {};
+    const alias = bindingData.iterator?.alias;
+    if (alias) {
+        iterationVm[alias] = keys ? (iterationData as Record<string, unknown>)[keys[index]] : (iterationData as unknown[])[index];
+    }
     // populate common binding data reference
     iterationVm[bindingDataReference.rootDataKey] = viewModel.$root || viewModel;
-    iterationVm[bindingDataReference.currentData] = iterationVm[bindingData.iterator.alias];
+    iterationVm[bindingDataReference.currentData] = alias ? iterationVm[alias] : undefined;
     iterationVm[bindingDataReference.currentIndex] = index;
     return iterationVm;
 };
 
-const generateForOfElements = (bindingData: any, viewModel: any, bindingAttrs: any, iterationData: any, keys: any): any => {
+const generateForOfElements = (
+    bindingData: BindingCache,
+    viewModel: ViewModel,
+    bindingAttrs: BindingAttrs,
+    iterationData: unknown,
+    keys: string[] | undefined,
+): DocumentFragment => {
     const fragment = document.createDocumentFragment();
-    const iterationDataLength = bindingData.iterationSize;
-    let clonedItem: any;
-    let iterationVm: any;
-    let iterationBindingCache: any;
+    const iterationDataLength = bindingData.iterationSize as number;
+    let clonedItem: HTMLElement;
+    let iterationVm: ViewModel;
+    let iterationBindingCache: ElementCache;
     let i = 0;
 
     // create or clear exisitng iterationBindingCache
     if (isArray(bindingData.iterationBindingCache)) {
-        bindingData.iterationBindingCache.length = 0;
+        (bindingData.iterationBindingCache as ElementCache[]).length = 0;
     } else {
         bindingData.iterationBindingCache = [];
     }
@@ -132,7 +152,7 @@ const generateForOfElements = (bindingData: any, viewModel: any, bindingAttrs: a
             bindingAttrs,
         });
 
-        bindingData.iterationBindingCache.push(iterationBindingCache);
+        (bindingData.iterationBindingCache as ElementCache[]).push(iterationBindingCache);
 
         if (!isEmptyObject(iterationBindingCache)) {
             // create an iterationVm match iterator alias
@@ -145,7 +165,7 @@ const generateForOfElements = (bindingData: any, viewModel: any, bindingAttrs: a
             });
 
             renderIteration({
-                elementCache: bindingData.iterationBindingCache[i],
+                elementCache: (bindingData.iterationBindingCache as ElementCache[])[i],
                 iterationVm,
                 bindingAttrs,
                 isRegenerate: true,

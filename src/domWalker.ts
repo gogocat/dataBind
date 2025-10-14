@@ -1,7 +1,8 @@
 import {invertObj, extractFilterList, getFunctionParameterList, REGEX} from './util';
 import {constants} from './config';
+import type {PlainObject, BindingAttrs, ElementCache, BindingCache} from './types';
 
-let bindingAttrsMap: any;
+let bindingAttrsMap: PlainObject | undefined;
 
 /**
  * walkDOM
@@ -10,47 +11,52 @@ let bindingAttrsMap: any;
  * @param {object} node
  * @param {function} func
  */
-const walkDOM = (node: any, func: any): void => {
+const walkDOM = (node: HTMLElement, func: (node: HTMLElement) => boolean): void => {
     let parseChildNode = true;
-    node = node.firstElementChild;
-    while (node) {
-        parseChildNode = func(node);
+    let currentNode = node.firstElementChild as HTMLElement | null;
+    while (currentNode) {
+        parseChildNode = func(currentNode);
         if (parseChildNode) {
-            walkDOM(node, func);
+            walkDOM(currentNode, func);
         }
-        node = node.nextElementSibling;
+        currentNode = currentNode.nextElementSibling as HTMLElement | null;
     }
 };
 
-const getAttributesObject = (node: any): any => {
-    const ret: any = {};
-    Array.prototype.slice.call(node.attributes).forEach((item: any) => {
+const getAttributesObject = (node: HTMLElement): PlainObject => {
+    const ret: PlainObject = {};
+    Array.prototype.slice.call(node.attributes).forEach((item: Attr) => {
         ret[item.name] = item.value;
     });
     return ret;
 };
 
-const checkSkipChildParseBindings = (attrObj: any = {}, bindingAttrs: any): any[] => {
-    return [bindingAttrs.forOf, bindingAttrs.if, bindingAttrs.case, bindingAttrs.default].filter((type: any) => {
+const checkSkipChildParseBindings = (attrObj: PlainObject = {}, bindingAttrs: BindingAttrs): string[] => {
+    return [bindingAttrs.forOf, bindingAttrs.if, bindingAttrs.case, bindingAttrs.default].filter((type: string) => {
         return typeof attrObj[type] !== 'undefined';
     });
 };
 
-const rootSkipCheck = (node: any): boolean => {
+const rootSkipCheck = (node: HTMLElement): boolean => {
     return node.tagName === 'SVG';
 };
 
-const defaultSkipCheck = (node: any, bindingAttrs: any): boolean => {
+const defaultSkipCheck = (node: HTMLElement, bindingAttrs: BindingAttrs): boolean => {
     return node.tagName === 'SVG' || node.hasAttribute(bindingAttrs.comp);
 };
 
-const populateBindingCache = ({node, attrObj, bindingCache, type}: any): any => {
-    let attrValue: any;
-    let cacheData: any;
+const populateBindingCache = ({node, attrObj, bindingCache, type}: {
+    node: HTMLElement;
+    attrObj: PlainObject;
+    bindingCache: ElementCache;
+    type: string;
+}): ElementCache => {
+    let attrValue: string;
+    let cacheData: Partial<BindingCache>;
 
     if (bindingAttrsMap && bindingAttrsMap[type] && typeof attrObj[type] !== 'undefined') {
         bindingCache[type] = bindingCache[type] || [];
-        attrValue = attrObj[type] || '';
+        attrValue = (attrObj[type] as string) || '';
 
         if (attrValue) {
             attrValue = attrValue.replace(REGEX.LINE_BREAKS_TABS, '').replace(REGEX.WHITE_SPACES, ' ').trim();
@@ -67,20 +73,25 @@ const populateBindingCache = ({node, attrObj, bindingCache, type}: any): any => 
         // populate cacheData.parameters
         // for store function call parameters eg. '$index', '$root'
         // useful with DOM for-loop template as reference to binding data
-        const paramList = getFunctionParameterList(cacheData.dataKey);
+        const paramList = getFunctionParameterList(cacheData.dataKey || '');
         if (paramList) {
             cacheData.parameters = paramList;
-            cacheData.dataKey = cacheData.dataKey.replace(REGEX.FUNCTION_PARAM, '').trim();
+            cacheData.dataKey = (cacheData.dataKey || '').replace(REGEX.FUNCTION_PARAM, '').trim();
         }
         // store parent array reference to cacheData
         cacheData[constants.PARENT_REF] = bindingCache[type];
-        bindingCache[type].push(cacheData);
+        bindingCache[type].push(cacheData as BindingCache);
     }
     return bindingCache;
 };
 
-const createBindingCache = ({rootNode = null, bindingAttrs = {} as any, skipCheck, isRenderedTemplate = false}: any): any => {
-    let bindingCache: any = {};
+const createBindingCache = ({rootNode = null, bindingAttrs = {} as BindingAttrs, skipCheck, isRenderedTemplate = false}: {
+    rootNode?: HTMLElement | null;
+    bindingAttrs?: BindingAttrs;
+    skipCheck?: (node: HTMLElement) => boolean;
+    isRenderedTemplate?: boolean;
+}): ElementCache => {
+    let bindingCache: ElementCache = {};
 
     if (!(rootNode instanceof window.Node)) {
         throw new TypeError('walkDOM: Expected a DOM node');
@@ -88,7 +99,10 @@ const createBindingCache = ({rootNode = null, bindingAttrs = {} as any, skipChec
 
     bindingAttrsMap = bindingAttrsMap || invertObj(bindingAttrs);
 
-    const parseNode = (node: any, skipNodeCheckFn: any = defaultSkipCheck): boolean => {
+    const parseNode = (
+        node: HTMLElement,
+        skipNodeCheckFn: (node: HTMLElement, bindingAttrs: BindingAttrs) => boolean = defaultSkipCheck,
+    ): boolean => {
         let isSkipForOfChild = false;
 
         if (node.nodeType !== 1 || !node.hasAttributes()) {
@@ -102,7 +116,7 @@ const createBindingCache = ({rootNode = null, bindingAttrs = {} as any, skipChec
         // skip same element that has forOf binding the  forOf is alredy parsed
         const attrObj = getAttributesObject(node);
         const hasSkipChildParseBindings = checkSkipChildParseBindings(attrObj, bindingAttrs);
-        let iterateList: any[] = [];
+        let iterateList: string[] = [];
 
         if (hasSkipChildParseBindings.length) {
             isSkipForOfChild = true;
@@ -114,7 +128,7 @@ const createBindingCache = ({rootNode = null, bindingAttrs = {} as any, skipChec
             iterateList = Object.keys(attrObj);
         }
 
-        iterateList.forEach((key: any) => {
+        iterateList.forEach((key: string) => {
             // skip for switch case and default bining
             if (key !== bindingAttrs.case && key !== bindingAttrs.default) {
                 bindingCache = populateBindingCache({

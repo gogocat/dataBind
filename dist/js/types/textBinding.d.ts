@@ -1,3 +1,4 @@
+import type { BindingCache, ViewModel, BindingAttrs } from './types';
 /**
  * textBinding
  * * @description
@@ -7,6 +8,6 @@
  * @param {object} bindingAttrs
  * @param {boolean} forceRender
  */
-declare const textBinding: (cache: any, viewModel: any, bindingAttrs: any, forceRender: any) => void;
+declare const textBinding: (cache: BindingCache, viewModel: ViewModel, bindingAttrs: BindingAttrs, forceRender: boolean) => void;
 export default textBinding;
 //# sourceMappingURL=textBinding.d.ts.map

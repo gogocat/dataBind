@@ -1,6 +1,8 @@
+import Binder from './binder';
+import type { PlainObject, ViewModel } from './types';
 declare const _default: {
-    use: (settings?: any) => void;
-    init: ($rootElement: any, viewModel?: any) => any;
+    use: (settings?: PlainObject) => void;
+    init: ($rootElement: HTMLElement, viewModel?: ViewModel | null) => Binder | void;
     version: string;
 };
 export default _default;

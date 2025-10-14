@@ -1,4 +1,4 @@
-import type { ViewModel, BindingCache, ElementCache, DeferredObj } from './types';
+import type { ViewModel, BindingCache, ElementCache, DeferredObj, PlainObject } from './types';
 export declare const REGEX: {
     BAD_TAGS: RegExp;
     FOR_OF: RegExp;
@@ -9,13 +9,13 @@ export declare const REGEX: {
     WHITE_SPACES: RegExp;
     LINE_BREAKS_TABS: RegExp;
 };
-export declare const isArray: (obj: any) => obj is any[];
-export declare const isJsObject: (obj: any) => obj is object;
-export declare const isPlainObject: (obj: any) => boolean;
+export declare const isArray: (obj: unknown) => obj is unknown[];
+export declare const isJsObject: (obj: unknown) => obj is object;
+export declare const isPlainObject: (obj: unknown) => obj is PlainObject;
 export declare const isObjectLiteralString: (str?: string) => boolean;
-export declare const isEmptyObject: (obj: any) => boolean;
-export declare function createHtmlFragment(htmlString: any): DocumentFragment | null;
-export declare const generateElementCache: (bindingAttrs: any) => ElementCache;
+export declare const isEmptyObject: (obj: unknown) => boolean;
+export declare function createHtmlFragment(htmlString: unknown): DocumentFragment | null;
+export declare const generateElementCache: (bindingAttrs: PlainObject | unknown[]) => ElementCache;
 /**
  * getViewModelValue
  * @description walk a object by provided string path. eg 'a.b.c'
@@ -23,7 +23,7 @@ export declare const generateElementCache: (bindingAttrs: any) => ElementCache;
  * @param {string} prop
  * @return {object}
  */
-export declare const getViewModelValue: (viewModel: ViewModel, prop: string) => any;
+export declare const getViewModelValue: (viewModel: ViewModel, prop: string) => unknown;
 /**
  * setViewModelValue
  * @description populate viewModel object by path string
@@ -32,9 +32,9 @@ export declare const getViewModelValue: (viewModel: ViewModel, prop: string) => 
  * @param {string} value
  * @return {call} underscore set
  */
-export declare const setViewModelValue: (obj: any, prop: string, value: any) => any;
-export declare const getViewModelPropValue: (viewModel: ViewModel, bindingCache: BindingCache) => any;
-export declare const parseStringToJson: (str: string) => any;
+export declare const setViewModelValue: (obj: PlainObject, prop: string, value: unknown) => PlainObject;
+export declare const getViewModelPropValue: (viewModel: ViewModel, bindingCache: BindingCache) => unknown;
+export declare const parseStringToJson: (str: string) => PlainObject;
 /**
  * arrayRemoveMatch
  * @description remove match items in fromArray out of toArray
@@ -42,8 +42,8 @@ export declare const parseStringToJson: (str: string) => any;
  * @param {array} frommArray
  * @return {boolean}
  */
-export declare const arrayRemoveMatch: (toArray: any[], frommArray: any[]) => any[];
-export declare const getFormData: ($form: HTMLFormElement) => Record<string, any>;
+export declare const arrayRemoveMatch: (toArray: unknown[], frommArray: unknown[]) => unknown[];
+export declare const getFormData: ($form: HTMLFormElement) => PlainObject;
 /**
  * getFunctionParameterList
  * @description convert parameter string to arrary
@@ -52,8 +52,8 @@ export declare const getFormData: ($form: HTMLFormElement) => Record<string, any
  * @return {array} paramlist
  */
 export declare const getFunctionParameterList: (str: string) => string[] | undefined;
-export declare const extractFilterList: (cacheData: any) => any;
-export declare const invertObj: (sourceObj: Record<string, any>) => Record<string, any>;
+export declare const extractFilterList: (cacheData: Partial<BindingCache>) => Partial<BindingCache>;
+export declare const invertObj: (sourceObj: PlainObject) => PlainObject;
 export declare const createDeferredObj: () => DeferredObj;
 /**
  * debounce
@@ -62,7 +62,7 @@ export declare const createDeferredObj: () => DeferredObj;
  * @param {context} ctx
  * @return {function}
  */
-export declare const debounceRaf: (fn: Function, ctx?: any) => Function;
+export declare const debounceRaf: (fn: Function, ctx?: unknown) => Function;
 /**
  * getNodeAttrObj
  * @description convert Node attributes object to a json object
@@ -78,8 +78,8 @@ export declare const getNodeAttrObj: (node: HTMLElement, skipList?: string | str
  * @param {object} sources
  * @return {object} merged object
  */
-export declare const extend: (isDeepMerge?: boolean, target?: any, ...sources: any[]) => any;
-export declare const each: (obj: any, fn: Function) => void;
+export declare const extend: (isDeepMerge?: boolean, target?: PlainObject, ...sources: PlainObject[]) => PlainObject;
+export declare const each: (obj: unknown[] | PlainObject, fn: Function) => void;
 /**
  * cloneDomNode
  * @param {object} element
@@ -97,10 +97,10 @@ export declare const cloneDomNode: (element: HTMLElement) => HTMLElement;
  */
 export declare const insertAfter: (parentNode: Node, newNode: Node, referenceNode: Node | null) => Node;
 export declare const resolveViewModelContext: (viewModel: ViewModel, datakey: string) => ViewModel;
-export declare const resolveParamList: (viewModel: ViewModel, paramList: any[]) => any[] | undefined;
+export declare const resolveParamList: (viewModel: ViewModel, paramList: unknown[]) => unknown[] | undefined;
 export declare const removeElement: (el: HTMLElement) => void;
 export declare const emptyElement: (node: HTMLElement) => HTMLElement;
-export declare const throwErrorMessage: (err?: any, errorMessage?: string) => void;
+export declare const throwErrorMessage: (err?: unknown, errorMessage?: string) => void;
 /**
  * parseBindingObjectString
  * @description parse bining object string to object with value always stringify

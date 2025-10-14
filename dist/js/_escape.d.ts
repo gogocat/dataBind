@@ -9,5 +9,5 @@
  * @param {string} string
  * @return {string} string
  */
-export default function escape(string: any): string;
+export default function escape(string: unknown): string;
 //# sourceMappingURL=_escape.d.ts.map

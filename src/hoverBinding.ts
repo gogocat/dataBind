@@ -5,21 +5,21 @@ import {
     resolveViewModelContext,
     resolveParamList,
 } from './util';
-import type {BindingCache, ViewModel, BindingAttrs} from './types';
+import type {BindingCache, ViewModel, BindingAttrs, PlainObject} from './types';
 
 /**
  * Create mouse enter handler
  */
 function createMouseEnterHandler(
     cache: BindingCache,
-    handlers: any,
+    handlers: PlainObject,
     inHandlerName: string,
-    viewModelContext: any,
+    viewModelContext: ViewModel,
     paramList: unknown[],
 ): (e: MouseEvent) => void {
     return function onMouseEnterHandler(e: MouseEvent) {
-        const args = [e, cache.el].concat(paramList as any[]);
-        handlers[inHandlerName].apply(viewModelContext, args);
+        const args = [e, cache.el, ...paramList];
+        (handlers[inHandlerName] as Function).apply(viewModelContext, args);
     };
 }
 
@@ -28,14 +28,14 @@ function createMouseEnterHandler(
  */
 function createMouseLeaveHandler(
     cache: BindingCache,
-    handlers: any,
+    handlers: PlainObject,
     outHandlerName: string,
-    viewModelContext: any,
+    viewModelContext: ViewModel,
     paramList: unknown[],
 ): (e: MouseEvent) => void {
     return function onMouseLeaveHandler(e: MouseEvent) {
-        const args = [e, cache.el].concat(paramList as any[]);
-        handlers[outHandlerName].apply(viewModelContext, args);
+        const args = [e, cache.el, ...paramList];
+        (handlers[outHandlerName] as Function).apply(viewModelContext, args);
     };
 }
 
@@ -64,17 +64,17 @@ const hoverBinding = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: B
         return;
     }
 
-    const handlers = getViewModelValue(viewModel, handlerName);
+    const handlers = getViewModelValue(viewModel, handlerName) as PlainObject;
 
     if (handlers && typeof handlers[inHandlerName] === 'function' && typeof handlers[outHandlerName] === 'function') {
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
 
-        const onMouseEnterHandler = createMouseEnterHandler(cache, handlers, inHandlerName, viewModelContext, paramList);
-        const onMouseLeaveHandler = createMouseLeaveHandler(cache, handlers, outHandlerName, viewModelContext, paramList);
+        const onMouseEnterHandler = createMouseEnterHandler(cache, handlers as PlainObject, inHandlerName, viewModelContext, paramList);
+        const onMouseLeaveHandler = createMouseLeaveHandler(cache, handlers as PlainObject, outHandlerName, viewModelContext, paramList);
 
-        cache.el.removeEventListener('mouseenter', onMouseEnterHandler as any, false);
-        cache.el.removeEventListener('mouseleave', onMouseLeaveHandler as any, false);
+        cache.el.removeEventListener('mouseenter', onMouseEnterHandler, false);
+        cache.el.removeEventListener('mouseleave', onMouseLeaveHandler, false);
 
         cache.el.addEventListener('mouseenter', onMouseEnterHandler, false);
         cache.el.addEventListener('mouseleave', onMouseLeaveHandler, false);

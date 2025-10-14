@@ -43,7 +43,7 @@ const showBinding = (cache: BindingCache, viewModel: ViewModel, _bindingAttrs: B
         }
     }
 
-    shouldShow = getViewModelPropValue(viewModel, cache);
+    shouldShow = getViewModelPropValue(viewModel, cache) as boolean;
 
     // treat undefined || null as false.
     // eg if property doesn't exsits in viewModel, it will treat as false to hide element

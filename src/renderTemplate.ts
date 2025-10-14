@@ -5,9 +5,10 @@ import {
     getViewModelPropValue,
     parseStringToJson,
 } from './util';
+import type {BindingCache, ViewModel, BindingAttrs, ElementCache, PlainObject} from './types';
 
-let $domFragment: any = null;
-let $templateRoot: any = null;
+let $domFragment: DocumentFragment | null = null;
+let $templateRoot: HTMLElement | null = null;
 let $templateRootPrepend = false;
 let $templateRootAppend = false;
 let nestTemplatesCount = 0;
@@ -34,31 +35,32 @@ const getTemplateString = (id: string): string => {
  * @param {object} bindingAttrs
  * @param {object} elementCache
  */
-const renderTemplate = (cache: any, viewModel: any, bindingAttrs: any, elementCache: any): void => {
-    const settings = typeof cache.dataKey === 'string' ? parseStringToJson(cache.dataKey) : cache.dataKey;
-    let viewData: any = settings.data;
-    const isAppend = settings.append;
-    const isPrepend = settings.prepend;
-    let $currentElement: any;
+const renderTemplate = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: BindingAttrs, elementCache: ElementCache): void => {
+    const settings = typeof cache.dataKey === 'string' ? parseStringToJson(cache.dataKey) : cache.dataKey as PlainObject;
+    let viewData: unknown = (settings as PlainObject).data;
+    const isAppend = (settings as PlainObject).append;
+    const isPrepend = (settings as PlainObject).prepend;
+    let $currentElement: DocumentFragment | HTMLElement;
 
-    cache.dataKey = settings;
+    cache.dataKey = settings as unknown as string;
 
     viewData = (typeof viewData === 'undefined' || viewData === '$root') ?
         viewModel :
         getViewModelPropValue(viewModel, {
-            dataKey: settings.data,
+            dataKey: (settings as PlainObject).data,
             parameters: cache.parameters,
-        } as any);
+        } as BindingCache);
 
     if (!viewData) {
         return;
     }
 
     const $element = cache.el;
-    const $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.getAttribute(dataIndexAttr);
+    const $indexAttr = $element.getAttribute(dataIndexAttr);
+    const $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : ($indexAttr ? parseInt($indexAttr, 10) : undefined);
 
-    if (typeof $index !== 'undefined') {
-        viewData.$index = $index;
+    if (typeof $index !== 'undefined' && viewData && typeof viewData === 'object') {
+        (viewData as ViewModel).$index = $index;
     }
 
     $domFragment = $domFragment || document.createDocumentFragment();
@@ -66,11 +68,11 @@ const renderTemplate = (cache: any, viewModel: any, bindingAttrs: any, elementCa
     if (!$templateRoot) {
         $templateRoot = $element;
         // Store the prepend/append flags from the root template only
-        $templateRootPrepend = isPrepend;
-        $templateRootAppend = isAppend;
+        $templateRootPrepend = Boolean(isPrepend);
+        $templateRootAppend = Boolean(isAppend);
     }
 
-    const htmlString = getTemplateString(settings.id);
+    const htmlString = getTemplateString((settings as PlainObject).id as string);
 
     const htmlFragment = createHtmlFragment(htmlString);
 
@@ -102,9 +104,9 @@ const renderTemplate = (cache: any, viewModel: any, bindingAttrs: any, elementCa
 
         for (let i=0; i < nestedTemplatesLength; i+=1) {
             const thisTemplateCache = {
-                el: $nestedTemplates[i],
+                el: $nestedTemplates[i] as HTMLElement,
                 dataKey: $nestedTemplates[i].getAttribute(bindingAttrs.tmp),
-            };
+            } as BindingCache;
             elementCache[bindingAttrs.tmp].push(thisTemplateCache);
             // recursive template render
             renderTemplate(thisTemplateCache, viewModel, bindingAttrs, elementCache);
@@ -128,8 +130,8 @@ const renderTemplate = (cache: any, viewModel: any, bindingAttrs: any, elementCa
         $domFragment = $templateRoot = null;
         $templateRootPrepend = $templateRootAppend = false;
         // trigger callback if provided
-        if (typeof viewModel.afterTemplateRender === 'function') {
-            viewModel.afterTemplateRender(viewData);
+        if (viewModel.afterTemplateRender && typeof viewModel.afterTemplateRender === 'function') {
+            (viewModel.afterTemplateRender as Function)(viewData);
         }
     }
 };

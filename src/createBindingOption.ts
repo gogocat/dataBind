@@ -22,7 +22,7 @@ export interface BindingOption {
     inputBinding?: boolean;
     submitBinding?: boolean;
     forceRender?: boolean;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 /**

@@ -4,7 +4,7 @@
  * https://github.com/lodash/lodash/blob/master/escape.js
  */
 
-function baseToString(value: any): string {
+function baseToString(value: unknown): string {
     if (typeof value == 'string') {
         return value;
     }
@@ -42,10 +42,10 @@ function escapeHtmlChar(chr: string): string {
  * @param {string} string
  * @return {string} string
  */
-export default function escape(string: any): string {
+export default function escape(string: unknown): string {
     // Reset `lastIndex` because in IE < 9 `String#replace` does not.
-    string = baseToString(string);
-    return (string && reHasUnescapedHtml.test(string)) ?
-        string.replace(reUnescapedHtml, escapeHtmlChar) :
-        string;
+    const strValue = baseToString(string);
+    return (strValue && reHasUnescapedHtml.test(strValue)) ?
+        strValue.replace(reUnescapedHtml, escapeHtmlChar) :
+        strValue;
 }

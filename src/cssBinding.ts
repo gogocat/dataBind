@@ -4,6 +4,7 @@ import {
     arrayRemoveMatch,
     each,
 } from './util';
+import type {BindingCache, ViewModel, BindingAttrs, PlainObject} from './types';
 
 /**
  * cssBinding
@@ -16,11 +17,11 @@ import {
  * @param {object} bindingAttrs
  * @param {boolean} forceRender
  */
-const cssBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender: any): void => {
+const cssBinding = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: BindingAttrs, forceRender: boolean): void => {
     const dataKey = cache.dataKey;
-    const APP = viewModel.APP || viewModel.$root.APP;
+    const APP = viewModel.APP || viewModel.$root?.APP;
 
-    if (!dataKey || (!forceRender && !APP.$rootElement.contains(cache.el))) {
+    if (!dataKey || (!forceRender && !(APP?.$rootElement as HTMLElement)?.contains(cache.el))) {
         return;
     }
 
@@ -30,10 +31,10 @@ const cssBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender: 
     const oldCssList = cache.elementData.viewModelPropValue;
     let newCssList = '';
     const vmCssListObj = getViewModelPropValue(viewModel, cache);
-    let vmCssListArray: any[] = [];
+    let vmCssListArray: string[] = [];
     let isViewDataObject = false;
     let isViewDataString = false;
-    let cssList: any[] = [];
+    let cssList: string[] = [];
 
     if (typeof vmCssListObj === 'string') {
         isViewDataString = true;
@@ -47,7 +48,7 @@ const cssBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender: 
     if (isViewDataObject) {
         newCssList = JSON.stringify(vmCssListObj);
     } else {
-        newCssList = vmCssListObj.replace(/\s\s+/g, ' ').trim();
+        newCssList = (vmCssListObj as string).replace(/\s\s+/g, ' ').trim();
         vmCssListArray = newCssList.split(' ');
     }
     // reject if nothing changed
@@ -64,7 +65,7 @@ const cssBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender: 
     }
 
     if (isViewDataObject) {
-        each(vmCssListObj, (k: any, v: any) => {
+        each(vmCssListObj as PlainObject, (k: string, v: unknown) => {
             const i = cssList.indexOf(k);
             if (v === true) {
                 cssList.push(k);
@@ -74,12 +75,13 @@ const cssBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender: 
         });
     } else if (isViewDataString) {
         // remove oldCssList items from cssList
-        cssList = arrayRemoveMatch(cssList, oldCssList);
+        const oldCssArray = typeof oldCssList === 'string' && oldCssList ? oldCssList.split(' ') : [];
+        cssList = arrayRemoveMatch(cssList, oldCssArray) as string[];
         cssList = cssList.concat(vmCssListArray);
     }
 
     // unique cssList array
-    cssList = cssList.filter((v: any, i: any, a: any) => {
+    cssList = cssList.filter((v: string, i: number, a: string[]) => {
         return a.indexOf(v) === i;
     });
 

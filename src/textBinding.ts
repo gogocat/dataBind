@@ -1,4 +1,5 @@
 import {getViewModelPropValue} from './util';
+import type {BindingCache, ViewModel, BindingAttrs} from './types';
 
 /**
  * textBinding
@@ -9,12 +10,12 @@ import {getViewModelPropValue} from './util';
  * @param {object} bindingAttrs
  * @param {boolean} forceRender
  */
-const textBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender: any): void => {
+const textBinding = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: BindingAttrs, forceRender: boolean): void => {
     const dataKey = cache.dataKey;
-    const APP = viewModel.APP || viewModel.$root.APP;
+    const APP = viewModel.APP || viewModel.$root?.APP;
 
     // NOTE: this doesn't work for for-of, if and switch bindings because element was not in DOM
-    if (!dataKey || (!forceRender && !APP.$rootElement.contains(cache.el))) {
+    if (!dataKey || (!forceRender && !(APP?.$rootElement as HTMLElement)?.contains(cache.el))) {
         return;
     }
 
@@ -23,7 +24,7 @@ const textBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender:
 
     if (typeof newValue !== 'undefined' && typeof newValue !== 'object' && newValue !== null) {
         if (newValue !== oldValue) {
-            cache.el.textContent = newValue;
+            cache.el.textContent = String(newValue);
         }
     }
 };

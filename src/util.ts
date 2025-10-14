@@ -1,5 +1,5 @@
 import * as config from './config';
-import type {ViewModel, BindingCache, ElementCache, DeferredObj, WrapMap} from './types';
+import type {ViewModel, BindingCache, ElementCache, DeferredObj, WrapMap, PlainObject} from './types';
 
 const hasIsArray = Array.isArray;
 
@@ -26,21 +26,21 @@ const WRAP_MAP: WrapMap = {
 WRAP_MAP.caption = WRAP_MAP.colgroup = WRAP_MAP.tbody = WRAP_MAP.tfoot = WRAP_MAP.thead;
 WRAP_MAP.th = WRAP_MAP.td;
 
-export const isArray = (obj: any): obj is any[] => {
+export const isArray = (obj: unknown): obj is unknown[] => {
     return hasIsArray ? Array.isArray(obj) : Object.prototype.toString.call(obj) === '[object Array]';
 };
 
-export const isJsObject = (obj: any): obj is object => {
+export const isJsObject = (obj: unknown): obj is object => {
     return obj !== null && typeof obj === 'object' && Object.prototype.toString.call(obj) === '[object Object]';
 };
 
-export const isPlainObject = (obj: any): boolean => {
+export const isPlainObject = (obj: unknown): obj is PlainObject => {
     if (!isJsObject(obj)) {
         return false;
     }
 
     // If has modified constructor
-    const ctor = (obj as any).constructor;
+    const ctor = (obj as PlainObject).constructor;
     if (typeof ctor !== 'function') return false;
 
     // If has modified prototype
@@ -61,7 +61,7 @@ export const isObjectLiteralString = (str: string = ''): boolean => {
     return REGEX.OBJECT_LITERAL.test(str);
 };
 
-export const isEmptyObject = (obj: any): boolean => {
+export const isEmptyObject = (obj: unknown): boolean => {
     if (isJsObject(obj)) {
         return Object.getOwnPropertyNames(obj).length === 0;
     }
@@ -80,7 +80,7 @@ function removeBadTags(htmlString: string = ''): string {
     return htmlString.replace(REGEX.BAD_TAGS, '');
 }
 
-export function createHtmlFragment(htmlString: any): DocumentFragment | null {
+export function createHtmlFragment(htmlString: unknown): DocumentFragment | null {
     if (typeof htmlString !== 'string') {
         return null;
     }
@@ -111,13 +111,13 @@ export function createHtmlFragment(htmlString: any): DocumentFragment | null {
     return fragment;
 }
 
-export const generateElementCache = (bindingAttrs: any): ElementCache => {
+export const generateElementCache = (bindingAttrs: PlainObject | unknown[]): ElementCache => {
     const elementCache: ElementCache = {};
 
     for (const i in bindingAttrs) {
         if (bindingAttrs.hasOwnProperty(i)) {
             if (isArray(bindingAttrs)) {
-                elementCache[bindingAttrs[i]] = [];
+                elementCache[bindingAttrs[i] as string] = [];
             } else {
                 elementCache[i] = [];
             }
@@ -142,14 +142,14 @@ function isSafeProperty(prop: string): boolean {
 }
 
 // simplified version of Lodash _.get with prototype pollution protection
-const _get = function get(obj: any, path: string, def?: any): any {
+const _get = function get(obj: unknown, path: string, def?: unknown): unknown {
     const fullPath = path
         .replace(/\[/g, '.')
         .replace(/]/g, '')
         .split('.')
         .filter(Boolean);
 
-    let current = obj;
+    let current: unknown = obj;
     for (const step of fullPath) {
         // Prevent access to dangerous properties
         if (!step || !isSafeProperty(step)) {
@@ -160,7 +160,7 @@ const _get = function get(obj: any, path: string, def?: any): any {
             return def;
         }
 
-        current = current[step];
+        current = (current as PlainObject)[step];
 
         if (current === undefined) {
             return def;
@@ -177,13 +177,13 @@ const _get = function get(obj: any, path: string, def?: any): any {
  * @param {string} prop
  * @return {object}
  */
-export const getViewModelValue = (viewModel: ViewModel, prop: string): any => {
+export const getViewModelValue = (viewModel: ViewModel, prop: string): unknown => {
     return _get(viewModel, prop);
 };
 
 // simplified version of Lodash _.set with prototype pollution protection
 // https://stackoverflow.com/questions/54733539/javascript-implementation-of-lodash-set-method
-const _set = (obj: any, path: string | string[], value: any): any => {
+const _set = (obj: PlainObject, path: string | string[], value: unknown): PlainObject => {
     if (Object(obj) !== obj) return obj; // When obj is not an object
 
     // If not yet an array, get the keys from the string-path
@@ -204,7 +204,7 @@ const _set = (obj: any, path: string | string[], value: any): any => {
 
     // Iterate all of them except the last one
     const lastKey = pathArray[pathArray.length - 1];
-    const target = pathArray.slice(0, -1).reduce((a, c, i) => {
+    const target = pathArray.slice(0, -1).reduce((a: PlainObject, c: string, i: number) => {
         // Prevent setting dangerous properties
         if (!isSafeProperty(c)) {
             return a;
@@ -212,13 +212,13 @@ const _set = (obj: any, path: string | string[], value: any): any => {
 
         if (Object(a[c]) === a[c]) {
             // Key exists and is an object, follow that path
-            return a[c];
+            return a[c] as PlainObject;
         }
 
         // Create the key. Is the next key a potential array-index?
         const nextKey = pathArray[i + 1];
         a[c] = Math.abs(Number(nextKey)) >> 0 === +nextKey ? [] : {};
-        return a[c];
+        return a[c] as PlainObject;
     }, obj);
 
     // Set the final value only if the key is safe
@@ -238,11 +238,11 @@ const _set = (obj: any, path: string | string[], value: any): any => {
  * @param {string} value
  * @return {call} underscore set
  */
-export const setViewModelValue = (obj: any, prop: string, value: any): any => {
+export const setViewModelValue = (obj: PlainObject, prop: string, value: unknown): PlainObject => {
     return _set(obj, prop, value);
 };
 
-export const getViewModelPropValue = (viewModel: ViewModel, bindingCache: BindingCache): any => {
+export const getViewModelPropValue = (viewModel: ViewModel, bindingCache: BindingCache): unknown => {
     let dataKey = bindingCache.dataKey;
     let paramList = bindingCache.parameters;
     const isInvertBoolean = dataKey && dataKey.charAt(0) === '!';
@@ -259,7 +259,7 @@ export const getViewModelPropValue = (viewModel: ViewModel, bindingCache: Bindin
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
         // let args = [oldViewModelProValue, bindingCache.el].concat(paramList);
         const args = paramList.concat([oldViewModelProValue, bindingCache.el]);
-        ret = ret.apply(viewModelContext, args);
+        ret = (ret as Function).apply(viewModelContext, args);
     }
 
     ret = isInvertBoolean ? !ret : ret;
@@ -274,14 +274,14 @@ export const getViewModelPropValue = (viewModel: ViewModel, bindingCache: Bindin
     return ret;
 };
 
-const filtersViewModelPropValue = ({value, viewModel, bindingCache}: {value: any, viewModel: ViewModel, bindingCache: BindingCache}): any => {
+const filtersViewModelPropValue = ({value, viewModel, bindingCache}: {value: unknown, viewModel: ViewModel, bindingCache: BindingCache}): unknown => {
     let ret = value;
     if (bindingCache.filters) {
-        each(bindingCache.filters, (index: any, filter: string) => {
+        each(bindingCache.filters, (index: string | number, filter: string) => {
             const viewModelContext = resolveViewModelContext(viewModel, filter);
             const filterFn = getViewModelValue.call(viewModelContext, viewModelContext, filter);
             try {
-                ret = filterFn.call(viewModelContext, ret);
+                ret = (filterFn as Function).call(viewModelContext, ret);
             } catch (err) {
                 throwErrorMessage(err, `Invalid filter: ${filter}`);
             }
@@ -290,10 +290,10 @@ const filtersViewModelPropValue = ({value, viewModel, bindingCache}: {value: any
     return ret;
 };
 
-export const parseStringToJson = (str: string): any => {
+export const parseStringToJson = (str: string): PlainObject => {
     // fix unquote or single quote keys and replace single quote to double quote
     const ret = str.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":').replace(/'/g, '"');
-    return JSON.parse(ret);
+    return JSON.parse(ret) as PlainObject;
 };
 
 /**
@@ -303,14 +303,14 @@ export const parseStringToJson = (str: string): any => {
  * @param {array} frommArray
  * @return {boolean}
  */
-export const arrayRemoveMatch = (toArray: any[], frommArray: any[]): any[] => {
+export const arrayRemoveMatch = (toArray: unknown[], frommArray: unknown[]): unknown[] => {
     return toArray.filter((value, _index) => {
         return frommArray.indexOf(value) < 0;
     });
 };
 
-export const getFormData = ($form: HTMLFormElement): Record<string, any> => {
-    const data: Record<string, any> = {};
+export const getFormData = ($form: HTMLFormElement): PlainObject => {
+    const data: PlainObject = {};
 
     if (!($form instanceof HTMLFormElement)) {
         return data;
@@ -326,7 +326,7 @@ export const getFormData = ($form: HTMLFormElement): Record<string, any> => {
         if (!Array.isArray(data[key])) {
             data[key] = [data[key]];
         }
-        data[key].push(value);
+        (data[key] as unknown[]).push(value);
     });
 
     return data;
@@ -355,7 +355,7 @@ export const getFunctionParameterList = (str: string): string[] | undefined => {
     return undefined;
 };
 
-export const extractFilterList = (cacheData: any): any => {
+export const extractFilterList = (cacheData: Partial<BindingCache>): Partial<BindingCache> => {
     if (!cacheData || !cacheData.dataKey || cacheData.dataKey.length > config.maxDatakeyLength) {
         return cacheData;
     }
@@ -380,8 +380,8 @@ export const extractFilterList = (cacheData: any): any => {
     return cacheData;
 };
 
-export const invertObj = (sourceObj: Record<string, any>): Record<string, any> => {
-    return Object.keys(sourceObj).reduce((obj: Record<string, any>, key: string) => {
+export const invertObj = (sourceObj: PlainObject): PlainObject => {
+    return Object.keys(sourceObj).reduce((obj: PlainObject, key: string) => {
         const invertedKey = sourceObj[key];
         // Prevent prototype pollution by checking if the inverted key is safe
         if (typeof invertedKey === 'string' && isSafeProperty(invertedKey)) {
@@ -409,8 +409,8 @@ export const createDeferredObj = (): DeferredObj => {
  * @param {context} ctx
  * @return {function}
  */
-export const debounceRaf = (fn: Function, ctx: any = null): Function => {
-    return (function (fn: Function, ctx: any) {
+export const debounceRaf = (fn: Function, ctx: unknown = null): Function => {
+    return (function (fn: Function, ctx: unknown) {
         let dfObj = createDeferredObj();
         let rafId = 0;
 
@@ -495,17 +495,17 @@ export const getNodeAttrObj = (node: HTMLElement, skipList?: string | string[]):
  * @param {object} sources
  * @return {object} merged object
  */
-export const extend = (isDeepMerge: boolean = false, target?: any, ...sources: any[]): any => {
+export const extend = (isDeepMerge: boolean = false, target?: PlainObject, ...sources: PlainObject[]): PlainObject => {
     if (!sources.length) {
-        return target;
+        return target || {};
     }
     const source = sources.shift();
     if (source === undefined) {
-        return target;
+        return target || {};
     }
 
     if (!isDeepMerge) {
-        return Object.assign(target, source, ...sources);
+        return Object.assign(target || {}, source, ...sources);
     }
 
     if (isMergebleObject(target) && isMergebleObject(source)) {
@@ -514,7 +514,7 @@ export const extend = (isDeepMerge: boolean = false, target?: any, ...sources: a
                 if (!target[key]) {
                     target[key] = {};
                 }
-                extend(true, target[key], source[key]);
+                extend(true, target[key] as PlainObject, source[key] as PlainObject);
             } else {
                 target[key] = source[key];
             }
@@ -524,7 +524,7 @@ export const extend = (isDeepMerge: boolean = false, target?: any, ...sources: a
     return extend(true, target, ...sources);
 };
 
-export const each = (obj: any, fn: Function): void => {
+export const each = (obj: unknown[] | PlainObject, fn: Function): void => {
     if (typeof obj !== 'object' || typeof fn !== 'function') {
         return;
     }
@@ -532,7 +532,7 @@ export const each = (obj: any, fn: Function): void => {
     let keysLength = 0;
     const isArrayObj = isArray(obj);
     let key: string | number;
-    let value: any;
+    let value: unknown;
     let i = 0;
 
     if (isArrayObj) {
@@ -547,16 +547,16 @@ export const each = (obj: any, fn: Function): void => {
     for (i = 0; i < keysLength; i += 1) {
         if (isArrayObj) {
             key = i;
-            value = obj[i];
+            value = (obj as unknown[])[i];
         } else {
             key = keys[i];
-            value = obj[key];
+            value = (obj as PlainObject)[key];
         }
         fn(key, value);
     }
 };
 
-const isMergebleObject = (item: any): boolean => {
+const isMergebleObject = (item: unknown): item is PlainObject => {
     return isJsObject(item) && !isArray(item);
 };
 
@@ -599,24 +599,27 @@ export const resolveViewModelContext = (viewModel: ViewModel, datakey: string): 
     return ret;
 };
 
-export const resolveParamList = (viewModel: ViewModel, paramList: any[]): any[] | undefined => {
+export const resolveParamList = (viewModel: ViewModel, paramList: unknown[]): unknown[] | undefined => {
     if (!viewModel || !isArray(paramList)) {
         return;
     }
     return paramList.map((param) => {
-        param = param.trim();
+        let resolvedParam: unknown = param;
+        if (typeof param === 'string') {
+            resolvedParam = param.trim();
 
-        if (param === config.bindingDataReference.currentIndex) {
-            // convert '$index' to value
-            param = viewModel[config.bindingDataReference.currentIndex];
-        } else if (param === config.bindingDataReference.currentData) {
-            // convert '$data' to value or current viewModel
-            param = viewModel[config.bindingDataReference.currentData] || viewModel;
-        } else if (param === config.bindingDataReference.rootDataKey) {
-            // convert '$root' to root viewModel
-            param = viewModel[config.bindingDataReference.rootDataKey] || viewModel;
+            if (resolvedParam === config.bindingDataReference.currentIndex) {
+                // convert '$index' to value
+                resolvedParam = viewModel[config.bindingDataReference.currentIndex];
+            } else if (resolvedParam === config.bindingDataReference.currentData) {
+                // convert '$data' to value or current viewModel
+                resolvedParam = viewModel[config.bindingDataReference.currentData] || viewModel;
+            } else if (resolvedParam === config.bindingDataReference.rootDataKey) {
+                // convert '$root' to root viewModel
+                resolvedParam = viewModel[config.bindingDataReference.rootDataKey] || viewModel;
+            }
         }
-        return param;
+        return resolvedParam;
     });
 };
 
@@ -635,8 +638,8 @@ export const emptyElement = (node: HTMLElement): HTMLElement => {
     return node;
 };
 
-export const throwErrorMessage = (err: any = null, errorMessage: string = ''): void => {
-    const message = err && err.message ? err.message : errorMessage;
+export const throwErrorMessage = (err: unknown = null, errorMessage: string = ''): void => {
+    const message = err && typeof err === 'object' && 'message' in err ? (err as Error).message : errorMessage;
     if (typeof console.error === 'function') {
         console.error(message);
         return;

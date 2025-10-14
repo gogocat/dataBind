@@ -1,14 +1,16 @@
+import type { ViewModel, ElementCache, UpdateOption, BindingAttrs } from './types';
 declare class Binder {
+    [key: string]: unknown;
     initRendered: boolean;
     compId: number;
-    $rootElement: any;
-    viewModel: any;
-    bindingAttrs: any;
+    $rootElement: HTMLElement;
+    viewModel: ViewModel;
+    bindingAttrs: BindingAttrs;
     isServerRendered: boolean;
-    elementCache: any;
-    postProcessQueue: any[];
-    render: (opt?: any) => void;
-    constructor($rootElement: any, viewModel: any, bindingAttrs: any);
+    elementCache: ElementCache;
+    postProcessQueue: Array<() => void>;
+    render: (opt?: UpdateOption) => void;
+    constructor($rootElement: HTMLElement, viewModel: ViewModel, bindingAttrs: BindingAttrs);
     /**
      * parseView
      * @description
@@ -22,13 +24,18 @@ declare class Binder {
      * @param {object} opt
      * @description call createBindingCache to parse view and generate bindingCache
      */
-    updateElementCache(opt?: any): void;
-    _render(opt?: any): void;
-    subscribe(eventName: string, fn: any): this;
-    subscribeOnce(eventName: string, fn: any): this;
+    updateElementCache(opt?: {
+        allCache?: boolean;
+        templateCache?: boolean;
+        elementCache?: ElementCache;
+        isRenderedTemplates?: boolean;
+    }): void;
+    _render(opt?: UpdateOption): void;
+    subscribe(eventName: string, fn: (...args: unknown[]) => void): this;
+    subscribeOnce(eventName: string, fn: (...args: unknown[]) => void): this;
     unsubscribe(eventName?: string): this;
     unsubscribeAll(): this;
-    publish(eventName?: string, ...args: any[]): this;
+    publish(eventName?: string, ...args: unknown[]): this;
 }
 export default Binder;
 //# sourceMappingURL=binder.d.ts.map

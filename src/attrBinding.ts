@@ -7,6 +7,7 @@ import {
     parseBindingObjectString,
     each,
 } from './util';
+import type {BindingCache, ViewModel, PlainObject} from './types';
 
 /**
  * attrBinding
@@ -16,7 +17,7 @@ import {
  * @param {object} viewModel
  * @param {object} bindingAttrs
  */
-const attrBinding = (cache: any = {}, viewModel: any, _bindingAttrs?: any, _forceRender?: any): void => {
+const attrBinding = (cache: BindingCache = {} as BindingCache, viewModel: ViewModel, _bindingAttrs?: unknown, _forceRender?: unknown): void => {
     if (!cache.dataKey) {
         return;
     }
@@ -46,10 +47,10 @@ const attrBinding = (cache: any = {}, viewModel: any, _bindingAttrs?: any, _forc
 
     if (isObjLiteralStr) {
         // resolve each value in vmAttrObj
-        each(vmAttrObj, (key: any, value: any) => {
+        each(vmAttrObj, (key: string, value: unknown) => {
             // resolve value from viewModel including $data and $root
             // from viewModel.$data or viewModel.$root
-            vmAttrObj[key] = getViewModelPropValue(viewModel, {dataKey: value} as any);
+            (vmAttrObj as PlainObject)[key] = getViewModelPropValue(viewModel, {dataKey: value, el: cache.el} as BindingCache);
         });
     }
 
@@ -58,30 +59,30 @@ const attrBinding = (cache: any = {}, viewModel: any, _bindingAttrs?: any, _forc
 
     // start set element attribute - oldAttrObj is empty meaning no previous render
     if (isEmptyObject(oldAttrObj)) {
-        each(vmAttrObj, (key: any, value: any) => {
+        each(vmAttrObj, (key: string, value: unknown) => {
             if (typeof value !== 'undefined') {
-                cache.el.setAttribute(key, value);
+                cache.el.setAttribute(key, String(value));
                 // populate cache.elementData.viewModelPropValue for future comparison
-                if (!isObjLiteralStr) {
+                if (!isObjLiteralStr && cache.elementData) {
                     cache.elementData.viewModelPropValue[key] = value;
                 }
             }
         });
     } else {
         // loop oldAttrObj, remove attribute not present in current vmAttrObj
-        each(oldAttrObj, (key: any, _value: any) => {
-            if (typeof vmAttrObj[key] === 'undefined') {
+        each(oldAttrObj as PlainObject, (key: string, _value: unknown) => {
+            if (typeof (vmAttrObj as PlainObject)[key] === 'undefined') {
                 cache.el.removeAttribute(key);
             }
         });
 
         // loop vmAttrObj, set attribute not present in oldAttrObj
-        each(vmAttrObj, (key: any, value: any) => {
+        each(vmAttrObj, (key: string, value: unknown) => {
             if (typeof value !== 'undefined') {
-                if (oldAttrObj[key] !== vmAttrObj[key]) {
-                    cache.el.setAttribute(key, vmAttrObj[key]);
+                if ((oldAttrObj as PlainObject)[key] !== (vmAttrObj as PlainObject)[key]) {
+                    cache.el.setAttribute(key, String((vmAttrObj as PlainObject)[key]));
                     // populate cache.elementData.viewModelPropValue for future comparison
-                    if (!isObjLiteralStr) {
+                    if (!isObjLiteralStr && cache.elementData) {
                         cache.elementData.viewModelPropValue[key] = value;
                     }
                 }

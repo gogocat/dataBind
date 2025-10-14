@@ -1,15 +1,16 @@
 
 import * as config from './config';
 import * as util from './util';
+import type {BindingCache} from './types';
 
-const createClonedElementCache = (bindingData: any): any => {
+const createClonedElementCache = (bindingData: BindingCache): BindingCache => {
     const clonedElement = bindingData.el.cloneNode(true);
     bindingData.fragment = document.createDocumentFragment();
     bindingData.fragment.appendChild(clonedElement);
     return bindingData;
 };
 
-const setCommentPrefix = (bindingData: any): any => {
+const setCommentPrefix = (bindingData: BindingCache): BindingCache => {
     if (!bindingData || !bindingData.type) {
         return bindingData;
     }
@@ -44,18 +45,18 @@ const setCommentPrefix = (bindingData: any): any => {
  * if not found deleteContents will has no operation
  * @return {undefined}
  */
-const setDocRangeEndAfter = (node: any, bindingData: any): void => {
+const setDocRangeEndAfter = (node: Node | null, bindingData: BindingCache): void => {
     if (!bindingData.commentPrefix) {
         setCommentPrefix(bindingData);
     }
-    const startTextContent = bindingData.commentPrefix;
+    const startTextContent = bindingData.commentPrefix as string;
     const endTextContent = startTextContent + config.commentSuffix;
     node = node.nextSibling;
 
     // check last wrap comment node
     if (node) {
         if (node.nodeType === 8 && node.textContent === endTextContent) {
-            return bindingData.docRange.setEndBefore(node);
+            return (bindingData.docRange as Range).setEndBefore(node);
         }
         setDocRangeEndAfter(node, bindingData);
     }
@@ -69,12 +70,12 @@ const setDocRangeEndAfter = (node: any, bindingData: any): void => {
  * @description
  * wrap frament with comment node
  */
-const wrapCommentAround = (bindingData: any, node: any): any => {
+const wrapCommentAround = (bindingData: BindingCache, node: Node | DocumentFragment): Node | DocumentFragment => {
     let prefix = '';
     if (!bindingData.commentPrefix) {
         setCommentPrefix(bindingData);
     }
-    prefix = bindingData.commentPrefix;
+    prefix = bindingData.commentPrefix as string;
     const commentBegin = document.createComment(prefix);
     const commentEnd = document.createComment(prefix + config.commentSuffix);
     // document fragment - logic for ForOf binding
@@ -100,25 +101,26 @@ const wrapCommentAround = (bindingData: any, node: any): any => {
  * @return {undefined}
  * @description remove elments by range
  */
-const removeElemnetsByCommentWrap = (bindingData: any): void => {
+const removeElemnetsByCommentWrap = (bindingData: BindingCache): void => {
     if (!bindingData.docRange) {
         bindingData.docRange = document.createRange();
     }
+    const docRange = bindingData.docRange as Range;
     try {
         if (bindingData.previousNonTemplateElement) {
             // update docRange start and end match the wrapped comment node
-            bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
+            docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling as Node);
             setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
         } else {
             // insert before next non template element
-            bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
-            setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
+            docRange.setStartBefore((bindingData.parentElement as HTMLElement).firstChild as Node);
+            setDocRangeEndAfter((bindingData.parentElement as HTMLElement).firstChild, bindingData);
         }
-    } catch (err: any) {
-        console.log('error removeElemnetsByCommentWrap: ', err.message);
+    } catch (err: unknown) {
+        console.log('error removeElemnetsByCommentWrap: ', err instanceof Error ? err.message : String(err));
     }
 
-    return bindingData.docRange.deleteContents();
+    docRange.deleteContents();
 };
 
 /**
@@ -126,15 +128,16 @@ const removeElemnetsByCommentWrap = (bindingData: any): void => {
  * @param {object} bindingData
  * @return {object} null
  */
-const removeDomTemplateElement = (bindingData: any): void => {
+const removeDomTemplateElement = (bindingData: BindingCache): void => {
     // first render - forElement is live DOM element so has parentNode
     if (bindingData.el.parentNode) {
-        return bindingData.el.parentNode.removeChild(bindingData.el);
+        bindingData.el.parentNode.removeChild(bindingData.el);
+        return;
     }
     removeElemnetsByCommentWrap(bindingData);
 };
 
-const insertRenderedElements = (bindingData: any, fragment: any): void => {
+const insertRenderedElements = (bindingData: BindingCache, fragment: DocumentFragment): void => {
     // insert rendered fragment after the previousNonTemplateElement
     if (bindingData.previousNonTemplateElement) {
         util.insertAfter(bindingData.parentElement, fragment, bindingData.previousNonTemplateElement);

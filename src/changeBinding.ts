@@ -30,7 +30,7 @@ function createChangeHandler(
             oldValue = getViewModelValue(viewModel, modelDataKey);
             setViewModelValue(viewModel, modelDataKey, newValue);
         }
-        const args = [e, e.currentTarget, newValue, oldValue].concat(paramList as any[]);
+        const args = [e, e.currentTarget, newValue, oldValue, ...paramList];
         handlerFn.apply(viewModelContext, args);
         oldValue = newValue;
     };

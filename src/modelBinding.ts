@@ -1,4 +1,5 @@
 import {getViewModelValue} from './util';
+import type {BindingCache, ViewModel, BindingAttrs} from './types';
 
 /**
  * modelBinding
@@ -8,23 +9,23 @@ import {getViewModelValue} from './util';
  * @param {object} bindingAttrs
  * @param {boolean} forceRender
  */
-const modelBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender: any): void => {
+const modelBinding = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: BindingAttrs, forceRender: boolean): void => {
     const dataKey = cache.dataKey;
-    let newValue: any = '';
-    const APP = viewModel.APP || viewModel.$root.APP;
+    let newValue: unknown = '';
+    const APP = viewModel.APP || viewModel.$root?.APP;
 
-    if (!dataKey || (!forceRender && !APP.$rootElement.contains(cache.el))) {
+    if (!dataKey || (!forceRender && !(APP?.$rootElement as HTMLElement)?.contains(cache.el))) {
         return;
     }
 
     newValue = getViewModelValue(viewModel, dataKey);
 
     if (typeof newValue !== 'undefined' && newValue !== null) {
-        const $element = cache.el;
+        const $element = cache.el as HTMLInputElement;
         const isCheckbox = $element.type === 'checkbox';
         const isRadio = $element.type === 'radio';
         const inputName = $element.name;
-        const $radioGroup = isRadio ? APP.$rootElement.querySelectorAll(`input[name="${inputName}"]`) : [];
+        const $radioGroup = isRadio ? (APP?.$rootElement as HTMLElement).querySelectorAll(`input[name="${inputName}"]`) : [];
         const oldValue = isCheckbox ? $element.checked : $element.value;
 
         // update element value
@@ -36,13 +37,14 @@ const modelBinding = (cache: any, viewModel: any, bindingAttrs: any, forceRender
                 const radioGroupLength = $radioGroup.length;
 
                 for (i = 0; i < radioGroupLength; i += 1) {
-                    if ($radioGroup[i].value === newValue) {
-                        $radioGroup[i].checked = true;
+                    const radioInput = $radioGroup[i] as HTMLInputElement;
+                    if (radioInput.value === newValue) {
+                        radioInput.checked = true;
                         break;
                     }
                 }
             } else {
-                $element.value = newValue;
+                $element.value = String(newValue);
             }
         }
     }

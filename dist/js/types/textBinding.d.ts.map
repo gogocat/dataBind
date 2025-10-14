@@ -1,1 +1,1 @@
-{"version":3,"file":"textBinding.d.ts","sourceRoot":"","sources":["../../../src/textBinding.ts"],"names":[],"mappings":"AAEA;;;;;;;;GAQG;AACH,QAAA,MAAM,WAAW,GAAI,OAAO,GAAG,EAAE,WAAW,GAAG,EAAE,cAAc,GAAG,EAAE,aAAa,GAAG,KAAG,IAiBtF,CAAC;AAEF,eAAe,WAAW,CAAC"}
+{"version":3,"file":"textBinding.d.ts","sourceRoot":"","sources":["../../../src/textBinding.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAC,YAAY,EAAE,SAAS,EAAE,YAAY,EAAC,MAAM,SAAS,CAAC;AAEnE;;;;;;;;GAQG;AACH,QAAA,MAAM,WAAW,GAAI,OAAO,YAAY,EAAE,WAAW,SAAS,EAAE,cAAc,YAAY,EAAE,aAAa,OAAO,KAAG,IAiBlH,CAAC;AAEF,eAAe,WAAW,CAAC"}

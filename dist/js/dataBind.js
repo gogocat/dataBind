@@ -440,14 +440,14 @@ license MIT(function (global, factory) {
      */
     const extend = (isDeepMerge = false, target, ...sources) => {
       if (!sources.length) {
-        return target;
+        return target || {};
       }
       const source = sources.shift();
       if (source === undefined) {
-        return target;
+        return target || {};
       }
       if (!isDeepMerge) {
-        return _extends(target, source, ...sources);
+        return _extends(target || {}, source, ...sources);
       }
       if (isMergebleObject(target) && isMergebleObject(source)) {
         Object.keys(source).forEach(key => {
@@ -536,18 +536,21 @@ license MIT(function (global, factory) {
         return;
       }
       return paramList.map(param => {
-        param = param.trim();
-        if (param === bindingDataReference.currentIndex) {
-          // convert '$index' to value
-          param = viewModel[bindingDataReference.currentIndex];
-        } else if (param === bindingDataReference.currentData) {
-          // convert '$data' to value or current viewModel
-          param = viewModel[bindingDataReference.currentData] || viewModel;
-        } else if (param === bindingDataReference.rootDataKey) {
-          // convert '$root' to root viewModel
-          param = viewModel[bindingDataReference.rootDataKey] || viewModel;
+        let resolvedParam = param;
+        if (typeof param === 'string') {
+          resolvedParam = param.trim();
+          if (resolvedParam === bindingDataReference.currentIndex) {
+            // convert '$index' to value
+            resolvedParam = viewModel[bindingDataReference.currentIndex];
+          } else if (resolvedParam === bindingDataReference.currentData) {
+            // convert '$data' to value or current viewModel
+            resolvedParam = viewModel[bindingDataReference.currentData] || viewModel;
+          } else if (resolvedParam === bindingDataReference.rootDataKey) {
+            // convert '$root' to root viewModel
+            resolvedParam = viewModel[bindingDataReference.rootDataKey] || viewModel;
+          }
         }
-        return param;
+        return resolvedParam;
       });
     };
     const removeElement = el => {
@@ -564,7 +567,7 @@ license MIT(function (global, factory) {
       return node;
     };
     const throwErrorMessage = (err = null, errorMessage = '') => {
-      const message = err && err.message ? err.message : errorMessage;
+      const message = err && typeof err === 'object' && 'message' in err ? err.message : errorMessage;
       if (typeof console.error === 'function') {
         console.error(message);
         return;
@@ -609,13 +612,13 @@ license MIT(function (global, factory) {
      */
     const walkDOM = (node, func) => {
       let parseChildNode = true;
-      node = node.firstElementChild;
-      while (node) {
-        parseChildNode = func(node);
+      let currentNode = node.firstElementChild;
+      while (currentNode) {
+        parseChildNode = func(currentNode);
         if (parseChildNode) {
-          walkDOM(node, func);
+          walkDOM(currentNode, func);
         }
-        node = node.nextElementSibling;
+        currentNode = currentNode.nextElementSibling;
       }
     };
     const getAttributesObject = node => {
@@ -659,10 +662,10 @@ license MIT(function (global, factory) {
         // populate cacheData.parameters
         // for store function call parameters eg. '$index', '$root'
         // useful with DOM for-loop template as reference to binding data
-        const paramList = getFunctionParameterList(cacheData.dataKey);
+        const paramList = getFunctionParameterList(cacheData.dataKey || '');
         if (paramList) {
           cacheData.parameters = paramList;
-          cacheData.dataKey = cacheData.dataKey.replace(REGEX.FUNCTION_PARAM, '').trim();
+          cacheData.dataKey = (cacheData.dataKey || '').replace(REGEX.FUNCTION_PARAM, '').trim();
         }
         // store parent array reference to cacheData
         cacheData[constants.PARENT_REF] = bindingCache[type];
@@ -792,7 +795,7 @@ license MIT(function (global, factory) {
      */
     function createMouseEnterHandler(cache, handlers, inHandlerName, viewModelContext, paramList) {
       return function onMouseEnterHandler(e) {
-        const args = [e, cache.el].concat(paramList);
+        const args = [e, cache.el, ...paramList];
         handlers[inHandlerName].apply(viewModelContext, args);
       };
     }
@@ -801,7 +804,7 @@ license MIT(function (global, factory) {
      */
     function createMouseLeaveHandler(cache, handlers, outHandlerName, viewModelContext, paramList) {
       return function onMouseLeaveHandler(e) {
-        const args = [e, cache.el].concat(paramList);
+        const args = [e, cache.el, ...paramList];
         handlers[outHandlerName].apply(viewModelContext, args);
       };
     }
@@ -882,8 +885,8 @@ license MIT(function (global, factory) {
      */
     function escape(string) {
       // Reset `lastIndex` because in IE < 9 `String#replace` does not.
-      string = baseToString(string);
-      return string && reHasUnescapedHtml.test(string) ? string.replace(reUnescapedHtml, escapeHtmlChar) : string;
+      const strValue = baseToString(string);
+      return strValue && reHasUnescapedHtml.test(strValue) ? strValue.replace(reUnescapedHtml, escapeHtmlChar) : strValue;
     }
 
     /**
@@ -901,7 +904,7 @@ license MIT(function (global, factory) {
           oldValue = getViewModelValue(viewModel, modelDataKey);
           setViewModelValue(viewModel, modelDataKey, newValue);
         }
-        const args = [e, e.currentTarget, newValue, oldValue].concat(paramList);
+        const args = [e, e.currentTarget, newValue, oldValue, ...paramList];
         handlerFn.apply(viewModelContext, args);
         oldValue = newValue;
       };
@@ -951,10 +954,11 @@ license MIT(function (global, factory) {
      * @param {boolean} forceRender
      */
     const modelBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+      var _a, _b;
       const dataKey = cache.dataKey;
       let newValue = '';
-      const APP = viewModel.APP || viewModel.$root.APP;
-      if (!dataKey || !forceRender && !APP.$rootElement.contains(cache.el)) {
+      const APP = viewModel.APP || ((_a = viewModel.$root) === null || _a === void 0 ? void 0 : _a.APP);
+      if (!dataKey || !forceRender && !((_b = APP === null || APP === void 0 ? void 0 : APP.$rootElement) === null || _b === void 0 ? void 0 : _b.contains(cache.el))) {
         return;
       }
       newValue = getViewModelValue(viewModel, dataKey);
@@ -963,7 +967,7 @@ license MIT(function (global, factory) {
         const isCheckbox = $element.type === 'checkbox';
         const isRadio = $element.type === 'radio';
         const inputName = $element.name;
-        const $radioGroup = isRadio ? APP.$rootElement.querySelectorAll(`input[name="${inputName}"]`) : [];
+        const $radioGroup = isRadio ? (APP === null || APP === void 0 ? void 0 : APP.$rootElement).querySelectorAll(`input[name="${inputName}"]`) : [];
         const oldValue = isCheckbox ? $element.checked : $element.value;
         // update element value
         if (newValue !== oldValue) {
@@ -973,13 +977,14 @@ license MIT(function (global, factory) {
             let i = 0;
             const radioGroupLength = $radioGroup.length;
             for (i = 0; i < radioGroupLength; i += 1) {
-              if ($radioGroup[i].value === newValue) {
-                $radioGroup[i].checked = true;
+              const radioInput = $radioGroup[i];
+              if (radioInput.value === newValue) {
+                radioInput.checked = true;
                 break;
               }
             }
           } else {
-            $element.value = newValue;
+            $element.value = String(newValue);
           }
         }
       }
@@ -995,17 +1000,18 @@ license MIT(function (global, factory) {
      * @param {boolean} forceRender
      */
     const textBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+      var _a, _b;
       const dataKey = cache.dataKey;
-      const APP = viewModel.APP || viewModel.$root.APP;
+      const APP = viewModel.APP || ((_a = viewModel.$root) === null || _a === void 0 ? void 0 : _a.APP);
       // NOTE: this doesn't work for for-of, if and switch bindings because element was not in DOM
-      if (!dataKey || !forceRender && !APP.$rootElement.contains(cache.el)) {
+      if (!dataKey || !forceRender && !((_b = APP === null || APP === void 0 ? void 0 : APP.$rootElement) === null || _b === void 0 ? void 0 : _b.contains(cache.el))) {
         return;
       }
       const newValue = getViewModelPropValue(viewModel, cache);
       const oldValue = cache.el.textContent;
       if (typeof newValue !== 'undefined' && typeof newValue !== 'object' && newValue !== null) {
         if (newValue !== oldValue) {
-          cache.el.textContent = newValue;
+          cache.el.textContent = String(newValue);
         }
       }
     };
@@ -1090,9 +1096,10 @@ license MIT(function (global, factory) {
      * @param {boolean} forceRender
      */
     const cssBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+      var _a, _b;
       const dataKey = cache.dataKey;
-      const APP = viewModel.APP || viewModel.$root.APP;
-      if (!dataKey || !forceRender && !APP.$rootElement.contains(cache.el)) {
+      const APP = viewModel.APP || ((_a = viewModel.$root) === null || _a === void 0 ? void 0 : _a.APP);
+      if (!dataKey || !forceRender && !((_b = APP === null || APP === void 0 ? void 0 : APP.$rootElement) === null || _b === void 0 ? void 0 : _b.contains(cache.el))) {
         return;
       }
       cache.elementData = cache.elementData || {};
@@ -1140,7 +1147,8 @@ license MIT(function (global, factory) {
         });
       } else if (isViewDataString) {
         // remove oldCssList items from cssList
-        cssList = arrayRemoveMatch(cssList, oldCssList);
+        const oldCssArray = typeof oldCssList === 'string' && oldCssList ? oldCssList.split(' ') : [];
+        cssList = arrayRemoveMatch(cssList, oldCssArray);
         cssList = cssList.concat(vmCssListArray);
       }
       // unique cssList array
@@ -1191,7 +1199,8 @@ license MIT(function (global, factory) {
           // resolve value from viewModel including $data and $root
           // from viewModel.$data or viewModel.$root
           vmAttrObj[key] = getViewModelPropValue(viewModel, {
-            dataKey: value
+            dataKey: value,
+            el: cache.el
           });
         });
       }
@@ -1201,9 +1210,9 @@ license MIT(function (global, factory) {
       if (isEmptyObject(oldAttrObj)) {
         each(vmAttrObj, (key, value) => {
           if (typeof value !== 'undefined') {
-            cache.el.setAttribute(key, value);
+            cache.el.setAttribute(key, String(value));
             // populate cache.elementData.viewModelPropValue for future comparison
-            if (!isObjLiteralStr) {
+            if (!isObjLiteralStr && cache.elementData) {
               cache.elementData.viewModelPropValue[key] = value;
             }
           }
@@ -1219,9 +1228,9 @@ license MIT(function (global, factory) {
         each(vmAttrObj, (key, value) => {
           if (typeof value !== 'undefined') {
             if (oldAttrObj[key] !== vmAttrObj[key]) {
-              cache.el.setAttribute(key, vmAttrObj[key]);
+              cache.el.setAttribute(key, String(vmAttrObj[key]));
               // populate cache.elementData.viewModelPropValue for future comparison
-              if (!isObjLiteralStr) {
+              if (!isObjLiteralStr && cache.elementData) {
                 cache.elementData.viewModelPropValue[key] = value;
               }
             }
@@ -1276,16 +1285,17 @@ license MIT(function (global, factory) {
         return;
       }
       const $element = cache.el;
-      const $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.getAttribute(dataIndexAttr);
-      if (typeof $index !== 'undefined') {
+      const $indexAttr = $element.getAttribute(dataIndexAttr);
+      const $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $indexAttr ? parseInt($indexAttr, 10) : undefined;
+      if (typeof $index !== 'undefined' && viewData && typeof viewData === 'object') {
         viewData.$index = $index;
       }
       $domFragment = $domFragment || document.createDocumentFragment();
       if (!$templateRoot) {
         $templateRoot = $element;
         // Store the prepend/append flags from the root template only
-        $templateRootPrepend = isPrepend;
-        $templateRootAppend = isAppend;
+        $templateRootPrepend = Boolean(isPrepend);
+        $templateRootAppend = Boolean(isAppend);
       }
       const htmlString = getTemplateString(settings.id);
       const htmlFragment = createHtmlFragment(htmlString);
@@ -1338,7 +1348,7 @@ license MIT(function (global, factory) {
         $domFragment = $templateRoot = null;
         $templateRootPrepend = $templateRootAppend = false;
         // trigger callback if provided
-        if (typeof viewModel.afterTemplateRender === 'function') {
+        if (viewModel.afterTemplateRender && typeof viewModel.afterTemplateRender === 'function') {
           viewModel.afterTemplateRender(viewData);
         }
       }
@@ -1524,20 +1534,21 @@ license MIT(function (global, factory) {
       if (!bindingData.docRange) {
         bindingData.docRange = document.createRange();
       }
+      const docRange = bindingData.docRange;
       try {
         if (bindingData.previousNonTemplateElement) {
           // update docRange start and end match the wrapped comment node
-          bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
+          docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
           setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
         } else {
           // insert before next non template element
-          bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
+          docRange.setStartBefore(bindingData.parentElement.firstChild);
           setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
         }
       } catch (err) {
-        console.log('error removeElemnetsByCommentWrap: ', err.message);
+        console.log('error removeElemnetsByCommentWrap: ', err instanceof Error ? err.message : String(err));
       }
-      return bindingData.docRange.deleteContents();
+      docRange.deleteContents();
     };
     const insertRenderedElements = (bindingData, fragment) => {
       // insert rendered fragment after the previousNonTemplateElement
@@ -1559,12 +1570,13 @@ license MIT(function (global, factory) {
       viewModel,
       bindingAttrs
     }) => {
+      var _a;
       if (!bindingData || !viewModel || !bindingAttrs) {
         return;
       }
       let keys;
       let iterationDataLength;
-      const iterationData = getViewModelPropValue(viewModel, bindingData.iterator);
+      const iterationData = getViewModelPropValue(viewModel, bindingData);
       let isRegenerate = false;
       // check iterationData and set iterationDataLength
       if (isArray(iterationData)) {
@@ -1595,7 +1607,7 @@ license MIT(function (global, factory) {
         bindingData.iterationSize = iterationDataLength;
       }
       if (!isRegenerate) {
-        bindingData.iterationBindingCache.forEach((elementCache, i) => {
+        (_a = bindingData.iterationBindingCache) === null || _a === void 0 ? void 0 : _a.forEach((elementCache, i) => {
           if (!isEmptyObject(elementCache)) {
             const iterationVm = createIterationViewModel({
               bindingData,
@@ -1637,11 +1649,15 @@ license MIT(function (global, factory) {
       keys,
       index
     }) => {
+      var _a;
       const iterationVm = {};
-      iterationVm[bindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
+      const alias = (_a = bindingData.iterator) === null || _a === void 0 ? void 0 : _a.alias;
+      if (alias) {
+        iterationVm[alias] = keys ? iterationData[keys[index]] : iterationData[index];
+      }
       // populate common binding data reference
       iterationVm[bindingDataReference.rootDataKey] = viewModel.$root || viewModel;
-      iterationVm[bindingDataReference.currentData] = iterationVm[bindingData.iterator.alias];
+      iterationVm[bindingDataReference.currentData] = alias ? iterationVm[alias] : undefined;
       iterationVm[bindingDataReference.currentIndex] = index;
       return iterationVm;
     };
@@ -1999,9 +2015,9 @@ license MIT(function (global, factory) {
         let args = [];
         if (type === 'submit') {
           formData = getFormData(e.currentTarget);
-          args = [e, e.currentTarget, formData].concat(paramList);
+          args = [e, e.currentTarget, formData, ...paramList];
         } else {
-          args = [e, e.currentTarget].concat(paramList);
+          args = [e, e.currentTarget, ...paramList];
         }
         handlerFn.apply(viewModelContext, args);
       };
@@ -2194,7 +2210,7 @@ license MIT(function (global, factory) {
 
     const EVENTS = {};
     const subscribeEvent = (instance = null, eventName = '', fn, isOnce = false) => {
-      if (!instance || !instance.compId || !eventName || typeof fn !== 'function') {
+      if (!instance || typeof instance !== 'object' || !('compId' in instance) || !instance.compId || !eventName || typeof fn !== 'function') {
         return;
       }
       let subscriber;
@@ -2202,9 +2218,10 @@ license MIT(function (global, factory) {
       eventName = eventName.replace(REGEX.WHITE_SPACES, '');
       EVENTS[eventName] = EVENTS[eventName] || [];
       // check if already subscribed and update callback fn
+      const instanceWithViewModel = instance;
       isSubscribed = EVENTS[eventName].some(subscriber => {
-        if (subscriber[instance.compId]) {
-          subscriber[instance.compId] = fn.bind(instance.viewModel);
+        if (subscriber[instanceWithViewModel.compId]) {
+          subscriber[instanceWithViewModel.compId] = fn.bind(instanceWithViewModel.viewModel);
           subscriber.isOnce = isOnce;
           return true;
         }
@@ -2213,7 +2230,7 @@ license MIT(function (global, factory) {
       // push if not yet subscribe
       if (!isSubscribed) {
         subscriber = {};
-        subscriber[instance.compId] = fn.bind(instance.viewModel);
+        subscriber[instanceWithViewModel.compId] = fn.bind(instanceWithViewModel.viewModel);
         subscriber.isOnce = isOnce;
         EVENTS[eventName].push(subscriber);
       }

@@ -1,1 +1,1 @@
-{"version":3,"file":"attrBinding.d.ts","sourceRoot":"","sources":["../../../src/attrBinding.ts"],"names":[],"mappings":"AAUA;;;;;;;GAOG;AACH,QAAA,MAAM,WAAW,GAAI,OAAO,GAAQ,EAAE,WAAW,GAAG,EAAE,gBAAgB,GAAG,EAAE,eAAe,GAAG,KAAG,IA+E/F,CAAC;AAEF,eAAe,WAAW,CAAC"}
+{"version":3,"file":"attrBinding.d.ts","sourceRoot":"","sources":["../../../src/attrBinding.ts"],"names":[],"mappings":"AASA,OAAO,KAAK,EAAC,YAAY,EAAE,SAAS,EAAc,MAAM,SAAS,CAAC;AAElE;;;;;;;GAOG;AACH,QAAA,MAAM,WAAW,GAAI,OAAO,YAAiC,EAAE,WAAW,SAAS,EAAE,gBAAgB,OAAO,EAAE,eAAe,OAAO,KAAG,IA+EtI,CAAC;AAEF,eAAe,WAAW,CAAC"}

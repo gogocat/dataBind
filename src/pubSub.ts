@@ -21,8 +21,8 @@ interface Events {
 
 const EVENTS: Events = {};
 
-export const subscribeEvent = (instance: any = null, eventName: string = '', fn: Function, isOnce: boolean = false): void => {
-    if (!instance || !instance.compId || !eventName || typeof fn !== 'function') {
+export const subscribeEvent = (instance: unknown = null, eventName: string = '', fn: Function, isOnce: boolean = false): void => {
+    if (!instance || typeof instance !== 'object' || !('compId' in instance) || !instance.compId || !eventName || typeof fn !== 'function') {
         return;
     }
 
@@ -32,9 +32,10 @@ export const subscribeEvent = (instance: any = null, eventName: string = '', fn:
     eventName = eventName.replace(util.REGEX.WHITE_SPACES, '');
     EVENTS[eventName] = EVENTS[eventName] || [];
     // check if already subscribed and update callback fn
+    const instanceWithViewModel = instance as { compId: string | number; viewModel: unknown };
     isSubscribed = EVENTS[eventName].some((subscriber) => {
-        if (subscriber[instance.compId]) {
-            subscriber[instance.compId] = fn.bind(instance.viewModel);
+        if (subscriber[instanceWithViewModel.compId]) {
+            subscriber[instanceWithViewModel.compId] = fn.bind(instanceWithViewModel.viewModel);
             subscriber.isOnce = isOnce;
             return true;
         }
@@ -43,13 +44,13 @@ export const subscribeEvent = (instance: any = null, eventName: string = '', fn:
     // push if not yet subscribe
     if (!isSubscribed) {
         subscriber = {};
-        subscriber[instance.compId] = fn.bind(instance.viewModel);
+        subscriber[instanceWithViewModel.compId] = fn.bind(instanceWithViewModel.viewModel);
         subscriber.isOnce = isOnce;
         EVENTS[eventName].push(subscriber);
     }
 };
 
-export const subscribeEventOnce = (instance: any = null, eventName: string = '', fn: Function): void => {
+export const subscribeEventOnce = (instance: unknown = null, eventName: string = '', fn: Function): void => {
     subscribeEvent(instance, eventName, fn, true);
 };
 
@@ -94,7 +95,7 @@ export const unsubscribeAllEvent = (compId: string | number = ''): void => {
     });
 };
 
-export const publishEvent = (eventName: string = '', ...args: any[]): void => {
+export const publishEvent = (eventName: string = '', ...args: unknown[]): void => {
     if (!eventName || !EVENTS[eventName]) {
         return;
     }
