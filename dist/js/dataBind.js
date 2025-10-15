@@ -50,7 +50,6 @@ license MIT(function (global, factory) {
       serverRendered: 'SERVER-RENDERED',
       init: 'INIT'
     };
-
     // maximum string length before running regex
     const maxDatakeyLength = 250;
     const constants = {
@@ -101,24 +100,19 @@ license MIT(function (global, factory) {
       if (!isJsObject(obj)) {
         return false;
       }
-
       // If has modified constructor
       const ctor = obj.constructor;
       if (typeof ctor !== 'function') return false;
-
       // If has modified prototype
       const prot = ctor.prototype;
       if (isJsObject(prot) === false) return false;
-
       // If constructor does not have an Object-specific method
       if (prot.hasOwnProperty('isPrototypeOf') === false) {
         return false;
       }
-
       // Most likely a plain Object
       return true;
     };
-
     // test if string contains '{...}'. string must not contains tab, line breaks
     const isObjectLiteralString = (str = '') => {
       return REGEX.OBJECT_LITERAL.test(str);
@@ -129,17 +123,17 @@ license MIT(function (global, factory) {
       }
       return false;
     };
-    function getFirstHtmlStringTag(htmlString) {
+    const getFirstHtmlStringTag = htmlString => {
       const match = htmlString.match(REGEX.HTML_TAG);
       if (match) {
         return match[1];
       }
       return null;
-    }
-    function removeBadTags(htmlString = '') {
+    };
+    const removeBadTags = (htmlString = '') => {
       return htmlString.replace(REGEX.BAD_TAGS, '');
-    }
-    function createHtmlFragment(htmlString) {
+    };
+    const createHtmlFragment = htmlString => {
       if (typeof htmlString !== 'string') {
         return null;
       }
@@ -159,21 +153,41 @@ license MIT(function (global, factory) {
       }
       queryContainer.insertAdjacentHTML('beforeend', `${wrap[1]}${htmlString}${wrap[2]}`);
       const query = queryContainer.querySelector(wrap[0]);
-      while (query.firstChild) {
+      while (query && query.firstChild) {
         fragment.appendChild(query.firstChild);
       }
       return fragment;
-    }
-
-    // simplified version of Lodash _.get
-    const _get = function get(obj, path, def) {
-      function everyFunc(step) {
-        return !(step && (obj = obj[step]) === undefined);
-      }
-      const fullPath = path.replace(/\[/g, '.').replace(/]/g, '').split('.').filter(Boolean);
-      return fullPath.every(everyFunc) ? obj : def;
     };
-
+    /**
+     * List of dangerous property names that should not be accessed
+     * to prevent prototype pollution attacks
+     */
+    const DANGEROUS_PROPS = ['__proto__', 'constructor', 'prototype'];
+    /**
+     * Check if a property name is safe to access
+     */
+    const isSafeProperty = prop => {
+      return !DANGEROUS_PROPS.includes(prop);
+    };
+    // simplified version of Lodash _.get with prototype pollution protection
+    const _get = (obj, path, def) => {
+      const fullPath = path.replace(/\[/g, '.').replace(/]/g, '').split('.').filter(Boolean);
+      let current = obj;
+      for (const step of fullPath) {
+        // Prevent access to dangerous properties
+        if (!step || !isSafeProperty(step)) {
+          return def;
+        }
+        if (current == null) {
+          return def;
+        }
+        current = current[step];
+        if (current === undefined) {
+          return def;
+        }
+      }
+      return current;
+    };
     /**
      * getViewModelValue
      * @description walk a object by provided string path. eg 'a.b.c'
@@ -184,30 +198,47 @@ license MIT(function (global, factory) {
     const getViewModelValue = (viewModel, prop) => {
       return _get(viewModel, prop);
     };
-
-    // simplified version of Lodash _.set
+    // simplified version of Lodash _.set with prototype pollution protection
     // https://stackoverflow.com/questions/54733539/javascript-implementation-of-lodash-set-method
     const _set = (obj, path, value) => {
       if (Object(obj) !== obj) return obj; // When obj is not an object
       // If not yet an array, get the keys from the string-path
-      if (!Array.isArray(path)) path = path.toString().match(/[^.[\]]+/g) || [];
-
+      let pathArray;
+      if (!Array.isArray(path)) {
+        pathArray = path.toString().match(/[^.[\]]+/g) || [];
+      } else {
+        pathArray = path;
+      }
+      // Check all keys in path for dangerous properties
+      for (const key of pathArray) {
+        if (!isSafeProperty(key)) {
+          console.warn(`Blocked attempt to set dangerous property: ${key}`);
+          return obj;
+        }
+      }
       // Iterate all of them except the last one
-      path.slice(0, -1).reduce((a, c, i) => Object(a[c]) === a[c] ?
-      // Does the key exist and is its value an object?
-      // Yes: then follow that path
-      a[c] :
-      // No: create the key. Is the next key a potential array-index?
-      a[c] = Math.abs(path[i + 1]) >> 0 === +path[i + 1] ? [] :
-      // Yes: assign a new array object
-      {},
-      // No: assign a new plain object
-      obj)[path[path.length - 1]] = value; // Finally assign the value to the last key
-
+      const lastKey = pathArray[pathArray.length - 1];
+      const target = pathArray.slice(0, -1).reduce((a, c, i) => {
+        // Prevent setting dangerous properties
+        if (!isSafeProperty(c)) {
+          return a;
+        }
+        if (Object(a[c]) === a[c]) {
+          // Key exists and is an object, follow that path
+          return a[c];
+        }
+        // Create the key. Is the next key a potential array-index?
+        const nextKey = pathArray[i + 1];
+        a[c] = Math.abs(Number(nextKey)) >> 0 === +nextKey ? [] : {};
+        return a[c];
+      }, obj);
+      // Set the final value only if the key is safe
+      if (isSafeProperty(lastKey)) {
+        target[lastKey] = value;
+      }
       // Return the top-level object to allow chaining
       return obj;
     };
-
     /**
      * setViewModelValue
      * @description populate viewModel object by path string
@@ -222,13 +253,13 @@ license MIT(function (global, factory) {
     const getViewModelPropValue = (viewModel, bindingCache) => {
       let dataKey = bindingCache.dataKey;
       let paramList = bindingCache.parameters;
-      const isInvertBoolean = dataKey.charAt(0) === '!';
-      if (isInvertBoolean) {
+      const isInvertBoolean = dataKey && dataKey.charAt(0) === '!';
+      if (isInvertBoolean && dataKey) {
         dataKey = isInvertBoolean ? dataKey.substring(1) : dataKey;
       }
-      let ret = getViewModelValue(viewModel, dataKey);
+      let ret = dataKey ? getViewModelValue(viewModel, dataKey) : undefined;
       if (typeof ret === 'function') {
-        const viewModelContext = resolveViewModelContext(viewModel, dataKey);
+        const viewModelContext = resolveViewModelContext(viewModel, dataKey || '');
         const oldViewModelProValue = bindingCache.elementData ? bindingCache.elementData.viewModelPropValue : null;
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
         // let args = [oldViewModelProValue, bindingCache.el].concat(paramList);
@@ -236,12 +267,11 @@ license MIT(function (global, factory) {
         ret = ret.apply(viewModelContext, args);
       }
       ret = isInvertBoolean ? !ret : ret;
-
       // call through fitlers to get final value
       ret = filtersViewModelPropValue({
         value: ret,
-        viewModel: viewModel,
-        bindingCache: bindingCache
+        viewModel,
+        bindingCache
       });
       return ret;
     };
@@ -269,7 +299,6 @@ license MIT(function (global, factory) {
       const ret = str.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":').replace(/'/g, '"');
       return JSON.parse(ret);
     };
-
     /**
      * arrayRemoveMatch
      * @description remove match items in fromArray out of toArray
@@ -278,13 +307,13 @@ license MIT(function (global, factory) {
      * @return {boolean}
      */
     const arrayRemoveMatch = (toArray, frommArray) => {
-      return toArray.filter((value, index) => {
+      return toArray.filter((value, _index) => {
         return frommArray.indexOf(value) < 0;
       });
     };
     const getFormData = $form => {
       const data = {};
-      if (!$form instanceof HTMLFormElement) {
+      if (!($form instanceof HTMLFormElement)) {
         return data;
       }
       const formData = new FormData($form);
@@ -300,7 +329,6 @@ license MIT(function (global, factory) {
       });
       return data;
     };
-
     /**
      * getFunctionParameterList
      * @description convert parameter string to arrary
@@ -312,14 +340,15 @@ license MIT(function (global, factory) {
       if (!str || str.length > maxDatakeyLength) {
         return;
       }
-      let paramlist = str.match(REGEX.FUNCTION_PARAM);
+      const paramlist = str.match(REGEX.FUNCTION_PARAM);
       if (paramlist && paramlist[1]) {
-        paramlist = paramlist[1].split(',');
-        paramlist.forEach(function (v, i) {
-          paramlist[i] = v.trim();
+        const params = paramlist[1].split(',');
+        params.forEach((v, i) => {
+          params[i] = v.trim();
         });
+        return params;
       }
-      return paramlist;
+      return undefined;
     };
     const extractFilterList = cacheData => {
       if (!cacheData || !cacheData.dataKey || cacheData.dataKey.length > maxDatakeyLength) {
@@ -329,8 +358,8 @@ license MIT(function (global, factory) {
       let isOnceIndex;
       cacheData.dataKey = filterList[0].trim();
       if (filterList.length > 1) {
-        filterList.shift(0);
-        filterList.forEach(function (v, i) {
+        filterList.shift();
+        filterList.forEach((v, i) => {
           filterList[i] = v.trim();
           if (filterList[i] === constants.filters.ONCE) {
             cacheData.isOnce = true;
@@ -338,7 +367,7 @@ license MIT(function (global, factory) {
           }
         });
         // don't store filter 'once' - because it is internal logic not a property from viewModel
-        if (isOnceIndex >= 0) {
+        if (isOnceIndex !== undefined && isOnceIndex >= 0) {
           filterList.splice(isOnceIndex, 1);
         }
         cacheData.filters = filterList;
@@ -346,8 +375,12 @@ license MIT(function (global, factory) {
       return cacheData;
     };
     const invertObj = sourceObj => {
-      return Object.keys(sourceObj).reduce(function (obj, key) {
-        obj[sourceObj[key]] = key;
+      return Object.keys(sourceObj).reduce((obj, key) => {
+        const invertedKey = sourceObj[key];
+        // Prevent prototype pollution by checking if the inverted key is safe
+        if (typeof invertedKey === 'string' && isSafeProperty(invertedKey)) {
+          obj[invertedKey] = key;
+        }
         return obj;
       }, {});
     };
@@ -359,7 +392,6 @@ license MIT(function (global, factory) {
       });
       return dfObj;
     };
-
     /**
      * debounce
      * @description decorate a function to be debounce using requestAnimationFrame
@@ -371,7 +403,6 @@ license MIT(function (global, factory) {
       return function (fn, ctx) {
         let dfObj = createDeferredObj();
         let rafId = 0;
-
         // return decorated fn
         return function () {
           const args = Array.from ? Array.from(arguments) : Array.prototype.slice.call(arguments);
@@ -387,7 +418,6 @@ license MIT(function (global, factory) {
               console.error('error in rendering: ', err);
               dfObj.reject(err);
             }
-
             // reset dfObj - otherwise then callbacks will not be in execution order
             // example:
             // myApp.render().then(function(){console.log('ok1')});
@@ -401,7 +431,6 @@ license MIT(function (global, factory) {
         };
       }(fn, ctx);
     };
-
     /**
      * extend
      * @param {boolean} isDeepMerge
@@ -411,14 +440,14 @@ license MIT(function (global, factory) {
      */
     const extend = (isDeepMerge = false, target, ...sources) => {
       if (!sources.length) {
-        return target;
+        return target || {};
       }
       const source = sources.shift();
       if (source === undefined) {
-        return target;
+        return target || {};
       }
       if (!isDeepMerge) {
-        return _extends(target, ...sources);
+        return _extends(target || {}, source, ...sources);
       }
       if (isMergebleObject(target) && isMergebleObject(source)) {
         Object.keys(source).forEach(key => {
@@ -426,7 +455,7 @@ license MIT(function (global, factory) {
             if (!target[key]) {
               target[key] = {};
             }
-            extend(target[key], source[key]);
+            extend(true, target[key], source[key]);
           } else {
             target[key] = source[key];
           }
@@ -466,7 +495,6 @@ license MIT(function (global, factory) {
     const isMergebleObject = item => {
       return isJsObject(item) && !isArray(item);
     };
-
     /**
      * cloneDomNode
      * @param {object} element
@@ -476,7 +504,6 @@ license MIT(function (global, factory) {
     const cloneDomNode = element => {
       return element.cloneNode(true);
     };
-
     /**
      * insertAfter
      * @param {object} parentNode
@@ -509,18 +536,21 @@ license MIT(function (global, factory) {
         return;
       }
       return paramList.map(param => {
-        param = param.trim();
-        if (param === bindingDataReference.currentIndex) {
-          // convert '$index' to value
-          param = viewModel[bindingDataReference.currentIndex];
-        } else if (param === bindingDataReference.currentData) {
-          // convert '$data' to value or current viewModel
-          param = viewModel[bindingDataReference.currentData] || viewModel;
-        } else if (param === bindingDataReference.rootDataKey) {
-          // convert '$root' to root viewModel
-          param = viewModel[bindingDataReference.rootDataKey] || viewModel;
+        let resolvedParam = param;
+        if (typeof param === 'string') {
+          resolvedParam = param.trim();
+          if (resolvedParam === bindingDataReference.currentIndex) {
+            // convert '$index' to value
+            resolvedParam = viewModel[bindingDataReference.currentIndex];
+          } else if (resolvedParam === bindingDataReference.currentData) {
+            // convert '$data' to value or current viewModel
+            resolvedParam = viewModel[bindingDataReference.currentData] || viewModel;
+          } else if (resolvedParam === bindingDataReference.rootDataKey) {
+            // convert '$root' to root viewModel
+            resolvedParam = viewModel[bindingDataReference.rootDataKey] || viewModel;
+          }
         }
-        return param;
+        return resolvedParam;
       });
     };
     const removeElement = el => {
@@ -537,13 +567,13 @@ license MIT(function (global, factory) {
       return node;
     };
     const throwErrorMessage = (err = null, errorMessage = '') => {
-      const message = err && err.message ? err.message : errorMessage;
+      const message = err && typeof err === 'object' && 'message' in err ? err.message : errorMessage;
       if (typeof console.error === 'function') {
-        return console.error(message);
+        console.error(message);
+        return;
       }
-      return console.log(message);
+      console.log(message);
     };
-
     /**
      * parseBindingObjectString
      * @description parse bining object string to object with value always stringify
@@ -556,10 +586,8 @@ license MIT(function (global, factory) {
       if (!REGEX.OBJECT_LITERAL.test(str)) {
         return null;
       }
-
       // clearn up line breaks and remove first { character
       objectLiteralString = objectLiteralString.replace(REGEX.LINE_BREAKS_TABS, '').substring(1);
-
       // remove last } character
       objectLiteralString = objectLiteralString.substring(0, objectLiteralString.length - 1);
       objectLiteralString.split(',').forEach(item => {
@@ -575,7 +603,6 @@ license MIT(function (global, factory) {
     };
 
     let bindingAttrsMap;
-
     /**
      * walkDOM
      * @description by Douglas Crockford - walk each DOM node and calls provided callback function
@@ -585,13 +612,13 @@ license MIT(function (global, factory) {
      */
     const walkDOM = (node, func) => {
       let parseChildNode = true;
-      node = node.firstElementChild;
-      while (node) {
-        parseChildNode = func(node);
+      let currentNode = node.firstElementChild;
+      while (currentNode) {
+        parseChildNode = func(currentNode);
         if (parseChildNode) {
-          walkDOM(node, func);
+          walkDOM(currentNode, func);
         }
-        node = node.nextElementSibling;
+        currentNode = currentNode.nextElementSibling;
       }
     };
     const getAttributesObject = node => {
@@ -630,17 +657,15 @@ license MIT(function (global, factory) {
           el: node,
           dataKey: attrValue
         };
-
         // populate cacheData.filters. update filterList first item as dataKey
         cacheData = extractFilterList(cacheData);
-
         // populate cacheData.parameters
         // for store function call parameters eg. '$index', '$root'
         // useful with DOM for-loop template as reference to binding data
-        const paramList = getFunctionParameterList(cacheData.dataKey);
+        const paramList = getFunctionParameterList(cacheData.dataKey || '');
         if (paramList) {
           cacheData.parameters = paramList;
-          cacheData.dataKey = cacheData.dataKey.replace(REGEX.FUNCTION_PARAM, '').trim();
+          cacheData.dataKey = (cacheData.dataKey || '').replace(REGEX.FUNCTION_PARAM, '').trim();
         }
         // store parent array reference to cacheData
         cacheData[constants.PARENT_REF] = bindingCache[type];
@@ -655,7 +680,7 @@ license MIT(function (global, factory) {
       isRenderedTemplate = false
     }) => {
       let bindingCache = {};
-      if (!rootNode instanceof window.Node) {
+      if (!(rootNode instanceof window.Node)) {
         throw new TypeError('walkDOM: Expected a DOM node');
       }
       bindingAttrsMap = bindingAttrsMap || invertObj(bindingAttrs);
@@ -667,7 +692,6 @@ license MIT(function (global, factory) {
         if (skipNodeCheckFn(node, bindingAttrs) || typeof skipCheck === 'function' && skipCheck(node)) {
           return false;
         }
-
         // when creating sub bindingCache if is for tmp binding
         // skip same element that has forOf binding the  forOf is alredy parsed
         const attrObj = getAttributesObject(node);
@@ -686,14 +710,13 @@ license MIT(function (global, factory) {
           // skip for switch case and default bining
           if (key !== bindingAttrs.case && key !== bindingAttrs.default) {
             bindingCache = populateBindingCache({
-              node: node,
-              attrObj: attrObj,
-              bindingCache: bindingCache,
+              node,
+              attrObj,
+              bindingCache,
               type: key
             });
           }
         });
-
         // after cache forOf skip parse child nodes
         if (isSkipForOfChild) {
           return false;
@@ -714,7 +737,7 @@ license MIT(function (global, factory) {
      * generate binding update option object by condition
      * @return {object} updateOption
      */
-    function createBindingOption(condition = '', opt = {}) {
+    const createBindingOption = (condition = '', opt = {}) => {
       const visualBindingOptions = {
         templateBinding: false,
         textBinding: true,
@@ -752,24 +775,42 @@ license MIT(function (global, factory) {
       let updateOption = {};
       switch (condition) {
         case bindingUpdateConditions.serverRendered:
-          updateOption = extend({}, eventsBindingOptions, serverRenderedOptions, opt);
+          updateOption = extend(false, {}, eventsBindingOptions, serverRenderedOptions, opt);
           break;
         case bindingUpdateConditions.init:
           // flag templateBinding to true to render tempalte(s)
           opt.templateBinding = true;
           opt.forceRender = true;
-          updateOption = extend({}, visualBindingOptions, eventsBindingOptions, opt);
+          updateOption = extend(false, {}, visualBindingOptions, eventsBindingOptions, opt);
           break;
         default:
           // when called again only update visualBinding options
-          updateOption = extend({}, visualBindingOptions, opt);
+          updateOption = extend(false, {}, visualBindingOptions, opt);
       }
       return updateOption;
-    }
+    };
 
     /**
-     * blurBinding
-     * DOM decleartive on blur event binding
+     * Create mouse enter handler
+     */
+    const createMouseEnterHandler = (cache, handlers, inHandlerName, viewModelContext, paramList) => {
+      return function onMouseEnterHandler(e) {
+        const args = [e, cache.el, ...paramList];
+        handlers[inHandlerName].apply(viewModelContext, args);
+      };
+    };
+    /**
+     * Create mouse leave handler
+     */
+    const createMouseLeaveHandler = (cache, handlers, outHandlerName, viewModelContext, paramList) => {
+      return function onMouseLeaveHandler(e) {
+        const args = [e, cache.el, ...paramList];
+        handlers[outHandlerName].apply(viewModelContext, args);
+      };
+    };
+    /**
+     * hoverBinding
+     * DOM decleartive on hover event binding
      * event handler bind to viewModel method according to the DOM attribute
      * @param {object} cache
      * @param {object} viewModel
@@ -777,30 +818,25 @@ license MIT(function (global, factory) {
      * @param {boolean} forceRender
      */
     const hoverBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+      var _a;
       const handlerName = cache.dataKey;
       let paramList = cache.parameters;
       const inHandlerName = bindingDataReference.mouseEnterHandlerName;
       const outHandlerName = bindingDataReference.mouseLeaveHandlerName;
       let viewModelContext;
-      const APP = viewModel.APP || viewModel.$root.APP;
+      const APP = viewModel.APP || ((_a = viewModel.$root) === null || _a === void 0 ? void 0 : _a.APP);
       cache.elementData = cache.elementData || {};
-
       // TODO: check what is APP.$rootElement.contains(cache.el)
-      if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
+      const rootElement = APP === null || APP === void 0 ? void 0 : APP.$rootElement;
+      if (!handlerName || !forceRender && rootElement && !rootElement.contains(cache.el)) {
         return;
       }
       const handlers = getViewModelValue(viewModel, handlerName);
       if (handlers && typeof handlers[inHandlerName] === 'function' && typeof handlers[outHandlerName] === 'function') {
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-        function onMouseEnterHandler(e) {
-          const args = [e, cache.el].concat(paramList);
-          handlers[inHandlerName].apply(viewModelContext, args);
-        }
-        function onMouseLeaveHandler(e) {
-          const args = [e, cache.el].concat(paramList);
-          handlers[outHandlerName].apply(viewModelContext, args);
-        }
+        const onMouseEnterHandler = createMouseEnterHandler(cache, handlers, inHandlerName, viewModelContext, paramList);
+        const onMouseLeaveHandler = createMouseLeaveHandler(cache, handlers, outHandlerName, viewModelContext, paramList);
         cache.el.removeEventListener('mouseenter', onMouseEnterHandler, false);
         cache.el.removeEventListener('mouseleave', onMouseLeaveHandler, false);
         cache.el.addEventListener('mouseenter', onMouseEnterHandler, false);
@@ -813,18 +849,15 @@ license MIT(function (global, factory) {
      * @description
      * https://github.com/lodash/lodash/blob/master/escape.js
      */
-
-    function baseToString(value) {
+    const baseToString = value => {
       if (typeof value == 'string') {
         return value;
       }
       return value == null ? '' : `${value}`;
-    }
-
+    };
     /** Used to match HTML entities and HTML characters. */
     const reUnescapedHtml = /[&<>"'`]/g;
     const reHasUnescapedHtml = RegExp(reUnescapedHtml.source);
-
     /** Used to map characters to HTML entities. */
     const htmlEscapes = {
       '&': '&amp;',
@@ -834,30 +867,48 @@ license MIT(function (global, factory) {
       '\'': '&#39;',
       '`': '&#96;'
     };
-
     /**
-       * escapeHtmlChar
-       * @description convert characters to HTML entities.
-       * @private
-       * @param {string} chr The matched character to escape.
-       * @return {string} Returns the escaped character.
-       */
-    function escapeHtmlChar(chr) {
+      * escapeHtmlChar
+      * @description convert characters to HTML entities.
+      * @private
+      * @param {string} chr The matched character to escape.
+      * @return {string} Returns the escaped character.
+      */
+    const escapeHtmlChar = chr => {
       return htmlEscapes[chr];
-    }
-
+    };
     /**
      * Converts the characters "&", "<", ">", '"', "'", and "\`", in `string` to
      * their corresponding HTML entities.
      * @param {string} string
      * @return {string} string
      */
-    function escape(string) {
+    const escape = string => {
       // Reset `lastIndex` because in IE < 9 `String#replace` does not.
-      string = baseToString(string);
-      return string && reHasUnescapedHtml.test(string) ? string.replace(reUnescapedHtml, escapeHtmlChar) : string;
-    }
+      const strValue = baseToString(string);
+      return strValue && reHasUnescapedHtml.test(strValue) ? strValue.replace(reUnescapedHtml, escapeHtmlChar) : strValue;
+    };
 
+    /**
+     * Create change handler
+     */
+    const createChangeHandler = (viewModel, modelDataKey, paramList, handlerFn, viewModelContext) => {
+      let oldValue = '';
+      let newValue = '';
+      return function changeHandler(e) {
+        const $this = this;
+        const isCheckbox = $this.type === 'checkbox';
+        newValue = isCheckbox ? $this.checked : escape($this.value);
+        // set data to viewModel
+        if (modelDataKey) {
+          oldValue = getViewModelValue(viewModel, modelDataKey);
+          setViewModelValue(viewModel, modelDataKey, newValue);
+        }
+        const args = [e, e.currentTarget, newValue, oldValue, ...paramList];
+        handlerFn.apply(viewModelContext, args);
+        oldValue = newValue;
+      };
+    };
     /**
      * changeBinding
      * @description input element on change event binding. DOM -> viewModel update
@@ -873,35 +924,22 @@ license MIT(function (global, factory) {
       forceRender,
       type = 'change'
     }) => {
+      var _a;
       const handlerName = cache.dataKey;
       let paramList = cache.parameters;
       const modelDataKey = cache.el.getAttribute(bindingAttrs.model);
-      let newValue = '';
-      let oldValue = '';
       let viewModelContext;
-      const APP = viewModel.APP || viewModel.$root.APP;
-      if (!handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
+      const APP = viewModel.APP || ((_a = viewModel.$root) === null || _a === void 0 ? void 0 : _a.APP);
+      const rootElement = APP === null || APP === void 0 ? void 0 : APP.$rootElement;
+      if (!handlerName || !forceRender && rootElement && !rootElement.contains(cache.el)) {
         return;
       }
       const handlerFn = getViewModelValue(viewModel, handlerName);
       if (typeof handlerFn === 'function') {
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-        function changeHandler(e) {
-          const $this = this;
-          const isCheckbox = $this.type === 'checkbox';
-          newValue = isCheckbox ? $this.checked : escape($this.value);
-          // set data to viewModel
-          if (modelDataKey) {
-            oldValue = getViewModelValue(viewModel, modelDataKey);
-            setViewModelValue(viewModel, modelDataKey, newValue);
-          }
-          const args = [e, e.currentTarget, newValue, oldValue].concat(paramList);
-          handlerFn.apply(viewModelContext, args);
-          oldValue = newValue;
-        }
-
-        // assing on change event
+        const changeHandler = createChangeHandler(viewModel, modelDataKey, paramList, handlerFn, viewModelContext);
+        // assign on change event
         cache.el.removeEventListener(type, changeHandler, false);
         cache.el.addEventListener(type, changeHandler, false);
       }
@@ -916,10 +954,11 @@ license MIT(function (global, factory) {
      * @param {boolean} forceRender
      */
     const modelBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+      var _a, _b;
       const dataKey = cache.dataKey;
       let newValue = '';
-      const APP = viewModel.APP || viewModel.$root.APP;
-      if (!dataKey || !forceRender && !APP.$rootElement.contains(cache.el)) {
+      const APP = viewModel.APP || ((_a = viewModel.$root) === null || _a === void 0 ? void 0 : _a.APP);
+      if (!dataKey || !forceRender && !((_b = APP === null || APP === void 0 ? void 0 : APP.$rootElement) === null || _b === void 0 ? void 0 : _b.contains(cache.el))) {
         return;
       }
       newValue = getViewModelValue(viewModel, dataKey);
@@ -928,9 +967,8 @@ license MIT(function (global, factory) {
         const isCheckbox = $element.type === 'checkbox';
         const isRadio = $element.type === 'radio';
         const inputName = $element.name;
-        const $radioGroup = isRadio ? APP.$rootElement.querySelectorAll(`input[name="${inputName}"]`) : [];
+        const $radioGroup = isRadio ? (APP === null || APP === void 0 ? void 0 : APP.$rootElement).querySelectorAll(`input[name="${inputName}"]`) : [];
         const oldValue = isCheckbox ? $element.checked : $element.value;
-
         // update element value
         if (newValue !== oldValue) {
           if (isCheckbox) {
@@ -939,13 +977,14 @@ license MIT(function (global, factory) {
             let i = 0;
             const radioGroupLength = $radioGroup.length;
             for (i = 0; i < radioGroupLength; i += 1) {
-              if ($radioGroup[i].value === newValue) {
-                $radioGroup[i].checked = true;
+              const radioInput = $radioGroup[i];
+              if (radioInput.value === newValue) {
+                radioInput.checked = true;
                 break;
               }
             }
           } else {
-            $element.value = newValue;
+            $element.value = String(newValue);
           }
         }
       }
@@ -961,18 +1000,18 @@ license MIT(function (global, factory) {
      * @param {boolean} forceRender
      */
     const textBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+      var _a, _b;
       const dataKey = cache.dataKey;
-      const APP = viewModel.APP || viewModel.$root.APP;
-
+      const APP = viewModel.APP || ((_a = viewModel.$root) === null || _a === void 0 ? void 0 : _a.APP);
       // NOTE: this doesn't work for for-of, if and switch bindings because element was not in DOM
-      if (!dataKey || !forceRender && !APP.$rootElement.contains(cache.el)) {
+      if (!dataKey || !forceRender && !((_b = APP === null || APP === void 0 ? void 0 : APP.$rootElement) === null || _b === void 0 ? void 0 : _b.contains(cache.el))) {
         return;
       }
       const newValue = getViewModelPropValue(viewModel, cache);
       const oldValue = cache.el.textContent;
       if (typeof newValue !== 'undefined' && typeof newValue !== 'object' && newValue !== null) {
         if (newValue !== oldValue) {
-          cache.el.textContent = newValue;
+          cache.el.textContent = String(newValue);
         }
       }
     };
@@ -986,7 +1025,7 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const showBinding = (cache, viewModel, bindingAttrs) => {
+    const showBinding = (cache, viewModel, _bindingAttrs, _forceRender) => {
       const dataKey = cache.dataKey;
       let currentInlineSytle = {};
       let currentInlineDisplaySytle = '';
@@ -996,7 +1035,6 @@ license MIT(function (global, factory) {
       }
       cache.elementData = cache.elementData || {};
       const oldShowStatus = cache.elementData.viewModelPropValue;
-
       // store current element display default style once only
       if (typeof cache.elementData.displayStyle === 'undefined' || typeof cache.elementData.computedStyle === 'undefined') {
         currentInlineSytle = cache.el.style;
@@ -1013,11 +1051,9 @@ license MIT(function (global, factory) {
         }
       }
       shouldShow = getViewModelPropValue(viewModel, cache);
-
       // treat undefined || null as false.
       // eg if property doesn't exsits in viewModel, it will treat as false to hide element
       shouldShow = Boolean(shouldShow);
-
       // reject if nothing changed
       if (oldShowStatus === shouldShow) {
         return;
@@ -1044,7 +1080,6 @@ license MIT(function (global, factory) {
           cache.el.style.setProperty('display', cache.elementData.displayStyle);
         }
       }
-
       // store new show status
       cache.elementData.viewModelPropValue = shouldShow;
     };
@@ -1061,9 +1096,10 @@ license MIT(function (global, factory) {
      * @param {boolean} forceRender
      */
     const cssBinding = (cache, viewModel, bindingAttrs, forceRender) => {
+      var _a, _b;
       const dataKey = cache.dataKey;
-      const APP = viewModel.APP || viewModel.$root.APP;
-      if (!dataKey || !forceRender && !APP.$rootElement.contains(cache.el)) {
+      const APP = viewModel.APP || ((_a = viewModel.$root) === null || _a === void 0 ? void 0 : _a.APP);
+      if (!dataKey || !forceRender && !((_b = APP === null || APP === void 0 ? void 0 : APP.$rootElement) === null || _b === void 0 ? void 0 : _b.contains(cache.el))) {
         return;
       }
       cache.elementData = cache.elementData || {};
@@ -1093,7 +1129,6 @@ license MIT(function (global, factory) {
       if (oldCssList === newCssList) {
         return;
       }
-
       // get current css classes from element
       const domCssList = cache.el.classList;
       // clone domCssList as new array
@@ -1102,7 +1137,7 @@ license MIT(function (global, factory) {
         cssList.push(domCssList[i]);
       }
       if (isViewDataObject) {
-        each(vmCssListObj, function (k, v) {
+        each(vmCssListObj, (k, v) => {
           const i = cssList.indexOf(k);
           if (v === true) {
             cssList.push(k);
@@ -1112,19 +1147,19 @@ license MIT(function (global, factory) {
         });
       } else if (isViewDataString) {
         // remove oldCssList items from cssList
-        cssList = arrayRemoveMatch(cssList, oldCssList);
+        const oldCssArray = typeof oldCssList === 'string' && oldCssList ? oldCssList.split(' ') : [];
+        cssList = arrayRemoveMatch(cssList, oldCssArray);
         cssList = cssList.concat(vmCssListArray);
       }
-
       // unique cssList array
       cssList = cssList.filter((v, i, a) => {
         return a.indexOf(v) === i;
       });
-      cssList = cssList.join(' ');
+      const cssListString = cssList.join(' ');
       // update element data
       cache.elementData.viewModelPropValue = newCssList;
       // replace all css classes
-      cache.el.setAttribute('class', cssList);
+      cache.el.setAttribute('class', cssListString);
     };
 
     /**
@@ -1135,27 +1170,23 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const attrBinding = (cache = {}, viewModel) => {
+    const attrBinding = (cache = {}, viewModel, _bindingAttrs, _forceRender) => {
       if (!cache.dataKey) {
         return;
       }
       // check if Object Literal String style dataKey
       const isObjLiteralStr = isObjectLiteralString(cache.dataKey);
-
       // resolve vmAttrObj, when Object Literal String style if will be object without resolve each value
       // otherwise, resolve value from viewModel
       const vmAttrObj = isObjLiteralStr ? parseBindingObjectString(cache.dataKey) : getViewModelPropValue(viewModel, cache);
-
       // vmAttrObj must be a plain object
       if (!isPlainObject(vmAttrObj)) {
         return;
       }
-
       // populate cache.elementData if not exits
       // check and set default cache.elementData.viewModelPropValue
       cache.elementData = cache.elementData || {};
       cache.elementData.viewModelPropValue = cache.elementData.viewModelPropValue || {};
-
       // start diff comparison
       // reject if nothing changed by comparing
       // cache.elementData.viewModelPropValue (previous render) vs vmAttrObj(current render)
@@ -1168,52 +1199,49 @@ license MIT(function (global, factory) {
           // resolve value from viewModel including $data and $root
           // from viewModel.$data or viewModel.$root
           vmAttrObj[key] = getViewModelPropValue(viewModel, {
-            dataKey: value
+            dataKey: value,
+            el: cache.el
           });
         });
       }
-
       // shortcut for reading cache.elementData.viewModelPropValue
       const oldAttrObj = cache.elementData.viewModelPropValue;
-
       // start set element attribute - oldAttrObj is empty meaning no previous render
       if (isEmptyObject(oldAttrObj)) {
         each(vmAttrObj, (key, value) => {
           if (typeof value !== 'undefined') {
-            cache.el.setAttribute(key, value);
+            cache.el.setAttribute(key, String(value));
             // populate cache.elementData.viewModelPropValue for future comparison
-            if (!isObjLiteralStr) {
+            if (!isObjLiteralStr && cache.elementData) {
               cache.elementData.viewModelPropValue[key] = value;
             }
           }
         });
       } else {
         // loop oldAttrObj, remove attribute not present in current vmAttrObj
-        each(oldAttrObj, (key, value) => {
+        each(oldAttrObj, (key, _value) => {
           if (typeof vmAttrObj[key] === 'undefined') {
             cache.el.removeAttribute(key);
           }
         });
-
         // loop vmAttrObj, set attribute not present in oldAttrObj
         each(vmAttrObj, (key, value) => {
           if (typeof value !== 'undefined') {
             if (oldAttrObj[key] !== vmAttrObj[key]) {
-              cache.el.setAttribute(key, vmAttrObj[key]);
+              cache.el.setAttribute(key, String(vmAttrObj[key]));
               // populate cache.elementData.viewModelPropValue for future comparison
-              if (!isObjLiteralStr) {
+              if (!isObjLiteralStr && cache.elementData) {
                 cache.elementData.viewModelPropValue[key] = value;
               }
             }
           }
         });
       }
-
       // for object literal style binding
       // set viewModelPropValue for future diff comaprison
       // note: vmAttrObj is a not fully resolve object, each value is still string unresloved
       if (isObjLiteralStr) {
-        cache.elementData.viewModelPropValue = extend({}, vmAttrObj);
+        cache.elementData.viewModelPropValue = extend(false, {}, vmAttrObj);
       }
     };
 
@@ -1222,7 +1250,6 @@ license MIT(function (global, factory) {
     let $templateRootPrepend = false;
     let $templateRootAppend = false;
     let nestTemplatesCount = 0;
-
     /**
      * getTemplateString
      * @description get Template tag innerHTML string
@@ -1233,7 +1260,6 @@ license MIT(function (global, factory) {
       const templateElement = document.getElementById(id);
       return templateElement ? templateElement.innerHTML : '';
     };
-
     /**
      * renderTemplate
      * @description
@@ -1259,20 +1285,20 @@ license MIT(function (global, factory) {
         return;
       }
       const $element = cache.el;
-      const $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $element.getAttribute(dataIndexAttr);
-      if (typeof $index !== 'undefined') {
+      const $indexAttr = $element.getAttribute(dataIndexAttr);
+      const $index = typeof viewModel.$index !== 'undefined' ? viewModel.$index : $indexAttr ? parseInt($indexAttr, 10) : undefined;
+      if (typeof $index !== 'undefined' && viewData && typeof viewData === 'object') {
         viewData.$index = $index;
       }
       $domFragment = $domFragment || document.createDocumentFragment();
       if (!$templateRoot) {
         $templateRoot = $element;
         // Store the prepend/append flags from the root template only
-        $templateRootPrepend = isPrepend;
-        $templateRootAppend = isAppend;
+        $templateRootPrepend = Boolean(isPrepend);
+        $templateRootAppend = Boolean(isAppend);
       }
       const htmlString = getTemplateString(settings.id);
       const htmlFragment = createHtmlFragment(htmlString);
-
       // append rendered html
       if (!$domFragment.childNodes.length) {
         // domFragment should be empty in first run
@@ -1290,9 +1316,8 @@ license MIT(function (global, factory) {
           $currentElement.appendChild(htmlFragment);
         }
       }
-
       // check if there are nested template then recurisive render them
-      const $nestedTemplates = $currentElement.querySelectorAll('[' + bindingAttrs.tmp + ']');
+      const $nestedTemplates = $currentElement.querySelectorAll(`[${bindingAttrs.tmp}]`);
       const nestedTemplatesLength = $nestedTemplates.length;
       if (nestedTemplatesLength) {
         nestTemplatesCount += nestedTemplatesLength;
@@ -1307,7 +1332,6 @@ license MIT(function (global, factory) {
           nestTemplatesCount -= 1;
         }
       }
-
       // no more nested tempalted to render, start to append $domFragment into $templateRoot
       if (nestTemplatesCount === 0) {
         // append to DOM once
@@ -1324,7 +1348,7 @@ license MIT(function (global, factory) {
         $domFragment = $templateRoot = null;
         $templateRootPrepend = $templateRootAppend = false;
         // trigger callback if provided
-        if (typeof viewModel.afterTemplateRender === 'function') {
+        if (viewModel.afterTemplateRender && typeof viewModel.afterTemplateRender === 'function') {
           viewModel.afterTemplateRender(viewData);
         }
       }
@@ -1347,7 +1371,6 @@ license MIT(function (global, factory) {
         if (updateOption.templateBinding) {
           // overwrite updateOption with 'init' bindingUpdateConditions
           updateOption = createBindingOption(bindingUpdateConditions.init);
-
           // forEach is correct here - nested templates are added to array but rendered recursively
           // We don't want the loop to re-render templates that were already rendered via recursion
           elementCache[bindingAttrs.tmp].forEach($element => {
@@ -1356,23 +1379,23 @@ license MIT(function (global, factory) {
           // update cache after all template(s) rendered
           ctx.updateElementCache({
             templateCache: true,
-            elementCache: elementCache,
+            elementCache,
             isRenderedTemplates: true
           });
         }
         // enforce render even element is not in DOM tree
         updateOption.forceRender = true;
-
         // apply bindings to rendered templates element
         // Use namespace import to access the function at runtime,
         // which breaks the circular dependency during module initialization
         // Use for loop to handle templates added during rendering
         for (let i = 0; i < elementCache[bindingAttrs.tmp].length; i++) {
           applyBinding({
+            ctx,
             elementCache: elementCache[bindingAttrs.tmp][i].bindingCache,
-            updateOption: updateOption,
-            bindingAttrs: bindingAttrs,
-            viewModel: viewModel
+            updateOption,
+            bindingAttrs,
+            viewModel
           });
         }
       }
@@ -1393,27 +1416,25 @@ license MIT(function (global, factory) {
       isRegenerate
     }) => {
       const bindingUpdateOption = isRegenerate ? createBindingOption(bindingUpdateConditions.init) : createBindingOption();
-
       // enforce render even element is not in DOM tree
       bindingUpdateOption.forceRender = true;
-
       // render and apply binding to template(s)
       // this is an share function therefore passing current APP 'this' context
       // viewModel is a dynamic generated iterationVm
       renderTemplatesBinding({
         ctx: iterationVm.$root ? iterationVm.$root.APP : iterationVm.APP,
-        elementCache: elementCache,
+        elementCache,
         updateOption: bindingUpdateOption,
-        bindingAttrs: bindingAttrs,
+        bindingAttrs,
         viewModel: iterationVm
       });
-
       // Use namespace import to access the function at runtime,
       // which breaks the circular dependency during module initialization
       applyBinding({
-        elementCache: elementCache,
+        ctx: iterationVm.$root ? iterationVm.$root.APP : iterationVm.APP,
+        elementCache,
         updateOption: bindingUpdateOption,
-        bindingAttrs: bindingAttrs,
+        bindingAttrs,
         viewModel: iterationVm
       });
     };
@@ -1447,7 +1468,6 @@ license MIT(function (global, factory) {
       bindingData.commentPrefix = commentPrefix$1 + dataKeyMarker;
       return bindingData;
     };
-
     /**
      * setDocRangeEndAfter
      * @param {object} node
@@ -1465,7 +1485,6 @@ license MIT(function (global, factory) {
       const startTextContent = bindingData.commentPrefix;
       const endTextContent = startTextContent + commentSuffix;
       node = node.nextSibling;
-
       // check last wrap comment node
       if (node) {
         if (node.nodeType === 8 && node.textContent === endTextContent) {
@@ -1474,7 +1493,6 @@ license MIT(function (global, factory) {
         setDocRangeEndAfter(node, bindingData);
       }
     };
-
     /**
      * wrapCommentAround
      * @param {object} bindingData
@@ -1506,7 +1524,6 @@ license MIT(function (global, factory) {
       }
       return node;
     };
-
     /**
      * removeElemnetsByCommentWrap
      * @param {object} bindingData
@@ -1517,20 +1534,21 @@ license MIT(function (global, factory) {
       if (!bindingData.docRange) {
         bindingData.docRange = document.createRange();
       }
+      const docRange = bindingData.docRange;
       try {
         if (bindingData.previousNonTemplateElement) {
           // update docRange start and end match the wrapped comment node
-          bindingData.docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
+          docRange.setStartBefore(bindingData.previousNonTemplateElement.nextSibling);
           setDocRangeEndAfter(bindingData.previousNonTemplateElement.nextSibling, bindingData);
         } else {
           // insert before next non template element
-          bindingData.docRange.setStartBefore(bindingData.parentElement.firstChild);
+          docRange.setStartBefore(bindingData.parentElement.firstChild);
           setDocRangeEndAfter(bindingData.parentElement.firstChild, bindingData);
         }
       } catch (err) {
-        console.log('error removeElemnetsByCommentWrap: ', err.message);
+        console.log('error removeElemnetsByCommentWrap: ', err instanceof Error ? err.message : String(err));
       }
-      return bindingData.docRange.deleteContents();
+      docRange.deleteContents();
     };
     const insertRenderedElements = (bindingData, fragment) => {
       // insert rendered fragment after the previousNonTemplateElement
@@ -1552,14 +1570,14 @@ license MIT(function (global, factory) {
       viewModel,
       bindingAttrs
     }) => {
+      var _a;
       if (!bindingData || !viewModel || !bindingAttrs) {
         return;
       }
       let keys;
       let iterationDataLength;
-      const iterationData = getViewModelPropValue(viewModel, bindingData.iterator);
+      const iterationData = getViewModelPropValue(viewModel, bindingData);
       let isRegenerate = false;
-
       // check iterationData and set iterationDataLength
       if (isArray(iterationData)) {
         iterationDataLength = iterationData.length;
@@ -1570,13 +1588,11 @@ license MIT(function (global, factory) {
         // throw error but let script contince to run
         return throwErrorMessage(null, 'iterationData is not an plain object or array');
       }
-
       // flag as pared for-of logic with bindingData.type
       if (!bindingData.type) {
         bindingData.type = bindingAttrs$1.forOf;
         wrapCommentAround(bindingData, bindingData.el);
       }
-
       // assign forOf internal id to bindingData once
       if (typeof bindingData.iterationSize === 'undefined') {
         // store iterationDataLength
@@ -1591,34 +1607,31 @@ license MIT(function (global, factory) {
         bindingData.iterationSize = iterationDataLength;
       }
       if (!isRegenerate) {
-        bindingData.iterationBindingCache.forEach(function (elementCache, i) {
+        (_a = bindingData.iterationBindingCache) === null || _a === void 0 ? void 0 : _a.forEach((elementCache, i) => {
           if (!isEmptyObject(elementCache)) {
             const iterationVm = createIterationViewModel({
-              bindingData: bindingData,
-              viewModel: viewModel,
-              iterationData: iterationData,
-              keys: keys,
+              bindingData,
+              viewModel,
+              iterationData,
+              keys,
               index: i
             });
             renderIteration({
-              elementCache: elementCache,
-              iterationVm: iterationVm,
-              bindingAttrs: bindingAttrs,
+              elementCache,
+              iterationVm,
+              bindingAttrs,
               isRegenerate: false
             });
           }
         });
         return;
       }
-
       // generate forOfBinding elements into fragment
       const fragment = generateForOfElements(bindingData, viewModel, bindingAttrs, iterationData, keys);
       removeElemnetsByCommentWrap(bindingData);
-
       // insert fragment content into DOM
       return insertRenderedElements(bindingData, fragment);
     };
-
     /**
      * createIterationViewModel
      * @description
@@ -1636,11 +1649,15 @@ license MIT(function (global, factory) {
       keys,
       index
     }) => {
+      var _a;
       const iterationVm = {};
-      iterationVm[bindingData.iterator.alias] = keys ? iterationData[keys[index]] : iterationData[index];
+      const alias = (_a = bindingData.iterator) === null || _a === void 0 ? void 0 : _a.alias;
+      if (alias) {
+        iterationVm[alias] = keys ? iterationData[keys[index]] : iterationData[index];
+      }
       // populate common binding data reference
       iterationVm[bindingDataReference.rootDataKey] = viewModel.$root || viewModel;
-      iterationVm[bindingDataReference.currentData] = iterationVm[bindingData.iterator.alias];
+      iterationVm[bindingDataReference.currentData] = alias ? iterationVm[alias] : undefined;
       iterationVm[bindingDataReference.currentIndex] = index;
       return iterationVm;
     };
@@ -1651,37 +1668,34 @@ license MIT(function (global, factory) {
       let iterationVm;
       let iterationBindingCache;
       let i = 0;
-
       // create or clear exisitng iterationBindingCache
       if (isArray(bindingData.iterationBindingCache)) {
         bindingData.iterationBindingCache.length = 0;
       } else {
         bindingData.iterationBindingCache = [];
       }
-
       // generate forOf and append to DOM
       for (i = 0; i < iterationDataLength; i += 1) {
         clonedItem = cloneDomNode(bindingData.el);
-
         // create bindingCache per iteration
         iterationBindingCache = createBindingCache({
           rootNode: clonedItem,
-          bindingAttrs: bindingAttrs
+          bindingAttrs
         });
         bindingData.iterationBindingCache.push(iterationBindingCache);
         if (!isEmptyObject(iterationBindingCache)) {
           // create an iterationVm match iterator alias
           iterationVm = createIterationViewModel({
-            bindingData: bindingData,
-            viewModel: viewModel,
-            iterationData: iterationData,
-            keys: keys,
+            bindingData,
+            viewModel,
+            iterationData,
+            keys,
             index: i
           });
           renderIteration({
             elementCache: bindingData.iterationBindingCache[i],
-            iterationVm: iterationVm,
-            bindingAttrs: bindingAttrs,
+            iterationVm,
+            bindingAttrs,
             isRegenerate: true
           });
         }
@@ -1698,7 +1712,7 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const forOfBinding = (cache, viewModel, bindingAttrs) => {
+    const forOfBinding = (cache, viewModel, bindingAttrs, _forceRender) => {
       const dataKey = cache.dataKey;
       if (!dataKey || dataKey.length > maxDatakeyLength) {
         return;
@@ -1724,8 +1738,8 @@ license MIT(function (global, factory) {
       }
       renderForOfBinding({
         bindingData: cache,
-        viewModel: viewModel,
-        bindingAttrs: bindingAttrs
+        viewModel,
+        bindingAttrs
       });
     };
 
@@ -1740,7 +1754,7 @@ license MIT(function (global, factory) {
       if (bindingData && bindingData.previousNonTemplateElement) {
         const commentStartTextContent = bindingData.previousNonTemplateElement.textContent;
         const endCommentTag = bindingData.previousNonTemplateElement.nextSibling;
-        if (endCommentTag.nodeType === 8) {
+        if (endCommentTag && endCommentTag.nodeType === 8) {
           if (endCommentTag.textContent === commentStartTextContent + commentSuffix) {
             ret = true;
           }
@@ -1748,6 +1762,26 @@ license MIT(function (global, factory) {
       }
       return ret;
     };
+    /**
+     * removeIfBinding
+     * @description remove if binding DOM and clean up cache
+     * @param {object} bindingData
+     */
+    const removeIfBinding = bindingData => {
+      removeElemnetsByCommentWrap(bindingData);
+      // remove cache.IterationBindingCache to prevent memory leak
+      if (bindingData.hasIterationBindingCache) {
+        delete bindingData.iterationBindingCache;
+        delete bindingData.hasIterationBindingCache;
+      }
+    };
+    /**
+     * renderIfBinding
+     * @description render if binding DOM
+     * @param {object} bindingData
+     * @param {object} viewModel
+     * @param {object} bindingAttrs
+     */
     const renderIfBinding = ({
       bindingData,
       viewModel,
@@ -1758,23 +1792,23 @@ license MIT(function (global, factory) {
       }
       const isDomRemoved = isTargetDomRemoved(bindingData);
       let rootElement = bindingData.el;
-
       // remove current old DOM.
       // TODO: try preserve DOM
       if (!isDomRemoved && !bindingData.isOnce) {
         removeIfBinding(bindingData);
         // use fragment for create iterationBindingCache
-        rootElement = bindingData.fragment.firstChild.cloneNode(true);
+        const firstChild = bindingData.fragment.firstChild;
+        if (firstChild) {
+          rootElement = firstChild.cloneNode(true);
+        }
       }
-
       // walk clonedElement to create iterationBindingCache once
       if (!bindingData.iterationBindingCache || !bindingData.hasIterationBindingCache) {
         bindingData.iterationBindingCache = createBindingCache({
           rootNode: rootElement,
-          bindingAttrs: bindingAttrs
+          bindingAttrs
         });
       }
-
       // only render if has iterationBindingCache
       // means has other dataBindings to be render
       if (!isEmptyObject(bindingData.iterationBindingCache)) {
@@ -1782,22 +1816,13 @@ license MIT(function (global, factory) {
         renderIteration({
           elementCache: bindingData.iterationBindingCache,
           iterationVm: viewModel,
-          bindingAttrs: bindingAttrs,
+          bindingAttrs,
           isRegenerate: true
         });
       }
-
       // insert to new rendered DOM
       // TODO: check unnecessary insertion when DOM is preserved
       insertRenderedElements(bindingData, rootElement);
-    };
-    const removeIfBinding = bindingData => {
-      removeElemnetsByCommentWrap(bindingData);
-      // remove cache.IterationBindingCache to prevent memory leak
-      if (bindingData.hasIterationBindingCache) {
-        delete bindingData.iterationBindingCache;
-        delete bindingData.hasIterationBindingCache;
-      }
     };
 
     /**
@@ -1808,9 +1833,8 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const ifBinding = (cache, viewModel, bindingAttrs) => {
+    const ifBinding = (cache, viewModel, bindingAttrs, _forceRender) => {
       const dataKey = cache.dataKey;
-
       // isOnce only return if there is no child bindings
       if (!dataKey || cache.isOnce && cache.hasIterationBindingCache === false) {
         return;
@@ -1820,27 +1844,23 @@ license MIT(function (global, factory) {
       const oldViewModelProValue = cache.elementData.viewModelPropValue;
       // getViewModelPropValue could be return undefined or null
       const viewModelPropValue = getViewModelPropValue(viewModel, cache) || false;
-
       // do nothing if viewModel value not changed and no child bindings
       if (oldViewModelProValue === viewModelPropValue && !cache.hasIterationBindingCache) {
         return;
       }
       const shouldRender = Boolean(viewModelPropValue);
-
       // remove this cache from parent array
       if (!shouldRender && cache.isOnce && cache.el.parentNode) {
         removeElement(cache.el);
         // delete cache.fragment;
         removeBindingInQueue({
-          viewModel: viewModel,
-          cache: cache
+          viewModel,
+          cache
         });
         return;
       }
-
       // store new show status
       cache.elementData.viewModelPropValue = viewModelPropValue;
-
       // only create fragment once
       // wrap comment tag around
       // remove if attribute from original element to allow later dataBind parsing
@@ -1856,17 +1876,16 @@ license MIT(function (global, factory) {
         // render element
         renderIfBinding({
           bindingData: cache,
-          viewModel: viewModel,
-          bindingAttrs: bindingAttrs
+          viewModel,
+          bindingAttrs
         });
-
         // if render once
         // remove this cache from parent array if no child caches
         if (cache.isOnce && !cache.hasIterationBindingCache) {
           // delete cache.fragment;
           removeBindingInQueue({
-            viewModel: viewModel,
-            cache: cache
+            viewModel,
+            cache
           });
         }
       }
@@ -1875,11 +1894,13 @@ license MIT(function (global, factory) {
       viewModel,
       cache
     }) => {
+      var _a;
       let ret = false;
-      if (viewModel.APP.postProcessQueue) {
+      if ((_a = viewModel.APP) === null || _a === void 0 ? void 0 : _a.postProcessQueue) {
+        const parentRef = cache[constants.PARENT_REF];
         viewModel.APP.postProcessQueue.push(((cache, index) => () => {
-          cache[constants.PARENT_REF].splice(index, 1);
-        })(cache, cache[constants.PARENT_REF].indexOf(cache)));
+          parentRef.splice(index, 1);
+        })(cache, parentRef.indexOf(cache)));
         ret = true;
       }
       return ret;
@@ -1894,7 +1915,7 @@ license MIT(function (global, factory) {
      * @param {object} viewModel
      * @param {object} bindingAttrs
      */
-    const switchBinding = (cache, viewModel, bindingAttrs) => {
+    const switchBinding = (cache, viewModel, bindingAttrs, _forceRender) => {
       const dataKey = cache.dataKey;
       if (!dataKey) {
         return;
@@ -1905,7 +1926,6 @@ license MIT(function (global, factory) {
         return;
       }
       cache.elementData.viewModelPropValue = newExpression;
-
       // build switch cases if not yet defined
       if (!cache.cases) {
         const childrenElements = cache.el.children;
@@ -1915,10 +1935,11 @@ license MIT(function (global, factory) {
         cache.cases = [];
         for (let i = 0, elementLength = childrenElements.length; i < elementLength; i += 1) {
           let caseData = null;
-          if (childrenElements[i].hasAttribute(bindingAttrs.case)) {
-            caseData = createCaseData(childrenElements[i], bindingAttrs.case);
-          } else if (childrenElements[i].hasAttribute(bindingAttrs.default)) {
-            caseData = createCaseData(childrenElements[i], bindingAttrs.default);
+          const childElement = childrenElements[i];
+          if (childElement.hasAttribute(bindingAttrs.case)) {
+            caseData = createCaseData(childElement, bindingAttrs.case);
+          } else if (childElement.hasAttribute(bindingAttrs.default)) {
+            caseData = createCaseData(childElement, bindingAttrs.default);
             caseData.isDefault = true;
           }
           // create fragment by clone node
@@ -1950,10 +1971,9 @@ license MIT(function (global, factory) {
             // render element
             renderIfBinding({
               bindingData: cache.cases[j],
-              viewModel: viewModel,
-              bindingAttrs: bindingAttrs
+              viewModel,
+              bindingAttrs
             });
-
             // remove other elements
             removeUnmatchCases(cache.cases, j);
             break;
@@ -1965,7 +1985,7 @@ license MIT(function (global, factory) {
         }
       }
     };
-    function removeUnmatchCases(cases, matchedIndex) {
+    const removeUnmatchCases = (cases, matchedIndex) => {
       cases.forEach((caseData, index) => {
         if (index !== matchedIndex || typeof matchedIndex === 'undefined') {
           removeIfBinding(caseData);
@@ -1976,118 +1996,116 @@ license MIT(function (global, factory) {
           }
         }
       });
-    }
-    function createCaseData(node, attrName) {
+    };
+    const createCaseData = (node, attrName) => {
       const caseData = {
         el: node,
         dataKey: node.getAttribute(attrName),
         type: attrName
       };
       return caseData;
-    }
+    };
 
+    /**
+     * Create event handler wrapper
+     */
+    const createEventHandlerWrapper = (type, paramList, handlerFn, viewModelContext) => {
+      return function handlerWrap(e) {
+        let formData;
+        let args = [];
+        if (type === 'submit') {
+          formData = getFormData(e.currentTarget);
+          args = [e, e.currentTarget, formData, ...paramList];
+        } else {
+          args = [e, e.currentTarget, ...paramList];
+        }
+        handlerFn.apply(viewModelContext, args);
+      };
+    };
     const createEventBinding = ({
       cache = {},
       forceRender = false,
       type = '',
       viewModel = {}
     }) => {
+      var _a;
       const handlerName = cache.dataKey;
       let paramList = cache.parameters;
       let viewModelContext;
-      const APP = viewModel.APP || viewModel.$root.APP;
-      if (!type || !handlerName || !forceRender && !APP.$rootElement.contains(cache.el)) {
+      const APP = viewModel.APP || ((_a = viewModel.$root) === null || _a === void 0 ? void 0 : _a.APP);
+      const rootElement = APP === null || APP === void 0 ? void 0 : APP.$rootElement;
+      if (!type || !handlerName || !forceRender && rootElement && !rootElement.contains(cache.el)) {
         return;
       }
       const handlerFn = getViewModelValue(viewModel, handlerName);
       if (typeof handlerFn === 'function') {
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
-        const handlerWrap = e => {
-          let formData;
-          let args = [];
-          if (type === 'submit') {
-            formData = getFormData(e.currentTarget);
-            args = [e, e.currentTarget, formData].concat(paramList);
-          } else {
-            args = [e, e.currentTarget].concat(paramList);
-          }
-          handlerFn.apply(viewModelContext, args);
-        };
+        const handlerWrap = createEventHandlerWrapper(type, paramList, handlerFn, viewModelContext);
         cache.el.removeEventListener(type, handlerWrap, false);
         cache.el.addEventListener(type, handlerWrap, false);
       }
     };
 
-    function applyBinding({
-      ctx,
+    const applyBinding = ({
+      ctx: _ctx,
       elementCache,
       updateOption,
       bindingAttrs,
       viewModel
-    }) {
+    }) => {
       if (!elementCache || !updateOption) {
         return;
       }
-
       // the follow binding should be in order for better efficiency
-
       // apply forOf Binding
       if (updateOption.forOfBinding && elementCache[bindingAttrs.forOf] && elementCache[bindingAttrs.forOf].length) {
         elementCache[bindingAttrs.forOf].forEach(cache => {
           forOfBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply attr Binding
       if (updateOption.attrBinding && elementCache[bindingAttrs.attr] && elementCache[bindingAttrs.attr].length) {
         elementCache[bindingAttrs.attr].forEach(cache => {
           attrBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply if Binding
       if (updateOption.ifBinding && elementCache[bindingAttrs.if] && elementCache[bindingAttrs.if].length) {
         elementCache[bindingAttrs.if].forEach(cache => {
           ifBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply show Binding
       if (updateOption.showBinding && elementCache[bindingAttrs.show] && elementCache[bindingAttrs.show].length) {
         elementCache[bindingAttrs.show].forEach(cache => {
           showBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply switch Binding
       if (updateOption.switchBinding && elementCache[bindingAttrs.switch] && elementCache[bindingAttrs.switch].length) {
         elementCache[bindingAttrs.switch].forEach(cache => {
           switchBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply text binding
       if (updateOption.textBinding && elementCache[bindingAttrs.text] && elementCache[bindingAttrs.text].length) {
         elementCache[bindingAttrs.text].forEach(cache => {
           textBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply cssBinding
       if (updateOption.cssBinding && elementCache[bindingAttrs.css] && elementCache[bindingAttrs.css].length) {
         elementCache[bindingAttrs.css].forEach(cache => {
           cssBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply model binding
       if (updateOption.modelBinding && elementCache[bindingAttrs.model] && elementCache[bindingAttrs.model].length) {
         elementCache[bindingAttrs.model].forEach(cache => {
           modelBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply change binding
       if (updateOption.changeBinding && elementCache[bindingAttrs.change] && elementCache[bindingAttrs.change].length) {
         elementCache[bindingAttrs.change].forEach(cache => {
@@ -2100,7 +2118,6 @@ license MIT(function (global, factory) {
           });
         });
       }
-
       // apply submit binding
       if (updateOption.submitBinding && elementCache[bindingAttrs.submit] && elementCache[bindingAttrs.submit].length) {
         elementCache[bindingAttrs.submit].forEach(cache => {
@@ -2112,7 +2129,6 @@ license MIT(function (global, factory) {
           });
         });
       }
-
       // apply click binding
       if (updateOption.clickBinding && elementCache[bindingAttrs.click] && elementCache[bindingAttrs.click].length) {
         elementCache[bindingAttrs.click].forEach(cache => {
@@ -2124,7 +2140,6 @@ license MIT(function (global, factory) {
           });
         });
       }
-
       // apply double click binding
       if (updateOption.dblclickBinding && elementCache[bindingAttrs.dblclick] && elementCache[bindingAttrs.dblclick].length) {
         elementCache[bindingAttrs.dblclick].forEach(cache => {
@@ -2136,7 +2151,6 @@ license MIT(function (global, factory) {
           });
         });
       }
-
       // apply blur binding
       if (updateOption.blurBinding && elementCache[bindingAttrs.blur] && elementCache[bindingAttrs.blur].length) {
         elementCache[bindingAttrs.blur].forEach(cache => {
@@ -2148,7 +2162,6 @@ license MIT(function (global, factory) {
           });
         });
       }
-
       // apply focus binding
       if (updateOption.focusBinding && elementCache[bindingAttrs.focus] && elementCache[bindingAttrs.focus].length) {
         elementCache[bindingAttrs.focus].forEach(cache => {
@@ -2160,14 +2173,12 @@ license MIT(function (global, factory) {
           });
         });
       }
-
       // apply hover binding
       if (updateOption.hoverBinding && elementCache[bindingAttrs.hover] && elementCache[bindingAttrs.hover].length) {
         elementCache[bindingAttrs.hover].forEach(cache => {
           hoverBinding(cache, viewModel, bindingAttrs, updateOption.forceRender);
         });
       }
-
       // apply input binding - eg html range input
       if (updateOption.inputBinding && elementCache[bindingAttrs.input] && elementCache[bindingAttrs.input].length) {
         elementCache[bindingAttrs.input].forEach(cache => {
@@ -2180,9 +2191,9 @@ license MIT(function (global, factory) {
           });
         });
       }
-    }
+    };
 
-    function postProcess(tasks) {
+    const postProcess = tasks => {
       if (!tasks || !tasks.length) {
         return;
       }
@@ -2191,25 +2202,15 @@ license MIT(function (global, factory) {
           try {
             task();
           } catch (err) {
-            throwErrorMessage(err, 'Error postProcess: ' + String(task));
+            throwErrorMessage(err, `Error postProcess: ${String(task)}`);
           }
         }
       });
-    }
-
-    /**
-     *  pubSub
-     * @description use jQuery object as pubSub
-     * @example EVENTS object strucure:
-     *  EVENTS = {
-            'EVENT-NAME': [{ 'comp-id': fn }],
-            'EVENT-NAME2': [{ 'comp-id': fn }]
-        };
-     */
+    };
 
     const EVENTS = {};
     const subscribeEvent = (instance = null, eventName = '', fn, isOnce = false) => {
-      if (!instance || !instance.compId || !eventName || typeof fn !== 'function') {
+      if (!instance || typeof instance !== 'object' || !('compId' in instance) || !instance.compId || !eventName || typeof fn !== 'function') {
         return;
       }
       let subscriber;
@@ -2217,17 +2218,19 @@ license MIT(function (global, factory) {
       eventName = eventName.replace(REGEX.WHITE_SPACES, '');
       EVENTS[eventName] = EVENTS[eventName] || [];
       // check if already subscribed and update callback fn
+      const instanceWithViewModel = instance;
       isSubscribed = EVENTS[eventName].some(subscriber => {
-        if (subscriber[instance.compId]) {
-          subscriber[instance.compId] = fn.bind(instance.viewModel);
+        if (subscriber[instanceWithViewModel.compId]) {
+          subscriber[instanceWithViewModel.compId] = fn.bind(instanceWithViewModel.viewModel);
           subscriber.isOnce = isOnce;
           return true;
         }
+        return false;
       });
       // push if not yet subscribe
       if (!isSubscribed) {
         subscriber = {};
-        subscriber[instance.compId] = fn.bind(instance.viewModel);
+        subscriber[instanceWithViewModel.compId] = fn.bind(instanceWithViewModel.viewModel);
         subscriber.isOnce = isOnce;
         EVENTS[eventName].push(subscriber);
       }
@@ -2254,11 +2257,10 @@ license MIT(function (global, factory) {
         }
       }
       // delete the event if no more subscriber
-      if (!EVENTS[eventName].length) {
+      if (EVENTS[eventName] && !EVENTS[eventName].length) {
         delete EVENTS[eventName];
       }
     };
-
     /**
      * unsubscribeAllEvent
      * @description unsubscribe all event by compId. eg when a component removed
@@ -2301,26 +2303,22 @@ license MIT(function (global, factory) {
         this.$rootElement = $rootElement;
         this.viewModel = viewModel;
         this.bindingAttrs = bindingAttrs;
-        this.render = debounceRaf(this.render, this);
         this.isServerRendered = this.$rootElement.getAttribute(serverRenderedAttr) !== null;
-
+        // Initialize render method with debounced version
+        this.render = debounceRaf(this._render.bind(this), this);
         // inject instance into viewModel
         this.viewModel.APP = this;
-
         // add $root pointer to viewModel so binding can be refer as $root.something
         this.viewModel.$root = this.viewModel;
-
         // 1st step
         // parsView walk the DOM and create binding cache that holds each element's binding details
         // this binding cache is like AST for render and update
         this.parseView();
-
         // for jquery user set viewModel referece to $rootElement for easy debug
         // otherwise use Expando to attach viewModel to $rootElement
         this.$rootElement[bindingDataReference.rootDataKey] = this.viewModel;
         return this;
       }
-
       /**
        * parseView
        * @description
@@ -2333,7 +2331,6 @@ license MIT(function (global, factory) {
           rootNode: this.$rootElement,
           bindingAttrs: this.bindingAttrs
         });
-
         // updateElementCache if server rendered on init
         if (this.isServerRendered && !this.initRendered) {
           this.updateElementCache({
@@ -2342,7 +2339,6 @@ license MIT(function (global, factory) {
         }
         return this;
       }
-
       /**
        * updateElementCache
        * @param {object} opt
@@ -2382,7 +2378,7 @@ license MIT(function (global, factory) {
           }
         }
       }
-      render(opt = {}) {
+      _render(opt = {}) {
         let updateOption = {};
         if (!this.initRendered) {
           // only update eventsBinding if server rendered
@@ -2396,25 +2392,21 @@ license MIT(function (global, factory) {
           // when called again only update visualBinding options
           updateOption = createBindingOption('', opt);
         }
-
         // create postProcessQueue before start rendering
         this.postProcessQueue = [];
         const renderBindingOption = {
           ctx: this,
           elementCache: this.elementCache,
-          updateOption: updateOption,
+          updateOption,
           bindingAttrs: this.bindingAttrs,
           viewModel: this.viewModel
         };
-
         // always render template binding first
         // render and apply binding to template(s)
         // this is an share function therefore passing 'this' context
         renderTemplatesBinding(renderBindingOption);
-
         // apply bindings to rest of the DOM
         applyBinding(renderBindingOption);
-
         // trigger postProcess
         postProcess(this.postProcessQueue);
         // clear postProcessQueue
@@ -2448,7 +2440,7 @@ license MIT(function (global, factory) {
     let bindingAttrs = bindingAttrs$1;
     const use = (settings = {}) => {
       if (settings.bindingAttrs) {
-        bindingAttrs = extend({}, settings.bindingAttrs);
+        bindingAttrs = extend(false, {}, settings.bindingAttrs);
       }
     };
     const init = ($rootElement, viewModel = null) => {
@@ -2458,8 +2450,8 @@ license MIT(function (global, factory) {
       return new Binder($rootElement, viewModel, bindingAttrs);
     };
     var index = {
-      use: use,
-      init: init,
+      use,
+      init,
       version: '@version@'
     };
 
