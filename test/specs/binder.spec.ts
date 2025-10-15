@@ -23,7 +23,7 @@ describe('Given dataBind lib loaded', () => {
 
     it('Should throw error if viewModel does not exits', () => {
         expect(() => {
-            dataBind.init(document.getElementById('#xyz'));
+            dataBind.init(document.getElementById('#xyz'), undefined as any);
         }).toThrow();
     });
 });

@@ -2,7 +2,7 @@ import {describe, it, expect, beforeEach, afterEach} from 'vitest';
 import {waitFor} from '@testing-library/dom';
 
 describe('Given [data-bind-comp="temp-component"] inited', () => {
-    const namespace = {};
+    const namespace: any = {};
 
     beforeEach(async () => {
         loadFixture('test/fixtures/templateBinding.html');
@@ -25,7 +25,7 @@ describe('Given [data-bind-comp="temp-component"] inited', () => {
             afterTemplateRender() {
                 namespace.finishTemplateRender += 1;
             },
-            updateView(opt) {
+            updateView(opt?: any) {
                 this.APP.render(opt);
             },
         };
@@ -46,7 +46,7 @@ describe('Given [data-bind-comp="temp-component"] inited', () => {
 
     it('Then [data-bind-comp="temp-component"] should have render', async () => {
         await waitFor(() => {
-            expect(document.getElementById('heading').textContent).toBe(namespace.viewModel.heading);
+            expect(document.getElementById('heading')!.textContent).toBe(namespace.viewModel.heading);
             // afterTemplateRender is called once per template completion
             // With nested templates now working, it's called multiple times
             expect(namespace.finishTemplateRender).toBeGreaterThan(0);
@@ -56,11 +56,11 @@ describe('Given [data-bind-comp="temp-component"] inited', () => {
     it('Should render template1 with viewModel data', async () => {
         await waitFor(() => {
             const viewModel = namespace.viewModel;
-            const $compSection = document.getElementById('compSection');
-            const $heading = document.getElementById('heading');
-            const $description = document.getElementById('description');
-            const $content = document.getElementById('content');
-            const $contentNest1 = document.getElementById('contentNest1');
+            const $compSection = document.getElementById('compSection')!;
+            const $heading = document.getElementById('heading')!;
+            const $description = document.getElementById('description')!;
+            const $content = document.getElementById('content')!;
+            const $contentNest1 = document.getElementById('contentNest1')!;
 
             expect($compSection.children.length).not.toBe(0);
             expect($heading.textContent).toBe(viewModel.heading);
@@ -74,11 +74,11 @@ describe('Given [data-bind-comp="temp-component"] inited', () => {
     it('Should render nested templates with standard dataBindings', async () => {
         await waitFor(() => {
             const viewModel = namespace.viewModel;
-            const $compSection = document.getElementById('compSection');
-            const $contentNest1 = $compSection.querySelector('#contentNest1');
-            const $contentNest1Info = $compSection.querySelector('#contentNest1Info');
-            const $nestPrepend = $compSection.querySelector('#nestPrepend');
-            const $nestAppend = $compSection.querySelector('#nestAppend');
+            const $compSection = document.getElementById('compSection')!;
+            const $contentNest1 = $compSection.querySelector('#contentNest1')!;
+            const $contentNest1Info = $compSection.querySelector('#contentNest1Info')!;
+            const $nestPrepend = $compSection.querySelector('#nestPrepend')!;
+            const $nestAppend = $compSection.querySelector('#nestAppend')!;
 
             expect($contentNest1.children.length).not.toBe(0);
             expect($contentNest1Info.textContent).toBe(viewModel.contentNest1.info);
@@ -91,14 +91,14 @@ describe('Given [data-bind-comp="temp-component"] inited', () => {
     it('Should render nested template prepend option', async () => {
         await waitFor(() => {
             const viewModel = namespace.viewModel;
-            const $compSection = document.getElementById('compSection');
-            const $nestPrepend = $compSection.querySelector('#nestPrepend');
+            const $compSection = document.getElementById('compSection')!;
+            const $nestPrepend = $compSection.querySelector('#nestPrepend')!;
             const $nestPrependHeading = $compSection.querySelector('#nestPrependHeading');
-            const $contentNest2Info = $compSection.querySelector('#contentNest2Info');
+            const $contentNest2Info = $compSection.querySelector('#contentNest2Info')!;
 
             expect($nestPrepend.children.length).toBeGreaterThan(1);
             expect($nestPrependHeading).not.toBe(null);
-            expect($nestPrependHeading.previousElementSibling).toBe($contentNest2Info);
+            expect($nestPrependHeading!.previousElementSibling).toBe($contentNest2Info);
             expect($contentNest2Info.textContent).toBe(viewModel.contentNest2.info);
         }, {timeout: 2000});
     });
@@ -107,14 +107,14 @@ describe('Given [data-bind-comp="temp-component"] inited', () => {
     it('Should render nested template append option', async () => {
         await waitFor(() => {
             const viewModel = namespace.viewModel;
-            const $compSection = document.getElementById('compSection');
-            const $nestAppend = $compSection.querySelector('#nestAppend');
+            const $compSection = document.getElementById('compSection')!;
+            const $nestAppend = $compSection.querySelector('#nestAppend')!;
             const $nestAppendHeading = $compSection.querySelector('#nestAppendHeading');
-            const $contentNest3Info = $compSection.querySelector('#contentNest3Info');
+            const $contentNest3Info = $compSection.querySelector('#contentNest3Info')!;
 
             expect($nestAppend.children.length).toBeGreaterThan(1);
             expect($nestAppendHeading).not.toBe(null);
-            expect($nestAppendHeading.nextElementSibling).toBe($contentNest3Info);
+            expect($nestAppendHeading!.nextElementSibling).toBe($contentNest3Info);
             expect($contentNest3Info.textContent).toBe(viewModel.contentNest3.info);
         }, {timeout: 2000});
     });

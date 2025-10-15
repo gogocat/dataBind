@@ -3,9 +3,9 @@ import {waitFor} from '@testing-library/dom';
 
 
 describe('Given dataBindBootstrp initised', () => {
-    const namespace = {};
-    const converResultsData = function (data) {
-        const ret = [];
+    const namespace: any = {};
+    const converResultsData = function (data: any[]) {
+        const ret: any[] = [];
         data.forEach((item, _index) => {
             const newItem = Object.assign({}, item);
             if (newItem.bookmarked) {
@@ -22,7 +22,7 @@ describe('Given dataBindBootstrp initised', () => {
     beforeEach(async () => {
         const searchUrl = '/test/mocks/searchResult.json';
         // var featureAdsResultUrl = '/test/mocks/featureAdsResult.json';
-        const el = {
+        const el: any = {
             searchResultColumns: '#search-result-columns',
             messageModal: '#message-modal',
             messageTextArea: '#message',
@@ -41,18 +41,18 @@ describe('Given dataBindBootstrp initised', () => {
             searchWord: '',
             searchLocation: '',
             searching: false,
-            onSearchWordChange(e, $el, newValue, oldValue) {
+            onSearchWordChange(e: Event, $el: any, newValue: any, oldValue: any) {
                 console.log('onSearchWordChange');
                 expect(typeof e.preventDefault).toBe('function');
                 expect($el instanceof HTMLElement || $el instanceof Element).toBe(true);
                 expect(newValue).not.toBe(oldValue);
             },
-            onSearchLocationChange(e, $el, newValue, oldValue) {
+            onSearchLocationChange(e: Event, $el: any, newValue: any, oldValue: any) {
                 expect(typeof e.preventDefault).toBe('function');
                 expect($el instanceof HTMLElement || $el instanceof Element).toBe(true);
                 expect(newValue).not.toBe(oldValue);
             },
-            onSearchSubmit(e, $form, formData) {
+            onSearchSubmit(e: Event, $form: any, formData: any) {
                 e.preventDefault();
                 expect($form instanceof HTMLElement || $form instanceof Element).toBe(true);
                 expect($form.tagName).toBe('FORM');
@@ -87,7 +87,7 @@ describe('Given dataBindBootstrp initised', () => {
             replacedInitResults: false,
             isNewSearch: false,
             currentQuery: null,
-            getSearchResults(formData) {
+            getSearchResults(formData?: any) {
                 const self = this;
 
                 this.isNewSearch = JSON.stringify(self.currentQuery) !== JSON.stringify(formData);
@@ -95,9 +95,9 @@ describe('Given dataBindBootstrp initised', () => {
                 self.currentQuery = formData;
 
                 // Note: $ is jQuery, used in test fixture
-                // eslint-disable-next-line no-undef
+
                 $.getJSON(searchUrl, self.currentQuery)
-                    .done((data) => {
+                    .done((data: any) => {
                         // mock network delay
                         setTimeout(() => {
                             self.loading = false;
@@ -105,7 +105,7 @@ describe('Given dataBindBootstrp initised', () => {
                             namespace.searchResultsComponent.publish('SEARCH-COMPLETED', data);
                         }, 20);
                     })
-                    .fail(function (jqXHR, textStatus, errorThrown) {
+                    .fail(function (jqXHR: any, textStatus: any, errorThrown: any) {
                         this.loading = false;
                         namespace.searchResultsComponent.publish('SEARCH-COMPLETED', {
                             fail: errorThrown,
@@ -113,7 +113,7 @@ describe('Given dataBindBootstrp initised', () => {
                         self.logError(jqXHR, textStatus, errorThrown);
                     });
             },
-            onSearchResult(data) {
+            onSearchResult(data: any) {
                 let newResults = [];
 
                 if (this.isNewSearch) {
@@ -140,7 +140,7 @@ describe('Given dataBindBootstrp initised', () => {
                     templateBinding: true,
                 });
             },
-            logError(...args) {
+            logError(...args: any[]) {
                 console.warn('search result error: ', ...args);
             },
             onMoreResults() {
@@ -149,7 +149,7 @@ describe('Given dataBindBootstrp initised', () => {
                 this.updateStatus();
                 this.getSearchResults();
             },
-            onAdBookmarkClick(e, $el) {
+            onAdBookmarkClick(e: Event, $el: any) {
                 const activeCss = 'active';
                 const isActivated = $el.hasClass(activeCss);
                 const resultIndex = $el.getAttribute('data-index');
@@ -158,16 +158,16 @@ describe('Given dataBindBootstrp initised', () => {
                 this.searchResults[resultIndex].bookmarkedCss = isActivated ? '' : 'active';
                 this.updateStatus();
             },
-            onAdMessageCheck(e, $el, newValue, oldValue) {
+            onAdMessageCheck(e: Event, $el: any, newValue: any, oldValue: any) {
                 expect(newValue).not.toBe(oldValue);
                 this.updateStatus();
             },
-            onMessageTriggerClick(e, $el) {
+            onMessageTriggerClick(e: Event, $el: any) {
                 namespace.searchResultsComponent.publish('TRIGGER-MESSAGE-DIALOG', this.selectedResults);
                 console.log('onMessageTriggerClick: ', $el);
             },
-            updateStatus(opt) {
-                this.selectedResults = this.searchResults.filter((result, _index) => {
+            updateStatus(opt?: any) {
+                this.selectedResults = this.searchResults.filter((result: any, _index: number) => {
                     return result.selected;
                 });
                 this.messageTriggerCss = this.selectedResults.length ? 'show' : '';
@@ -182,14 +182,14 @@ describe('Given dataBindBootstrp initised', () => {
             selectedProviders: '',
             defaultMessageText: 'Hi,\nCould you please provide a quote for the following work:\n',
             sendingMessage: false,
-            onMessageSubmit(e, $el, formData) {
+            onMessageSubmit(e: Event, $el: any, formData: any) {
                 e.preventDefault();
                 formData.ids = this.adIds;
                 this.sendingMessage = true;
                 this.updateStatus();
                 console.log('post data: ', formData);
             },
-            onTriggerSelectedAds(selectedAdData) {
+            onTriggerSelectedAds(selectedAdData: any[]) {
                 this.selectedAdData = selectedAdData;
                 this.numSelectedProviders = selectedAdData.length > 1 ? selectedAdData.length : '';
                 this.selectedProviders = selectedAdData.length > 1 ? 'advertisers ID: ' : 'advertiser ID:';
@@ -210,7 +210,7 @@ describe('Given dataBindBootstrp initised', () => {
         // vi.spyOn(namespace.searchBarComponentVM, 'onSearchSubmit');
 
         namespace.searchBarComponent = dataBind.init(document.querySelector('[data-bind-comp="search-bar"]'), namespace.searchBarComponentVM);
-        await namespace.searchBarComponent.render().then((ctx) => {
+        await namespace.searchBarComponent.render().then((ctx: any) => {
             const self = ctx;
             namespace.searchBarComponent.subscribe('SEARCH-COMPLETED', self.viewModel.onSearchCompleted);
         });
@@ -221,7 +221,7 @@ describe('Given dataBindBootstrp initised', () => {
         );
         await namespace.searchResultsComponent
             .render() // overwrite default server rendered option
-            .then((ctx) => {
+            .then((ctx: any) => {
                 const self = ctx;
                 // subscribe events
                 namespace.searchResultsComponent.subscribe('SEARCH-AD', self.viewModel.getSearchResults);
@@ -231,7 +231,7 @@ describe('Given dataBindBootstrp initised', () => {
             document.querySelector('[data-bind-comp="message-dialog-component"]'),
             namespace.messageDialogComponentVM,
         );
-        await namespace.messageDialogComponent.render().then((ctx) => {
+        await namespace.messageDialogComponent.render().then((ctx: any) => {
             const self = ctx;
             namespace.messageDialogComponent.subscribe('TRIGGER-MESSAGE-DIALOG', self.viewModel.onTriggerSelectedAds);
 
@@ -264,20 +264,20 @@ describe('Given dataBindBootstrp initised', () => {
     });
 
     it('Then [data-bind-comp="search-bar"] should has bond with namespace.searchBarComponentVM', async () => {
-        const $searchBar = document.querySelector('[data-bind-comp="search-bar"]');
+        const $searchBar = document.querySelector('[data-bind-comp="search-bar"]') as any;
         const searchBarRoot = $searchBar['$root'];
 
         await waitFor(() => {
             expect(searchBarRoot).toBeDefined();
             expect(searchBarRoot).toEqual(expect.objectContaining(namespace.searchBarComponentVM));
-        }, 200);
+        }, {timeout: 200});
     });
 
     it('When [data-bind-comp="search-bar"] was server rendered then show binding should not update element', async () => {
         await waitFor(() => {
             expect(namespace.searchBarComponent.isServerRendered).toBe(true);
             expect(namespace.searchBarComponentVM.searching).toBe(false);
-            expect(document.querySelector('.spinner--search').style.display !== 'none').toBe(true);
+            expect((document.querySelector('.spinner--search') as HTMLElement)!.style.display !== 'none').toBe(true);
         }, {timeout: 500});
     });
 
@@ -289,7 +289,7 @@ describe('Given dataBindBootstrp initised', () => {
             expect($searchInput).not.toBeNull();
         }, {timeout: 500});
 
-        const $searchInput = document.getElementById('searchWord');
+        const $searchInput = document.getElementById('searchWord') as HTMLInputElement;
         const evt = document.createEvent('HTMLEvents');
         evt.initEvent('change', true, true);
 
@@ -310,7 +310,7 @@ describe('Given dataBindBootstrp initised', () => {
             expect($locationInput).not.toBeNull();
         }, {timeout: 500});
 
-        const $locationInput = document.getElementById('location');
+        const $locationInput = document.getElementById('location') as HTMLInputElement;
         const evt = document.createEvent('HTMLEvents');
         evt.initEvent('change', true, true);
 
@@ -326,7 +326,7 @@ describe('Given dataBindBootstrp initised', () => {
     it('When [data-bind-comp="search-bar"] was server rendered "data-server-rendered" attribute should have removed', async () => {
         await waitFor(() => {
             const searchBar = document.querySelector('[data-bind-comp="search-bar"]');
-            expect(searchBar.getAttribute('data-server-rendered')).toBeNull();
+            expect(searchBar!.getAttribute('data-server-rendered')).toBeNull();
         }, {timeout: 500});
     });
 });

@@ -3,7 +3,7 @@ import {waitFor} from '@testing-library/dom';
 
 
 describe('Given [data-bind-comp="if-component"] inited', () => {
-    const namespace = {};
+    const namespace: any = {};
 
     beforeEach(async () => {
         loadFixture('test/fixtures/ifBinding.html');
@@ -18,13 +18,13 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
                     '"Hansel and Gretel" (also known as Hansel and Grettel, Hansel and Grethel, or Little Brother and Little Sister) is a well-known fairy tale of German origin.',
                 link: 'https://www.google.com.au/search?q=Hansel+and+Gretel',
             },
-            viewModelPropFn($data) {
+            viewModelPropFn($data: any) {
                 return typeof $data.viewModelPropFn === 'function';
             },
-            undefinedViewModelPropFn(_$data) {
+            undefinedViewModelPropFn(_$data: any) {
                 return;
             },
-            setStroylinkAttr(_$data) {
+            setStroylinkAttr(_$data: any) {
                 return {
                     href: this.story.link,
                     title: this.story.title,
@@ -32,10 +32,10 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
                     rel: 'noopener noreferrer',
                 };
             },
-            onStoryClick(e, _$el) {
+            onStoryClick(e: Event, _$el: any) {
                 e.preventDefault();
             },
-            updateView(opt) {
+            updateView(opt?: any) {
                 this.APP.render(opt);
             },
         };
@@ -59,20 +59,20 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
 
     it('Then [data-bind-comp="myIfComponent"] should have render', async () => {
         await waitFor(() => {
-            expect(document.querySelector('#intro-heading').textContent).toBe(namespace.viewModel.heading);
-            expect(document.querySelector('#intro-description').textContent).toBe(namespace.viewModel.description);
+            expect(document.querySelector('#intro-heading')!.textContent).toBe(namespace.viewModel.heading);
+            expect(document.querySelector('#intro-description')!.textContent).toBe(namespace.viewModel.description);
         }, {timeout: 500});
     });
 
     it('Then render if-binding elements with comment tag wrap around', async () => {
         await waitFor(() => {
-            const introOpenCommentWrap = document.getElementById('intro').previousSibling;
-            const introCloseCommentWrap = document.getElementById('intro').nextSibling;
+            const introOpenCommentWrap = document.getElementById('intro')!.previousSibling;
+            const introCloseCommentWrap = document.getElementById('intro')!.nextSibling;
 
-            expect(introOpenCommentWrap.nodeType).toBe(8);
-            expect(introCloseCommentWrap.nodeType).toBe(8);
-            expect(introOpenCommentWrap.textContent).toContain('data-if');
-            expect(introCloseCommentWrap.textContent).toContain('data-if');
+            expect(introOpenCommentWrap!.nodeType).toBe(8);
+            expect(introCloseCommentWrap!.nodeType).toBe(8);
+            expect(introOpenCommentWrap!.textContent).toContain('data-if');
+            expect(introCloseCommentWrap!.textContent).toContain('data-if');
         }, {timeout: 500});
     });
 
@@ -112,17 +112,17 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
             await waitFor(() => {
                 expect(document.querySelector('#story')).not.toBe(null);
                 expect(document.querySelector('#intro')).toBe(null);
-                expect(document.querySelector('#storyIntroHeading').textContent).toBe(namespace.viewModel.story.title);
-                expect(document.querySelector('#storyDescription').textContent).toBe(namespace.viewModel.story.description);
-                expect(document.querySelector('#storyLink').getAttribute('href')).toBe(namespace.viewModel.story.link);
-                expect(document.querySelector('#storyLink').getAttribute('title')).toBe(namespace.viewModel.story.title);
-                expect(document.querySelector('#storyLink').getAttribute('target')).toBe('_blank');
-                expect(document.querySelector('#storyLink').getAttribute('rel')).toBe('noopener noreferrer');
+                expect(document.querySelector('#storyIntroHeading')!.textContent).toBe(namespace.viewModel.story.title);
+                expect(document.querySelector('#storyDescription')!.textContent).toBe(namespace.viewModel.story.description);
+                expect(document.querySelector('#storyLink')!.getAttribute('href')).toBe(namespace.viewModel.story.link);
+                expect(document.querySelector('#storyLink')!.getAttribute('title')).toBe(namespace.viewModel.story.title);
+                expect(document.querySelector('#storyLink')!.getAttribute('target')).toBe('_blank');
+                expect(document.querySelector('#storyLink')!.getAttribute('rel')).toBe('noopener noreferrer');
 
                 const evt = document.createEvent('HTMLEvents');
                 evt.initEvent('click', true, true);
 
-                const $searchInput = document.getElementById('storyLink');
+                const $searchInput = document.getElementById('storyLink')!;
                 $searchInput.dispatchEvent(evt);
 
                 expect(namespace.viewModel.onStoryClick).toHaveBeenCalled();
@@ -149,7 +149,7 @@ describe('Given [data-bind-comp="if-component"] inited', () => {
             await namespace.myIfComponent.render();
 
             await waitFor(() => {
-                const $storyLink = document.getElementById('storyLink');
+                const $storyLink = document.getElementById('storyLink')!;
                 const evt = document.createEvent('HTMLEvents');
                 evt.initEvent('click', true, true);
 

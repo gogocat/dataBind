@@ -2,7 +2,7 @@ import {describe, it, expect, beforeEach, afterEach} from 'vitest';
 
 
 describe('Given [data-bind-comp="filter-component"] inited', () => {
-    const namespace = {};
+    const namespace: any = {};
 
     beforeEach(async () => {
         loadFixture('test/fixtures/filters.html');
@@ -20,13 +20,13 @@ describe('Given [data-bind-comp="filter-component"] inited', () => {
                 link: 'https://www.google.com.au/search?q=Hansel+and+Gretel',
                 price: 100,
             },
-            toDiscount(value) {
+            toDiscount(value: any) {
                 return Number(value) * this.discountRate;
             },
-            addGst(value) {
+            addGst(value: any) {
                 return Number(value) * this.gstRate;
             },
-            updateView(opt) {
+            updateView(opt?: any) {
                 return this.APP.render(opt);
             },
         };
@@ -50,7 +50,7 @@ describe('Given [data-bind-comp="filter-component"] inited', () => {
 
         expect($intro).toBe(null);
         expect($story).not.toBe(null);
-        expect($story.firstElementChild).not.toBe(null);
+        expect($story!.firstElementChild).not.toBe(null);
     });
 
     it('Should render intro but not story section after update viewModel', async () => {
@@ -65,7 +65,7 @@ describe('Given [data-bind-comp="filter-component"] inited', () => {
 
     it('Should render story and stroyPrice pass through filters | toDiscount | addGst', () => {
         const $story = document.getElementById('story');
-        const stroyPrice = document.getElementById('stroyPrice').textContent;
+        const stroyPrice = document.getElementById('stroyPrice')!.textContent!;
         const discountedPrice = namespace.viewModel.toDiscount(namespace.viewModel.story.price);
         const finalPrice = namespace.viewModel.addGst(discountedPrice);
 

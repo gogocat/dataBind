@@ -100,6 +100,7 @@ export default [
         rules: {
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-unused-vars': 'off',
+            '@typescript-eslint/no-non-null-assertion': 'off',
             'max-len': ['error', {
                 code: 200, // Allow longer lines in tests
                 ignoreStrings: true,

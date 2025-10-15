@@ -2,7 +2,7 @@ import {describe, it, expect, beforeEach, afterEach} from 'vitest';
 import {waitFor} from '@testing-library/dom';
 
 describe('Given [data-bind-comp="css-component"] inited', () => {
-    const namespace = {};
+    const namespace: any = {};
 
     beforeEach(() => {
         loadFixture('test/fixtures/cssBinding.html');
@@ -14,13 +14,13 @@ describe('Given [data-bind-comp="css-component"] inited', () => {
                 b: true,
                 c: true,
             },
-            getTestTwoCss(_$data, _oldValue, _el) {
+            getTestTwoCss(_$data: any, _oldValue: any, _el: any) {
                 return {
                     e: true,
                     f: true,
                 };
             },
-            updateView(opt) {
+            updateView(opt?: any) {
                 this.APP.render(opt);
             },
         };
@@ -41,16 +41,16 @@ describe('Given [data-bind-comp="css-component"] inited', () => {
 
     it('Then [data-bind-comp="myCssComponent"] should have render', async () => {
         await waitFor(() => {
-            const $heading = document.getElementById('myCssComponentHeading');
+            const $heading = document.getElementById('myCssComponentHeading')!;
             expect($heading.textContent).toBe(namespace.viewModel.heading);
         }, {timeout: 500});
     });
 
     it('should apply css bindings', async () => {
         await waitFor(() => {
-            const $testCssOne = document.getElementById('testCssOne');
+            const $testCssOne = document.getElementById('testCssOne')!;
             const testCssOneClassName = $testCssOne.className;
-            const $testCssTwo = document.getElementById('testCssTwo');
+            const $testCssTwo = document.getElementById('testCssTwo')!;
             const testCssTwoClassName = $testCssTwo.className;
 
             expect(testCssOneClassName).toBe('testCssOne a b c');
@@ -63,7 +63,7 @@ describe('Given [data-bind-comp="css-component"] inited', () => {
         namespace.viewModel.updateView();
 
         await waitFor(() => {
-            const $testCssOne = document.getElementById('testCssOne');
+            const $testCssOne = document.getElementById('testCssOne')!;
             const testCssOneClassName = $testCssOne.className;
 
             expect(testCssOneClassName).toBe('testCssOne a c');

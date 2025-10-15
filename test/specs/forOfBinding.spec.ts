@@ -26,7 +26,7 @@ const isEnvSupportDocRange = ((document) => {
 })(document);
 
 describe('When search-results-component with forOf binding inited', () => {
-    const namespace = {};
+    const namespace: any = {};
 
     beforeEach(() => {
         loadFixture('test/fixtures/forOfBinding.html');
@@ -69,7 +69,7 @@ describe('When search-results-component with forOf binding inited', () => {
                     options: [{text: '7', value: '7'}, {text: '8', value: '8'}, {text: '9', value: '9'}],
                 },
             ],
-            getResultItemAttr(index, _oldAttrObj, _$el) {
+            getResultItemAttr(index: number, _oldAttrObj: any, _$el: any) {
                 const self = this;
                 if (self.searchResults[index].image) {
                     return {
@@ -78,7 +78,7 @@ describe('When search-results-component with forOf binding inited', () => {
                     };
                 }
             },
-            setResultOptionAttr($data, _oldAttrObj, _$el) {
+            setResultOptionAttr($data: any, _oldAttrObj: any, _$el: any) {
                 if ($data && $data.value) {
                     // todo: the index here is the outter loop index
                     return {
@@ -86,10 +86,10 @@ describe('When search-results-component with forOf binding inited', () => {
                     };
                 }
             },
-            onAdMessageCheck(e, $el, newValue, oldValue, index) {
+            onAdMessageCheck(e: Event, $el: any, newValue: any, oldValue: any, index: number) {
                 console.log('onAdMessageCheck: ', $el, newValue, oldValue, index);
             },
-            onAdBookmarkClick(e, $el, index) {
+            onAdBookmarkClick(e: Event, $el: any, index: number) {
                 e.preventDefault();
                 console.log('onAdBookmarkClick: ', $el, index);
             },
@@ -119,7 +119,7 @@ describe('When search-results-component with forOf binding inited', () => {
             return;
         }
         await waitFor(() => {
-            expect(document.querySelector('#searchResultTitle').textContent).toBe(namespace.viewModel.searchResultTitle);
+            expect(document.querySelector('#searchResultTitle')!.textContent).toBe(namespace.viewModel.searchResultTitle);
         }, {timeout: 500});
     });
 
@@ -135,8 +135,8 @@ describe('When search-results-component with forOf binding inited', () => {
         await waitFor(() => {
             const firstComment = $searchColumn.firstChild;
             const lastComment = $searchColumn.lastChild;
-            expect(firstComment.nodeType).toBe(Node.COMMENT_NODE);
-            expect(lastComment.nodeType).toBe(Node.COMMENT_NODE);
+            expect(firstComment!.nodeType).toBe(Node.COMMENT_NODE);
+            expect(lastComment!.nodeType).toBe(Node.COMMENT_NODE);
         }, {timeout: 500});
     });
 
@@ -173,9 +173,9 @@ describe('When search-results-component with forOf binding inited', () => {
                 $results.forEach(($result, index) => {
                     const indexString = String(index);
                     const $img = $result.querySelector('.result-item__img');
-                    const $body = $result.querySelector('.card-body');
-                    const $footer = $result.querySelector('.result-item__footer');
-                    const $checkbox = $footer.querySelector('.result-item__icon-checkbox');
+                    const $body = $result.querySelector('.card-body')!;
+                    const $footer = $result.querySelector('.result-item__footer')!;
+                    const $checkbox = $footer.querySelector('.result-item__icon-checkbox') as HTMLInputElement;
                     const $options = $footer.querySelectorAll('select.form-control option');
                     const imgSrc = $img ? $img.getAttribute('src') || '' : '';
                     let bodyIndex = $body.querySelector('.bodyIndex')?.textContent || '';
@@ -199,7 +199,7 @@ describe('When search-results-component with forOf binding inited', () => {
                     expect($options.length).toEqual(searchResult.options.length + 1);
                     if ($options[index + 1]) {
                         expect($options[index + 1].textContent).toEqual(searchResult.options[index].text);
-                        expect($options[index + 1].value).toEqual(searchResult.options[index].value);
+                        expect(($options[index + 1] as HTMLOptionElement).value).toEqual(searchResult.options[index].value);
                     }
                 });
             }, {timeout: 500});

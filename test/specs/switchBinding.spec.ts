@@ -3,10 +3,10 @@ import {waitFor} from '@testing-library/dom';
 
 
 describe('Given [data-bind-comp="switch-component"] inited', () => {
-    const namespace = {};
+    const namespace: any = {};
 
     // stories data
-    const storiesData = {
+    const storiesData: any = {
         s1: {
             title: 'Hansel and Gretel',
             pic:
@@ -17,7 +17,7 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
         s2: {
             title: 'The Ugly Duckling',
             description:
-                '"The Ugly Duckling" (Danish: Den grimme ælling) is a literary fairy tale by Danish poet and author Hans Christian Andersen (1805–1875). The story tells of a homely little bird born in a barnyard who suffers abuse from the others around him until, much to his delight (and to the surprise of others), he matures into a beautiful swan, the most beautiful bird of all. The story is beloved around the world as a tale about personal transformation for the better. “The Ugly Duckling” was first published 11 November 1843, with three other tales by Andersen in Copenhagen, Denmark to great critical acclaim. The tale has been adapted to various media including opera, musical, and animated film. The tale is completely Andersen\'s invention and owes no debt to fairy tales or folklore.',
+                '"The Ugly Duckling" (Danish: Den grimme ælling) is a literary fairy tale by Danish poet and author Hans Christian Andersen (1805–1875). The story tells of a homely little bird born in a barnyard who suffers abuse from the others around him until, much to his delight (and to the surprise of others), he matures into a beautiful swan, the most beautiful bird of all. The story is beloved around the world as a tale about personal transformation for the better. "The Ugly Duckling" was first published 11 November 1843, with three other tales by Andersen in Copenhagen, Denmark to great critical acclaim. The tale has been adapted to various media including opera, musical, and animated film. The tale is completely Andersen\'s invention and owes no debt to fairy tales or folklore.',
         },
         s3: {
             title: 'The Giving Tree',
@@ -39,7 +39,7 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
                 {title: 'The Ugly Duckling', value: 's2'},
                 {title: 'The Giving Tree', value: 's3'},
             ],
-            onSelectedStory(newValue) {
+            onSelectedStory(newValue: string) {
                 const id = newValue;
 
                 if (storiesData[id] && id !== this.selectedStory) {
@@ -53,7 +53,7 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
             },
             setStoryImgAttr() {
                 const picPath = this.story.pic || '';
-                const ret = {
+                const ret: any = {
                     alt: this.story.title,
                     width: 100,
                     height: 'auto',
@@ -64,7 +64,7 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
                 }
                 return ret;
             },
-            updateView(opt) {
+            updateView(opt?: any) {
                 this.APP.render(opt);
             },
         };
@@ -85,14 +85,14 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
 
     it('Then [data-bind-comp="mySwitchComponent"] should have render', async () => {
         await waitFor(() => {
-            expect(document.getElementById('switch-component-heading').textContent).toBe(namespace.viewModel.heading);
+            expect(document.getElementById('switch-component-heading')!.textContent).toBe(namespace.viewModel.heading);
         }, {timeout: 500});
     });
 
     it('Should render only switch default case', async () => {
         await waitFor(() => {
             // check child non switch binding element still exists
-            expect(document.getElementById('switch-component-heading').textContent).toBe(namespace.viewModel.heading);
+            expect(document.getElementById('switch-component-heading')!.textContent).toBe(namespace.viewModel.heading);
 
             expect(document.getElementById('default-case')).toBeDefined();
             expect(document.getElementById('case1')).toBe(null);
@@ -107,13 +107,13 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
         await namespace.mySwitchComponent.render();
 
         await waitFor(() => {
-            const $case1 = document.getElementById('case1');
-            const $storyTitle = $case1.querySelector('h4');
-            const $storyImg = $case1.querySelector('img');
-            const $storyDescription = $case1.querySelector('p');
+            const $case1 = document.getElementById('case1')!;
+            const $storyTitle = $case1.querySelector('h4')!;
+            const $storyImg = $case1.querySelector('img') as HTMLImageElement;
+            const $storyDescription = $case1.querySelector('p')!;
 
             // check child non switch binding element still exists
-            expect(document.getElementById('switch-component-heading').textContent).toBe(namespace.viewModel.heading);
+            expect(document.getElementById('switch-component-heading')!.textContent).toBe(namespace.viewModel.heading);
 
             expect($case1).toBeDefined();
             // check other binding within this switch binding
@@ -133,12 +133,12 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
         await namespace.mySwitchComponent.render();
 
         await waitFor(() => {
-            const $case2 = document.getElementById('case2');
-            const $storyTitle = $case2.querySelector('h4');
-            const $storyDescription = $case2.querySelector('p');
+            const $case2 = document.getElementById('case2')!;
+            const $storyTitle = $case2.querySelector('h4')!;
+            const $storyDescription = $case2.querySelector('p')!;
 
             // check child non switch binding element still exists
-            expect(document.getElementById('switch-component-heading').textContent).toBe(namespace.viewModel.heading);
+            expect(document.getElementById('switch-component-heading')!.textContent).toBe(namespace.viewModel.heading);
 
             // check other binding within this switch binding
             expect($storyTitle.textContent).toBe(storiesData.s2.title);
@@ -154,12 +154,12 @@ describe('Given [data-bind-comp="switch-component"] inited', () => {
 
     it('When selectedStory non exists it then should render default case', async () => {
         await waitFor(() => {
-            const $defaultCase = document.getElementById('default-case');
-            const $defaultCaseTextContent = $defaultCase.querySelector('p').textContent;
+            const $defaultCase = document.getElementById('default-case')!;
+            const $defaultCaseTextContent = $defaultCase.querySelector('p')!.textContent;
             const defatulCaseText = 'No story found...';
 
             // check child non switch binding element still exists
-            expect(document.getElementById('switch-component-heading').textContent).toBe(namespace.viewModel.heading);
+            expect(document.getElementById('switch-component-heading')!.textContent).toBe(namespace.viewModel.heading);
 
             // check other binding within this switch binding
             expect($defaultCase).toBeDefined();

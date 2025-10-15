@@ -12,7 +12,7 @@ export default defineConfig({
             include: ['src/**/*.js'],
             exclude: ['node_modules', 'test', 'dist'],
         },
-        include: ['test/specs/**/*.spec.js'],
+        include: ['test/specs/**/*.spec.ts', 'test/specs/**/*.spec.js'],
         // Increase timeout for async operations
         testTimeout: 10000,
     },

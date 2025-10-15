@@ -2,7 +2,7 @@ import {describe, it, expect, beforeEach, afterEach} from 'vitest';
 import {waitFor} from '@testing-library/dom';
 
 describe('Given [data-bind-comp="text-component"] inited', () => {
-    const namespace = {};
+    const namespace: any = {};
     const testContent2 = 'text-binding content';
 
     beforeEach(() => {
@@ -14,7 +14,7 @@ describe('Given [data-bind-comp="text-component"] inited', () => {
             getTextContent() {
                 return testContent2;
             },
-            updateView(opt) {
+            updateView(opt?: any) {
                 this.APP.render(opt);
             },
         };
@@ -35,9 +35,9 @@ describe('Given [data-bind-comp="text-component"] inited', () => {
 
     it('Then [data-bind-comp="myTextComponent"] should have render', async () => {
         await waitFor(() => {
-            const $heading = document.getElementById('text-binding-heading');
-            const $textBindingContent = document.getElementById('text-binding-content');
-            const $textBindingContent2 = document.getElementById('text-binding-content2');
+            const $heading = document.getElementById('text-binding-heading')!;
+            const $textBindingContent = document.getElementById('text-binding-content')!;
+            const $textBindingContent2 = document.getElementById('text-binding-content2')!;
 
             expect($heading.textContent).toBe(namespace.viewModel.heading);
             expect($textBindingContent.textContent).toBe(namespace.viewModel.description);

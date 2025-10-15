@@ -2,7 +2,7 @@ import {describe, it, expect, beforeEach, afterEach} from 'vitest';
 import {waitFor} from '@testing-library/dom';
 
 describe('Given [data-bind-comp="attr-component"] inited', () => {
-    const namespace = {};
+    const namespace: any = {};
     const testAttr2Obj = {
         id: 'newId',
         ref: 'newRef2',
@@ -17,10 +17,10 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
                 style: 'width:300px',
                 ref: 'newRef',
             },
-            attr2(_$data) {
+            attr2(_$data: any) {
                 return testAttr2Obj;
             },
-            updateView(opt) {
+            updateView(opt?: any) {
                 this.APP.render(opt);
             },
         };
@@ -41,14 +41,14 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
 
     it('Then [data-bind-comp="myAttrComponent"] should have render', async () => {
         await waitFor(() => {
-            const $testAttr1 = document.getElementById('testAttr1');
+            const $testAttr1 = document.getElementById('testAttr1')!;
             expect($testAttr1.textContent).toBe(namespace.viewModel.heading);
         }, {timeout: 500});
     });
 
     it('Should update testAttr1 attributes', async () => {
         await waitFor(() => {
-            const $testAttr1 = document.getElementById('testAttr1');
+            const $testAttr1 = document.getElementById('testAttr1')!;
             expect($testAttr1.getAttribute('ref')).toBe(namespace.viewModel.attr1.ref);
             expect($testAttr1.getAttribute('style')).toBe(namespace.viewModel.attr1.style);
             // check existing attribute untouch
@@ -59,7 +59,7 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
 
     it('Should update testAttr2 attributes as viewModel function property', async () => {
         await waitFor(() => {
-            const $testAttr2 = document.getElementById(testAttr2Obj.id);
+            const $testAttr2 = document.getElementById(testAttr2Obj.id)!;
             expect($testAttr2.getAttribute('ref')).toBe(testAttr2Obj.ref);
             expect($testAttr2.getAttribute('id')).toBe(testAttr2Obj.id);
         }, {timeout: 500});
@@ -75,7 +75,7 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
         };
 
         await waitFor(() => {
-            const $testAttr1 = document.getElementById('testAttr1');
+            const $testAttr1 = document.getElementById('testAttr1')!;
             expect($testAttr1.getAttribute('ref')).toBe(updatedRef);
             expect($testAttr1.getAttribute('disabled')).toBe(disabled);
             expect($testAttr1.getAttribute('style')).toBe(namespace.viewModel.attr1.style);
@@ -92,7 +92,7 @@ describe('Given [data-bind-comp="attr-component"] inited', () => {
         };
 
         await waitFor(() => {
-            const $testAttr1 = document.getElementById('testAttr1');
+            const $testAttr1 = document.getElementById('testAttr1')!;
             expect($testAttr1.getAttribute('ref')).toBe(updatedRef2);
             expect($testAttr1.getAttribute('style')).toBe(null);
             // check existing attribute untouch
