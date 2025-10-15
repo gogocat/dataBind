@@ -12,15 +12,15 @@ let compIdIndex = 0;
 
 class Binder {
     [key: string]: unknown;
-    initRendered: boolean;
-    compId: number;
-    $rootElement: HTMLElement;
-    viewModel: ViewModel;
-    bindingAttrs: BindingAttrs;
-    isServerRendered: boolean;
-    elementCache: ElementCache;
-    postProcessQueue: Array<() => void>;
-    render: (opt?: UpdateOption) => void;
+    public initRendered: boolean;
+    public compId: number;
+    public $rootElement: HTMLElement;
+    public viewModel: ViewModel;
+    public bindingAttrs: BindingAttrs;
+    public isServerRendered: boolean;
+    public elementCache: ElementCache;
+    public postProcessQueue: Array<() => void>;
+    public render: (opt?: UpdateOption) => void;
 
     constructor($rootElement: HTMLElement, viewModel: ViewModel, bindingAttrs: BindingAttrs) {
         if (!$rootElement || $rootElement.nodeType !== 1 || viewModel === null || typeof viewModel !== 'object') {
@@ -67,7 +67,7 @@ class Binder {
      * traver from $rootElement to find each data-bind-* element
      * then apply data binding
      */
-    parseView(): this {
+    public parseView(): this {
         this.elementCache = createBindingCache({
             rootNode: this.$rootElement,
             bindingAttrs: this.bindingAttrs,
@@ -87,7 +87,14 @@ class Binder {
      * @param {object} opt
      * @description call createBindingCache to parse view and generate bindingCache
      */
-    updateElementCache(opt: {allCache?: boolean; templateCache?: boolean; elementCache?: ElementCache; isRenderedTemplates?: boolean} = {}): void {
+    public updateElementCache(
+        opt: {
+            allCache?: boolean;
+            templateCache?: boolean;
+            elementCache?: ElementCache;
+            isRenderedTemplates?: boolean;
+        } = {},
+    ): void {
         const elementCache = opt.elementCache || this.elementCache;
 
         if (opt.allCache) {
@@ -123,7 +130,7 @@ class Binder {
         }
     }
 
-    _render(opt: UpdateOption = {}): void {
+    private _render(opt: UpdateOption = {}): void {
         let updateOption: UpdateOption = {};
 
         if (!this.initRendered) {
@@ -167,27 +174,27 @@ class Binder {
         this.initRendered = true;
     }
 
-    subscribe(eventName: string = '', fn: (...args: unknown[]) => void): this {
+    public subscribe(eventName: string = '', fn: (...args: unknown[]) => void): this {
         pubSub.subscribeEvent(this, eventName, fn);
         return this;
     }
 
-    subscribeOnce(eventName: string = '', fn: (...args: unknown[]) => void): this {
+    public subscribeOnce(eventName: string = '', fn: (...args: unknown[]) => void): this {
         pubSub.subscribeEventOnce(this, eventName, fn);
         return this;
     }
 
-    unsubscribe(eventName: string = ''): this {
+    public unsubscribe(eventName: string = ''): this {
         pubSub.unsubscribeEvent(this.compId, eventName);
         return this;
     }
 
-    unsubscribeAll(): this {
+    public unsubscribeAll(): this {
         pubSub.unsubscribeAllEvent(this.compId);
         return this;
     }
 
-    publish(eventName: string = '', ...args: unknown[]): this {
+    public publish(eventName: string = '', ...args: unknown[]): this {
         pubSub.publishEvent(eventName, ...args);
         return this;
     }

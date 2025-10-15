@@ -30,7 +30,7 @@ declare class Binder {
         elementCache?: ElementCache;
         isRenderedTemplates?: boolean;
     }): void;
-    _render(opt?: UpdateOption): void;
+    private _render;
     subscribe(eventName: string, fn: (...args: unknown[]) => void): this;
     subscribeOnce(eventName: string, fn: (...args: unknown[]) => void): this;
     unsubscribe(eventName?: string): this;
