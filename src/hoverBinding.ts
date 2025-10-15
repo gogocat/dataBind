@@ -10,34 +10,34 @@ import type {BindingCache, ViewModel, BindingAttrs, PlainObject} from './types';
 /**
  * Create mouse enter handler
  */
-function createMouseEnterHandler(
+const createMouseEnterHandler = (
     cache: BindingCache,
     handlers: PlainObject,
     inHandlerName: string,
     viewModelContext: ViewModel,
     paramList: unknown[],
-): (e: MouseEvent) => void {
+): (e: MouseEvent) => void => {
     return function onMouseEnterHandler(e: MouseEvent) {
         const args = [e, cache.el, ...paramList];
         (handlers[inHandlerName] as Function).apply(viewModelContext, args);
     };
-}
+};
 
 /**
  * Create mouse leave handler
  */
-function createMouseLeaveHandler(
+const createMouseLeaveHandler = (
     cache: BindingCache,
     handlers: PlainObject,
     outHandlerName: string,
     viewModelContext: ViewModel,
     paramList: unknown[],
-): (e: MouseEvent) => void {
+): (e: MouseEvent) => void => {
     return function onMouseLeaveHandler(e: MouseEvent) {
         const args = [e, cache.el, ...paramList];
         (handlers[outHandlerName] as Function).apply(viewModelContext, args);
     };
-}
+};
 
 /**
  * hoverBinding

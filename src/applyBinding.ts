@@ -19,7 +19,7 @@ interface ApplyBindingParams {
     viewModel: ViewModel;
 }
 
-function applyBinding({ctx: _ctx, elementCache, updateOption, bindingAttrs, viewModel}: ApplyBindingParams): void {
+const applyBinding = ({ctx: _ctx, elementCache, updateOption, bindingAttrs, viewModel}: ApplyBindingParams): void => {
     if (!elementCache || !updateOption) {
         return;
     }
@@ -174,6 +174,6 @@ function applyBinding({ctx: _ctx, elementCache, updateOption, bindingAttrs, view
             });
         });
     }
-}
+};
 
 export default applyBinding;

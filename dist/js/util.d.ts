@@ -14,7 +14,7 @@ export declare const isJsObject: (obj: unknown) => obj is object;
 export declare const isPlainObject: (obj: unknown) => obj is PlainObject;
 export declare const isObjectLiteralString: (str?: string) => boolean;
 export declare const isEmptyObject: (obj: unknown) => boolean;
-export declare function createHtmlFragment(htmlString: unknown): DocumentFragment | null;
+export declare const createHtmlFragment: (htmlString: unknown) => DocumentFragment | null;
 export declare const generateElementCache: (bindingAttrs: PlainObject | unknown[]) => ElementCache;
 /**
  * getViewModelValue

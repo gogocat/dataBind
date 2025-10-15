@@ -27,6 +27,6 @@ export interface BindingOption {
  * generate binding update option object by condition
  * @return {object} updateOption
  */
-declare function createBindingOption(condition?: string, opt?: BindingOption): BindingOption;
+declare const createBindingOption: (condition?: string, opt?: BindingOption) => BindingOption;
 export default createBindingOption;
 //# sourceMappingURL=createBindingOption.d.ts.map

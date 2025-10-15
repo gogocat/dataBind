@@ -123,17 +123,17 @@ license MIT(function (global, factory) {
       }
       return false;
     };
-    function getFirstHtmlStringTag(htmlString) {
+    const getFirstHtmlStringTag = htmlString => {
       const match = htmlString.match(REGEX.HTML_TAG);
       if (match) {
         return match[1];
       }
       return null;
-    }
-    function removeBadTags(htmlString = '') {
+    };
+    const removeBadTags = (htmlString = '') => {
       return htmlString.replace(REGEX.BAD_TAGS, '');
-    }
-    function createHtmlFragment(htmlString) {
+    };
+    const createHtmlFragment = htmlString => {
       if (typeof htmlString !== 'string') {
         return null;
       }
@@ -157,7 +157,7 @@ license MIT(function (global, factory) {
         fragment.appendChild(query.firstChild);
       }
       return fragment;
-    }
+    };
     /**
      * List of dangerous property names that should not be accessed
      * to prevent prototype pollution attacks
@@ -166,11 +166,11 @@ license MIT(function (global, factory) {
     /**
      * Check if a property name is safe to access
      */
-    function isSafeProperty(prop) {
+    const isSafeProperty = prop => {
       return !DANGEROUS_PROPS.includes(prop);
-    }
+    };
     // simplified version of Lodash _.get with prototype pollution protection
-    const _get = function get(obj, path, def) {
+    const _get = (obj, path, def) => {
       const fullPath = path.replace(/\[/g, '.').replace(/]/g, '').split('.').filter(Boolean);
       let current = obj;
       for (const step of fullPath) {
@@ -737,7 +737,7 @@ license MIT(function (global, factory) {
      * generate binding update option object by condition
      * @return {object} updateOption
      */
-    function createBindingOption(condition = '', opt = {}) {
+    const createBindingOption = (condition = '', opt = {}) => {
       const visualBindingOptions = {
         templateBinding: false,
         textBinding: true,
@@ -788,26 +788,26 @@ license MIT(function (global, factory) {
           updateOption = extend(false, {}, visualBindingOptions, opt);
       }
       return updateOption;
-    }
+    };
 
     /**
      * Create mouse enter handler
      */
-    function createMouseEnterHandler(cache, handlers, inHandlerName, viewModelContext, paramList) {
+    const createMouseEnterHandler = (cache, handlers, inHandlerName, viewModelContext, paramList) => {
       return function onMouseEnterHandler(e) {
         const args = [e, cache.el, ...paramList];
         handlers[inHandlerName].apply(viewModelContext, args);
       };
-    }
+    };
     /**
      * Create mouse leave handler
      */
-    function createMouseLeaveHandler(cache, handlers, outHandlerName, viewModelContext, paramList) {
+    const createMouseLeaveHandler = (cache, handlers, outHandlerName, viewModelContext, paramList) => {
       return function onMouseLeaveHandler(e) {
         const args = [e, cache.el, ...paramList];
         handlers[outHandlerName].apply(viewModelContext, args);
       };
-    }
+    };
     /**
      * hoverBinding
      * DOM decleartive on hover event binding
@@ -849,12 +849,12 @@ license MIT(function (global, factory) {
      * @description
      * https://github.com/lodash/lodash/blob/master/escape.js
      */
-    function baseToString(value) {
+    const baseToString = value => {
       if (typeof value == 'string') {
         return value;
       }
       return value == null ? '' : `${value}`;
-    }
+    };
     /** Used to match HTML entities and HTML characters. */
     const reUnescapedHtml = /[&<>"'`]/g;
     const reHasUnescapedHtml = RegExp(reUnescapedHtml.source);
@@ -874,25 +874,25 @@ license MIT(function (global, factory) {
       * @param {string} chr The matched character to escape.
       * @return {string} Returns the escaped character.
       */
-    function escapeHtmlChar(chr) {
+    const escapeHtmlChar = chr => {
       return htmlEscapes[chr];
-    }
+    };
     /**
      * Converts the characters "&", "<", ">", '"', "'", and "\`", in `string` to
      * their corresponding HTML entities.
      * @param {string} string
      * @return {string} string
      */
-    function escape(string) {
+    const escape = string => {
       // Reset `lastIndex` because in IE < 9 `String#replace` does not.
       const strValue = baseToString(string);
       return strValue && reHasUnescapedHtml.test(strValue) ? strValue.replace(reUnescapedHtml, escapeHtmlChar) : strValue;
-    }
+    };
 
     /**
      * Create change handler
      */
-    function createChangeHandler(viewModel, modelDataKey, paramList, handlerFn, viewModelContext) {
+    const createChangeHandler = (viewModel, modelDataKey, paramList, handlerFn, viewModelContext) => {
       let oldValue = '';
       let newValue = '';
       return function changeHandler(e) {
@@ -908,7 +908,7 @@ license MIT(function (global, factory) {
         handlerFn.apply(viewModelContext, args);
         oldValue = newValue;
       };
-    }
+    };
     /**
      * changeBinding
      * @description input element on change event binding. DOM -> viewModel update
@@ -1985,7 +1985,7 @@ license MIT(function (global, factory) {
         }
       }
     };
-    function removeUnmatchCases(cases, matchedIndex) {
+    const removeUnmatchCases = (cases, matchedIndex) => {
       cases.forEach((caseData, index) => {
         if (index !== matchedIndex || typeof matchedIndex === 'undefined') {
           removeIfBinding(caseData);
@@ -1996,20 +1996,20 @@ license MIT(function (global, factory) {
           }
         }
       });
-    }
-    function createCaseData(node, attrName) {
+    };
+    const createCaseData = (node, attrName) => {
       const caseData = {
         el: node,
         dataKey: node.getAttribute(attrName),
         type: attrName
       };
       return caseData;
-    }
+    };
 
     /**
      * Create event handler wrapper
      */
-    function createEventHandlerWrapper(type, paramList, handlerFn, viewModelContext) {
+    const createEventHandlerWrapper = (type, paramList, handlerFn, viewModelContext) => {
       return function handlerWrap(e) {
         let formData;
         let args = [];
@@ -2021,7 +2021,7 @@ license MIT(function (global, factory) {
         }
         handlerFn.apply(viewModelContext, args);
       };
-    }
+    };
     const createEventBinding = ({
       cache = {},
       forceRender = false,
@@ -2047,13 +2047,13 @@ license MIT(function (global, factory) {
       }
     };
 
-    function applyBinding({
+    const applyBinding = ({
       ctx: _ctx,
       elementCache,
       updateOption,
       bindingAttrs,
       viewModel
-    }) {
+    }) => {
       if (!elementCache || !updateOption) {
         return;
       }
@@ -2191,9 +2191,9 @@ license MIT(function (global, factory) {
           });
         });
       }
-    }
+    };
 
-    function postProcess(tasks) {
+    const postProcess = tasks => {
       if (!tasks || !tasks.length) {
         return;
       }
@@ -2206,7 +2206,7 @@ license MIT(function (global, factory) {
           }
         }
       });
-    }
+    };
 
     const EVENTS = {};
     const subscribeEvent = (instance = null, eventName = '', fn, isOnce = false) => {

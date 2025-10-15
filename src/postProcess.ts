@@ -3,7 +3,7 @@ import {
     throwErrorMessage,
 } from './util';
 
-export default function postProcess(tasks: Function[]): void {
+const postProcess = (tasks: Function[]): void => {
     if (!tasks || !tasks.length) {
         return;
     }
@@ -17,4 +17,6 @@ export default function postProcess(tasks: Function[]): void {
             }
         }
     });
-}
+};
+
+export default postProcess;

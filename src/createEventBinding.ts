@@ -9,12 +9,12 @@ import type {BindingCache, ViewModel} from './types';
 /**
  * Create event handler wrapper
  */
-function createEventHandlerWrapper(
+const createEventHandlerWrapper = (
     type: string,
     paramList: unknown[],
     handlerFn: Function,
     viewModelContext: ViewModel,
-): EventListener {
+): EventListener => {
     return function handlerWrap(e: Event): void {
         let formData: Record<string, unknown>;
         let args: unknown[] = [];
@@ -26,7 +26,7 @@ function createEventHandlerWrapper(
         }
         handlerFn.apply(viewModelContext, args);
     };
-}
+};
 
 interface CreateEventBindingParams {
     cache?: BindingCache;

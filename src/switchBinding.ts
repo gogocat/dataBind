@@ -92,7 +92,7 @@ const switchBinding = (cache: BindingCache, viewModel: ViewModel, bindingAttrs: 
     }
 };
 
-function removeUnmatchCases(cases: CaseData[], matchedIndex?: number): void {
+const removeUnmatchCases = (cases: CaseData[], matchedIndex?: number): void => {
     cases.forEach((caseData: CaseData, index: number) => {
         if (index !== matchedIndex || typeof matchedIndex === 'undefined') {
             removeIfBinding(caseData);
@@ -103,15 +103,15 @@ function removeUnmatchCases(cases: CaseData[], matchedIndex?: number): void {
             }
         }
     });
-}
+};
 
-function createCaseData(node: HTMLElement, attrName: string): CaseData {
+const createCaseData = (node: HTMLElement, attrName: string): CaseData => {
     const caseData: CaseData = {
         el: node,
         dataKey: node.getAttribute(attrName),
         type: attrName,
     };
     return caseData;
-}
+};
 
 export default switchBinding;

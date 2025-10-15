@@ -11,13 +11,13 @@ import type {BindingCache, ViewModel, BindingAttrs} from './types';
 /**
  * Create change handler
  */
-function createChangeHandler(
+const createChangeHandler = (
     viewModel: ViewModel,
     modelDataKey: string | null,
     paramList: unknown[],
     handlerFn: Function,
     viewModelContext: ViewModel,
-): EventListener {
+): EventListener => {
     let oldValue: unknown = '';
     let newValue: unknown = '';
 
@@ -34,7 +34,7 @@ function createChangeHandler(
         handlerFn.apply(viewModelContext, args);
         oldValue = newValue;
     };
-}
+};
 
 interface ChangeBindingParams {
     cache: BindingCache;

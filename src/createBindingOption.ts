@@ -33,7 +33,7 @@ export interface BindingOption {
  * generate binding update option object by condition
  * @return {object} updateOption
  */
-function createBindingOption(condition: string = '', opt: BindingOption = {}): BindingOption {
+const createBindingOption = (condition: string = '', opt: BindingOption = {}): BindingOption => {
     const visualBindingOptions: BindingOption = {
         templateBinding: false,
         textBinding: true,
@@ -86,6 +86,6 @@ function createBindingOption(condition: string = '', opt: BindingOption = {}): B
     }
 
     return updateOption;
-}
+};
 
 export default createBindingOption;

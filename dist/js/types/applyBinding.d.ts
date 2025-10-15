@@ -6,6 +6,6 @@ interface ApplyBindingParams {
     bindingAttrs: BindingAttrs;
     viewModel: ViewModel;
 }
-declare function applyBinding({ ctx: _ctx, elementCache, updateOption, bindingAttrs, viewModel }: ApplyBindingParams): void;
+declare const applyBinding: ({ ctx: _ctx, elementCache, updateOption, bindingAttrs, viewModel }: ApplyBindingParams) => void;
 export default applyBinding;
 //# sourceMappingURL=applyBinding.d.ts.map

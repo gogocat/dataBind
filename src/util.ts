@@ -68,19 +68,19 @@ export const isEmptyObject = (obj: unknown): boolean => {
     return false;
 };
 
-function getFirstHtmlStringTag(htmlString: string): string | null {
+const getFirstHtmlStringTag = (htmlString: string): string | null => {
     const match = htmlString.match(REGEX.HTML_TAG);
     if (match) {
         return match[1];
     }
     return null;
-}
+};
 
-function removeBadTags(htmlString: string = ''): string {
+const removeBadTags = (htmlString: string = ''): string => {
     return htmlString.replace(REGEX.BAD_TAGS, '');
-}
+};
 
-export function createHtmlFragment(htmlString: unknown): DocumentFragment | null {
+export const createHtmlFragment = (htmlString: unknown): DocumentFragment | null => {
     if (typeof htmlString !== 'string') {
         return null;
     }
@@ -109,7 +109,7 @@ export function createHtmlFragment(htmlString: unknown): DocumentFragment | null
     }
 
     return fragment;
-}
+};
 
 export const generateElementCache = (bindingAttrs: PlainObject | unknown[]): ElementCache => {
     const elementCache: ElementCache = {};
@@ -137,12 +137,12 @@ const DANGEROUS_PROPS = ['__proto__', 'constructor', 'prototype'];
 /**
  * Check if a property name is safe to access
  */
-function isSafeProperty(prop: string): boolean {
+const isSafeProperty = (prop: string): boolean => {
     return !DANGEROUS_PROPS.includes(prop);
-}
+};
 
 // simplified version of Lodash _.get with prototype pollution protection
-const _get = function get(obj: unknown, path: string, def?: unknown): unknown {
+const _get = (obj: unknown, path: string, def?: unknown): unknown => {
     const fullPath = path
         .replace(/\[/g, '.')
         .replace(/]/g, '')

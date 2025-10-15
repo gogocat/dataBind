@@ -4,12 +4,12 @@
  * https://github.com/lodash/lodash/blob/master/escape.js
  */
 
-function baseToString(value: unknown): string {
+const baseToString = (value: unknown): string => {
     if (typeof value == 'string') {
         return value;
     }
     return value == null ? '' : `${value}`;
-}
+};
 
 /** Used to match HTML entities and HTML characters. */
 const reUnescapedHtml = /[&<>"'`]/g;
@@ -32,9 +32,9 @@ const htmlEscapes: Record<string, string> = {
   * @param {string} chr The matched character to escape.
   * @return {string} Returns the escaped character.
   */
-function escapeHtmlChar(chr: string): string {
+const escapeHtmlChar = (chr: string): string => {
     return htmlEscapes[chr];
-}
+};
 
 /**
  * Converts the characters "&", "<", ">", '"', "'", and "\`", in `string` to
@@ -42,10 +42,12 @@ function escapeHtmlChar(chr: string): string {
  * @param {string} string
  * @return {string} string
  */
-export default function escape(string: unknown): string {
+const escape = (string: unknown): string => {
     // Reset `lastIndex` because in IE < 9 `String#replace` does not.
     const strValue = baseToString(string);
     return (strValue && reHasUnescapedHtml.test(strValue)) ?
         strValue.replace(reUnescapedHtml, escapeHtmlChar) :
         strValue;
-}
+};
+
+export default escape;
