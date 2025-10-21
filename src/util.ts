@@ -679,9 +679,10 @@ const areNodesEqual = (node1: Node, node2: Node): boolean => {
 const updateElementAttributes = (existingElement: HTMLElement, newElement: HTMLElement): void => {
     // Get all attributes from new element
     const newAttrs = newElement.attributes;
+    const attrsLength = newAttrs.length;
 
     // Update or add attributes from new element
-    for (let i = 0; i < newAttrs.length; i++) {
+    for (let i = 0; i < attrsLength; i += 1) {
         const attr = newAttrs[i];
         if (attr && attr.name) {
             const existingValue = existingElement.getAttribute(attr.name);
@@ -724,9 +725,11 @@ export const updateDomWithMinimalChanges = (
 ): void => {
     const newNodes = Array.from(newFragment.childNodes);
     const existingNodes = Array.from(targetElement.childNodes);
+    const newNodesLength = newNodes.length;
+    const existingNodesLength = existingNodes.length;
 
     // Loop through new nodes and compare with existing
-    for (let i = 0; i < newNodes.length; i++) {
+    for (let i = 0; i < newNodesLength; i += 1) {
         const newNode = newNodes[i];
         const existingNode = existingNodes[i];
 
@@ -755,7 +758,7 @@ export const updateDomWithMinimalChanges = (
     }
 
     // Remove extra existing nodes that don't have corresponding new nodes
-    for (let i = existingNodes.length - 1; i >= newNodes.length; i--) {
+    for (let i = existingNodesLength - 1; i >= newNodesLength; i -= 1) {
         if (existingNodes[i] && existingNodes[i].parentNode) {
             targetElement.removeChild(existingNodes[i]);
         }
