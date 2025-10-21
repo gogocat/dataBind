@@ -566,6 +566,115 @@ license MIT(function (global, factory) {
       }
       return node;
     };
+    /**
+     * areNodesEqual
+     * @description Compare two nodes to determine if they are structurally equal
+     * @param {Node} node1
+     * @param {Node} node2
+     * @return {boolean}
+     */
+    const areNodesEqual = (node1, node2) => {
+      // Different node types
+      if (node1.nodeType !== node2.nodeType) {
+        return false;
+      }
+      // Text nodes - compare content
+      if (node1.nodeType === 3) {
+        return node1.nodeValue === node2.nodeValue;
+      }
+      // Element nodes - compare tag names
+      if (node1.nodeType === 1) {
+        const el1 = node1;
+        const el2 = node2;
+        return el1.tagName === el2.tagName;
+      }
+      // Other node types (comments, etc.)
+      return node1.nodeValue === node2.nodeValue;
+    };
+    /**
+     * updateElementAttributes
+     * @description Update element attributes to match new element
+     * Only updates attributes that are in the new element.
+     * Does NOT remove attributes that exist only in the existing element,
+     * as these might be runtime-added by the binding system.
+     * @param {HTMLElement} existingElement
+     * @param {HTMLElement} newElement
+     */
+    const updateElementAttributes = (existingElement, newElement) => {
+      // Get all attributes from new element
+      const newAttrs = newElement.attributes;
+      const attrsLength = newAttrs.length;
+      // Update or add attributes from new element
+      for (let i = 0; i < attrsLength; i += 1) {
+        const attr = newAttrs[i];
+        if (attr && attr.name) {
+          const existingValue = existingElement.getAttribute(attr.name);
+          if (existingValue !== attr.value) {
+            existingElement.setAttribute(attr.name, attr.value || '');
+          }
+        }
+      }
+      // NOTE: We deliberately do NOT remove attributes that exist in the existing element
+      // but not in the new element. This preserves runtime-added attributes from the binding
+      // system (like data-bind-*, data-index, event handlers, etc.)
+    };
+    /**
+     * createFragmentFromChildren
+     * @description Create a DocumentFragment from a node's children
+     * @param {Node} node
+     * @return {DocumentFragment}
+     */
+    const createFragmentFromChildren = node => {
+      const fragment = document.createDocumentFragment();
+      const children = Array.from(node.childNodes);
+      children.forEach(child => {
+        fragment.appendChild(child.cloneNode(true));
+      });
+      return fragment;
+    };
+    /**
+     * updateDomWithMinimalChanges
+     * @description Updates DOM by comparing existing nodes with new fragment
+     * Only modifies what changed - performs minimal DOM manipulation
+     * @param {HTMLElement} targetElement - The existing DOM element to update
+     * @param {DocumentFragment} newFragment - The new content to apply
+     */
+    const updateDomWithMinimalChanges = (targetElement, newFragment) => {
+      const newNodes = Array.from(newFragment.childNodes);
+      const existingNodes = Array.from(targetElement.childNodes);
+      const newNodesLength = newNodes.length;
+      const existingNodesLength = existingNodes.length;
+      // Loop through new nodes and compare with existing
+      for (let i = 0; i < newNodesLength; i += 1) {
+        const newNode = newNodes[i];
+        const existingNode = existingNodes[i];
+        if (!existingNode) {
+          // New node doesn't have a corresponding existing node - append it
+          targetElement.appendChild(newNode);
+        } else if (!areNodesEqual(existingNode, newNode)) {
+          // Nodes are different types or tags - replace entire node
+          targetElement.replaceChild(newNode, existingNode);
+        } else {
+          // Nodes are structurally equal - update content/attributes
+          if (newNode.nodeType === 1 && existingNode.nodeType === 1) {
+            // Element nodes - update attributes and recurse into children
+            updateElementAttributes(existingNode, newNode);
+            updateDomWithMinimalChanges(existingNode, createFragmentFromChildren(newNode));
+          } else if (newNode.nodeType === 3) {
+            // Text nodes - update text content if different
+            if (existingNode.nodeValue !== newNode.nodeValue) {
+              existingNode.nodeValue = newNode.nodeValue;
+            }
+          }
+        }
+      }
+      // Remove extra existing nodes that don't have corresponding new nodes
+      for (let i = existingNodesLength - 1; i >= newNodesLength; i -= 1) {
+        if (existingNodes[i] && existingNodes[i].parentNode) {
+          targetElement.removeChild(existingNodes[i]);
+        }
+      }
+    };
     const throwErrorMessage = (err = null, errorMessage = '') => {
       const message = err && typeof err === 'object' && 'message' in err ? err.message : errorMessage;
       if (typeof console.error === 'function') {
@@ -1299,6 +1408,10 @@ license MIT(function (global, factory) {
       }
       const htmlString = getTemplateString(settings.id);
       const htmlFragment = createHtmlFragment(htmlString);
+      // Return early if htmlFragment is null (invalid template)
+      if (!htmlFragment) {
+        return;
+      }
       // append rendered html
       if (!$domFragment.childNodes.length) {
         // domFragment should be empty in first run
@@ -1306,6 +1419,9 @@ license MIT(function (global, factory) {
         $domFragment.appendChild(htmlFragment);
       } else {
         // during recursive run keep append to current fragment
+        // For nested templates, use the original behavior (clear and append)
+        // because they may contain forOf bindings or other dynamic content
+        // that manages its own DOM structure
         $currentElement = $element; // reset to current nested template element
         if (!isAppend && !isPrepend) {
           $currentElement = emptyElement($currentElement);
@@ -1337,12 +1453,28 @@ license MIT(function (global, factory) {
         // append to DOM once
         // Use the prepend/append flags from the root template, not the current nested template
         if (!$templateRootAppend && !$templateRootPrepend) {
-          $templateRoot = emptyElement($templateRoot);
-        }
-        if ($templateRootPrepend) {
-          $templateRoot.insertBefore($domFragment, $templateRoot.firstChild);
+          // Check if this is a re-render by looking for a marker attribute
+          // This is more reliable than checking childNodes.length because templates
+          // may have placeholder content
+          const isRerender = $templateRoot.hasAttribute('data-template-rendered');
+          if (isRerender) {
+            // Re-render: Use minimal DOM updates to preserve unchanged elements
+            // This is faster and preserves DOM state (focus, scroll, animations)
+            updateDomWithMinimalChanges($templateRoot, $domFragment);
+          } else {
+            // Initial render: Clear any placeholder content and render fresh
+            $templateRoot = emptyElement($templateRoot);
+            $templateRoot.appendChild($domFragment);
+            // Mark this template as rendered for future re-renders
+            $templateRoot.setAttribute('data-template-rendered', 'true');
+          }
         } else {
-          $templateRoot.appendChild($domFragment);
+          // For prepend/append modes, use the original behavior
+          if ($templateRootPrepend) {
+            $templateRoot.insertBefore($domFragment, $templateRoot.firstChild);
+          } else {
+            $templateRoot.appendChild($domFragment);
+          }
         }
         // clear cached fragment and flags
         $domFragment = $templateRoot = null;
@@ -1576,7 +1708,9 @@ license MIT(function (global, factory) {
       }
       let keys;
       let iterationDataLength;
-      const iterationData = getViewModelPropValue(viewModel, bindingData);
+      // FIX: Use bindingData.iterator instead of bindingData to get the iteration data
+      // The iterator object has the dataKey pointing to the array/object to iterate over
+      const iterationData = getViewModelPropValue(viewModel, bindingData.iterator);
       let isRegenerate = false;
       // check iterationData and set iterationDataLength
       if (isArray(iterationData)) {

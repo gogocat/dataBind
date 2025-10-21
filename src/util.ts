@@ -638,6 +638,133 @@ export const emptyElement = (node: HTMLElement): HTMLElement => {
     return node;
 };
 
+/**
+ * areNodesEqual
+ * @description Compare two nodes to determine if they are structurally equal
+ * @param {Node} node1
+ * @param {Node} node2
+ * @return {boolean}
+ */
+const areNodesEqual = (node1: Node, node2: Node): boolean => {
+    // Different node types
+    if (node1.nodeType !== node2.nodeType) {
+        return false;
+    }
+
+    // Text nodes - compare content
+    if (node1.nodeType === 3) {
+        return node1.nodeValue === node2.nodeValue;
+    }
+
+    // Element nodes - compare tag names
+    if (node1.nodeType === 1) {
+        const el1 = node1 as HTMLElement;
+        const el2 = node2 as HTMLElement;
+        return el1.tagName === el2.tagName;
+    }
+
+    // Other node types (comments, etc.)
+    return node1.nodeValue === node2.nodeValue;
+};
+
+/**
+ * updateElementAttributes
+ * @description Update element attributes to match new element
+ * Only updates attributes that are in the new element.
+ * Does NOT remove attributes that exist only in the existing element,
+ * as these might be runtime-added by the binding system.
+ * @param {HTMLElement} existingElement
+ * @param {HTMLElement} newElement
+ */
+const updateElementAttributes = (existingElement: HTMLElement, newElement: HTMLElement): void => {
+    // Get all attributes from new element
+    const newAttrs = newElement.attributes;
+    const attrsLength = newAttrs.length;
+
+    // Update or add attributes from new element
+    for (let i = 0; i < attrsLength; i += 1) {
+        const attr = newAttrs[i];
+        if (attr && attr.name) {
+            const existingValue = existingElement.getAttribute(attr.name);
+            if (existingValue !== attr.value) {
+                existingElement.setAttribute(attr.name, attr.value || '');
+            }
+        }
+    }
+
+    // NOTE: We deliberately do NOT remove attributes that exist in the existing element
+    // but not in the new element. This preserves runtime-added attributes from the binding
+    // system (like data-bind-*, data-index, event handlers, etc.)
+};
+
+/**
+ * createFragmentFromChildren
+ * @description Create a DocumentFragment from a node's children
+ * @param {Node} node
+ * @return {DocumentFragment}
+ */
+const createFragmentFromChildren = (node: Node): DocumentFragment => {
+    const fragment = document.createDocumentFragment();
+    const children = Array.from(node.childNodes);
+    children.forEach(child => {
+        fragment.appendChild(child.cloneNode(true));
+    });
+    return fragment;
+};
+
+/**
+ * updateDomWithMinimalChanges
+ * @description Updates DOM by comparing existing nodes with new fragment
+ * Only modifies what changed - performs minimal DOM manipulation
+ * @param {HTMLElement} targetElement - The existing DOM element to update
+ * @param {DocumentFragment} newFragment - The new content to apply
+ */
+export const updateDomWithMinimalChanges = (
+    targetElement: HTMLElement,
+    newFragment: DocumentFragment,
+): void => {
+    const newNodes = Array.from(newFragment.childNodes);
+    const existingNodes = Array.from(targetElement.childNodes);
+    const newNodesLength = newNodes.length;
+    const existingNodesLength = existingNodes.length;
+
+    // Loop through new nodes and compare with existing
+    for (let i = 0; i < newNodesLength; i += 1) {
+        const newNode = newNodes[i];
+        const existingNode = existingNodes[i];
+
+        if (!existingNode) {
+            // New node doesn't have a corresponding existing node - append it
+            targetElement.appendChild(newNode);
+        } else if (!areNodesEqual(existingNode, newNode)) {
+            // Nodes are different types or tags - replace entire node
+            targetElement.replaceChild(newNode, existingNode);
+        } else {
+            // Nodes are structurally equal - update content/attributes
+            if (newNode.nodeType === 1 && existingNode.nodeType === 1) {
+                // Element nodes - update attributes and recurse into children
+                updateElementAttributes(existingNode as HTMLElement, newNode as HTMLElement);
+                updateDomWithMinimalChanges(
+                    existingNode as HTMLElement,
+                    createFragmentFromChildren(newNode),
+                );
+            } else if (newNode.nodeType === 3) {
+                // Text nodes - update text content if different
+                if (existingNode.nodeValue !== newNode.nodeValue) {
+                    existingNode.nodeValue = newNode.nodeValue;
+                }
+            }
+        }
+    }
+
+    // Remove extra existing nodes that don't have corresponding new nodes
+    for (let i = existingNodesLength - 1; i >= newNodesLength; i -= 1) {
+        if (existingNodes[i] && existingNodes[i].parentNode) {
+            targetElement.removeChild(existingNodes[i]);
+        }
+    }
+};
+
 export const throwErrorMessage = (err: unknown = null, errorMessage: string = ''): void => {
     const message = err && typeof err === 'object' && 'message' in err ? (err as Error).message : errorMessage;
     if (typeof console.error === 'function') {

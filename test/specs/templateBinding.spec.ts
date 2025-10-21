@@ -118,4 +118,156 @@ describe('Given [data-bind-comp="temp-component"] inited', () => {
             expect($contentNest3Info.textContent).toBe(viewModel.contentNest3.info);
         }, {timeout: 2000});
     });
+
+    it('Should perform minimal DOM updates on re-render (preserve unchanged elements)', async () => {
+        // Wait for initial render
+        await waitFor(() => {
+            expect(document.getElementById('heading')).not.toBe(null);
+        }, {timeout: 500});
+
+        // Get reference to existing DOM elements
+        const $headingBefore = document.getElementById('heading');
+        const $descriptionBefore = document.getElementById('description');
+        const $contentBefore = document.getElementById('content');
+
+        // Mark elements to track if they are replaced
+        $headingBefore!.setAttribute('data-test-marker', 'original-heading');
+        $descriptionBefore!.setAttribute('data-test-marker', 'original-description');
+        $contentBefore!.setAttribute('data-test-marker', 'original-content');
+
+        // Change only one property in viewModel
+        namespace.viewModel.content = 'updated text';
+
+        // Re-render
+        await namespace.myComponent.render();
+
+        await waitFor(() => {
+            const $headingAfter = document.getElementById('heading');
+            const $descriptionAfter = document.getElementById('description');
+            const $contentAfter = document.getElementById('content');
+
+            // Verify heading and description are the SAME DOM elements (not replaced)
+            expect($headingAfter).toBe($headingBefore);
+            expect($descriptionAfter).toBe($descriptionBefore);
+
+            // These elements should still have their original markers
+            expect($headingAfter!.getAttribute('data-test-marker')).toBe('original-heading');
+            expect($descriptionAfter!.getAttribute('data-test-marker')).toBe('original-description');
+
+            // Content should be the same element but with updated text
+            expect($contentAfter).toBe($contentBefore);
+            expect($contentAfter!.textContent).toBe('updated text');
+            expect($contentAfter!.getAttribute('data-test-marker')).toBe('original-content');
+        }, {timeout: 500});
+    });
+
+    it('Should replace only changed attributes during re-render', async () => {
+        // Wait for initial render
+        await waitFor(() => {
+            expect(document.getElementById('heading')).not.toBe(null);
+        }, {timeout: 500});
+
+        const $heading = document.getElementById('heading');
+
+        // Add a custom attribute
+        $heading!.setAttribute('data-custom', 'custom-value');
+
+        // Store reference to check if it's the same DOM node
+        const originalHeading = $heading;
+
+        // Change heading text
+        namespace.viewModel.heading = 'Updated heading text';
+
+        // Re-render
+        await namespace.myComponent.render();
+
+        await waitFor(() => {
+            const $headingAfter = document.getElementById('heading');
+
+            // Should be the same DOM element
+            expect($headingAfter).toBe(originalHeading);
+
+            // Text should be updated
+            expect($headingAfter!.textContent).toBe('Updated heading text');
+
+            // Original attributes should remain
+            expect($headingAfter!.className).toBe('display-4');
+            expect($headingAfter!.getAttribute('data-bind-text')).toBe('heading');
+        }, {timeout: 500});
+    });
+
+    it('Should preserve root template elements but allow nested templates to re-render', async () => {
+        // Wait for initial render with nested templates
+        await waitFor(() => {
+            expect(document.getElementById('contentNest1Info')).not.toBe(null);
+        }, {timeout: 2000});
+
+        // Get references to root and nested template elements
+        const $contentNest1 = document.getElementById('contentNest1');
+        const $heading = document.getElementById('heading');
+
+        // Mark root template container element
+        $contentNest1!.setAttribute('data-test-nested1', 'original-nest1-container');
+        $heading!.setAttribute('data-test-heading', 'original-heading');
+
+        // Update nested property
+        namespace.viewModel.contentNest1.info = 'Updated nested content 1';
+
+        // Re-render
+        await namespace.myComponent.render();
+
+        await waitFor(() => {
+            const $contentNest1After = document.getElementById('contentNest1');
+            const $headingAfter = document.getElementById('heading');
+            const $contentNest1InfoAfter = document.getElementById('contentNest1Info');
+
+            // Root template elements should be preserved (minimal DOM updates)
+            expect($contentNest1After).toBe($contentNest1);
+            expect($headingAfter).toBe($heading);
+            expect($contentNest1After!.getAttribute('data-test-nested1')).toBe('original-nest1-container');
+            expect($headingAfter!.getAttribute('data-test-heading')).toBe('original-heading');
+
+            // Nested template content should be updated
+            expect($contentNest1InfoAfter!.textContent).toBe('Updated nested content 1');
+        }, {timeout: 2000});
+    });
+
+    it('Should preserve root template structure across multiple re-renders', async () => {
+        // Wait for initial render
+        await waitFor(() => {
+            expect(document.getElementById('heading')).not.toBe(null);
+        }, {timeout: 500});
+
+        const $heading = document.getElementById('heading');
+        const originalHeading = $heading;
+
+        // Multiple re-renders with different data
+        namespace.viewModel.heading = 'First update';
+        await namespace.myComponent.render();
+
+        await waitFor(() => {
+            const $element1 = document.getElementById('heading');
+            expect($element1).toBe(originalHeading);
+            expect($element1!.textContent).toBe('First update');
+        }, {timeout: 500});
+
+        namespace.viewModel.heading = 'Second update';
+        await namespace.myComponent.render();
+
+        await waitFor(() => {
+            const $element2 = document.getElementById('heading');
+            expect($element2).toBe(originalHeading);
+            expect($element2!.textContent).toBe('Second update');
+        }, {timeout: 500});
+
+        namespace.viewModel.heading = 'Third update';
+        await namespace.myComponent.render();
+
+        await waitFor(() => {
+            const $element3 = document.getElementById('heading');
+            // Should still be the same DOM element after 3 re-renders
+            expect($element3).toBe(originalHeading);
+            expect($element3!.textContent).toBe('Third update');
+        }, {timeout: 500});
+    });
 });

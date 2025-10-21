@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ForOf Debug</title>
+</head>
+<body>
+    <h1>ForOf Binding Debug</h1>
+
+    <div data-bind-comp="test-component">
+        <h3>Title: <span data-bind-text="title"></span></h3>
+        <p>Item count: <span data-bind-text="items.length"></span></p>
+
+        <div id="results" data-bind-tmp="{id: 'itemsTemplate', data: 'items'}"></div>
+    </div>
+
+    <template id="itemsTemplate">
+        <div data-bind-for="item in $root.items" style="border: 1px solid black; padding: 10px; margin: 5px;">
+            <strong data-bind-text="item.name"></strong>:
+            <span data-bind-text="item.value"></span>
+        </div>
+    </template>
+
+    <script src="../dist/js/dataBind.min.js"></script>
+    <script>
+        const viewModel = {
+            title: 'Test Items',
+            items: [
+                { name: 'Item 1', value: 'Value 1' },
+                { name: 'Item 2', value: 'Value 2' },
+                { name: 'Item 3', value: 'Value 3' },
+                { name: 'Item 4', value: 'Value 4' },
+                { name: 'Item 5', value: 'Value 5' }
+            ]
+        };
+
+        const component = dataBind.init(document.querySelector('[data-bind-comp="test-component"]'), viewModel);
+        component.render().then(() => {
+            console.log('Rendered!', component);
+            console.log('Results div:', document.getElementById('results'));
+            console.log('Results div children:', document.getElementById('results').children);
+        });
+    </script>
+</body>
+</html>
