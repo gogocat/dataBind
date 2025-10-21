@@ -27,7 +27,9 @@ const renderForOfBinding = ({bindingData, viewModel, bindingAttrs}: {
     }
     let keys: string[] | undefined;
     let iterationDataLength: number;
-    const iterationData = getViewModelPropValue(viewModel, bindingData);
+    // FIX: Use bindingData.iterator instead of bindingData to get the iteration data
+    // The iterator object has the dataKey pointing to the array/object to iterate over
+    const iterationData = getViewModelPropValue(viewModel, bindingData.iterator as BindingCache);
     let isRegenerate = false;
 
     // check iterationData and set iterationDataLength

@@ -100,6 +100,14 @@ export declare const resolveViewModelContext: (viewModel: ViewModel, datakey: st
 export declare const resolveParamList: (viewModel: ViewModel, paramList: unknown[]) => unknown[] | undefined;
 export declare const removeElement: (el: HTMLElement) => void;
 export declare const emptyElement: (node: HTMLElement) => HTMLElement;
+/**
+ * updateDomWithMinimalChanges
+ * @description Updates DOM by comparing existing nodes with new fragment
+ * Only modifies what changed - performs minimal DOM manipulation
+ * @param {HTMLElement} targetElement - The existing DOM element to update
+ * @param {DocumentFragment} newFragment - The new content to apply
+ */
+export declare const updateDomWithMinimalChanges: (targetElement: HTMLElement, newFragment: DocumentFragment) => void;
 export declare const throwErrorMessage: (err?: unknown, errorMessage?: string) => void;
 /**
  * parseBindingObjectString

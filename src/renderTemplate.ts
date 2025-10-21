@@ -4,6 +4,7 @@ import {
     emptyElement,
     getViewModelPropValue,
     parseStringToJson,
+    updateDomWithMinimalChanges,
 } from './util';
 import type {BindingCache, ViewModel, BindingAttrs, ElementCache, PlainObject} from './types';
 
@@ -76,6 +77,11 @@ const renderTemplate = (cache: BindingCache, viewModel: ViewModel, bindingAttrs:
 
     const htmlFragment = createHtmlFragment(htmlString);
 
+    // Return early if htmlFragment is null (invalid template)
+    if (!htmlFragment) {
+        return;
+    }
+
     // append rendered html
     if (!$domFragment.childNodes.length) {
         // domFragment should be empty in first run
@@ -83,6 +89,9 @@ const renderTemplate = (cache: BindingCache, viewModel: ViewModel, bindingAttrs:
         $domFragment.appendChild(htmlFragment);
     } else {
         // during recursive run keep append to current fragment
+        // For nested templates, use the original behavior (clear and append)
+        // because they may contain forOf bindings or other dynamic content
+        // that manages its own DOM structure
         $currentElement = $element; // reset to current nested template element
         if (!isAppend && !isPrepend) {
             $currentElement = emptyElement($currentElement);
@@ -119,12 +128,29 @@ const renderTemplate = (cache: BindingCache, viewModel: ViewModel, bindingAttrs:
         // append to DOM once
         // Use the prepend/append flags from the root template, not the current nested template
         if (!$templateRootAppend && !$templateRootPrepend) {
-            $templateRoot = emptyElement($templateRoot);
-        }
-        if ($templateRootPrepend) {
-            $templateRoot.insertBefore($domFragment, $templateRoot.firstChild);
+            // Check if this is a re-render by looking for a marker attribute
+            // This is more reliable than checking childNodes.length because templates
+            // may have placeholder content
+            const isRerender = $templateRoot.hasAttribute('data-template-rendered');
+
+            if (isRerender) {
+                // Re-render: Use minimal DOM updates to preserve unchanged elements
+                // This is faster and preserves DOM state (focus, scroll, animations)
+                updateDomWithMinimalChanges($templateRoot, $domFragment);
+            } else {
+                // Initial render: Clear any placeholder content and render fresh
+                $templateRoot = emptyElement($templateRoot);
+                $templateRoot.appendChild($domFragment);
+                // Mark this template as rendered for future re-renders
+                $templateRoot.setAttribute('data-template-rendered', 'true');
+            }
         } else {
-            $templateRoot.appendChild($domFragment);
+            // For prepend/append modes, use the original behavior
+            if ($templateRootPrepend) {
+                $templateRoot.insertBefore($domFragment, $templateRoot.firstChild);
+            } else {
+                $templateRoot.appendChild($domFragment);
+            }
         }
         // clear cached fragment and flags
         $domFragment = $templateRoot = null;
