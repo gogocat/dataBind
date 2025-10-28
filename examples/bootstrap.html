@@ -560,17 +560,16 @@
 
         <!-- searchResultItem test with deep nested templates -->
         <template id="searchResultItem">
-            <div class="col">
+            <div class="col" data-bind-for="result of $root.searchResults">
                 <div
                     class="card result-item h-100"
-                    data-bind-css="$data.highlightCss"
-                    data-bind-for="result of $root.searchResults"
+                    data-bind-css="result.highlightCss"
                 >
                     <img
                         data-bind-if="result.image"
                         data-bind-attr="{
-                            src: $data.image,
-                            alt: $data.title
+                            src: result.image,
+                            alt: result.title
                         }"
                         class="card-img-top result-item__img"
                     >

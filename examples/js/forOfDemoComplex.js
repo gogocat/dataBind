@@ -107,12 +107,15 @@
         },
     };
 
+    // Default mutations count, controlled by slider
+    let mutationsCount = 50;
+
     const generateRamdomData = () => {
         const data = [];
         const getRandomNumber = (x, y) => {
             return Math.floor(Math.random() * (y - x + 1) + x);
         };
-        const randomSeed = getRandomNumber(1, 30);
+        const randomSeed = mutationsCount;
         const images = [
             'bootstrap/images/pic-home.jpg',
             'bootstrap/images/pic-carpenter.jpg',
@@ -147,7 +150,12 @@
     const updateResults = () => {
         window.updateInterval = setInterval(function() {
             viewModel.searchResults = generateRamdomData();
-            searchResultsComponent.render();
+            searchResultsComponent.render().then(function() {
+                // Ping the performance monitor after each render
+                if (typeof Monitoring !== 'undefined') {
+                    Monitoring.renderRate.ping();
+                }
+            });
         });
     };
 
@@ -174,5 +182,16 @@
             e.preventDefault();
             clearInterval(window.updateInterval);
         }, false);
+
+        // Connect mutations slider to control item count
+        const mutationsSlider = document.getElementById('mutations');
+        const mutationsValueSpan = document.getElementById('mutationsValue');
+
+        if (mutationsSlider && mutationsValueSpan) {
+            mutationsSlider.addEventListener('input', function(e) {
+                mutationsCount = parseInt(e.target.value, 10);
+                mutationsValueSpan.textContent = mutationsCount;
+            });
+        }
     });
 })();

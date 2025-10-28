@@ -10,12 +10,28 @@
         <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
         <link rel="stylesheet" href="bootstrap/css/open-iconic.css" />
         <link rel="stylesheet" href="bootstrap/css/homeservices.css" />
+        <style>
+            #env-slider-container {
+                display: none !important;
+            }
+        </style>
     </head>
 
     <body>
         <div class="container">
             <h5>For of binding complex demo</h5>
-            <button id="btnRandomRender">Random re-render 0-30 items</button>
+            <div style="margin-bottom: 15px;">
+                <label for="mutations">Number of items (mutations): <span id="mutationsValue">50</span></label>
+                <input
+                    type="range"
+                    id="mutations"
+                    min="0"
+                    max="100"
+                    value="50"
+                    style="width: 300px; vertical-align: middle;"
+                />
+            </div>
+            <button id="btnRandomRender">Random re-render with mutations</button>
             <button id="btnStopRandomRender">Stop</button>
             <div class="container search-result" data-bind-comp="search-results-component">
                 <h4 id="searchResultTitle" class="text-center section-title" data-bind-text="searchResultTitle"></h4>
@@ -90,6 +106,11 @@
             ></span>
             <span class="oi result-item__icon" data-glyph="thumb-up" data-bind-text="$data.numLikes"></span>
         </template>
+
+        <!-- Performance Monitoring Scripts -->
+        <script src="js/ENV.js"></script>
+        <script src="js/memory-stats.js"></script>
+        <script src="js/monitor.js"></script>
 
         <script src="../dist/js/dataBind.min.js"></script>
         <script src="js/forOfDemoComplex.js"></script>
