@@ -1,4 +1,4 @@
-(function() {
+(function () {
     // viewModel as Class for create multiple instance
     class FormComponentVewModel {
         constructor() {
@@ -88,13 +88,13 @@
     }
 
     // formComponentC viewModel
-    forOfComponentViewModel = new FormComponentVewModel();
+    const forOfComponentViewModel = new FormComponentVewModel();
 
     // start binding on DOM ready
 
     // formComponentC - test for-of binding
     const forOfComponent = dataBind.init(document.querySelector('[data-bind-comp="forOfComponent"]'), forOfComponentViewModel);
-    forOfComponent.render().then(function() {
+    forOfComponent.render().then(() => {
         // for debug
         window.forOfComponent = forOfComponent;
     });

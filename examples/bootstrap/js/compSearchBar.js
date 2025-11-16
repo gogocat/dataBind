@@ -1,19 +1,19 @@
 // databing search-bar
 
-(function(window) {
+(function (window) {
     let compSearchBar;
 
     const viewModel = {
         searchWord: '',
         searchLocation: '',
         searching: false,
-        onSearchWordChange: function(e, el, newValue, oldValue) {
+        onSearchWordChange(e, el, newValue, oldValue) {
             console.log('onSearchWordChange: ', ' newValue: ', newValue, ' oldValue: ', oldValue);
         },
-        onSearchLocationChange: function(e, el, newValue, oldValue) {
+        onSearchLocationChange(e, el, newValue, oldValue) {
             console.log('onSearchWordChange: ', ' newValue: ', newValue, ' oldValue: ', oldValue);
         },
-        onSearchSubmit: function(e, form, formData) {
+        onSearchSubmit(e, form, formData) {
             e.preventDefault();
 
             // simple validation
@@ -28,19 +28,19 @@
             this.updateStatus();
             console.log('onSearchSubmit: ', formData);
         },
-        onSearchCompleted: function() {
+        onSearchCompleted() {
             this.searching = false;
             this.updateStatus();
         },
-        updateStatus: function() {
+        updateStatus() {
             compSearchBar.render();
         },
     };
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
         const searchBarElement = document.querySelector('[data-bind-comp="search-bar"]');
         compSearchBar = dataBind.init(searchBarElement, viewModel);
-        compSearchBar.render().then(function(comp) {
+        compSearchBar.render().then((comp) => {
             const self = comp;
             compSearchBar.subscribe('SEARCH-COMPLETED', self.viewModel.onSearchCompleted);
             // for debug only

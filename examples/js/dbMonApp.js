@@ -20,7 +20,7 @@ function refreshApp() {
 
 
 const dbMonApp = dataBind.init(document.getElementById('app'), viewModel);
-dbMonApp.render().then(function() {
+dbMonApp.render().then(() => {
     console.log('dbMonApp inited');
     refreshApp();
 });

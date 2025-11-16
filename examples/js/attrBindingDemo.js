@@ -5,13 +5,13 @@ const viewModel = {
         style: 'width:300px',
         ref: 'newRef',
     },
-    attrFn: function($data) {
+    attrFn() {
         return {
             id: 'newId',
             ref: 'newRef2',
         };
     },
-    updateView: function(opt) {
+    updateView(opt) {
         this.APP.render(opt);
     },
 };

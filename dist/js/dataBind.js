@@ -2426,20 +2426,238 @@ license MIT(function (global, factory) {
       });
     };
 
+    // WeakMap to store proxy metadata
+    const PROXY_MARKER = Symbol('isReactiveProxy');
+    const ORIGINAL_TARGET = Symbol('originalTarget');
+    /**
+     * Check if an object is already a reactive proxy
+     */
+    function isReactiveProxy(obj) {
+      return obj !== null && typeof obj === 'object' && obj[PROXY_MARKER] === true;
+    }
+    /**
+     * Create a reactive proxy that automatically triggers onChange when properties are modified
+     * Supports deep proxying for nested objects and arrays
+     */
+    function createReactiveProxy(target, options, path = '', tracker) {
+      const {
+        onChange,
+        deep = true,
+        trackChanges = false
+      } = options;
+      // Don't proxy non-objects
+      if (target === null || typeof target !== 'object') {
+        return target;
+      }
+      // Don't re-proxy already proxied objects
+      if (isReactiveProxy(target)) {
+        return target;
+      }
+      // Skip proxying special properties to avoid circular issues
+      const skipProps = ['APP', '$root', '__proto__', 'constructor'];
+      if (skipProps.includes(path)) {
+        return target;
+      }
+      // Track changes if enabled
+      const changeTracker = tracker || (trackChanges ? {
+        changedPaths: new Set()
+      } : undefined);
+      // Store proxied nested objects to reuse same proxy
+      const proxiedChildren = new Map();
+      const handler = {
+        set(obj, prop, value) {
+          // Skip internal properties
+          if (typeof prop === 'symbol') {
+            obj[prop] = value;
+            return true;
+          }
+          const oldValue = obj[prop];
+          // Only trigger if value actually changed
+          if (oldValue === value) {
+            return true;
+          }
+          // Set the new value
+          obj[prop] = value;
+          // Clear cached proxy for this property since value changed
+          proxiedChildren.delete(prop);
+          // Track the changed path
+          if (changeTracker) {
+            const fullPath = path ? `${path}.${String(prop)}` : String(prop);
+            changeTracker.changedPaths.add(fullPath);
+          }
+          // Trigger onChange callback (debounced render)
+          onChange();
+          return true;
+        },
+        get(obj, prop) {
+          // Return proxy markers
+          if (prop === PROXY_MARKER) {
+            return true;
+          }
+          if (prop === ORIGINAL_TARGET) {
+            return obj;
+          }
+          const value = obj[prop];
+          // Don't proxy functions, symbols, or special properties
+          if (typeof value === 'function' || typeof prop === 'symbol' || skipProps.includes(String(prop))) {
+            return value;
+          }
+          // If deep proxying is enabled and value is an object, wrap it in proxy
+          if (deep && value !== null && typeof value === 'object') {
+            // Return cached proxy if exists
+            if (proxiedChildren.has(prop)) {
+              return proxiedChildren.get(prop);
+            }
+            const fullPath = path ? `${path}.${String(prop)}` : String(prop);
+            const proxied = Array.isArray(value) ? createReactiveArray(value, onChange, options, fullPath, changeTracker) : createReactiveProxy(value, options, fullPath, changeTracker);
+            // Cache the proxy
+            proxiedChildren.set(prop, proxied);
+            return proxied;
+          }
+          return value;
+        },
+        deleteProperty(obj, prop) {
+          if (typeof prop === 'symbol') {
+            delete obj[prop];
+            return true;
+          }
+          delete obj[prop];
+          // Clear cached proxy
+          proxiedChildren.delete(prop);
+          // Track deletion
+          if (changeTracker) {
+            const fullPath = path ? `${path}.${String(prop)}` : String(prop);
+            changeTracker.changedPaths.add(fullPath);
+          }
+          onChange();
+          return true;
+        }
+      };
+      return new Proxy(target, handler);
+    }
+    /**
+     * Special handling for arrays to intercept mutating methods
+     */
+    function createReactiveArray(target, onChange, options, path = '', tracker) {
+      const {
+        deep = true
+      } = options;
+      // Don't re-proxy already proxied arrays
+      if (isReactiveProxy(target)) {
+        return target;
+      }
+      const handler = {
+        set(obj, prop, value) {
+          // Handle symbol properties
+          if (typeof prop === 'symbol') {
+            obj[prop] = value;
+            return true;
+          }
+          const oldValue = obj[prop];
+          // Only trigger if value actually changed
+          if (oldValue === value) {
+            return true;
+          }
+          obj[prop] = value;
+          // Track changes
+          if (tracker) {
+            const fullPath = path ? `${path}[${String(prop)}]` : `[${String(prop)}]`;
+            tracker.changedPaths.add(fullPath);
+          }
+          onChange();
+          return true;
+        },
+        get(obj, prop) {
+          // Return proxy markers
+          if (prop === PROXY_MARKER) {
+            return true;
+          }
+          if (prop === ORIGINAL_TARGET) {
+            return obj;
+          }
+          const value = obj[prop];
+          // Intercept array mutating methods
+          if (typeof value === 'function') {
+            const mutatingMethods = ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse', 'fill'];
+            if (mutatingMethods.includes(String(prop))) {
+              return function (...args) {
+                const result = value.apply(this, args);
+                // Track change
+                if (tracker) {
+                  tracker.changedPaths.add(path || 'array');
+                }
+                onChange();
+                return result;
+              };
+            }
+          }
+          // Deep proxy array elements if they are objects
+          if (deep && value !== null && typeof value === 'object' && typeof prop !== 'symbol') {
+            const fullPath = path ? `${path}[${String(prop)}]` : `[${String(prop)}]`;
+            if (Array.isArray(value)) {
+              return createReactiveArray(value, onChange, options, fullPath, tracker);
+            }
+            return createReactiveProxy(value, options, fullPath, tracker);
+          }
+          return value;
+        },
+        deleteProperty(obj, prop) {
+          if (typeof prop === 'symbol') {
+            delete obj[prop];
+            return true;
+          }
+          delete obj[prop];
+          if (tracker) {
+            const fullPath = path ? `${path}[${String(prop)}]` : `[${String(prop)}]`;
+            tracker.changedPaths.add(fullPath);
+          }
+          onChange();
+          return true;
+        }
+      };
+      return new Proxy(target, handler);
+    }
+    /**
+     * Check if Proxy is supported
+     */
+    function isProxySupported() {
+      return typeof Proxy !== 'undefined';
+    }
+
     let compIdIndex = 0;
     class Binder {
-      constructor($rootElement, viewModel, bindingAttrs) {
+      constructor($rootElement, viewModel, bindingAttrs, options = {}) {
+        var _a;
         if (!$rootElement || $rootElement.nodeType !== 1 || viewModel === null || typeof viewModel !== 'object') {
           throw new TypeError('$rootElement or viewModel is invalid');
         }
         this.initRendered = false;
         this.compId = compIdIndex += 1;
         this.$rootElement = $rootElement;
-        this.viewModel = viewModel;
         this.bindingAttrs = bindingAttrs;
         this.isServerRendered = this.$rootElement.getAttribute(serverRenderedAttr) !== null;
         // Initialize render method with debounced version
         this.render = debounceRaf(this._render.bind(this), this);
+        // Store original viewModel reference
+        this.originalViewModel = viewModel;
+        // Enable reactive mode by default (can be disabled with reactive: false)
+        this.isReactive = (_a = options.reactive) !== null && _a !== void 0 ? _a : true;
+        // If reactive mode is enabled, wrap viewModel in proxy
+        if (this.isReactive) {
+          if (!isProxySupported()) {
+            console.warn('Reactive mode requires Proxy support. Falling back to manual mode.');
+            this.isReactive = false;
+            this.viewModel = viewModel;
+          } else {
+            this.viewModel = createReactiveProxy(viewModel, {
+              onChange: () => this.render(),
+              deep: true,
+              trackChanges: options.trackChanges
+            });
+          }
+        } else {
+          this.viewModel = viewModel;
+        }
         // inject instance into viewModel
         this.viewModel.APP = this;
         // add $root pointer to viewModel so binding can be refer as $root.something
@@ -2577,11 +2795,11 @@ license MIT(function (global, factory) {
         bindingAttrs = extend(false, {}, settings.bindingAttrs);
       }
     };
-    const init = ($rootElement, viewModel = null) => {
+    const init = ($rootElement, viewModel = null, options) => {
       if (!isSupportPromise) {
         return console.warn('Browser not support Promise');
       }
-      return new Binder($rootElement, viewModel, bindingAttrs);
+      return new Binder($rootElement, viewModel, bindingAttrs, options);
     };
     var index = {
       use,

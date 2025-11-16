@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+
 (() => {
     const filterComponentViewModel = {
         renderIntro: true,
@@ -12,7 +12,7 @@
             description:
                 '"Hansel and Gretel" (also known as Hansel and Grettel, Hansel and Grethel, or Little Brother and Little Sister) is a well-known fairy tale of German origin, recorded by the Brothers Grimm and published in 1812. Hansel and Gretel are a young brother and sister kidnapped by a cannibalistic witch living deep in the forest in a house constructed of cake and confectionery. The two children escape with their lives by outwitting her. The tale has been adapted to various media, most notably the opera Hänsel und Gretel (1893) by Engelbert Humperdinck. Under the Aarne–Thompson classification system, "Hansel and Gretel" is classified under Class 327.',
         },
-        setStoryImgAttr: function() {
+        setStoryImgAttr() {
             const picPath = this.story.pic || '';
             const ret = {
                 alt: this.story.title,
@@ -25,20 +25,20 @@
             }
             return ret;
         },
-        addPic: function(e, $el) {
+        addPic(e) {
             e.preventDefault();
             this.story.pic = storyPic;
             this.updateView();
         },
-        removePic: function(e, $el) {
+        removePic(e) {
             e.preventDefault();
             this.story.pic = '';
             this.updateView();
         },
-        toUpper: function(strg) {
+        toUpper(strg) {
             return strg.toUpperCase();
         },
-        toDateFormat: function(dateString) {
+        toDateFormat(dateString) {
             const date = new Date(dateString);
             const monthNames = [
                 'January',
@@ -71,8 +71,8 @@
     // start binding on DOM ready
 
     // main
-    filterComponent = dataBind.init(document.querySelector('[data-bind-comp="filterComponent"]'), filterComponentViewModel);
-    filterComponent.render().then(function() {
+    const filterComponent = dataBind.init(document.querySelector('[data-bind-comp="filterComponent"]'), filterComponentViewModel);
+    filterComponent.render().then(() => {
         // for debug
         console.log(filterComponent);
         window.filterComponent = filterComponent;

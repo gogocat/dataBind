@@ -1,4 +1,4 @@
-import type { ViewModel, ElementCache, UpdateOption, BindingAttrs } from './types';
+import type { ViewModel, ElementCache, UpdateOption, BindingAttrs, BinderOptions } from './types';
 declare class Binder {
     [key: string]: unknown;
     initRendered: boolean;
@@ -10,7 +10,9 @@ declare class Binder {
     elementCache: ElementCache;
     postProcessQueue: Array<() => void>;
     render: (opt?: UpdateOption) => void;
-    constructor($rootElement: HTMLElement, viewModel: ViewModel, bindingAttrs: BindingAttrs);
+    isReactive: boolean;
+    originalViewModel: ViewModel;
+    constructor($rootElement: HTMLElement, viewModel: ViewModel, bindingAttrs: BindingAttrs, options?: BinderOptions);
     /**
      * parseView
      * @description

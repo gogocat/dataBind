@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+
 // search-results-component
 (() => {
     const viewModel = {
@@ -81,7 +81,7 @@
                 options: [{text: '1', value: '1'}, {text: '2', value: '2'}, {text: '3', value: '3'}],
             },
         ],
-        getResultItemAttr: function(index, oldAttrObj, $el) {
+        getResultItemAttr(index, oldAttrObj, $el) {
             const self = this;
             if (self.searchResults[index].image) {
                 return {
@@ -90,7 +90,7 @@
                 };
             }
         },
-        setResultOptionAttr: function($data, oldAttrObj, $el) {
+        setResultOptionAttr($data, oldAttrObj, $el) {
             if ($data && $data.value) {
                 // todo: the index here is the outter loop index
                 return {
@@ -98,21 +98,24 @@
                 };
             }
         },
-        onAdMessageCheck: function(e, $el, newValue, oldValue, index) {
+        onAdMessageCheck(e, $el, newValue, oldValue, index) {
             console.log('onAdMessageCheck: ', $el, newValue, oldValue, index);
         },
-        onAdBookmarkClick: function(e, $el, index) {
+        onAdBookmarkClick(e, $el, index) {
             e.preventDefault();
             console.log('onAdBookmarkClick: ', $el, index);
         },
     };
+
+    // Default mutations count, controlled by slider
+    let mutationsCount = 50;
 
     const generateRamdomData = () => {
         const data = [];
         const getRandomNumber = (x, y) => {
             return Math.floor(Math.random() * (y - x + 1) + x);
         };
-        const randomSeed = getRandomNumber(1, 30);
+        const randomSeed = mutationsCount;
         const images = [
             'bootstrap/images/pic-home.jpg',
             'bootstrap/images/pic-carpenter.jpg',
@@ -132,7 +135,7 @@
         for (let i = 0; i < randomSeed; i += 1) {
             data.push({
                 id: i,
-                title: 'Sample gardening service' + i,
+                title: `Sample gardening service${  i}`,
                 description: descriptions[getRandomNumber(0, descriptions.length - 1)],
                 image: images[getRandomNumber(0, images.length - 1)],
                 bookmarked: false,
@@ -145,34 +148,58 @@
     };
 
     const updateResults = () => {
-        window.updateInterval = setInterval(function() {
-            viewModel.searchResults = generateRamdomData();
-            searchResultsComponent.render();
+        window.updateInterval = setInterval(() => {
+            // Important: Use searchResultsComponent.viewModel (proxied version) for reactive updates
+            searchResultsComponent.viewModel.searchResults = generateRamdomData();
+            // Automatic render happens via reactive proxy!
+
+            // Note: In reactive mode, render is called automatically.
+            // For monitoring, we manually trigger render().then() to get the promise callback
+            // This is safe because render() is debounced - it won't cause double rendering
+            if (typeof Monitoring !== 'undefined') {
+                searchResultsComponent.render().then(() => {
+                    Monitoring.renderRate.ping();
+                });
+            }
         });
     };
 
     // start binding on DOM ready
 
-    // debug
-    const searchResultsComponent = dataBind.init(document.querySelector('[data-bind-comp="search-results-component"]'), viewModel);
+    // debug - Reactive mode is now the default!
+    const searchResultsComponent = dataBind.init(
+        document.querySelector('[data-bind-comp="search-results-component"]'),
+        viewModel
+    );
 
-    searchResultsComponent.render().then(function() {
+    searchResultsComponent.render().then(() => {
         // for debug
         console.log(searchResultsComponent);
         window.searchResultsComponent = searchResultsComponent;
 
-        btnRandomRender = document.getElementById('btnRandomRender');
-        btnStopRandomRender = document.getElementById('btnStopRandomRender');
+        const btnRandomRender = document.getElementById('btnRandomRender');
+        const btnStopRandomRender = document.getElementById('btnStopRandomRender');
 
-        btnRandomRender.addEventListener('click', function(e) {
+        btnRandomRender.addEventListener('click', (e) => {
             e.preventDefault();
             clearInterval(window.updateInterval);
             updateResults();
         }, false);
 
-        btnStopRandomRender.addEventListener('click', function(e) {
+        btnStopRandomRender.addEventListener('click', (e) => {
             e.preventDefault();
             clearInterval(window.updateInterval);
         }, false);
+
+        // Connect mutations slider to control item count
+        const mutationsSlider = document.getElementById('mutations');
+        const mutationsValueSpan = document.getElementById('mutationsValue');
+
+        if (mutationsSlider && mutationsValueSpan) {
+            mutationsSlider.addEventListener('input', (e) => {
+                mutationsCount = parseInt(e.target.value, 10);
+                mutationsValueSpan.textContent = mutationsCount;
+            });
+        }
     });
 })();

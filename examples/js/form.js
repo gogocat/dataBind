@@ -1,4 +1,4 @@
-(() =>{
+(() => {
     const formAppViewModel = {
         intro: {
             title: 'Form generator demo',
@@ -10,7 +10,7 @@
             And finally a quick test of attribute binding 😎`,
             btnText: 'Fake button »',
         },
-        onBtnClick: function(e, $el) {
+        onBtnClick(e, $el) {
             e.preventDefault();
             console.log('onBtnClick: ', $el);
         },
@@ -82,7 +82,7 @@
         range: {
             value: 50,
         },
-        getRangeAttr: function() {
+        getRangeAttr() {
             return {
                 type: 'range',
                 name: 'test-range',
@@ -92,7 +92,7 @@
                 step: 1,
             };
         },
-        onInputChange: function(e, $el, newValue, oldValue) {
+        onInputChange(e, $el, newValue, oldValue) {
             e.preventDefault();
             this.range.value = newValue;
             this.updateView();
@@ -106,7 +106,7 @@
 
     // main formApp
     const formApp = dataBind.init(document.querySelector('[data-bind-comp="formApp"]'), formAppViewModel);
-    formApp.render().then(function() {
+    formApp.render().then(() => {
         // for debug
         console.log(formApp);
         window.formApp = formApp;
@@ -115,7 +115,7 @@
     // formComponentA
     const formComponentA = dataBind.init(document.querySelector('[data-bind-comp="formComponentA"]'), new FormComponentVewModel());
 
-    formComponentA.render().then(function() {
+    formComponentA.render().then(() => {
         // for debug
         console.log(formComponentA);
         window.formComponentA = formComponentA;
@@ -124,7 +124,7 @@
     // formComponentB
     const formComponentB = dataBind.init(document.querySelector('[data-bind-comp="formComponentB"]'), formComponentBViewModel);
 
-    formComponentB.render().then(function() {
+    formComponentB.render().then(() => {
         // for debug
         console.log(formComponentB);
         window.formComponentB = formComponentB;
@@ -133,7 +133,7 @@
     // componentRangeInput
     const componentRangeInput = dataBind.init(document.querySelector('[data-bind-comp="componentRangeInput"]'), componentRangeInputViewModel);
 
-    componentRangeInput.render().then(function() {
+    componentRangeInput.render().then(() => {
         // for debug
         console.log(componentRangeInput);
         window.componentRangeInput = componentRangeInput;

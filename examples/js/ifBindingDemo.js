@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+
 (() => {
     const myComponentViewModel = {
         renderIntro: false,
@@ -13,23 +13,23 @@
             {title: 'The Ugly Duckling', value: 's2'},
             {title: 'The Giving Tree', value: 's3'},
         ],
-        setStoryOptionAttr: function($data, oldAttrObj, $el) {
+        setStoryOptionAttr($data, oldAttrObj, $el) {
             if ($data && $data.value) {
                 return {
                     value: $data.value,
                 };
             }
         },
-        onSelectedStory: function(e, $el, newValue, oldValue) {
+        onSelectedStory(e, $el, newValue, oldValue) {
             e.preventDefault();
             this.APP.publish('SELECTED_STORY', newValue);
         },
-        renderItem: function(e, $el) {
+        renderItem(e, $el) {
             e.preventDefault();
             this.renderIntro = true;
             this.updateView();
         },
-        removeItem: function(e, $el) {
+        removeItem(e, $el) {
             e.preventDefault();
             this.renderIntro = false;
             this.updateView();
@@ -42,7 +42,7 @@
     const compStoryDetailViewModel = {
         selectedStory: '',
         story: {},
-        setStoryImgAttr: function() {
+        setStoryImgAttr() {
             const picPath = this.story.pic || '';
             const ret = {
                 alt: this.story.title,
@@ -55,7 +55,7 @@
             }
             return ret;
         },
-        onStoryChange: function(id) {
+        onStoryChange(id) {
             if (storiesData[id] && id !== this.selectedStory) {
                 this.story = storiesData[id];
                 this.selectedStory = id;
@@ -96,7 +96,7 @@
 
     // main
     const myComponent = dataBind.init(document.querySelector('[data-bind-comp="myComponent"]'), myComponentViewModel);
-    myComponent.render().then(function() {
+    myComponent.render().then(() => {
         // for debug
         console.log(myComponent);
         window.myComponent = myComponent;
@@ -104,7 +104,7 @@
 
     // story detail componenet
     const compStoryDetail = dataBind.init(document.querySelector('[data-bind-comp="compStoryDetail"]'), compStoryDetailViewModel);
-    compStoryDetail.render().then(function(thisComponent) {
+    compStoryDetail.render().then((thisComponent) => {
         thisComponent.subscribe('SELECTED_STORY', thisComponent.viewModel.onStoryChange);
         // for debug
         console.log(compStoryDetail);

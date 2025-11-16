@@ -6,7 +6,8 @@ import applyBinding from './applyBinding';
 import renderTemplatesBinding from './renderTemplatesBinding';
 import postProcess from './postProcess';
 import * as pubSub from './pubSub';
-import type {ViewModel, ElementCache, UpdateOption, BindingAttrs} from './types';
+import {createReactiveProxy, isProxySupported} from './reactiveProxy';
+import type {ViewModel, ElementCache, UpdateOption, BindingAttrs, BinderOptions} from './types';
 
 let compIdIndex = 0;
 
@@ -21,8 +22,10 @@ class Binder {
     public elementCache: ElementCache;
     public postProcessQueue: Array<() => void>;
     public render: (opt?: UpdateOption) => void;
+    public isReactive: boolean;
+    public originalViewModel: ViewModel;
 
-    constructor($rootElement: HTMLElement, viewModel: ViewModel, bindingAttrs: BindingAttrs) {
+    constructor($rootElement: HTMLElement, viewModel: ViewModel, bindingAttrs: BindingAttrs, options: BinderOptions = {}) {
         if (!$rootElement || $rootElement.nodeType !== 1 || viewModel === null || typeof viewModel !== 'object') {
             throw new TypeError('$rootElement or viewModel is invalid');
         }
@@ -33,14 +36,35 @@ class Binder {
 
         this.$rootElement = $rootElement;
 
-        this.viewModel = viewModel;
-
         this.bindingAttrs = bindingAttrs;
 
         this.isServerRendered = this.$rootElement.getAttribute(config.serverRenderedAttr) !== null;
 
         // Initialize render method with debounced version
         this.render = debounceRaf(this._render.bind(this), this) as (opt?: UpdateOption) => void;
+
+        // Store original viewModel reference
+        this.originalViewModel = viewModel;
+
+        // Enable reactive mode by default (can be disabled with reactive: false)
+        this.isReactive = options.reactive ?? true;
+
+        // If reactive mode is enabled, wrap viewModel in proxy
+        if (this.isReactive) {
+            if (!isProxySupported()) {
+                console.warn('Reactive mode requires Proxy support. Falling back to manual mode.');
+                this.isReactive = false;
+                this.viewModel = viewModel;
+            } else {
+                this.viewModel = createReactiveProxy(viewModel, {
+                    onChange: () => this.render(),
+                    deep: true,
+                    trackChanges: options.trackChanges,
+                });
+            }
+        } else {
+            this.viewModel = viewModel;
+        }
 
         // inject instance into viewModel
         this.viewModel.APP = this;
