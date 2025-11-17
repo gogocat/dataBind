@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="description" content="DBMON WITH REACTIVE MODE" />
+        <link href="css/dbMonsterStyles.css" rel="stylesheet" type="text/css" />
+        <title>dbmon test dataBind.js (Reactive Mode)</title>
+    </head>
+
+    <body>
+        <div id="app">
+            <table class="table table-striped latest-data">
+                <tbody>
+                    <tr data-bind-for="database in databases">
+                        <td class="dbname" data-bind-text="database.dbname"></td>
+                        <td class="query-count">
+                            <span
+                                data-bind-css="database.lastSample.countClassName"
+                                data-bind-text="database.lastSample.nbQueries"
+                            ></span>
+                        </td>
+                        <td data-bind-css="q.elapsedClassName" data-bind-for="q in $data.lastSample.topFiveQueries">
+                            <span data-bind-text="q.formatElapsed"></span>
+                            <div class="popover left">
+                                <div class="popover-content" data-bind-text="q.query"></div>
+                                <div class="arrow"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <script src="https://mathieuancelin.github.io/js-repaint-perfs/ENV.js"></script>
+        <script src="https://mathieuancelin.github.io/js-repaint-perfs/lib/memory-stats.js"></script>
+        <script src="https://mathieuancelin.github.io/js-repaint-perfs/lib/monitor.js"></script>
+
+        <script src="../dist/js/dataBind.min.js"></script>
+        <script src="js/dbMonAppReactive.js"></script>
+    </body>
+</html>

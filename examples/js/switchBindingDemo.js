@@ -30,7 +30,7 @@
                 this.story = {};
                 this.selectedStory = '';
             }
-            this.updateView();
+            // Reactive mode - automatic render!
         },
         setStoryImgAttr() {
             const picPath = this.story.pic || '';
@@ -45,8 +45,8 @@
             }
             return ret;
         },
-        updateView(opt) {
-            this.APP.render(opt);
+        updateView(opt) {  // Note: render is automatic in reactive mode
+            // Reactive mode - automatic render!
         },
     };
 

@@ -39,13 +39,13 @@
         onInputChange(e, $el, newValue, oldValue) {
             console.log('onInputChange: ', this);
             this.personalDetails[0].show = false;
-            this.updateView();
+            // Reactive mode - automatic render!
         }
         afterTemplateRender() {
             console.log('template rendered');
         }
-        updateView(opt) {
-            this.APP.render(opt);
+        updateView(opt) {  // Note: render is automatic in reactive mode
+            // Reactive mode - automatic render!
         }
         getInputAttr(index) {
             const personalDetail = this.personalDetails[index];
@@ -95,10 +95,10 @@
         onInputChange(e, $el, newValue, oldValue) {
             e.preventDefault();
             this.range.value = newValue;
-            this.updateView();
+            // Reactive mode - automatic render!
         },
-        updateView(opt) {
-            this.APP.render(opt);
+        updateView(opt) {  // Note: render is automatic in reactive mode
+            // Reactive mode - automatic render!
         },
     };
 

@@ -122,7 +122,7 @@
             this.remainingCount = currentTaskLength - compltedTasksLength;
             this.remainingCountLabel = this.remainingCount > 1 ? ' tasks' : ' task';
             this.displayTasks = this.getDisplayTasks();
-            todoApp.render(renderOption);
+            // Reactive mode - automatic render!
             // update db
             db.set('todos', this.tasks);
         },

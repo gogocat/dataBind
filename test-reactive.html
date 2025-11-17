@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reactive Proxy Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ddd; }
+        .pass { background: #d4edda; }
+        .fail { background: #f8d7da; }
+        pre { background: #f5f5f5; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Reactive Proxy Test Suite</h1>
+    <div id="results"></div>
+
+    <script src="dist/js/dataBind.min.js"></script>
+    <script>
+        const results = [];
+
+        function test(name, fn) {
+            try {
+                fn();
+                results.push({name, status: 'pass', error: null});
+                console.log('✅', name);
+            } catch (error) {
+                results.push({name, status: 'fail', error: error.message});
+                console.error('❌', name, error);
+            }
+        }
+
+        let renderCount = 0;
+        function resetRenderCount() {
+            renderCount = 0;
+        }
+
+        // Test 1: Simple property change
+        test('1. Simple property change triggers render', () => {
+            resetRenderCount();
+            const viewModel = {name: 'John', age: 30};
+            const component = dataBind.init(document.createElement('div'), viewModel);
+            component.render = () => { renderCount++; };
+
+            component.viewModel.name = 'Jane';
+
+            setTimeout(() => {
+                if (renderCount !== 1) throw new Error(`Expected 1 render, got ${renderCount}`);
+            }, 100);
+        });
+
+        // Test 2: Nested object change
+        test('2. Nested object property change triggers render', () => {
+            resetRenderCount();
+            const viewModel = {
+                user: {
+                    profile: {
+                        name: 'John'
+                    }
+                }
+            };
+            const component = dataBind.init(document.createElement('div'), viewModel);
+            component.render = () => { renderCount++; };
+
+            component.viewModel.user.profile.name = 'Jane';
+
+            setTimeout(() => {
+                if (renderCount !== 1) throw new Error(`Expected 1 render, got ${renderCount}`);
+            }, 100);
+        });
+
+        // Test 3: Array push
+        test('3. Array push triggers render', () => {
+            resetRenderCount();
+            const viewModel = {items: [1, 2, 3]};
+            const component = dataBind.init(document.createElement('div'), viewModel);
+            component.render = () => { renderCount++; };
+
+            component.viewModel.items.push(4);
+
+            setTimeout(() => {
+                if (renderCount !== 1) throw new Error(`Expected 1 render, got ${renderCount}`);
+                if (component.viewModel.items.length !== 4) throw new Error('Array length incorrect');
+            }, 100);
+        });
+
+        // Test 4: Array pop
+        test('4. Array pop triggers render', () => {
+            resetRenderCount();
+            const viewModel = {items: [1, 2, 3]};
+            const component = dataBind.init(document.createElement('div'), viewModel);
+            component.render = () => { renderCount++; };
+
+            component.viewModel.items.pop();
+
+            setTimeout(() => {
+                if (renderCount !== 1) throw new Error(`Expected 1 render, got ${renderCount}`);
+                if (component.viewModel.items.length !== 2) throw new Error('Array length incorrect');
+            }, 100);
+        });
+
+        // Test 5: Array splice
+        test('5. Array splice triggers render', () => {
+            resetRenderCount();
+            const viewModel = {items: [1, 2, 3]};
+            const component = dataBind.init(document.createElement('div'), viewModel);
+            component.render = () => { renderCount++; };
+
+            component.viewModel.items.splice(1, 1);
+
+            setTimeout(() => {
+                if (renderCount !== 1) throw new Error(`Expected 1 render, got ${renderCount}`);
+            }, 100);
+        });
+
+        // Test 6: Array index assignment
+        test('6. Array index assignment triggers render', () => {
+            resetRenderCount();
+            const viewModel = {items: [1, 2, 3]};
+            const component = dataBind.init(document.createElement('div'), viewModel);
+            component.render = () => { renderCount++; };
+
+            component.viewModel.items[0] = 99;
+
+            setTimeout(() => {
+                if (renderCount !== 1) throw new Error(`Expected 1 render, got ${renderCount}`);
+                if (component.viewModel.items[0] !== 99) throw new Error('Value not updated');
+            }, 100);
+        });
+
+        // Test 7: Array of objects - modify object property
+        test('7. Array of objects - modify object property triggers render', () => {
+            resetRenderCount();
+            const viewModel = {
+                todos: [
+                    {text: 'Task 1', done: false},
+                    {text: 'Task 2', done: false}
+                ]
+            };
+            const component = dataBind.init(document.createElement('div'), viewModel);
+            component.render = () => { renderCount++; };
+
+            component.viewModel.todos[0].done = true;
+
+            setTimeout(() => {
+                if (renderCount !== 1) throw new Error(`Expected 1 render, got ${renderCount}`);
+                if (component.viewModel.todos[0].done !== true) throw new Error('Value not updated');
+            }, 100);
+        });
+
+        // Test 8: Array of objects - push new object
+        test('8. Array of objects - push new object triggers render', () => {
+            resetRenderCount();
+            const viewModel = {
+                todos: [
+                    {text: 'Task 1', done: false}
+                ]
+            };
+            const component = dataBind.init(document.createElement('div'), viewModel);
+            component.render = () => { renderCount++; };
+
+            component.viewModel.todos.push({text: 'Task 2', done: false});
+
+            setTimeout(() => {
+                if (renderCount !== 1) throw new Error(`Expected 1 render, got ${renderCount}`);
+                if (component.viewModel.todos.length !== 2) throw new Error('Array length incorrect');
+            }, 100);
+        });
+
+        // Test 9: Deep nested array
+        test('9. Deep nested array triggers render', () => {
+            resetRenderCount();
+            const viewModel = {
+                data: {
+                    lists: {
+                        items: [1, 2, 3]
+                    }
+                }
+            };
+            const component = dataBind.init(document.createElement('div'), viewModel);
+            component.render = () => { renderCount++; };
+
+            component.viewModel.data.lists.items.push(4);
+
+            setTimeout(() => {
+                if (renderCount !== 1) throw new Error(`Expected 1 render, got ${renderCount}`);
+            }, 100);
+        });
+
+        // Test 10: Batch updates (multiple changes = 1 render due to RAF)
+        test('10. Multiple changes batched into single render', () => {
+            resetRenderCount();
+            const viewModel = {name: 'John', age: 30, email: 'john@test.com'};
+            const component = dataBind.init(document.createElement('div'), viewModel);
+            component.render = () => { renderCount++; };
+
+            component.viewModel.name = 'Jane';
+            component.viewModel.age = 25;
+            component.viewModel.email = 'jane@test.com';
+
+            setTimeout(() => {
+                // Should only be 1 render due to RAF debouncing
+                if (renderCount !== 1) throw new Error(`Expected 1 render, got ${renderCount}`);
+            }, 100);
+        });
+
+        // Display results after all tests
+        setTimeout(() => {
+            const resultsDiv = document.getElementById('results');
+            const passCount = results.filter(r => r.status === 'pass').length;
+            const failCount = results.filter(r => r.status === 'fail').length;
+
+            resultsDiv.innerHTML = `
+                <h2>Results: ${passCount} passed, ${failCount} failed</h2>
+                ${results.map(r => `
+                    <div class="test ${r.status}">
+                        <strong>${r.status === 'pass' ? '✅' : '❌'} ${r.name}</strong>
+                        ${r.error ? `<pre>${r.error}</pre>` : ''}
+                    </div>
+                `).join('')}
+            `;
+        }, 200);
+    </script>
+</body>
+</html>

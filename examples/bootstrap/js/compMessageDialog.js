@@ -31,7 +31,7 @@
             this.updateStatus();
         },
         updateStatus() {
-            compMessageDialog.render();
+            // Reactive mode - automatic render!
         },
     };
 

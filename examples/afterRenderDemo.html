@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>afterRender() Demo | dataBind.js</title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+    <style>
+        body { padding: 20px; }
+        .demo-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .log {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry { margin: 2px 0; }
+        .highlight { background-color: #fff3cd; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>afterRender() Demo</h1>
+        <p class="lead">
+            The <code>afterRender(callback)</code> method registers callbacks that run after each render completes.
+            Perfect for reactive mode!
+        </p>
+
+        <!-- Example 1: Basic Usage -->
+        <div class="demo-section">
+            <h3>Example 1: Basic Usage</h3>
+            <p>afterRender callback fires after every reactive update</p>
+
+            <div data-bind-comp="basic-demo">
+                <p>Counter: <span data-bind-text="counter"></span></p>
+                <button class="btn btn-primary" data-bind-click="increment">Increment</button>
+                <button class="btn btn-secondary" data-bind-click="reset">Reset</button>
+            </div>
+
+            <div class="log" id="basic-log"></div>
+        </div>
+
+        <!-- Example 2: Performance Monitoring -->
+        <div class="demo-section">
+            <h3>Example 2: Performance Monitoring</h3>
+            <p>Use afterRender to track render performance</p>
+
+            <div data-bind-comp="perf-demo">
+                <p>Items: <span data-bind-text="items.length"></span></p>
+                <button class="btn btn-primary" data-bind-click="addItems">Add 10 Items</button>
+                <button class="btn btn-danger" data-bind-click="clearItems">Clear All</button>
+
+                <ul>
+                    <li data-bind-for="item of items" data-bind-text="item.text"></li>
+                </ul>
+            </div>
+
+            <div class="log" id="perf-log"></div>
+        </div>
+
+        <!-- Example 3: DOM Manipulation -->
+        <div class="demo-section">
+            <h3>Example 3: Post-Render DOM Manipulation</h3>
+            <p>Use afterRender to manipulate DOM after updates</p>
+
+            <div data-bind-comp="dom-demo">
+                <div>
+                    <p>Active: <span data-bind-text="activeCount"></span> / <span data-bind-text="items.length"></span></p>
+                    <button class="btn btn-success" data-bind-click="addItem">Add Item</button>
+                    <button class="btn btn-warning" data-bind-click="toggleFirst">Toggle First</button>
+                </div>
+
+                <ul id="dom-list">
+                    <li data-bind-for="item of items" data-bind-css="item.active ? 'highlight' : ''">
+                        <span data-bind-text="item.text"></span>
+                        <span data-bind-if="item.active"> (Active)</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="log" id="dom-log"></div>
+        </div>
+
+        <!-- Example 4: Remove Callback -->
+        <div class="demo-section">
+            <h3>Example 4: Add/Remove Callbacks</h3>
+            <p>Dynamically add and remove afterRender callbacks</p>
+
+            <div data-bind-comp="toggle-demo">
+                <p>Value: <span data-bind-text="value"></span></p>
+                <button class="btn btn-primary" data-bind-click="increment">Change Value</button>
+                <button class="btn btn-success" id="addCallback">Add Logger</button>
+                <button class="btn btn-danger" id="removeCallback">Remove Logger</button>
+                <button class="btn btn-warning" id="clearCallbacks">Clear All</button>
+            </div>
+
+            <div class="log" id="toggle-log"></div>
+        </div>
+
+        <div class="alert alert-info mt-4">
+            <h5>Key Features:</h5>
+            <ul>
+                <li>✅ <code>component.afterRender(callback)</code> - Register callback</li>
+                <li>✅ <code>component.removeAfterRender(callback)</code> - Remove specific callback</li>
+                <li>✅ <code>component.clearAfterRender()</code> - Remove all callbacks</li>
+                <li>✅ Callbacks fire after every render (automatic with reactive mode)</li>
+                <li>✅ Multiple callbacks supported</li>
+                <li>✅ Chainable API</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="../dist/js/dataBind.min.js"></script>
+    <script src="js/afterRenderDemo.js"></script>
+</body>
+</html>

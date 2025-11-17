@@ -33,7 +33,7 @@
             this.updateStatus();
         },
         updateStatus() {
-            compSearchBar.render();
+            // Reactive mode - automatic render!
         },
     };
 

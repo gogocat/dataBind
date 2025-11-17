@@ -27,15 +27,15 @@
         renderItem(e, $el) {
             e.preventDefault();
             this.renderIntro = true;
-            this.updateView();
+            // Reactive mode - automatic render!
         },
         removeItem(e, $el) {
             e.preventDefault();
             this.renderIntro = false;
-            this.updateView();
+            // Reactive mode - automatic render!
         },
-        updateView(opt) {
-            this.APP.render(opt);
+        updateView(opt) {  // Note: render is automatic in reactive mode
+            // Reactive mode - automatic render!
         },
     };
 
@@ -63,10 +63,10 @@
                 this.story = '';
                 this.selectedStory = '';
             }
-            this.updateView();
+            // Reactive mode - automatic render!
         },
-        updateView(opt) {
-            this.APP.render(opt);
+        updateView(opt) {  // Note: render is automatic in reactive mode
+            // Reactive mode - automatic render!
         },
     };
 

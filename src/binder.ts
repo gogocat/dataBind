@@ -24,6 +24,7 @@ class Binder {
     public render: (opt?: UpdateOption) => void;
     public isReactive: boolean;
     public originalViewModel: ViewModel;
+    private afterRenderCallbacks: Array<() => void>;
 
     constructor($rootElement: HTMLElement, viewModel: ViewModel, bindingAttrs: BindingAttrs, options: BinderOptions = {}) {
         if (!$rootElement || $rootElement.nodeType !== 1 || viewModel === null || typeof viewModel !== 'object') {
@@ -39,6 +40,9 @@ class Binder {
         this.bindingAttrs = bindingAttrs;
 
         this.isServerRendered = this.$rootElement.getAttribute(config.serverRenderedAttr) !== null;
+
+        // Initialize afterRender callbacks array
+        this.afterRenderCallbacks = [];
 
         // Initialize render method with debounced version
         this.render = debounceRaf(this._render.bind(this), this) as (opt?: UpdateOption) => void;
@@ -196,6 +200,63 @@ class Binder {
         delete this.postProcessQueue;
 
         this.initRendered = true;
+
+        // Call afterRender callbacks after rendering is fully complete
+        this._callAfterRenderCallbacks();
+    }
+
+    /**
+     * Call all registered afterRender callbacks
+     * Called automatically after each render completes
+     */
+    private _callAfterRenderCallbacks(): void {
+        if (this.afterRenderCallbacks.length > 0) {
+            // Clone array to avoid issues if callbacks modify the array
+            const callbacks = this.afterRenderCallbacks.slice();
+            for (let i = 0, len = callbacks.length; i < len; i += 1) {
+                try {
+                    callbacks[i]();
+                } catch (err) {
+                    console.error('Error in afterRender callback:', err);
+                }
+            }
+        }
+    }
+
+    /**
+     * Register a callback to be called after each render completes
+     * Useful for reactive mode where renders happen automatically
+     * @param callback Function to call after render completes
+     * @returns this for chaining
+     */
+    public afterRender(callback: () => void): this {
+        if (typeof callback !== 'function') {
+            throw new TypeError('afterRender callback must be a function');
+        }
+        this.afterRenderCallbacks.push(callback);
+        return this;
+    }
+
+    /**
+     * Remove a specific afterRender callback
+     * @param callback The callback function to remove
+     * @returns this for chaining
+     */
+    public removeAfterRender(callback: () => void): this {
+        const index = this.afterRenderCallbacks.indexOf(callback);
+        if (index !== -1) {
+            this.afterRenderCallbacks.splice(index, 1);
+        }
+        return this;
+    }
+
+    /**
+     * Clear all afterRender callbacks
+     * @returns this for chaining
+     */
+    public clearAfterRender(): this {
+        this.afterRenderCallbacks.length = 0;
+        return this;
     }
 
     public subscribe(eventName: string = '', fn: (...args: unknown[]) => void): this {
