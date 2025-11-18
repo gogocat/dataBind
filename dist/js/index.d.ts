@@ -1,9 +1,10 @@
 import Binder from './binder';
 import type { PlainObject, ViewModel, BinderOptions } from './types';
-declare const _default: {
-    use: (settings?: PlainObject) => void;
-    init: ($rootElement: HTMLElement, viewModel?: ViewModel | null, options?: BinderOptions) => Binder | void;
+interface DataBindAPI {
+    use: (settings: PlainObject) => DataBindAPI;
+    init: ($rootElement: HTMLElement, viewModel: ViewModel | null, options?: BinderOptions) => Binder | void;
     version: string;
-};
-export default _default;
+}
+declare const api: DataBindAPI;
+export default api;
 //# sourceMappingURL=index.d.ts.map

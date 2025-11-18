@@ -50,8 +50,9 @@ class Binder {
         // Store original viewModel reference
         this.originalViewModel = viewModel;
 
-        // Enable reactive mode by default (can be disabled with reactive: false)
-        this.isReactive = options.reactive ?? true;
+        // Reactive mode is controlled by options (defaults merged in index.ts)
+        // options.reactive is guaranteed to be defined due to merge in index.ts
+        this.isReactive = !!options.reactive;
 
         // If reactive mode is enabled, wrap viewModel in proxy
         if (this.isReactive) {
