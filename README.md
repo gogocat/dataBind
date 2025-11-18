@@ -256,7 +256,8 @@ const app = dataBind
 
 dataBind is **extremely fast**. Try our benchmarks:
 
-- [**DBMonster** (1000+ updates/sec)](https://gogocat.github.io/dataBind/examples/dbmonsterForOf.html)
+- [**DBMonster - dataBind** (1000+ updates/sec)](https://gogocat.github.io/dataBind/examples/dbmonsterForOf.html)
+- [**DBMonster - React** (comparison)](https://gogocat.github.io/dataBind/examples/dbmonsterReact.html)
 - [**Fiber** (Complex nested updates)](https://gogocat.github.io/dataBind/examples/fiber-demo.html)
 
 Compare with [other frameworks](http://mathieuancelin.github.io/js-repaint-perfs/).
