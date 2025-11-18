@@ -1,4 +1,4 @@
-(function() {
+(function () {
     // viewModel as Class for create multiple instance
     class FormComponentVewModel {
         constructor() {
@@ -51,7 +51,7 @@
         onInputChange(e, $el, newValue, oldValue, index) {
             console.log('onInputChange: ', this);
             this.personalDetails[index].show = false;
-            this.updateView();
+            // Reactive mode - automatic render!
         }
 
         addRows(e) {
@@ -72,29 +72,27 @@
                     updatedCss: 'updated',
                 },
             );
-            this.updateView();
+            // Reactive mode - automatic render!
         }
         removeRows(e) {
             e.preventDefault();
             this.personalDetails.splice(this.personalDetails.length - 2, 2);
-            this.updateView();
+            // Reactive mode - automatic render!
         }
         afterTemplateRender() {
             console.log('template rendered');
         }
-        updateView(opt) {
-            this.APP.render(opt);
-        }
     }
 
     // formComponentC viewModel
-    forOfComponentViewModel = new FormComponentVewModel();
+    const forOfComponentViewModel = new FormComponentVewModel();
 
     // start binding on DOM ready
 
     // formComponentC - test for-of binding
+    // Reactive mode is now the default!
     const forOfComponent = dataBind.init(document.querySelector('[data-bind-comp="forOfComponent"]'), forOfComponentViewModel);
-    forOfComponent.render().then(function() {
+    forOfComponent.render().then(() => {
         // for debug
         window.forOfComponent = forOfComponent;
     });

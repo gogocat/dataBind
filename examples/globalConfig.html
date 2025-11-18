@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>dataBind - Global Configuration Demo</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            .section {
+                border: 2px solid #ddd;
+                padding: 20px;
+                margin: 20px 0;
+                border-radius: 8px;
+            }
+            .section h3 {
+                margin-top: 0;
+                color: #333;
+            }
+            button {
+                padding: 8px 16px;
+                margin: 5px;
+                cursor: pointer;
+                border: 1px solid #007bff;
+                background: #007bff;
+                color: white;
+                border-radius: 4px;
+            }
+            button:hover {
+                background: #0056b3;
+            }
+            .output {
+                background: #f5f5f5;
+                padding: 10px;
+                margin: 10px 0;
+                border-radius: 4px;
+                font-family: monospace;
+            }
+            .mode-badge {
+                display: inline-block;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: bold;
+            }
+            .reactive {
+                background: #28a745;
+                color: white;
+            }
+            .manual {
+                background: #ffc107;
+                color: #333;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>dataBind.js - Global Configuration Demo</h1>
+        <p>This demo shows how to use <code>dataBind.use()</code> to configure global defaults.</p>
+
+        <!-- Example 1: Default Reactive Mode -->
+        <div class="section">
+            <h3>Example 1: Default Configuration <span class="mode-badge reactive">REACTIVE</span></h3>
+            <p>No configuration - uses built-in default (reactive: true)</p>
+            <div data-bind-comp="default-example">
+                <div class="output">
+                    <div>Counter: <span data-bind-text="counter"></span></div>
+                </div>
+                <button data-bind-click="increment">Increment</button>
+                <button data-bind-click="reset">Reset</button>
+            </div>
+        </div>
+
+        <!-- Example 2: Global Manual Mode -->
+        <div class="section">
+            <h3>Example 2: After dataBind.use({reactive: false}) <span class="mode-badge manual">MANUAL</span></h3>
+            <p>This component uses manual mode because we called dataBind.use({reactive: false})</p>
+            <div data-bind-comp="global-manual">
+                <div class="output">
+                    <div>Counter: <span data-bind-text="counter"></span></div>
+                </div>
+                <button data-bind-click="increment">Increment (Manual Mode)</button>
+                <button data-bind-click="reset">Reset (Manual Mode)</button>
+            </div>
+        </div>
+
+        <!-- Example 3: Chainable API -->
+        <div class="section">
+            <h3>Example 3: Chainable API <span class="mode-badge manual">MANUAL</span></h3>
+            <p>This component uses <code>dataBind.use({reactive: false}).init(...)</code> chaining</p>
+            <div data-bind-comp="chainable">
+                <div class="output">
+                    <div>Counter: <span data-bind-text="counter"></span></div>
+                </div>
+                <button data-bind-click="increment">Increment (Chained)</button>
+                <button data-bind-click="reset">Reset (Chained)</button>
+            </div>
+        </div>
+
+        <!-- Example 4: Instance Override -->
+        <div class="section">
+            <h3>Example 4: Instance Override <span class="mode-badge reactive">REACTIVE</span></h3>
+            <p>This component overrides global setting with {reactive: true}</p>
+            <div data-bind-comp="instance-override">
+                <div class="output">
+                    <div>Counter: <span data-bind-text="counter"></span></div>
+                </div>
+                <button data-bind-click="increment">Increment (Override to Reactive)</button>
+                <button data-bind-click="reset">Reset (Override to Reactive)</button>
+            </div>
+        </div>
+
+        <!-- Configuration Status -->
+        <div class="section">
+            <h3>Current Configuration</h3>
+            <div class="output">
+                <div>Example 1 Mode: <span id="mode1"></span></div>
+                <div>Example 2 Mode: <span id="mode2"></span></div>
+                <div>Example 3 Mode: <span id="mode3"></span></div>
+                <div>Example 4 Mode: <span id="mode4"></span></div>
+            </div>
+        </div>
+
+        <script src="../dist/js/dataBind.min.js"></script>
+        <script src="js/globalConfig.js"></script>
+    </body>
+</html>

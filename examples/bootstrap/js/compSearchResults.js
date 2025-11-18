@@ -1,15 +1,15 @@
 // databing compSearchResults
 
-(function(window) {
+(function (window) {
     const isGithubPage = window.location.hostname === 'gogocat.github.io';
     const examplePath = isGithubPage ? 'https://gogocat.github.io/dataBind/examples/' : '/examples/';
     let compSearchResults;
     const searchUrl = `${examplePath}/bootstrap/js/searchResult.json`;
     const featureAdsResultUrl = `${examplePath}/bootstrap/js/featureAdsResult.json`;
     const searchResultColumns = document.getElementById('search-result-columns');
-    const converResultsData = function(data) {
-        ret = [];
-        data.forEach(function(item, index) {
+    const converResultsData = function (data) {
+        const ret = [];
+        data.forEach((item, index) => {
             const newItem = Object.assign({}, item);
             if (newItem.bookmarked) {
                 newItem.bookmarkedCss = 'active';
@@ -33,7 +33,7 @@
         replacedInitResults: false,
         isNewSearch: false,
         currentQuery: null,
-        getSearchResults: function(formData) {
+        getSearchResults(formData) {
             const self = this;
 
             this.isNewSearch = JSON.stringify(self.currentQuery) !== JSON.stringify(formData);
@@ -42,15 +42,15 @@
 
             fetch(searchUrl)
                 .then(response => response.json())
-                .then(function(data) {
+                .then((data) => {
                     // mock network delay
-                    setTimeout(function() {
+                    setTimeout(() => {
                         self.loading = false;
                         self.onSearchResult(data);
                         compSearchResults.publish('SEARCH-COMPLETED', data);
                     }, 1000);
                 })
-                .catch(function(error) {
+                .catch((error) => {
                     self.loading = false;
                     compSearchResults.publish('SEARCH-COMPLETED', {
                         fail: error,
@@ -58,18 +58,18 @@
                     self.logError(error);
                 });
         },
-        getMessageCheckBoxAttr: function(data) {
+        getMessageCheckBoxAttr(data) {
             return {
                 id: data.id,
                 name: data.id,
             };
         },
-        getMessageCheckBoxLabelAttr: function(data) {
+        getMessageCheckBoxLabelAttr(data) {
             return {
                 for: data.id,
             };
         },
-        onSearchResult: function(data) {
+        onSearchResult(data) {
             let newResults = [];
 
             if (this.isNewSearch) {
@@ -100,17 +100,17 @@
 
             console.log('onSearchResult: ', data);
         },
-        logError: function() {
-            // eslint-disable-next-line prefer-rest-params
+        logError() {
+
             console.warn('search result error: ', arguments);
         },
-        onMoreResults: function() {
+        onMoreResults() {
             // get same mock result as example only
             this.loading = true;
             this.updateStatus();
             this.getSearchResults();
         },
-        onAdBookmarkClick: function(e, el) {
+        onAdBookmarkClick(e, el) {
             const activeCss = 'active';
             const isActivated = el.classList.contains(activeCss);
             const resultIndex = el.getAttribute('data-index');
@@ -119,16 +119,16 @@
             this.searchResults[resultIndex].bookmarkedCss = isActivated ? '' : 'active';
             this.updateStatus();
         },
-        onAdMessageCheck: function(e, el, newValue, oldValue) {
+        onAdMessageCheck(e, el, newValue, oldValue) {
             console.log('onAdMessageCheck: ', el, newValue, oldValue);
             this.updateStatus();
         },
-        onMessageTriggerClick: function(e, el) {
+        onMessageTriggerClick(e, el) {
             compSearchResults.publish('TRIGGER-MESSAGE-DIALOG', this.selectedResults);
             console.log('onMessageTriggerClick: ', el);
         },
-        updateStatus: function(opt) {
-            this.selectedResults = this.searchResults.filter(function(result, index) {
+        updateStatus(opt) {
+            this.selectedResults = this.searchResults.filter((result, index) => {
                 return result.selected;
             });
             this.messageTriggerCss = this.selectedResults.length ? 'show' : '';
@@ -139,14 +139,14 @@
     // get server rendered featureAdsResults then init compSearchResults
     fetch(featureAdsResultUrl)
         .then(response => response.json())
-        .then(function(featureAdsResultData) {
+        .then((featureAdsResultData) => {
             viewModel.searchResults = converResultsData(featureAdsResultData);
 
             const searchResultsElement = document.querySelector('[data-bind-comp="search-results-component"]');
             compSearchResults = dataBind.init(searchResultsElement, viewModel);
             compSearchResults
                 .render() // overwrite default server rendered option
-                .then(function(comp) {
+                .then((comp) => {
                     const self = comp;
                     // subscribe events
                     compSearchResults.subscribe('SEARCH-AD', self.viewModel.getSearchResults);

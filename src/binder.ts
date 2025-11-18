@@ -6,7 +6,8 @@ import applyBinding from './applyBinding';
 import renderTemplatesBinding from './renderTemplatesBinding';
 import postProcess from './postProcess';
 import * as pubSub from './pubSub';
-import type {ViewModel, ElementCache, UpdateOption, BindingAttrs} from './types';
+import {createReactiveProxy, isProxySupported} from './reactiveProxy';
+import type {ViewModel, ElementCache, UpdateOption, BindingAttrs, BinderOptions} from './types';
 
 let compIdIndex = 0;
 
@@ -21,8 +22,11 @@ class Binder {
     public elementCache: ElementCache;
     public postProcessQueue: Array<() => void>;
     public render: (opt?: UpdateOption) => void;
+    public isReactive: boolean;
+    public originalViewModel: ViewModel;
+    private afterRenderCallbacks: Array<() => void>;
 
-    constructor($rootElement: HTMLElement, viewModel: ViewModel, bindingAttrs: BindingAttrs) {
+    constructor($rootElement: HTMLElement, viewModel: ViewModel, bindingAttrs: BindingAttrs, options: BinderOptions = {}) {
         if (!$rootElement || $rootElement.nodeType !== 1 || viewModel === null || typeof viewModel !== 'object') {
             throw new TypeError('$rootElement or viewModel is invalid');
         }
@@ -33,14 +37,39 @@ class Binder {
 
         this.$rootElement = $rootElement;
 
-        this.viewModel = viewModel;
-
         this.bindingAttrs = bindingAttrs;
 
         this.isServerRendered = this.$rootElement.getAttribute(config.serverRenderedAttr) !== null;
 
+        // Initialize afterRender callbacks array
+        this.afterRenderCallbacks = [];
+
         // Initialize render method with debounced version
         this.render = debounceRaf(this._render.bind(this), this) as (opt?: UpdateOption) => void;
+
+        // Store original viewModel reference
+        this.originalViewModel = viewModel;
+
+        // Reactive mode is controlled by options (defaults merged in index.ts)
+        // options.reactive is guaranteed to be defined due to merge in index.ts
+        this.isReactive = !!options.reactive;
+
+        // If reactive mode is enabled, wrap viewModel in proxy
+        if (this.isReactive) {
+            if (!isProxySupported()) {
+                console.warn('Reactive mode requires Proxy support. Falling back to manual mode.');
+                this.isReactive = false;
+                this.viewModel = viewModel;
+            } else {
+                this.viewModel = createReactiveProxy(viewModel, {
+                    onChange: () => this.render(),
+                    deep: true,
+                    trackChanges: options.trackChanges,
+                });
+            }
+        } else {
+            this.viewModel = viewModel;
+        }
 
         // inject instance into viewModel
         this.viewModel.APP = this;
@@ -172,6 +201,63 @@ class Binder {
         delete this.postProcessQueue;
 
         this.initRendered = true;
+
+        // Call afterRender callbacks after rendering is fully complete
+        this._callAfterRenderCallbacks();
+    }
+
+    /**
+     * Call all registered afterRender callbacks
+     * Called automatically after each render completes
+     */
+    private _callAfterRenderCallbacks(): void {
+        if (this.afterRenderCallbacks.length > 0) {
+            // Clone array to avoid issues if callbacks modify the array
+            const callbacks = this.afterRenderCallbacks.slice();
+            for (let i = 0, len = callbacks.length; i < len; i += 1) {
+                try {
+                    callbacks[i]();
+                } catch (err) {
+                    console.error('Error in afterRender callback:', err);
+                }
+            }
+        }
+    }
+
+    /**
+     * Register a callback to be called after each render completes
+     * Useful for reactive mode where renders happen automatically
+     * @param callback Function to call after render completes
+     * @returns this for chaining
+     */
+    public afterRender(callback: () => void): this {
+        if (typeof callback !== 'function') {
+            throw new TypeError('afterRender callback must be a function');
+        }
+        this.afterRenderCallbacks.push(callback);
+        return this;
+    }
+
+    /**
+     * Remove a specific afterRender callback
+     * @param callback The callback function to remove
+     * @returns this for chaining
+     */
+    public removeAfterRender(callback: () => void): this {
+        const index = this.afterRenderCallbacks.indexOf(callback);
+        if (index !== -1) {
+            this.afterRenderCallbacks.splice(index, 1);
+        }
+        return this;
+    }
+
+    /**
+     * Clear all afterRender callbacks
+     * @returns this for chaining
+     */
+    public clearAfterRender(): this {
+        this.afterRenderCallbacks.length = 0;
+        return this;
     }
 
     public subscribe(eventName: string = '', fn: (...args: unknown[]) => void): this {

@@ -253,16 +253,17 @@ describe('Given form-component initised', () => {
 
         it('should update attribute according to viewModel', async () => {
             const $el = document.querySelector('[data-bind-attr="testAttr"]')!;
-            formComponentVM.testAttr = {
+            // Use component.viewModel for reactive updates (reactive mode is default)
+            namespace.formComponentApp.viewModel.testAttr = {
                 id: '8888',
                 class: 'hidden',
             } as any;
-            formComponentVM.updateView();
+            // No need to call updateView() - reactive mode triggers automatic render
 
             await waitFor(() => {
                 const attrObj = getElementAttributesObj($el);
-                Object.keys(formComponentVM.testAttr).forEach(k => {
-                    expect(attrObj[k]).toBe((formComponentVM.testAttr as any)[k]);
+                Object.keys(namespace.formComponentApp.viewModel.testAttr).forEach(k => {
+                    expect(attrObj[k]).toBe((namespace.formComponentApp.viewModel.testAttr as any)[k]);
                 });
                 expect(attrObj.rel).toBeUndefined();
             }, {timeout: 500});

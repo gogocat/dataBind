@@ -12,7 +12,7 @@
         showAllCss: {selected: true},
         showActiveCss: {selected: false},
         showCompletedCss: {selected: false},
-        onAddTask: function(e, $el, newValue, oldValue) {
+        onAddTask(e, $el, newValue) {
             this.tasks.push({
                 taskTitle: String(newValue).trim(),
                 completed: false,
@@ -23,32 +23,32 @@
             this.updateViewData();
             $el.value = '';
         },
-        onMarkAllCompleted: function(e, $el, newValue, oldValue) {
-            this.tasks.forEach(function(task, index) {
+        onMarkAllCompleted(e, $el, newValue) {
+            this.tasks.forEach((task) => {
                 task.completed = newValue;
             });
             this.updateViewData();
         },
-        onClearAllCompleted: function(e, $el) {
-            const newTasks = this.tasks.filter(function(task, index) {
+        onClearAllCompleted() {
+            const newTasks = this.tasks.filter((task) => {
                 return task.completed !== true;
             });
             this.tasks = newTasks;
             this.updateViewData();
         },
-        onTaskCompleted: function(e, $el, newValue, oldValue, index) {
+        onTaskCompleted(e, $el, newValue, oldValue, index) {
             this.tasks[index].completed = newValue;
             this.updateViewData({templateBinding: true});
         },
-        onTaskRemove: function(e, $el, index) {
+        onTaskRemove(e, $el, index) {
             this.tasks.splice(index, 1);
             this.updateViewData();
         },
-        onEditTask: function(e, $el, index) {
+        onEditTask(e, $el, index) {
             this.tasks[index].editing = true;
             this.updateViewData({templateBinding: false});
         },
-        onBlurEditTask: function(e, $el, index) {
+        onBlurEditTask(e, $el, index) {
             const oldValue = this.tasks[index].taskTitle;
             const newValue = $el.value.trim();
             let isChanged = false;
@@ -60,58 +60,58 @@
             this.tasks[index].editing = false;
             this.updateViewData({templateBinding: isChanged});
         },
-        onShowAllTasks: function(e) {
+        onShowAllTasks() {
             this.displayFilter = 'all';
             this.updateViewData();
         },
-        onShowAactiveTasks: function(e) {
+        onShowAactiveTasks() {
             this.displayFilter = 'active';
             this.updateViewData();
         },
-        onShowCompletedTasks: function(e) {
+        onShowCompletedTasks() {
             this.displayFilter = 'completed';
             this.updateViewData();
         },
-        getCompletedTasks: function() {
-            return this.tasks.filter(function(task, index) {
+        getCompletedTasks() {
+            return this.tasks.filter((task) => {
                 return task.completed === true;
             });
         },
-        getDisplayTasks: function() {
+        getDisplayTasks() {
             let displayTasks = [];
             switch (this.displayFilter) {
-            case 'all':
-                displayTasks = this.tasks;
-                this.showAllCss = {selected: true};
-                this.showActiveCss = {selected: false};
-                this.showCompletedCss = {selected: false};
-                break;
-            case 'active':
-                displayTasks = this.tasks.filter(function(task, index) {
-                    return task.completed !== true;
-                });
-                this.showAllCss = {selected: false};
-                this.showActiveCss = {selected: true};
-                this.showCompletedCss = {selected: false};
-                break;
-            case 'completed':
-                displayTasks = displayTasks = this.tasks.filter(function(task, index) {
-                    return task.completed === true;
-                });
-                this.showAllCss = {selected: false};
-                this.showActiveCss = {selected: false};
-                this.showCompletedCss = {selected: true};
-                break;
+                case 'all':
+                    displayTasks = this.tasks;
+                    this.showAllCss = {selected: true};
+                    this.showActiveCss = {selected: false};
+                    this.showCompletedCss = {selected: false};
+                    break;
+                case 'active':
+                    displayTasks = this.tasks.filter((task) => {
+                        return task.completed !== true;
+                    });
+                    this.showAllCss = {selected: false};
+                    this.showActiveCss = {selected: true};
+                    this.showCompletedCss = {selected: false};
+                    break;
+                case 'completed':
+                    displayTasks = displayTasks = this.tasks.filter((task) => {
+                        return task.completed === true;
+                    });
+                    this.showAllCss = {selected: false};
+                    this.showActiveCss = {selected: false};
+                    this.showCompletedCss = {selected: true};
+                    break;
             }
             return displayTasks;
         },
-        setTaskLabelAttr: function(index) {
+        setTaskLabelAttr(index) {
             return {for: `taskEdit-${index}`};
         },
-        setTaskInputAttr: function(index) {
+        setTaskInputAttr(index) {
             return {id: `taskEdit-${index}`};
         },
-        updateViewData: function(renderOption) {
+        updateViewData(renderOption) {
             const compltedTasks = this.getCompletedTasks();
             const compltedTasksLength = compltedTasks.length;
             const currentTaskLength = this.tasks.length;
@@ -122,25 +122,25 @@
             this.remainingCount = currentTaskLength - compltedTasksLength;
             this.remainingCountLabel = this.remainingCount > 1 ? ' tasks' : ' task';
             this.displayTasks = this.getDisplayTasks();
-            todoApp.render(renderOption);
+            // Reactive mode - automatic render!
             // update db
             db.set('todos', this.tasks);
         },
-        afterTemplateRender: function() {
+        afterTemplateRender() {
             console.log('template rendered');
         },
     };
 
     const db = {
-        set: function(storeKey, data) {
+        set(storeKey, data) {
             if (storeKey && data) {
                 localStorage.setItem(storeKey, JSON.stringify(data));
             }
         },
-        get: function(storeKey) {
+        get(storeKey) {
             return JSON.parse(localStorage.getItem(storeKey));
         },
-        clear: function(storeKey) {
+        clear(storeKey) {
             if (storeKey) {
                 localStorage.removeItem(storeKey);
             }
@@ -150,7 +150,7 @@
     viewModel.displayTasks = db.get('todos') || [];
 
     const todoApp = dataBind.init(document.getElementById('todoapp'), viewModel);
-    todoApp.render().then(function() {
+    todoApp.render().then(() => {
         // retrive data from storage
         viewModel.tasks = db.get('todos') || [];
         // update viewModel data and trigger todoApp.render

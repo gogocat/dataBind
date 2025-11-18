@@ -5,11 +5,11 @@ const fiberViewModel = {
     dots: [],
     dotCss: 'dot',
     onHoverDot: {
-        in: function(e, $el, index) {
+        in(e, $el, index) {
             $el.style.background = '#ff0';
             this.dots[index].isMouseOver = true;
         },
-        out: function(e, $el, index) {
+        out(e, $el, index) {
             $el.style.background = '#61dafb';
             this.dots[index].isMouseOver = false;
         },
@@ -53,7 +53,7 @@ function createDot(x, y) {
 
 function recursiveUpdateDotsData(viewModel) {
     const remainder = getElapsedSecond() % 10;
-    const text = Math.floor(remainder) + '';
+    const text = `${Math.floor(remainder)  }`;
     const scaleXFactor = (1 + (5 - Math.abs(5 - remainder)) / 10) / 2.1;
 
     // update viewModel data
@@ -79,7 +79,7 @@ fiberViewModel.dots = createDotList();
 // start binding on DOM ready
 // formComponentC - test for-of binding
 const fiberComponent = dataBind.init(document.querySelector('[data-bind-comp="fiberDemoComponent"]'), fiberViewModel);
-fiberComponent.render().then(function() {
+fiberComponent.render().then(() => {
     // for debug
     console.log(fiberComponent);
     window.fiberComponent = fiberComponent;

@@ -104,4 +104,8 @@ export interface BindingAttrs {
     input: string;
     tmp: string;
 }
+export interface BinderOptions {
+    reactive?: boolean;
+    trackChanges?: boolean;
+}
 //# sourceMappingURL=types.d.ts.map

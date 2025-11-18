@@ -1,26 +1,24 @@
+const performanceEnv = window.ENV;
+const performanceMonitoring = window.Monitoring;
+
 const viewModel = {
-    databases: ENV.generateData().toArray(),
+    databases: performanceEnv.generateData().toArray(),
 };
-let oldDbLength = viewModel.databases.length;
-let newDbLength = 0;
+
+// Manual mode for performance benchmark
+const dbMonApp = dataBind.init(document.getElementById('app'), viewModel, {reactive: false});
 
 function refreshApp() {
-    let shouldUpdateTemplate = true;
+    viewModel.databases = performanceEnv.generateData().toArray();
+    dbMonApp.render();
 
-    viewModel.databases = ENV.generateData().toArray();
-    newDbLength = viewModel.databases.length;
-    shouldUpdateTemplate = oldDbLength !== newDbLength;
-    // only re-render template binding if database size different
-    dbMonApp.render({templateBinding: shouldUpdateTemplate});
-    oldDbLength = newDbLength;
-
-    Monitoring.renderRate.ping();
-    setTimeout(refreshApp, ENV.timeout);
+    performanceMonitoring.renderRate.ping();
+    setTimeout(refreshApp, performanceEnv.timeout);
 }
 
-
-const dbMonApp = dataBind.init(document.getElementById('app'), viewModel);
-dbMonApp.render().then(function() {
-    console.log('dbMonApp inited');
+// render().then() works with both reactive and manual modes
+// The callback runs after the initial render completes
+dbMonApp.render().then(() => {
+    console.log('dbMonApp (Manual) inited');
     refreshApp();
 });

@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+
 (() => {
     const myComponentViewModel = {
         heading: 'This heading is inside switch binding',
@@ -11,14 +11,14 @@
             {title: 'The Ugly Duckling', value: 's2'},
             {title: 'The Giving Tree', value: 's3'},
         ],
-        setStoryOptionAttr: function($data, oldAttrObj, $el) {
+        setStoryOptionAttr($data, oldAttrObj, $el) {
             if ($data && $data.value) {
                 return {
                     value: $data.value,
                 };
             }
         },
-        onSelectedStory: function(e, $el, newValue, oldValue) {
+        onSelectedStory(e, $el, newValue, oldValue) {
             const id = newValue;
 
             e.preventDefault();
@@ -30,9 +30,9 @@
                 this.story = {};
                 this.selectedStory = '';
             }
-            this.updateView();
+            // Reactive mode - automatic render!
         },
-        setStoryImgAttr: function() {
+        setStoryImgAttr() {
             const picPath = this.story.pic || '';
             const ret = {
                 alt: this.story.title,
@@ -45,8 +45,8 @@
             }
             return ret;
         },
-        updateView(opt) {
-            this.APP.render(opt);
+        updateView(opt) {  // Note: render is automatic in reactive mode
+            // Reactive mode - automatic render!
         },
     };
 
@@ -75,7 +75,7 @@
     // start binding on DOM ready
     // main
     const myComponent = dataBind.init(document.querySelector('[data-bind-comp="myComponent"]'), myComponentViewModel);
-    myComponent.render().then(function() {
+    myComponent.render().then(() => {
         // for debug
         console.log(myComponent);
         window.myComponent = myComponent;

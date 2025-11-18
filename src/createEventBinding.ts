@@ -57,6 +57,19 @@ const createEventBinding = ({
         viewModelContext = resolveViewModelContext(viewModel, handlerName);
         paramList = paramList ? resolveParamList(viewModel, paramList) : [];
 
+        // Store handler key for this event type on the DOM element itself
+        // This prevents duplicate handlers even if multiple cache objects exist for same element
+        const handlerKey = `_db_${type}Handler`;
+        const el = cache.el as HTMLElement & Record<string, unknown>;
+
+        // Check if handler already exists and skip if it's the same
+        // This prevents adding duplicate handlers when the same element is processed multiple times
+        if (el[handlerKey]) {
+            // Handler already exists, remove it before adding new one
+            el.removeEventListener(type, el[handlerKey] as EventListener, false);
+        }
+
+        // Create new handler wrapper
         const handlerWrap = createEventHandlerWrapper(
             type,
             paramList,
@@ -64,8 +77,11 @@ const createEventBinding = ({
             viewModelContext,
         );
 
-        cache.el.removeEventListener(type, handlerWrap, false);
-        cache.el.addEventListener(type, handlerWrap, false);
+        // Store the handler on the DOM element so we can remove it later
+        el[handlerKey] = handlerWrap;
+
+        // Add the new event listener
+        el.addEventListener(type, handlerWrap, false);
     }
 };
 
