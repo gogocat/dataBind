@@ -3,973 +3,400 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e754785d29d946bf9a0ab7146869caec)](https://www.codacy.com/app/gogocat/dataBind?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gogocat/dataBind&amp;utm_campaign=Badge_Grade)
 ![GitHub](https://img.shields.io/github/license/gogocat/dataBind.svg)
 
-  
+# dataBind.js
 
-## What is dataBind?
+> Simple, fast, reactive data binding for modern browsers. No build tools required.
 
-  
+## Why dataBind?
 
-dataBind is a light weight javaScript [MV* framework](http://www.techbloginterview.com/what-is-a-mv-framework/) aim for update DOM easier and in better managed way.
+**dataBind.js is not another front-end UI framework.** It's a lightweight, pragmatic solution for adding reactive data binding to your existing HTML, without the complexity of modern frameworks.
 
-  
+### Key Features
 
-*  **Declarative:** dataBind simpliy bind view data to the HTML, wire events, and provides two way or one way data binding
+✨ **Simple** - Just HTML + JavaScript. No JSX, no virtual DOM, no build pipeline
+⚡ **Fast** - Extremely small footprint (~15KB min+gzip) and high performance ([see benchmarks](https://gogocat.github.io/dataBind/examples/dbmonsterForOf.html))
+🔄 **Reactive** - Automatic UI updates when data changes (like Vue 3, but simpler)
+🎯 **Focused** - View + ViewModel pattern. No router, no state management, no opinions
+🛠️ **Zero Setup** - Drop in a `<script>` tag and go. Works with any backend or framework
+📦 **Tiny** - No dependencies, no build tools, no configuration
 
-*  **High performance:** dataBind is very fast. Please do try the famous [**dbmonster** example](https://gogocat.github.io/dataBind/examples/dbmonsterForOf.html), locate in `examples/dbmonsterForOf.html` and [**fiber**](https://gogocat.github.io/dataBind/examples/fiber-demo.html) `/examples/fiber-demo.html` compare with [other frameworks](http://mathieuancelin.github.io/js-repaint-perfs/)
+## Quick Start
 
-*  **DOM is the source of truth:** There is no vitrual DOM or complex reactive observables to worry about
+### Installation
 
-*  **Isolated scope:** Each component only works with its own viewModel scope. No complex props pass up and down
-
-*  **zero setup:** There is no need to run any build tool for development or production
-
-*  **framework agnostic :** dataBind can work with any other framework. There is no need to rebuild everything in order to use it. It is design to leverage and modernise what is already working
-
-  
-  
-
-## How to use it?
-
-For web load via script tag
-
-    <script src="dist/js/dataBind.min.js"></script>
-
-Or  node_module
-
-    npm install @gogocat/data-bind
-
-then
-
-     import dataBind from '@gogocat/data-bind';
-
-**Usage**
-
-The following is a very simple example shows text binding.
-
-  
-
-Most of the component logic will be in the viewModel(plain old JavaScript object).
-
-  
-
-`dataBind.init` will return an instance of `Binder`(this is the bound dataBind object).
-
-Then just call `render` to start render to the page.
-
-  
-
-**HTML**
-
+**Via CDN:**
 ```html
-
-<section data-bind-comp="simpleComponent">
-    <div>
-        <h5 data-bind-text="heading"></h5>
-        <p data-bind-text="description"></p>
-    </div>
-</section>
-
+<script src="https://unpkg.com/@gogocat/data-bind/dist/js/dataBind.min.js"></script>
 ```
 
-**Js**
+**Via NPM:**
+```bash
+npm install @gogocat/data-bind
+```
 
 ```javascript
-
-const simpleComponentViewModel = {
-    heading: 'Test heading',
-    description: 'This is my test description',
-};
-
-// init data bind with view
-const simpleComponent = dataBind.init(
-    document.querySelector('[data-bind-comp="simpleComponent"]'),
-    simpleComponentViewModel
-);
-
-
-// trigger render and log after render
-simpleComponent
-    .render()
-    .then(function() {
-        // for debug
-        console.log(simpleComponent);
-    });
-
+import dataBind from '@gogocat/data-bind';
 ```
 
-To make change, just update the data in viewModel and then call `render()`.
+### Basic Example
 
-```javascript
-
-simpleComponentViewModel.heading='new heading';
-
-simpleComponent.render();
-
-```
-
-`render` function is an asynchronous, debounced operation. So it will consolidate changes and render only once.
-
-  
-
-> :bulb: *All declarative bindings accept value or function that returns value from the viewModel*.
-
-  
-
-Example: `heading` in the viewModel can be a value or function that returns value.
-
-  
-
-The binding can also pass-in parameters.
-
+**HTML:**
 ```html
-
-<h5 data-bind-text="heading($data)"></h5>
-
+<div id="app">
+    <h1 data-bind-text="greeting"></h1>
+    <button data-bind-click="changeGreeting">Change</button>
+</div>
 ```
 
-The following parameters are helpers reference `$index` or `$data` or `$root`. More details below
-
-  
-  
-
-For more advance example. Please check [**examples/bootstrap.html**](https://gogocat.github.io/dataBind/examples/bootstrap.html).
-
-  
-
->  *bootstrap example shows how to use multiple, nested components and services together. Please run this example from a local server*.
-
-  
-
-----
-
-  
-
-### The init and render functions
-
+**JavaScript:**
 ```javascript
-
-...
-
-// DOM ready bind viewModel with target DOM element
-const simpleComponent = dataBind.init(
-    document.querySelector('[data-bind-comp="simpleComponent"]'),
-    simpleComponentViewModel
-);
-
-  
-
-// trigger render, then console log for debug
-simpleComponent
-    .render()
-    .then(function(ctx) {
-        // for debug
-         console.log(simpleComponent === ctx);
-    });
-
-
-```
-
-In this simple example. First we call `.init` to initialise the component with the viewModle:
-
-```javascript
-
-const  simpleComponent = dataBind.init([targetDOMElement], [viewModel]);
-
-```
-
-The returned value of `dataBind.init` is a instance of `Binder`, which is the bound component. Behind the scene, dataBind will parse the target DOM element and cache elements that has binding attributes and wire up with the viewModel. At this stage it doesn't make any change to the DOM.
-
-  
-
-The next call of `render` function is to render value from viewModel to the DOM (if there are difference). It returns a `promise` object for logic that can be trigger after the component fully rendered.
-
-  
-
-The resolver callback will receive a `context` object; because inside the resolver function `this` is refer to window.
-
-`context` object is the same object as `simpleComponent` in this example.
-
-  
-
-To re-render the component, just call `render`. As mentioned, this function is an asynchronous and debounced operation. This mean, doesn't matter how many times it get call it will only make change to DOM once. Minimise browser repaint/reflow.
-
-  
-
-For edge case; pass an optional setting object when calling `render` to control what binding should be render or not.
-
-```javascript
-
-simpleComponent.render({
-    templateBinding: true,
-    textBinding: true,
-    cssBinding: true,
-    ifBinding: true,
-    showBinding: true,
-    modelBinding: true,
-    attrBinding: true,
-    forOfBinding: true,
-    switchBinding: true,
-    changeBinding: true,
-    clickBinding: true,
-    dblclickBinding: true,
-    blurBinding: true,
-    focusBinding: true,
-    hoverBinding: true,
-    submitBinding: true,
+const app = dataBind.init(document.getElementById('app'), {
+    greeting: 'Hello, World!',
+    changeGreeting() {
+        this.greeting = 'Hello, dataBind!';
+        // That's it! UI updates automatically in reactive mode
+    }
 });
 
+app.render();
 ```
 
-**Overwrite 'data-bind-x` namespace**
+That's it! No JSX, no compilation, no complex setup.
+
+## Reactive State (Default)
+
+By default, dataBind uses **reactive mode** - changes to data automatically update the UI:
 
 ```javascript
-
-// global dataBind settings
-
-dataBind.use({
-    bindingAttrs: {
-        comp: 'data-xy-comp',
-        tmp: 'data-xy-tmp',
-        text: 'data-xy-text',
-        click: 'data-xy-click',
-        dblclick: 'data-xy-dblclick',
-        blur: 'data-xy-blur',
-        focus: 'data-xy-focus',
-        hover: 'data-xy-hover',
-        change: 'data-xy-change',
-        submit: 'data-xy-submit',
-        model: 'data-xy-model',
-        show: 'data-xy-show',
-        css: 'data-xy-css',
-        attr: 'data-xy-attr',
-        forOf: 'data-xy-for',
-        if: 'data-xy-if',
-        switch: 'data-xy-switch',
-        case: 'data-xy-case',
-        default: 'data-xy-default'
+const app = dataBind.init(element, {
+    counter: 0,
+    items: [],
+    increment() {
+        this.counter++;  // UI updates automatically!
     },
+    addItem() {
+        this.items.push({ text: 'New Item' });  // UI updates automatically!
+    }
 });
 
-  
-
-// init
-const simpleComponent = dataBind.init(
-    document.querySelector('[data-bind-comp="simpleComponent"]'),
-    simpleComponentViewModel
-);
-
-// render
-simpleComponent.render();
-
+app.render();
 ```
 
-dataBind `use` method can be use to set global setting of binding attribute namespace. It accept an option object showing in above example.
+### How It Works
 
-  
-
-## Visual bindings
-
-The following bindings produce visual changes
-
-  
-
-### Template binding
-
-```html
-
-<section  
-  data-bind-comp="simpleComponent"  
-  data-bind-tmp="{id: 'exampleTemplate', data: '$root'}"
-></section>
-
-
-<template  id="exampleTemplate">
-	<h1  data-bind-text="heading"></h1>
-</template>
-
-```
-
-The attribute `data-bind-tmp` accept a JSON like object. `id` is reference to the `template` element id. `data` is reference to the data object within the bound viewModel. In this example `$root` means the root of the viewModel itself.
-
-If there a 3rd option as `append: true` or `prepend: true`, the content will then append or preprend to the target container (the section tag in this example). This make building infinity scroll content very easy and efficient.
-
-  
-  
-
-### Text binding
-
-```html
-
-<h1  data-bind-text="heading"></h1>
-
-<h1  data-bind-text="fullName | uppercase"></h1>
-
-```
-
-The attribute `data-bind-text` is refernce to the viewModel's property '**heading**'. All binding can handle deep object path reference eg. `data-bind-text="childObj.myArray[1].heading"`
-
-  
-
-The 2nd example shows usage of **filter** ' | '. The value from viewModel's property `fullName` will pass on to the viewModel's `uppercase` function that returns value to be display. Filters can be chain together one after the other. more detail below.
-
-### css binding
-
-```html
-
-<h1  data-bind-css="mycCss"></h1>
-
-```
-
-The attribute `data-bind-css` is refernce to the viewModel's property '**mycCss**'. This property can be a string of css class name, an object represend mutilple css class toggle eg. `{css1: true, css2: false}` or a function that returns either string or the object.
-
-  
-
-### if binding
-
-```html
-// conditional render the H1 element
-<h1  data-bind-if="myCondition">
-	<span>Hello</span>
-</h1>
-
-// conditditional render the DIV element and its template binding
-<div  
-  data-bind-if="!myCondition"  
-  data-bind-tmp="{id: 'someTemplateId', data: 'someData'}"
-></div>
-
-```
-
-The attribute `data-bind-if` is refernce to the viewModel's property '**myCondition**'. This property can be a boolean or a function that returns boolean.
-
-  
-
-If `myCondition` is false. the children elements will be removed from DOM. When later `myCondition` is set to true. The elements will then render back.
-
-  
-
-With negate expression(second example above), when the expression `!myCondition` evaluate to true. The template binding `data-bind-tmp` will execute and render accordingly.
-
-  
-
-[example](https://gogocat.github.io/dataBind/examples/ifBinding.html)
-
-  
-
-### show binding
-
-```html
-// conditional display the H1 element
-<h1  data-bind-show="isShow">
-	<span>Hello</span>
-</h1>
-
-```
-
-The attribute `data-bind-show` is refernce to the viewModel's property '**isShow**'. This property can be a boolean or a function that returns boolean. If `isShow` is `true` the element will be display, otherwise it will be hidden. It also can handle negate expression eg `!isShow`.
-
-  
-
-### model binding
-
-```html
-
-<input 
-  id="userName"  
-  name="userName"  
-  type="text"
-  data-bind-model="personalDetails.userName"
-  data-bind-change="onInputChange"
-  required
->
-
-```
-
-The attribute `data-bind-model` is refernce to the viewModel's property '**personalDetails.userName**'. This property can be a string or a function that returns string. Model binding is a one-way binding operation that populate the input field `value` attribute with value come from the viewModel.
-
-  
-
-**data-bind-model**
-
-> viewModel -> DOM
-
-  
-
-For two-way data binding; use together with `data-bind-change`. It will update the viewModel if the value has changed and then trigger the event handler `onInputChange`. More detail below.
-
-  
-
-**data-bind-change**
-
-> DOM -> viewModel
-
-  
-
-[example](https://gogocat.github.io/dataBind/examples/todomvc.html)
-
-  
-
-### attribute binding
+dataBind uses JavaScript Proxies to detect data changes:
 
 ```javascript
+// After init, use component.viewModel for reactive updates
+app.viewModel.counter++;           // ✅ Triggers automatic render
+app.viewModel.items.push({...});   // ✅ Triggers automatic render
+app.viewModel.user.name = 'Jane';  // ✅ Deep reactivity works!
+```
 
-<img  data-bind-attr="getImgAttr">
+### Manual Mode (Optional)
 
-  
-// js
+For maximum performance control, disable reactive mode:
+
+```javascript
+const app = dataBind.use({ reactive: false }).init(element, viewModel);
+
+// In manual mode, call render() explicitly
+viewModel.counter++;
+app.render();  // Manual render call
+```
+
+## Core Bindings
+
+### Text Binding
+```html
+<h1 data-bind-text="title"></h1>
+<p data-bind-text="user.name"></p>  <!-- Deep paths supported -->
+```
+
+### Event Binding
+```html
+<button data-bind-click="handleClick">Click Me</button>
+<input data-bind-change="handleChange" data-bind-model="username">
+<form data-bind-submit="handleSubmit">...</form>
+```
+
+```javascript
 const viewModel = {
-    getImgAttr: function(oldAttrObj, $el) {
-        return {
-            src: '/someImage.png',
-            alt: 'some image',
-        };
+    handleClick(event, element) {
+        console.log('Clicked!', event, element);
+    },
+    handleChange(event, element, newValue, oldValue) {
+        console.log('Changed from', oldValue, 'to', newValue);
     }
 };
-
 ```
 
-The attribute `data-bind-attr` is refernce to the viewModel's property '**getImgAttr**'. This property can be a object or a function that returns object with `key:value`. The key is the attribute name and value is the value of that attribute.
-
-  
-
-attribute binding is useful for more complex usage together with `data-bind-for` binding.
-
-Please see the `<select>` elements in this [example](https://gogocat.github.io/dataBind/examples/forOfBindingComplex.html)
-
-  
-
-### forOf binding
-
-  
-
-```javascript
-
-<p  
-  data-bind-for="result of results"  
-  data-bind-text="result.content"
-></p>
-  
-
-// js
-const viewModel = {
-    results: [
-        {
-            content: '1'
-        },
-        {
-            content: '2'
-        },
-        {
-            content: '3'
-        }
-    ]
-};
-
-```
-
-The attribute `data-bind-for` is refernce to the viewModel's property '**results**'. It will then loop throught the data and repeat the element. The express also accept 'for-in' syntax eg `result in results`.
-
-  
-
-The result will looks like this:
-
+### List Rendering
 ```html
-
-<!--data-forOf_result_of_results-->
-<p  data-bind-text="result.content">1</p>
-<p  data-bind-text="result.content">2</p>
-<p  data-bind-text="result.content">3</p>
-<!--data-forOf_result_of_results_end-->
-
+<div data-bind-for="item in items">
+    <p data-bind-text="item.name"></p>
+    <button data-bind-click="$root.deleteItem($index)">Delete</button>
+</div>
 ```
 
-[example](https://gogocat.github.io/dataBind/examples/forOfBinding.html)
-
-  
-
-### switch binding
-
 ```javascript
+const viewModel = {
+    items: [
+        { name: 'Item 1' },
+        { name: 'Item 2' }
+    ],
+    deleteItem(index) {
+        this.items.splice(index, 1);  // Reactive update!
+    }
+};
+```
 
-<div  data-bind-switch="selectedStory">
-    <div  data-bind-case="s1">
-        <h2>Case 1</h2>
-    </div>
-    <div  data-bind-case="s2">
-        <h2>Case 2</h2>
-    </div>
-    <div  data-bind-case="s3">
-        <h2>Case 3</h2>
-    </div>
-    <div  data-bind-default="">
-        <p>No story found...</p>
-    </div>
+### Conditional Rendering
+```html
+<!-- Removes from DOM when false -->
+<div data-bind-if="isLoggedIn">
+    <p data-bind-text="user.name"></p>
 </div>
 
-
-// js
-const viewModel = {
-    selectedStory: 's1'
-};
-
-```
-
-Switch binding is a specail binding that the bound element must be parent of `data-bind-case` or `data-bind-default` binding elements, and each `data-bind-case` or `data-bind-default` must be siblings.
-
-  
-
-The attribute `data-bind-switch` is refernce to the viewModel's property '**selectedStory**'. This property can be a string or a function that returns a string.
-
-  
-
-In this example the result will looks like this, since selectedStory` match `data-bind-case="s1"`.
-
-```html
-
-<div  data-bind-switch="selectedStory">
-    <div  data-bind-case="s1">
-        <h2>Case 1</h2>
-    </div>
+<!-- Hides with CSS when false -->
+<div data-bind-show="isVisible">
+    <p>Visible content</p>
 </div>
 
+<!-- Switch statement for multiple conditions -->
+<div data-bind-switch="currentState">
+    <div data-bind-case="loading">Loading...</div>
+    <div data-bind-case="error">An error occurred</div>
+    <div data-bind-case="success">Data loaded successfully!</div>
+    <div data-bind-default>Please wait...</div>
+</div>
 ```
 
-[example](https://gogocat.github.io/dataBind/examples/switchBinding.html)
+### CSS Binding
+```html
+<div data-bind-css="{ active: isActive, disabled: !isEnabled }"></div>
+<div data-bind-css="dynamicClass"></div>
+```
 
-  
-
-## Event bindings
-
-The following binding produce interactivities
-
-  
-
-### change binding
-
-```javascript
-
-<input  
-    id="new-todo"  
+### Two-Way Data Binding
+```html
+<input
     type="text"
-    data-bind-change="onAddTask"
-    placeholder="What needs to be done?"
-    autofocus
->
-
-
-// js
-const viewModel = {
-    onAddTask: function(e, $el, newValue, oldValue) {
-        // do something...
-    },
-}
-
+    data-bind-model="username"
+    data-bind-change="onUsernameChange">
 ```
 
-`data-bind-change` binding is use form input elements(input, checkbox, select..etc) on change event. The bound viewModel handler `onAddTask` will receive the `event object`, `bound DOM element `, `new value` and the `old value`.
+The `data-bind-model` populates the input value from viewModel, while `data-bind-change` updates the viewModel when the input changes.
 
-  
+## Advanced Features
 
-To make things more flexible. `data-bind-change` is one way binding (Data flows from DOM to viewModel).
-
-For 2 way binding, please use Model binding together. Which does data flow from viewModel to DOM.
-
-  
-
-```javascript
-
-<div  data-bind-comp="todoComponent">
-    <input  
-        id="new-todo"  
-        type="text"
-        data-bind-change="onAddTask"
-        data-bind-model="currentTask"
-        placeholder="What needs to be done?"
-        autofocus
-    >
-</div>
-
-
-// js
-const viewModel = {
-    currentTask = '',
-    onAddTask: function(e, $el, newValue, oldValue) {
-        e.preventDefault();
-        this.currentTask = newValue;
-        // re-render
-        this.APP.render();
-    }
-}
-
-
-// init data bind with view
-const toDoApp = dataBind.init(
-    document.querySelector('[data-bind-comp="todoComponent"]'),
-    viewModel
-);
-
-// trigger render
-toDoApp.render();
-
-
-```
-
-In this example, we update `currentTask` data whenever `onAddTask` get called(on change) then calls `this.APP.render()`.
-
-  
-
-> Once the viewModel bound with `dataBind.init` call, the viewModel will be extended. `APP` property is the bound dataBind object.
-
-  
-
-### click binding
-
-```javascript
-
-<button
-    id="clear-completed"
-    data-bind-click="onClearAllCompleted"
->
-    Clear completed
-</button>
-
-
-// js
-const viewModel = {
-    onClearAllCompleted: function(e, $el) {
-        // do something...
-    }
-}
-
-```
-
-`data-bind-click` binding is an event handler binding for 'click' event. The handler will receive ` event object ` and the `DOM element`.
-
-  
-
-### dblclick binding
-
-```javascript
-
-<button  
-    id="clear-completed"  
-    data-bind-dblclick="onDoubleClicked"
->
-    Clear completed
-</button>
-
-// js
-const viewModel = {
-    onDoubleClicked: function(e, $el) {
-        // do something...
-    }
-}
-
-```
-
-`data-bind-dblclick` binding is an event handler binding for double click event. The handler will receive ` event object ` and the `DOM element`.
-
-  
-
-### blur binding
-
-```javascript
-
-<input  name="firstName"  type="text"  data-bind-blur="onBlur">
-
-// js
-const viewModel = {
-    onBlur: function(e, $el) {
-        // do something...
-    }
-}
-
-```
-
-`data-bind-blur` binding is an event handler binding for 'blur' event. The handler will receive ` event object ` and the `DOM element`.
-
-  
-
-### focus binding
-
-```javascript
-
-<input  name="firstName"  type="text"  data-bind-focus="onFocus">
-
-// js
-const viewModel = {
-    onFocus: function(e, $el) {
-        // do something...
-    }
-}
-
-```
-
-`data-bind-focus` binding is an event handler binding for 'focus' event. The handler will receive ` event object ` and the `DOM element`.
-
-### hover binding
-
-```javascript
-
-<div  data-bind-hover="onHover">Hi</div>
-
-  
-
-// js
-const viewModel = {
-    onHover: {
-        in: function(e, $el) {
-            // do something when mouse in
-        },
-        out: function(e, $el) {
-            // do something when mouse out
-        }
-    }
-}
-
-```
-
-`data-bind-hover` binding is an special event handler binding for 'mouseenter' and 'mouseleave' events. The binding property must be a object with `in` and `out` functions. Each function will receive ` event object ` and the `DOM element`.
-
-  
-
-### submit binding
-
-```javascript
-
-<form  id="my-form"  data-bind-submit="onSubmit">
-
-...
-
-</form>
-
-  
-
-// js
-const viewModel = {
-    onSubmit: function(e, $el, formData) {
-        // do something...
-    }
-}
-
-```
-
-`data-bind-focus` binding is an event handler binding for 'submit' event. The handler will receive ` event object ` and the `DOM element` and a JSON object represent the form data.
-
-  
-
-### Filter
-
-```javascript
-
-<p>Price: <span  data-bind-text="story.price | toDiscount | addGst"></span></p>
-
-  
-
-// js
-const viewModel = {
-    gstRate: 1.1,
-    discountRate: 10,
-    story: {
-        price: 100
-    },
-    toDiscount: function(value) {
-        return Number(value) * this.discountRate;
-    },
-    addGst: function(value) {
-        return Number(value) * this.gstRate;
-    },
-}
-
-```
-
-Filter is a convenient way to carry a value and run through series of functions. In this example `data-bind-text` binding refernce to the viewModel property `story.price`. With the ` | ` filter annotation, the value `100` will then pass to `toDiscount` method, and then `addGst` methods. The last fitler's value will then use for display.
-
-'Filter' is just simple function that recevie a value and return a value.
-
-  
-
-### $data, $root and $index
-
-```javascript
-
-<div  data-bind-for="question of questions">
-    <label
-        data-bind-text="question.title"
-        data-bind-attr="getQuestionLabelAttr($data, $index)"
-        data-bind-css="$root.labelCss"
-        >
-    </label>
-    <input type="text" data-bind-attr="getQuestionInputAttr($data, $index)">
-</div>
-
-  
-
-// js
-const viewModel = {
-    labelCss: 'form-label',
-    questions: [{
-        title: 'How are you?',
-        fieldName: 'howAreYou',
-    }],
-    getQuestionLabelAttr: function(data, index, oldAttr, $el) {
-        return {
-            'for': `${data.fieldName}-${index}`,
-        };
-    },
-    getQuestionInputAttr: function(data, index, oldAttr, $el) {
-        return {
-            'name': `${data.fieldName}-${index}`,
-            'id': `${data.fieldName}-${index}`,
-        };
-    },
-}
-
-```
-
-When using `data-bind-for` binding, `$data` is refer to the current data in the loop. `$index` is refer to the current loop index
-
-`$root` is refer to the viewModel root level.
-
-  
-
-### One time binding
-
-```javascript
-
-<div  data-bind-if="renderIntro | once">
-    <h1>Introduction</h1>
-</div>
-
-  
-
-// js
-const viewModel = {
-    renderIntro: false
-}
-
-```
-
-`once` is a reserved word in Filter logic, which does one time only binding. In this example because `renderIntro` is false. `data-bind-if` will not render the bound element, and because it has filter of `once`. It will not re-render the element anymore even later `renderIntro` is set to `true`. dataBind actually unbind the element after first render.
-
-  
-
-### Communicate between components
-
-dataBind use pub/sub pattern to cross comminicate between components. In the [**bootstrap examples**](https://gogocat.github.io/dataBind/examples/bootstrap.html)
-
-```javascript
-
-const compSearchBar = dataBind.init(
-    document.querySelector('[data-bind-comp="search-bar"]'),
-    viewModel
-);
-
-compSearchBar
-    .render()
-    .then(function(comp) {
-        let self = comp;
-        compSearchBar.subscribe('SEARCH-COMPLETED', self.viewModel.onSearchCompleted);
-    });
-
-  
-
-\\ compSearchResults.js
-
-...
-
-compSearchResults.publish('SEARCH-COMPLETED', data);
-
-..
-
-```
-
-Search bar component subscribed ` SEARCH-COMPLETED` event with `onSearchCompleted` as handler after the initial `render` call.
-
-  
-
-Late on, `compSearchResults` component **publish**  `SEARCH-COMPLETED` event with data. Which will then trigger **compSearchBar** component's `onSearchCompleted` handler.
-
-  
-
-> Notice the event publisher and the event subscriber are the individual component. There is no central pub/sub channel. So multiple components can subscribe a same event and can be unsubscribe individually.
-
-  
-
-Supported events are
-
--  **subscribe** - component subscribe an event
-
--  **subscribeOnce** - component subscribe an event only once
-
--  **unsubscribe** - component unsubscribe an event
-
--  **unsubscribeAll** - component unsubscribe all events
-
--  **publish** - component publish an event
-
-  
-
-### Server side rendering and rehydration
-
-dataBind respect any server sider rendering technology. Just mark the component with `data-server-rendered` attribute.
-
+### Templates
 ```html
+<div data-bind-tmp="{id: 'userCard', data: 'user'}"></div>
 
-<div  data-bind-comp="search-bar"  data-server-rendered>
-    ...
-</div>
-
+<template id="userCard">
+    <div class="card">
+        <h2 data-bind-text="name"></h2>
+        <p data-bind-text="email"></p>
+    </div>
+</template>
 ```
 
-**Rehydration** -
+### Filters
+```html
+<p data-bind-text="price | toDiscount | addGst"></p>
+```
 
-When dataBind parse a component that has `data-server-rendered` attribute. dataBind will not render on the initial call of `render`, but will parse all the bindings.
+```javascript
+const viewModel = {
+    price: 100,
+    toDiscount(value) {
+        return value * 0.9;  // 10% discount
+    },
+    addGst(value) {
+        return value * 1.1;  // Add 10% GST
+    }
+};
+```
 
-  
+### Component Communication (Pub/Sub)
+```javascript
+// Component A: Subscribe to events
+componentA.subscribe('USER_UPDATED', (userData) => {
+    console.log('User updated:', userData);
+});
 
-Next time calling `render` method will then update the view according to the viewModel.
+// Component B: Publish events
+componentB.publish('USER_UPDATED', { name: 'John', email: 'john@example.com' });
+```
 
-  
+### AfterRender Callback
+```javascript
+app.afterRender(() => {
+    console.log('Render completed!');
+    // Perform DOM operations, analytics, etc.
+});
+```
 
-> The viewModel should has exact same data as the server side rendered version. So when later on calls `render` the content will update correctly.
+### Global Configuration
+```javascript
+// Set global defaults for all components
+dataBind.use({
+    reactive: true,      // Enable reactive mode globally
+    trackChanges: false  // Track individual property changes
+});
 
-  
+// Or use chainable API
+const app = dataBind
+    .use({ reactive: false })
+    .init(element, viewModel);
+```
 
-*Currently rehydration for **if, forOf and switch** bindings are still work in progress.*
+## Performance
 
-  
+dataBind is **extremely fast**. Try our benchmarks:
 
-## What dataBind is good for
+- [**DBMonster** (1000+ updates/sec)](https://gogocat.github.io/dataBind/examples/dbmonsterForOf.html)
+- [**Fiber** (Complex nested updates)](https://gogocat.github.io/dataBind/examples/fiber-demo.html)
 
-dataBind is designed for leaverage existing infrastructure.
+Compare with [other frameworks](http://mathieuancelin.github.io/js-repaint-perfs/).
 
-It is good fit for web sites that is:
+### Why So Fast?
 
-- has exisitng server side render technology eg. PHP, .Net, JSP etc
+- **No Virtual DOM** - Direct DOM updates with minimal overhead
+- **Efficient Diffing** - Only updates changed elements
+- **Debounced Rendering** - Batches multiple changes via requestAnimationFrame
+- **Tiny Size** - ~15KB min+gzip (vs React 40KB+, Vue 33KB+)
 
-- quickly build something to test the market but maintainable and easy to unit test
+## Real-World Examples
 
-  
+- [**TodoMVC**](https://gogocat.github.io/dataBind/examples/todomvc.html) - Classic todo app
+- [**Bootstrap Integration**](https://gogocat.github.io/dataBind/examples/bootstrap.html) - Multi-component app
+- [**Complex Lists**](https://gogocat.github.io/dataBind/examples/forOfBindingComplex.html) - Nested templates
+- [**Reactive Demo**](https://gogocat.github.io/dataBind/examples/reactiveDemo.html) - Reactive state examples
 
-### what not
+## Use Cases
 
-- new project - Angular, Aurelia or React... may be a better choice
+**Perfect For:**
 
-- dataBind is not an full stack soultion
+✅ Adding interactivity to server-rendered pages (PHP, .NET, Rails, etc.)
+✅ Progressive enhancement of existing sites
+✅ Rapid prototyping without build setup
+✅ Small to medium web applications
+✅ Projects where bundle size matters
+✅ Teams that prefer vanilla JavaScript
 
-- micro component base - dataBind's component concept is not aim to be as small as a `<p>` tag seen in some library
+**Not Ideal For:**
 
-  
+❌ Large single-page applications (consider Vue, React, Angular)
+❌ Projects requiring full framework ecosystem (routing, state management, etc.)
+❌ Micro-components smaller than a section/widget
 
-## What's next?
+## Philosophy
 
-- The next major version, already on the way, will implement dataBind with native [web component](https://developer.mozilla.org/en-US/docs/Web/Web_Components). This will make micro component concept super easy, truely portable.
+dataBind follows these principles:
 
-  
+1. **Simplicity** - HTML is the template, JavaScript is the logic. No new syntax to learn.
+2. **Pragmatism** - Leverage existing infrastructure. Work with what you have.
+3. **Performance** - Small, fast, and efficient. No bloat.
+4. **Zero Dependencies** - No build tools, no framework lock-in.
+5. **Progressive Enhancement** - Add reactivity where needed, keep it simple where possible.
 
-----
+## API Overview
 
-## LICENSE
+### Initialization
+```javascript
+dataBind.init(element, viewModel, options?)
+```
+- `element`: Root DOM element
+- `viewModel`: Plain JavaScript object
+- `options`: `{ reactive: boolean, trackChanges: boolean }`
 
-[MIT](https://gogocat.github.io/dataBind/LICENSE.txt).
+### Rendering
+```javascript
+app.render(options?)  // Returns Promise
+```
+
+### Reactive Updates
+```javascript
+app.viewModel.property = value;  // Automatic render in reactive mode
+```
+
+### Lifecycle Hooks
+```javascript
+app.afterRender(callback)       // Called after each render
+app.removeAfterRender(callback) // Remove specific callback
+app.clearAfterRender()          // Remove all callbacks
+```
+
+### Events
+```javascript
+app.subscribe(event, handler)
+app.subscribeOnce(event, handler)
+app.publish(event, data)
+app.unsubscribe(event)
+app.unsubscribeAll()
+```
+
+## Complete Binding Reference
+
+| Binding | Purpose | Example |
+|---------|---------|---------|
+| `data-bind-text` | Display text content | `<p data-bind-text="message"></p>` |
+| `data-bind-click` | Click event | `<button data-bind-click="handleClick"></button>` |
+| `data-bind-change` | Change event (inputs) | `<input data-bind-change="onChange">` |
+| `data-bind-model` | Two-way binding | `<input data-bind-model="username">` |
+| `data-bind-if` | Conditional render | `<div data-bind-if="isVisible">` |
+| `data-bind-show` | Conditional display | `<div data-bind-show="isVisible">` |
+| `data-bind-for` | List rendering | `<li data-bind-for="item in items">` |
+| `data-bind-css` | Dynamic classes | `<div data-bind-css="{ active: isActive }">` |
+| `data-bind-attr` | Dynamic attributes | `<img data-bind-attr="getImageAttrs">` |
+| `data-bind-tmp` | Template rendering | `<div data-bind-tmp="{id: 'tpl', data: 'user'}">` |
+| `data-bind-switch` | Switch statement | `<div data-bind-switch="state">` |
+| `data-bind-submit` | Form submit | `<form data-bind-submit="onSubmit">` |
+| `data-bind-blur` | Blur event | `<input data-bind-blur="onBlur">` |
+| `data-bind-focus` | Focus event | `<input data-bind-focus="onFocus">` |
+| `data-bind-dblclick` | Double-click | `<div data-bind-dblclick="onDblClick">` |
+| `data-bind-hover` | Hover in/out | `<div data-bind-hover="onHover">` |
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+**Note:** Reactive mode requires Proxy support (IE11 not supported for reactive mode, but manual mode works).
+
+## Documentation
+
+- [Configuration Guide](./CONFIGURATION.md) - Global settings and options
+- [Examples](./examples/) - Live examples and demos
+- [API Reference](./docs/) - Complete API documentation
+
+## Migration from Manual to Reactive Mode
+
+**Before (Manual Mode):**
+```javascript
+viewModel.counter++;
+app.render();  // Manual render call
+```
+
+**After (Reactive Mode - Default):**
+```javascript
+app.viewModel.counter++;  // Automatic render!
+```
+
+See [CONFIGURATION.md](./CONFIGURATION.md) for complete migration guide.
+
+## Contributing
+
+Contributions welcome! Please read our [contributing guidelines](./CONTRIBUTING.md) first.
+
+## License
+
+[MIT](./LICENSE.txt)
+
+---
+
+**Made with ❤️ by developers who love simplicity**
