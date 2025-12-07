@@ -7,11 +7,13 @@ import { readFileSync } from 'fs';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
-const bannerText = `${pkg.name}
+const bannerText = `/*
+${pkg.name}
 version ${pkg.version}
 By ${pkg.author}
 link ${pkg.homepage}
-license ${pkg.license}`;
+license ${pkg.license}
+*/`;
 
 export default [
     // UMD build (unminified)
@@ -74,7 +76,7 @@ export default [
             terser({
                 format: {
                     comments: false,
-                    preamble: `/* ${bannerText.replace(/\n/g, ' | ')} */`,
+                    preamble: bannerText,
                 },
             }),
         ],
