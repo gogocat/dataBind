@@ -1,370 +1,802 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>dataBind.js - Simple, Fast, Reactive</title>
-    <meta name="description" content="Simple, fast, reactive data binding for modern browsers. No build tools required.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --text-color: #e2e8f0;
-            --primary-color: #38bdf8;
-            --secondary-color: #818cf8;
-            --accent-color: #c084fc;
-            --card-bg: #1e293b;
-            --code-bg: #020617;
-            --border-color: #334155;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>dataBind.js - Simple, Fast, Reactive</title>
+        <meta name="description" content="Simple, fast, reactive data binding for modern browsers. No build tools required." />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --bg-color: #0f172a;
+                --text-color: #e2e8f0;
+                --primary-color: #38bdf8;
+                --secondary-color: #818cf8;
+                --accent-color: #c084fc;
+                --card-bg: #1e293b;
+                --code-bg: #020617;
+                --border-color: #334155;
+            }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
+            body {
+                font-family: "Outfit", sans-serif;
+                background-color: var(--bg-color);
+                color: var(--text-color);
+                line-height: 1.6;
+                overflow-x: hidden;
+            }
 
-        a {
-            color: var(--primary-color);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
+            a {
+                color: var(--primary-color);
+                text-decoration: none;
+                transition: color 0.2s;
+            }
 
-        a:hover {
-            color: var(--accent-color);
-        }
+            a:hover {
+                color: var(--accent-color);
+            }
 
-        /* Header */
-        header {
-            padding: 2rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
+            /* Header */
+            header {
+                padding: 2rem 5%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                backdrop-filter: blur(10px);
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
 
-        .logo {
-            font-weight: 700;
-            font-size: 1.5rem;
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+            .logo {
+                font-weight: 700;
+                font-size: 1.5rem;
+                background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
 
-        nav a {
-            margin-left: 2rem;
-            font-weight: 600;
-            color: var(--text-color);
-        }
+            nav a {
+                margin-left: 2rem;
+                font-weight: 600;
+                color: var(--text-color);
+            }
 
-        nav a:hover {
-            color: var(--primary-color);
-        }
+            nav a:hover {
+                color: var(--primary-color);
+            }
 
-        /* Hero */
-        .hero {
-            padding: 8rem 5% 6rem;
-            text-align: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-        }
+            /* Hero */
+            .hero {
+                padding: 8rem 5% 6rem;
+                text-align: center;
+                max-width: 1200px;
+                margin: 0 auto;
+                position: relative;
+            }
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
+            .hero::before {
+                content: "";
+                position: absolute;
+                top: -50%;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 600px;
+                height: 600px;
+                background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+                z-index: -1;
+                pointer-events: none;
+            }
 
-        h1 {
-            font-size: 4rem;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            font-weight: 800;
-        }
+            h1 {
+                font-size: 4rem;
+                line-height: 1.1;
+                margin-bottom: 1.5rem;
+                font-weight: 800;
+            }
 
-        .gradient-text {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color), var(--accent-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+            .gradient-text {
+                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
 
-        .subtitle {
-            font-size: 1.25rem;
-            color: #94a3b8;
-            max-width: 600px;
-            margin: 0 auto 3rem;
-        }
+            .subtitle {
+                font-size: 1.25rem;
+                color: #94a3b8;
+                max-width: 600px;
+                margin: 0 auto 3rem;
+            }
 
-        .cta-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-bottom: 4rem;
-        }
+            .cta-buttons {
+                display: flex;
+                gap: 1rem;
+                justify-content: center;
+                margin-bottom: 4rem;
+            }
 
-        .btn {
-            padding: 0.75rem 2rem;
-            border-radius: 9999px;
-            font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
+            .btn {
+                padding: 0.75rem 2rem;
+                border-radius: 9999px;
+                font-weight: 600;
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: #0f172a;
-        }
+            .btn-primary {
+                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+                color: #0f172a;
+            }
 
-        .btn-secondary {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+            .btn-secondary {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px -10px rgba(56, 189, 248, 0.5);
-            color: inherit;
-        }
+            .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px -10px rgba(56, 189, 248, 0.5);
+                color: inherit;
+            }
 
-        /* Features */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            padding: 4rem 5%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+            /* Features */
+            .features {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+                padding: 4rem 5%;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
 
-        .feature-card {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 1rem;
-            border: 1px solid var(--border-color);
-            transition: transform 0.2s;
-            text-align: center;
-        }
+            .feature-card {
+                background: var(--card-bg);
+                padding: 2rem;
+                border-radius: 1rem;
+                border: 1px solid var(--border-color);
+                transition: transform 0.2s;
+                text-align: center;
+            }
 
-        .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary-color);
-        }
+            .feature-card:hover {
+                transform: translateY(-5px);
+                border-color: var(--primary-color);
+            }
 
-        .feature-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
+            .feature-icon {
+                font-size: 4rem;
+                margin-bottom: 1rem;
+            }
 
-        .feature-title {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
+            .feature-title {
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+                font-weight: 700;
+            }
 
-        .feature-desc {
-            color: #94a3b8;
-        }
+            .feature-desc {
+                color: #94a3b8;
+            }
 
-        /* Code Demo */
-        .demo-section {
-            padding: 6rem 5%;
-            background: #0b1120;
-        }
+            /* Code Demo */
+            .demo-section {
+                padding: 6rem 5%;
+                background: #0b1120;
+            }
 
-        .demo-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-        }
+            .demo-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 4rem;
+                align-items: center;
+            }
 
-        .code-block {
-            background: var(--code-bg);
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            overflow-x: auto;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-        }
+            .code-block {
+                background: var(--code-bg);
+                padding: 1.5rem;
+                border-radius: 0.5rem;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 0.9rem;
+                overflow-x: auto;
+                border: 1px solid var(--border-color);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            }
 
-        .token.keyword { color: #c084fc; }
-        .token.string { color: #86efac; }
-        .token.function { color: #38bdf8; }
-        .token.comment { color: #64748b; }
+            .token.keyword {
+                color: #c084fc;
+            }
+            .token.string {
+                color: #86efac;
+            }
+            .token.function {
+                color: #38bdf8;
+            }
+            .token.comment {
+                color: #64748b;
+            }
 
-        /* Footer */
-        footer {
-            padding: 4rem 5%;
-            text-align: center;
-            border-top: 1px solid var(--border-color);
-            margin-top: 4rem;
-            color: #64748b;
-        }
+            /* Footer */
+            footer {
+                padding: 4rem 5%;
+                text-align: center;
+                border-top: 1px solid var(--border-color);
+                margin-top: 4rem;
+                color: #64748b;
+            }
 
-        @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            .demo-container { grid-template-columns: 1fr; }
-            .hero { padding-top: 4rem; }
-            nav { display: none; } /* Simple mobile hide for now */
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <div class="logo">dataBind.js</div>
-        <nav>
-            <a href="https://github.com/gogocat/dataBind">GitHub</a>
-            <a href="examples/todomvc.html">Examples</a>
-            <a href="#docs">Docs</a>
-        </nav>
-    </header>
+            /* Documentation Section */
+            .docs-section {
+                padding: 6rem 5%;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
 
-    <section class="hero">
-        <h1>
-            Simple. Fast. <br>
-            <span class="gradient-text">Reactive.</span>
-        </h1>
-        <p class="subtitle">
-            A lightweight, pragmatic solution for adding reactive data binding to your existing HTML. No build tools required.
-        </p>
-        <div class="cta-buttons">
-            <a href="https://github.com/gogocat/dataBind" class="btn btn-primary">Get Started</a>
-            <a href="examples/todomvc.html" class="btn btn-secondary">View Demo</a>
-        </div>
-        
-        <div class="code-block" style="text-align: left; max-width: 600px; margin: 0 auto;">
-            <div style="color: #64748b; margin-bottom: 0.5rem;">// Zero setup. Just drop it in.</div>
-            <span class="token keyword">const</span> app = dataBind.<span class="token function">init</span>(document.body, {<br>
-            &nbsp;&nbsp;count: 0,<br>
-            &nbsp;&nbsp;<span class="token function">increment</span>() {<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">this</span>.count++;<br>
-            &nbsp;&nbsp;}<br>
-            });
-        </div>
-        <div class="code-block" style="text-align: left; max-width: 600px; margin: 1rem auto 0;">
-            <div style="color: #64748b; margin-bottom: 0.5rem;">// html</div>
-            &lt;body&gt;<br>
-            &nbsp;&nbsp;&lt;span data-bind-text='count'&gt;&lt;/span&gt;<br>
-            &nbsp;&nbsp;&lt;button data-bind-click='increment'&gt;increment&lt;/button&gt;<br>
-            &lt;/body&gt;
-        </div>
-        
-        <div id="demo-app" style="margin-top: 2rem; display: flex; align-items: center; justify-content: center; gap: 1rem;">
-            <div style="background: var(--card-bg); padding: 1rem 2rem; border-radius: 999px; border: 1px solid var(--primary-color);">
-                <span style="font-size: 1.5rem; font-weight: bold; margin-right: 1rem;" data-bind-text="count">0</span>
-                <button class="btn btn-primary" data-bind-click="increment" style="padding: 0.5rem 1.5rem; font-size: 0.9rem;">Increment</button>
+            .docs-intro {
+                text-align: center;
+                max-width: 800px;
+                margin: 0 auto 4rem;
+            }
+
+            .docs-intro h2 {
+                font-size: 2.5rem;
+                margin-bottom: 1rem;
+                font-weight: 700;
+            }
+
+            .docs-intro p {
+                color: #94a3b8;
+                font-size: 1.1rem;
+                line-height: 1.8;
+            }
+
+            .accordion {
+                display: grid;
+                gap: 1rem;
+            }
+
+            .accordion-item {
+                background: var(--card-bg);
+                border: 1px solid var(--border-color);
+                border-radius: 0.75rem;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .accordion-item:hover {
+                border-color: var(--primary-color);
+            }
+
+            .accordion-header {
+                padding: 1.5rem;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                user-select: none;
+                transition: background 0.2s;
+            }
+
+            .accordion-header:hover {
+                background: rgba(56, 189, 248, 0.05);
+            }
+
+            .accordion-title {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 1rem;
+                font-weight: 600;
+                color: var(--primary-color);
+            }
+
+            .accordion-icon {
+                font-size: 1.2rem;
+                transition: transform 0.3s ease;
+                color: var(--secondary-color);
+            }
+
+            .accordion-item.active .accordion-icon {
+                transform: rotate(180deg);
+            }
+
+            .accordion-content {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease, padding 0.3s ease;
+            }
+
+            .accordion-item.active .accordion-content {
+                max-height: 1000px;
+                padding: 0 1.5rem 1.5rem;
+            }
+
+            .accordion-content p {
+                color: #cbd5e1;
+                margin-bottom: 1rem;
+                line-height: 1.6;
+            }
+
+            .accordion-content .code-block {
+                margin-top: 1rem;
+            }
+
+            .example-code {
+                background: var(--code-bg);
+                padding: 1.5rem;
+                border-radius: 0.5rem;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 0.85rem;
+                overflow-x: auto;
+                border: 1px solid var(--border-color);
+                margin-top: 1rem;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                line-height: 1.6;
+            }
+
+            @media (max-width: 768px) {
+                h1 {
+                    font-size: 2.5rem;
+                }
+                .demo-container {
+                    grid-template-columns: 1fr;
+                }
+                .hero {
+                    padding-top: 4rem;
+                }
+                nav {
+                    display: none;
+                } /* Simple mobile hide for now */
+                .docs-intro h2 {
+                    font-size: 2rem;
+                }
+                .accordion-title {
+                    font-size: 0.9rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="logo">dataBind.js</div>
+            <nav>
+                <a href="https://github.com/gogocat/dataBind">GitHub</a>
+                <a href="examples/todomvc.html">Examples</a>
+                <a href="#docs">Docs</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <h1>
+                Simple. Fast. <br />
+                <span class="gradient-text">Reactive.</span>
+            </h1>
+            <p class="subtitle">A lightweight, pragmatic solution for adding reactive data binding to your existing HTML. No build tools required.</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/gogocat/dataBind" class="btn btn-primary">Get Started</a>
+                <a href="examples/todomvc.html" class="btn btn-secondary">View Demo</a>
             </div>
-        </div>
 
-        <script src="dist/js/dataBind.js"></script>
-        <script>
-             const app = dataBind.init(document.getElementById('demo-app'), {
-                 count: 0,
-                 increment() {
-                     this.count++;
-                 }
-             });
-        </script>
-    </section>
+            <div class="code-block" style="text-align: left; max-width: 600px; margin: 0 auto">
+                <div style="color: #64748b; margin-bottom: 0.5rem">// Zero setup. Just drop it in.</div>
+                <span class="token keyword">const</span> app = dataBind.<span class="token function">init</span>(document.body, {<br />
+                &nbsp;&nbsp;count: 0,<br />
+                &nbsp;&nbsp;<span class="token function">increment</span>() {<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">this</span>.count++;<br />
+                &nbsp;&nbsp;}<br />
+                });
+            </div>
+            <div class="code-block" style="text-align: left; max-width: 600px; margin: 1rem auto 0">
+                <div style="color: #64748b; margin-bottom: 0.5rem">// html</div>
+                &lt;body&gt;<br />
+                &nbsp;&nbsp;&lt;span data-bind-text='count'&gt;&lt;/span&gt;<br />
+                &nbsp;&nbsp;&lt;button data-bind-click='increment'&gt;increment&lt;/button&gt;<br />
+                &lt;/body&gt;
+            </div>
 
-    <section class="features">
-        <div class="feature-card">
-            <div class="feature-icon">✨</div>
-            <h3 class="feature-title">Simple</h3>
-            <p class="feature-desc">Just HTML + JavaScript. No JSX, no virtual DOM, no complex build pipelines. It just works.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">⚡</div>
-            <h3 class="feature-title">Fast</h3>
-            <p class="feature-desc">Extremely small footprint (~15KB) and high performance. Updates only what needs to change.</p>
-            <p>Compare <a href="./examples/dbmonsterForOfReactive.html" target="_blank">dataBind</a> with <a href="./examples/dbmonsterReact.html" target="_blank">React 19</a></p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">🔄</div>
-            <h3 class="feature-title">Reactive</h3>
-            <p class="feature-desc">Automatic UI updates when data changes using modern JavaScript Proxies. Like Vue 3, but simpler.</p>
-        </div>
-    </section>
+            <div id="demo-app" style="margin-top: 2rem; display: flex; align-items: center; justify-content: center; gap: 1rem">
+                <div style="background: var(--card-bg); padding: 1rem 2rem; border-radius: 999px; border: 1px solid var(--primary-color)">
+                    <span style="font-size: 1.5rem; font-weight: bold; margin-right: 1rem" data-bind-text="count">0</span>
+                    <button class="btn btn-primary" data-bind-click="increment" style="padding: 0.5rem 1.5rem; font-size: 0.9rem">Increment</button>
+                </div>
+            </div>
+        </section>
 
-    <section class="demo-section">
-        <div class="demo-container">
-            <div>
-                <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem;">Declarative Bindings</h2>
-                <p style="color: #94a3b8; margin-bottom: 2rem;">
-                    Use simple <code>data-bind-*</code> attributes to connect your UI to your data. 
-                    Supports text, events, loops, conditionals, and two-way binding out of the box.
+        <section class="features">
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3 class="feature-title">Simple</h3>
+                <p class="feature-desc">Just HTML + JavaScript. No JSX, no virtual DOM, no complex build pipelines. It just works.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Fast</h3>
+                <p class="feature-desc">Extremely small footprint (~15KB) and high performance. Updates only what needs to change.</p>
+                <p>
+                    Compare <a href="./examples/dbmonsterForOfReactive.html" target="_blank">dataBind</a> with
+                    <a href="./examples/dbmonsterReact.html" target="_blank">React 19</a>
                 </p>
-                <ul style="list-style: none; color: #cbd5e1; gap: 0.75rem; display: grid; grid-template-columns: repeat(2, 1fr);">
-                    <li>✓ <strong>data-bind-text</strong></li>
-                    <li>✓ <strong>data-bind-model</strong></li>
-                    <li>✓ <strong>data-bind-click</strong></li>
-                    <li>✓ <strong>data-bind-dblclick</strong></li>
-                    <li>✓ <strong>data-bind-change</strong></li>
-                    <li>✓ <strong>data-bind-input</strong></li>
-                    <li>✓ <strong>data-bind-submit</strong></li>
-                    <li>✓ <strong>data-bind-blur</strong></li>
-                    <li>✓ <strong>data-bind-focus</strong></li>
-                    <li>✓ <strong>data-bind-hover</strong></li>
-                    <li>✓ <strong>data-bind-if</strong></li>
-                    <li>✓ <strong>data-bind-show</strong></li>
-                    <li>✓ <strong>data-bind-for</strong></li>
-                    <li>✓ <strong>data-bind-switch</strong></li>
-                    <li>✓ <strong>data-bind-case</strong></li>
-                    <li>✓ <strong>data-bind-default</strong></li>
-                    <li>✓ <strong>data-bind-css</strong></li>
-                    <li>✓ <strong>data-bind-attr</strong></li>
-                    <li>✓ <strong>data-bind-tmp</strong></li>
-                    <li>✓ <strong>data-bind-comp</strong></li>
-                </ul>
             </div>
-            <div class="code-block" style="white-space: pre;">
-&lt;<span class="token keyword">div</span> id="app"&gt;
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3 class="feature-title">Reactive</h3>
+                <p class="feature-desc">Automatic UI updates when data changes using modern JavaScript Proxies. Like Vue 3, but simpler.</p>
+            </div>
+        </section>
+
+        <section class="demo-section">
+            <div class="demo-container">
+                <div>
+                    <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem">Declarative Bindings</h2>
+                    <p style="color: #94a3b8; margin-bottom: 2rem">
+                        Use simple <code>data-bind-*</code> attributes to connect your UI to your data. Supports text, events, loops, conditionals,
+                        and two-way binding out of the box.
+                    </p>
+                    <ul style="list-style: none; color: #cbd5e1; gap: 0.75rem; display: grid; grid-template-columns: repeat(2, 1fr)">
+                        <li>✓ <strong>data-bind-text</strong></li>
+                        <li>✓ <strong>data-bind-model</strong></li>
+                        <li>✓ <strong>data-bind-click</strong></li>
+                        <li>✓ <strong>data-bind-dblclick</strong></li>
+                        <li>✓ <strong>data-bind-change</strong></li>
+                        <li>✓ <strong>data-bind-input</strong></li>
+                        <li>✓ <strong>data-bind-submit</strong></li>
+                        <li>✓ <strong>data-bind-blur</strong></li>
+                        <li>✓ <strong>data-bind-focus</strong></li>
+                        <li>✓ <strong>data-bind-hover</strong></li>
+                        <li>✓ <strong>data-bind-if</strong></li>
+                        <li>✓ <strong>data-bind-show</strong></li>
+                        <li>✓ <strong>data-bind-for</strong></li>
+                        <li>✓ <strong>data-bind-switch</strong></li>
+                        <li>✓ <strong>data-bind-case</strong></li>
+                        <li>✓ <strong>data-bind-default</strong></li>
+                        <li>✓ <strong>data-bind-css</strong></li>
+                        <li>✓ <strong>data-bind-attr</strong></li>
+                        <li>✓ <strong>data-bind-tmp</strong></li>
+                        <li>✓ <strong>data-bind-comp</strong></li>
+                    </ul>
+                </div>
+<div class="code-block" style="white-space: pre">&lt;<span class="token keyword">div</span> id="app"&gt;
   &lt;<span class="token keyword">h1</span> data-bind-text="title"&gt;&lt;/<span class="token keyword">h1</span>&gt;
-  
   &lt;<span class="token keyword">ul</span>&gt;
     &lt;<span class="token keyword">li</span> data-bind-for="item in items"&gt;
       &lt;<span class="token keyword">span</span> data-bind-text="item.name"&gt;&lt;/<span class="token keyword">span</span>&gt;
     &lt;/<span class="token keyword">li</span>&gt;
   &lt;/<span class="token keyword">ul</span>&gt;
-  
   &lt;<span class="token keyword">input</span> data-bind-model="newItem"&gt;
   &lt;<span class="token keyword">button</span> data-bind-click="add"&gt;Add&lt;/<span class="token keyword">button</span>&gt;
-&lt;/<span class="token keyword">div</span>&gt;
+&lt;/<span class="token keyword">div</span>&gt;</div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <footer>
-        <p>© 2025 dataBind.js. Open source under MIT License.</p>
-        <p style="margin-top: 1rem; font-size: 0.9rem;">
-            <a href="https://github.com/gogocat/dataBind" style="color: #64748b; text-decoration: underline;">View on GitHub</a>
-        </p>
-    </footer>
-</body>
+        <section id="docs" class="docs-section">
+            <div class="docs-intro">
+                <h2>Documentation</h2>
+                <p>
+                    <strong>dataBind.js</strong> is a drop-in JavaScript library that requires no build tools or compilation. Simply include the
+                    script tag and start using declarative data bindings in your HTML. Click on any binding below to see examples and learn how to use
+                    them.
+                </p>
+            </div>
+
+            <div class="accordion" data-bind-comp="docs-accordion">
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-text</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Display text content from your viewModel. Supports deep property paths.</p>
+                        <div class="example-code">&lt;<span class="token keyword">h1</span> data-bind-text=<span class="token string">"title"</span>&gt;&lt;/<span class="token keyword">h1</span>&gt;
+&lt;<span class="token keyword">p</span> data-bind-text=<span class="token string">"user.name"</span>&gt;&lt;/<span class="token keyword">p</span>&gt;</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-model</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Two-way data binding for form inputs. Automatically syncs input values with your viewModel.</p>
+                        <div class="example-code">&lt;<span class="token keyword">input</span> type=<span class="token string">"text"</span> data-bind-model=<span class="token string">"username"</span>&gt;</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-click</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Handle click events. The handler receives the event and element as parameters.</p>
+                        <div class="example-code">&lt;<span class="token keyword">button</span> data-bind-click=<span class="token string">"handleClick"</span>&gt;Click Me&lt;/<span class="token keyword">button</span>&gt;
+
+<span class="token keyword">const</span> viewModel = {
+    <span class="token function">handleClick</span>(event, element) {
+        console.<span class="token function">log</span>(<span class="token string">'Clicked!'</span>, event, element);
+    }
+};</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-change</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Handle change events on form inputs. Receives event, element, newValue, and oldValue.</p>
+                        <div class="example-code">&lt;<span class="token keyword">input</span> data-bind-change=<span class="token string">"handleChange"</span> data-bind-model=<span class="token string">"username"</span>&gt;
+
+<span class="token keyword">const</span> viewModel = {
+    <span class="token function">handleChange</span>(event, element, newValue, oldValue) {
+        console.<span class="token function">log</span>(<span class="token string">'Changed from'</span>, oldValue, <span class="token string">'to'</span>, newValue);
+    }
+};</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-for</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Render lists from arrays. Use $index for the current index and $root to access the root viewModel.</p>
+                        <div class="example-code">&lt;<span class="token keyword">div</span> data-bind-for=<span class="token string">"item in items"</span>&gt;
+    &lt;<span class="token keyword">p</span> data-bind-text=<span class="token string">"item.name"</span>&gt;&lt;/<span class="token keyword">p</span>&gt;
+    &lt;<span class="token keyword">button</span> data-bind-click=<span class="token string">"$root.deleteItem($index)"</span>&gt;Delete&lt;/<span class="token keyword">button</span>&gt;
+&lt;/<span class="token keyword">div</span>&gt;
+
+<span class="token keyword">const</span> viewModel = {
+    items: [
+        { name: <span class="token string">'Item 1'</span> },
+        { name: <span class="token string">'Item 2'</span> }
+    ],
+    <span class="token function">deleteItem</span>(index) {
+        <span class="token keyword">this</span>.items.<span class="token function">splice</span>(index, <span class="token string">1</span>);
+    }
+};</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-if</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Conditionally render elements. Removes element from DOM when condition is false.</p>
+                        <div class="example-code">&lt;<span class="token keyword">div</span> data-bind-if=<span class="token string">"isLoggedIn"</span>&gt;
+    &lt;<span class="token keyword">p</span> data-bind-text=<span class="token string">"user.name"</span>&gt;&lt;/<span class="token keyword">p</span>&gt;
+&lt;/<span class="token keyword">div</span>&gt;</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-show</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Toggle element visibility with CSS. Element stays in DOM but is hidden when condition is false.</p>
+                        <div class="example-code">&lt;<span class="token keyword">div</span> data-bind-show=<span class="token string">"isVisible"</span>&gt;
+    &lt;<span class="token keyword">p</span>&gt;Visible content&lt;/<span class="token keyword">p</span>&gt;
+&lt;/<span class="token keyword">div</span>&gt;</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-switch / case / default</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Switch statement for multiple conditions. Only the matching case will be rendered.</p>
+                        <div class="example-code">&lt;<span class="token keyword">div</span> data-bind-switch=<span class="token string">"currentState"</span>&gt;
+    &lt;<span class="token keyword">div</span> data-bind-case=<span class="token string">"loading"</span>&gt;Loading...&lt;/<span class="token keyword">div</span>&gt;
+    &lt;<span class="token keyword">div</span> data-bind-case=<span class="token string">"error"</span>&gt;An error occurred&lt;/<span class="token keyword">div</span>&gt;
+    &lt;<span class="token keyword">div</span> data-bind-case=<span class="token string">"success"</span>&gt;Data loaded successfully!&lt;/<span class="token keyword">div</span>&gt;
+    &lt;<span class="token keyword">div</span> data-bind-default&gt;Please wait...&lt;/<span class="token keyword">div</span>&gt;
+&lt;/<span class="token keyword">div</span>&gt;</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-css</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Dynamically add/remove CSS classes based on conditions or bind a string of class names.</p>
+                        <div class="example-code">&lt;<span class="token keyword">div</span> data-bind-css=<span class="token string">"{ active: isActive, disabled: !isEnabled }"</span>&gt;&lt;/<span class="token keyword">div</span>&gt;
+&lt;<span class="token keyword">div</span> data-bind-css=<span class="token string">"dynamicClass"</span>&gt;&lt;/<span class="token keyword">div</span>&gt;</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-attr</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Dynamically set element attributes from a function or object in your viewModel.</p>
+                        <div class="example-code">&lt;<span class="token keyword">img</span> data-bind-attr=<span class="token string">"getImageAttrs"</span>&gt;
+
+<span class="token keyword">const</span> viewModel = {
+    <span class="token function">getImageAttrs</span>() {
+        <span class="token keyword">return</span> {
+            src: <span class="token string">'image.jpg'</span>,
+            alt: <span class="token string">'Description'</span>
+        };
+    }
+};</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-tmp</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Render templates with data from your viewModel.</p>
+                        <div class="example-code">&lt;<span class="token keyword">div</span> data-bind-tmp=<span class="token string">"{id: 'userCard', data: 'user'}"</span>&gt;&lt;/<span class="token keyword">div</span>&gt;
+
+&lt;<span class="token keyword">template</span> id=<span class="token string">"userCard"</span>&gt;
+    &lt;<span class="token keyword">div</span> class=<span class="token string">"card"</span>&gt;
+        &lt;<span class="token keyword">h2</span> data-bind-text=<span class="token string">"name"</span>&gt;&lt;/<span class="token keyword">h2</span>&gt;
+        &lt;<span class="token keyword">p</span> data-bind-text=<span class="token string">"email"</span>&gt;&lt;/<span class="token keyword">p</span>&gt;
+    &lt;/<span class="token keyword">div</span>&gt;
+&lt;/<span class="token keyword">template</span>&gt;</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-submit</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Handle form submit events.</p>
+                        <div class="example-code">&lt;<span class="token keyword">form</span> data-bind-submit=<span class="token string">"handleSubmit"</span>&gt;
+    &lt;<span class="token keyword">input</span> data-bind-model=<span class="token string">"username"</span>&gt;
+    &lt;<span class="token keyword">button</span> type=<span class="token string">"submit"</span>&gt;Submit&lt;/<span class="token keyword">button</span>&gt;
+&lt;/<span class="token keyword">form</span>&gt;</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-blur</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Handle blur events when an element loses focus.</p>
+                        <div class="example-code">&lt;<span class="token keyword">input</span> data-bind-blur=<span class="token string">"onBlur"</span>&gt;</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-focus</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Handle focus events when an element receives focus.</p>
+                        <div class="example-code">&lt;<span class="token keyword">input</span> data-bind-focus=<span class="token string">"onFocus"</span>&gt;</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-dblclick</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Handle double-click events.</p>
+                        <div class="example-code">&lt;<span class="token keyword">div</span> data-bind-dblclick=<span class="token string">"onDblClick"</span>&gt;Double-click me&lt;/<span class="token keyword">div</span>&gt;</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-hover</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Handle hover in and out events.</p>
+                        <div class="example-code">&lt;<span class="token keyword">div</span> data-bind-hover=<span class="token string">"onHover"</span>&gt;Hover over me&lt;/<span class="token keyword">div</span>&gt;</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-input</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Handle input events as user types (fires on every keystroke).</p>
+                        <div class="example-code">&lt;<span class="token keyword">input</span> data-bind-input=<span class="token string">"onInput"</span> data-bind-model=<span class="token string">"search"</span>&gt;</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" data-bind-click="toggleAccordion">
+                        <span class="accordion-title">data-bind-comp</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>
+                            Identifier attribute for selecting component elements. Use it to target specific parts of your page for dataBind
+                            initialization.
+                        </p>
+                        <div class="example-code">&lt;<span class="token keyword">div</span> data-bind-comp=<span class="token string">"todos"</span>&gt;
+    <span class="token comment">&lt;!-- todo list content --&gt;</span>
+&lt;/<span class="token keyword">div</span>&gt;
+
+<span class="token keyword">const</span> component = dataBind.<span class="token function">init</span>(
+    document.<span class="token function">querySelector</span>(<span class="token string">'[data-bind-comp="todos"]'</span>),
+    viewModel
+);</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2025 dataBind.js. Open source under MIT License.</p>
+            <p style="margin-top: 1rem; font-size: 0.9rem">
+                <a href="https://github.com/gogocat/dataBind" style="color: #64748b; text-decoration: underline">View on GitHub</a>
+            </p>
+        </footer>
+        <script src="dist/js/dataBind.js"></script>
+        <script>
+            const app = dataBind.init(document.getElementById("demo-app"), {
+                count: 0,
+                increment() {
+                    this.count++;
+                },
+            });
+        </script>
+        <script>
+            // Smooth scroll to docs section
+            document.querySelector('a[href="#docs"]').addEventListener("click", (e) => {
+                e.preventDefault();
+                document.getElementById("docs").scrollIntoView({ behavior: "smooth" });
+            });
+
+            // Documentation accordion component
+            const docsAccordion = dataBind.init(document.querySelector('[data-bind-comp="docs-accordion"]'), {
+                toggleAccordion(event, element) {
+                    const header = element;
+                    const item = header.parentElement;
+                    const wasActive = item.classList.contains("active");
+
+                    // Close all accordion items
+                    document.querySelectorAll(".accordion-item").forEach((i) => {
+                        i.classList.remove("active");
+                    });
+
+                    // Open clicked item if it wasn't active
+                    if (!wasActive) {
+                        item.classList.add("active");
+                    }
+                },
+            });
+        </script>
+    </body>
 </html>
+
