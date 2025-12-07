@@ -281,17 +281,26 @@ Compare with [other frameworks](http://mathieuancelin.github.io/js-repaint-perfs
 **Perfect For:**
 
 ✅ Adding interactivity to server-rendered pages (PHP, .NET, Rails, etc.)
+
 ✅ Progressive enhancement of existing sites
+
 ✅ Rapid prototyping without build setup
+
 ✅ Small to medium web applications
-✅ Projects where bundle size matters
+
+✅ Projects where bundle size matters (eg Interactive Ad / widget on 3rd party web site)
+
 ✅ Teams that prefer vanilla JavaScript
+
 
 **Not Ideal For:**
 
 ❌ Large single-page applications (consider Vue, React, Angular)
+
 ❌ Projects requiring full framework ecosystem (routing, state management, etc.)
+
 ❌ Micro-components smaller than a section/widget
+
 
 ## Philosophy
 
